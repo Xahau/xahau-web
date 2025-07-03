@@ -296,5 +296,5 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-    site: 'https://www.xahau.network/'
+    site: 'https://xahau.network/'
 });
