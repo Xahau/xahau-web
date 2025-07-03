@@ -12,6 +12,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="canonical" href={canonicalURL} />
+    <meta property="og:title" content={Astro.props.frontmatter?.title ? `Xahau: ${Astro.props.frontmatter?.title}` : 'Xahau'} />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content={Astro.props.frontmatter?.description ? Astro.props.frontmatter?.description : 'Xahau is a blockchain for the real world. It is a smart blockchain with account-based programmability. It is cheap and fast by design. It is built for the real world.'} />
+    <meta property="og:image" content="/xahau-logo.png">
+    <meta property="og:image:alt" content="Xahau logo">
   </head>
   <body class="font-[Onest] bg-xahau-background min-h-screen flex flex-col">
     <Header client:only="react" url={Astro.url} />
