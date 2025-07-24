@@ -13,6 +13,10 @@ header img {
   vertical-align: middle;
 }
 
+table code {
+  white-space: nowrap;
+}
+
 /* Light mode colors. */
 :root {
   --sl-color-accent-low: #c3e0c9;

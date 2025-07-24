@@ -27,21 +27,21 @@ _Added by the \[XahauGenesis amendment]\[] and the \[Hooks amendment]\[]_
 
 ### Fields
 
-| Field        | JSON Type | Internal Type | Description                                                                      |
-| ------------ | --------- | ------------- | -------------------------------------------------------------------------------- |
-| Account      | String    | AccountID     | The address of the genesis account that will mint and distribute XAH.            |
-| GenesisMints | Array     | Array         | An array of objects representing the destinations and amounts of the minted XAH. |
+| Field          | JSON Type | Internal Type | Description                                                                      |
+| -------------- | --------- | ------------- | -------------------------------------------------------------------------------- |
+| `Account`      | String    | AccountID     | The address of the genesis account that will mint and distribute XAH.            |
+| `GenesisMints` | Array     | Array         | An array of objects representing the destinations and amounts of the minted XAH. |
 
 ### GenesisMint Object
 
 The GenesisMint transaction includes an array of objects called `GenesisMints`. Each object represents a destination account and the amount of XAH to be minted and distributed to that account.
 
-| Field           | JSON Type | Internal Type | Description                                                                |
-| --------------- | --------- | ------------- | -------------------------------------------------------------------------- |
-| Destination     | String    | AccountID     | The address of the account that will receive the minted XAH.               |
-| Amount          | String    | Amount        | The amount of XAH to be minted and distributed to the destination account. |
-| GovernanceFlags | String    | Hash256       | _(Optional)_ The governance flags associated with the destination account. |
-| GovernanceMarks | String    | Hash256       | _(Optional)_ The governance marks associated with the destination account. |
+| Field             | JSON Type | Internal Type | Description                                                                |
+| ----------------- | --------- | ------------- | -------------------------------------------------------------------------- |
+| `Destination`     | String    | AccountID     | The address of the account that will receive the minted XAH.               |
+| `Amount`          | String    | Amount        | The amount of XAH to be minted and distributed to the destination account. |
+| `GovernanceFlags` | String    | Hash256       | _(Optional)_ The governance flags associated with the destination account. |
+| `GovernanceMarks` | String    | Hash256       | _(Optional)_ The governance marks associated with the destination account. |
 
 ### Special Transaction Cost
 
