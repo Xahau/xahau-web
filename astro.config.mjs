@@ -6,6 +6,7 @@ import starlight from '@astrojs/starlight'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'astro/config'
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi'
+import { remarkGlobalReferences } from './src/plugins/remarkGlobalReferences'
 
 // https://astro.build/config
 export default defineConfig({
@@ -311,6 +312,9 @@ export default defineConfig({
     }),
     mdx(),
   ],
+  markdown: {
+    remarkPlugins: [remarkGlobalReferences],
+  },
   vite: {
     plugins: [tailwindcss()],
   },
