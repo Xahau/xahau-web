@@ -1,0 +1,112 @@
+---
+title: float_log
+description: Compute the decimal log of an XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Compute a the decimal logarithm of an XFL number
+* Return the new XFL
+
+<Aside type="caution">
+Due to speed constraints,`float_log` converts the argument to an IEEE base-2 double precision floating point before applying base 10 log. Therefore the returned result will often contain less precision than expected.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Calculates the logarithm of a float representation.
+* Returns an error code or the logarithm as a bigint.
+</TabItem>
+</Tabs>
+
+
+
+
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_log (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_log(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t zero =
+    float_log(float_one());
+```
+
+<Aside type="caution">
+If a negative number is passed the function will return `COMPLEX_NOT_SUPPORTED` if the root is an even root.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const zero =
+    float_log(float_one())
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+
+
+| Name   | Type     | Description                                                                                            |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------ |
+| float1 | int64_t | An XFL floating point enclosing number representing the floating point number to take the logarithm of |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Name | Type   | Description                              |
+| ---- | ------ | ---------------------------------------- |
+| f1   | bigint | The float to calculate the logarithm of. |
+</TabItem>
+</Tabs>
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                                                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The computed logarithm<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- the supplied parameter was a negative number which would result in a complex return value.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                         |
+| ------------------- | --------------------------------------------------- |
+| bigint or ErrorCode | Returns an error code or the logarithm as a bigint. |
+</TabItem>
+</Tabs>
+

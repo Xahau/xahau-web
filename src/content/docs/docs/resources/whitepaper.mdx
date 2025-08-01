@@ -1,0 +1,194 @@
+---
+title: Whitepaper
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Disclaimer">
+This whitepaper is based on [the whitepaper](https://github.com/Xahau/Whitepaper) by the Xahau Launch Alliance, but is continuously updated to reflect changes made by the 
+decentralised governance since launch.
+
+Last update: **July 1, 2025**
+</Aside>
+
+<Aside type="caution" title="Disclaimer">
+This crypto-asset white paper has not been approved by any competent authority in any Member State of the European Union. The offeror of the crypto-asset is solely responsible for the content of this crypto-asset white paper.
+</Aside>
+
+
+## 1. Summary
+
+1. The Xahau Ledger (Xahau) is the smart contract sidechain for the XRPL ecosystem. It is a fork of the XRP Ledger’s (XRPL’s) open-source rippled codebase that embodies all the useful and innovative features of the XRPL, including its environmental sustainability, but tweaks and upgrades the codebase to support smart contracts. 
+2. Xahau’s core features are:
+    * **XRPL Core:** Xahau retains the key features that have made the XRPL one of the most enduring and popular networks, including the **XRP Ledger Consensus Protocol** (Previously: Ripple Protocol Consensus Algorithm), the **DEX**, and the logic of protecting the ledger against spam and bloat by charging and burning fees in the native token, but it substitutes the recent **XLS-20 NFTs** for the cleaner, simpler **URITokens**.
+    * **Hooks for Smart Contracts:** The big new feature of Xahau is Hooks, the smart contract implementation for rippled. Hooks are small pieces of code installed on an account that impose rules on the transactions the account sends or receives before those transactions can be finalized. 
+    * **Native Token & Better Tokenomics:** Xahau will be secured by its native token, XAH (currency code: XAH), and powered by better tokenomics designed to reward validators and support smart contracts. 
+    * **Genesis Hook Governance Game:** Xahau’s Genesis account is powered by a Hook that regulates, amongst other things, the emission of new XAH and this Hook is governed by a two-tiered governance game with up to 20 independently owned validators as participants.
+3. In concert, these features create a new network within the XRPL ecosystem that implements the Hooks amendment to deliver fast, cheap, secure smart contracts for the XRPL ecosystem supported by a properly incentivised community of validators and developers. 
+4. The development of the Xahau Ledger has been driven by the Xahau Launch Alliance, five experienced and committed entities within the XRPL community that have carried the cost and risk of establishing the new network without an ICO. 
+5. Xahau will launch fully functional and decentralised with over 10 independently owned validators run by a representative mixture of the XRPL ecosystem, including developers, exchanges, and long-term community members.
+
+## 2. Xahau – Built from the XRPL’s DNA  
+
+1. Xahaud - the software that runs Xahau - is a fork of rippled, the open-source codebase of the XRPL. It retains the key features that have made the XRPL one of the most popular and enduring networks since it was launched in 2012. 
+
+### XRP Ledger Consensus Protocol
+
+2. Xahau uses the XRP Ledger Consensus Protocol (Previously: Ripple Protocol Consensus Algorithm) – sometimes called Proof of Association (PoA). It is designed to overcome the limitations of traditional consensus mechanisms like Proof of Work (PoW) or Proof of Stake (PoS), particularly the high energy consumption associated with PoW. 
+3. The XRP Ledger Consensus Protocol (Previously: Ripple Protocol Consensus Algorithm) works as follows
+    * **Validator Proposal:** Each validator proposes a new set of transactions, called a "candidate set," which they believe should be included in the 
+next ledger. This candidate set includes both new transactions and any transactions that were not previously included in a validated ledger.
+    * **Agreement Phase:** Validators communicate with each other to exchange and evaluate candidate sets. They independently verify the validity and order of transactions proposed by other validators. Through a series of iterative rounds, validators attempt to converge on a single candidate set that the majority agrees upon. 
+    * **Finalization:** Once a supermajority of validators (at least 80%) agrees on a specific candidate set, that set is considered "finalized." Finalized candidate sets become the basis for the next ledger.
+    * **Ledger Closing:** The ledger is closed, and a new ledger is created based on the transactions in the finalized candidate set. This process occurs roughly every 3-5 seconds in the XRPL, allowing for fast transaction settlement times. 
+4. Under the XRP Ledger Consensus Protocol (Previously: Ripple Protocol Consensus Algorithm), each validator specifies a UNL (Unique Node List) being a list of other validators it trusts. The canonical ledger is found through the overlap between the UNLs of all the validators. 
+5. To facilitate social consensus on the appropriate UNL, several entities, including the XRPL Foundation, publish recommended Validator Lists (or VLs) of the validators they deem suitably trustworthy. Following a generally accepted dUNL helps ensure you stay on the main ledger and do not unintentionally end up following an irrelevant fork. Xahau will follow a similar, social-consensus approach to defining a dUNL, with organisations like the XRPL Foundation publishing its recommended VL. 
+6. The XRP Ledger Consensus Protocol (Previously: Ripple Protocol Consensus Algorithm) Protocol provides several advantages, including high scalability, low energy consumption, and resistance to censorship and network forks. By utilizing a set of trusted validators and this unique consensus algorithm, Xahau achieves fast and secure transaction processing while maintaining decentralization and reliability. 
+
+### The DEX
+
+7. Xahau retains a version of the XRPL’s limit order book decentralized exchange (DEX) that allows users to trade and exchange assets directly on the ledger. The DEX leverages Xahau's decentralized and trustless architecture to enable peer-to-peer asset trading without the need for intermediaries. 
+8. In summary, the decentralized exchange works as follows:
+    * **Order Creation:** Users can create buy or sell orders on the DEX by specifying the asset they want to trade, the desired quantity, and the price they are willing to accept or pay. 
+    * **Order Matching:** The DEX’s order book maintains a record of all open buy and sell orders. When a new order is placed, the DEX automatically matches it against existing orders based on price and quantity. 
+    * **Cross-Currency Trading:** The DEX supports cross-currency trading, enabling users to trade between different assets. To facilitate this, the DEX uses the ledger’s native currency as a bridge currency, allowing users to convert one asset to the native currency and then to another asset. 
+    * **Pathfinding Function:** The pathfinding function is a key component of the DEX. It helps users find the most efficient trading path when converting one asset to another. For example, if a user wants to trade Asset A for Asset D, but there is no direct market available, the pathfinding function will search for the best sequence of trades (e.g., A to B, B to C, and C to D) to achieve the desired conversion with minimal slippage and fees. 
+    * **Automatic Order Execution:** Once a trade is matched, the DEX automatically executes the transaction. The ledger's consensus mechanism ensures that the transaction is validated and added to the ledger, providing a high level of security and immutability. 
+    * **Trustless and Decentralized:** The DEX operates in a trustless and decentralized manner. It does not rely on a centralized exchange or require users to deposit their funds into a third-party wallet. Instead, users maintain control over their assets throughout the trading process, reducing counterparty risk. 
+    * **Low Fees and Fast Settlement:** Trading on the DEX incurs minimal fees compared to traditional centralized exchanges. Xahau's consensus protocol allows for fast settlement times, enabling near-instantaneous transaction processing. 
+9. With these features, the DEX provides users with a convenient and secure platform for peer-to-peer token trading. By leveraging the trustless and decentralized nature of Xahau, the DEX offers efficient cross-token trading and seamless order matching while maintaining user control and privacy. 
+
+### Burned Transaction Fees
+
+10. To protect itself against spam and bloat, the XRPL charges transaction fees and account reserves in its native currency and burns all transaction fees, rather than redistribute them to validators. Xahau follows this “fees charged and burned” model to likewise protect itself. 
+11. While this is a proven mechanism for protecting the ledger, it has implications for Xahau’s Tokenomics, as discussed later. The fees burned by Xahau’s smart contracts, while still small, will be much higher and more variable than standard transaction fees on the XRPL. 
+
+### URIToken NFTs instead of XLS-20 NFTs
+
+12. Unlike the XLS-20 NFT standard introduced to the XRPL, which relies on compressing NFTs into on-ledger “pages”, Xahau will use URIToken objects. 
+13. URITokens (short for Uniform Resource Identifier Token) are an innovative way to represent and manage NFTs, their metadata and ownership information within Xahau. Each token is a first-class ledger object with a unique address that does not change when the current owner does. 
+14. URIToken NFTs have many benefits over the XLS-20 NFT standard, including: 
+    * **Lightweight and Efficient:** URITokens are first-class on-ledger objects that can be created, destroyed, transferred, bought and sold, and which interoperate easily with Hooks. Trading is limited to a single sell offer per token, that can be accepted either by the specified destination account or, if no destination is specified, then the general public. There is no brokered mode. 
+    * **Interoperability and Immutability:** URITokens come with a built-in extensible metadata JSON standard and an optional Digest field (a hash making the content of the NFT immutable). This provides flexibility for developers and creators to choose their preferred storage solutions, such as IPFS or traditional web servers. It also promotes interoperability with existing NFT standards and platforms, facilitating the integration with the broader NFT ecosystem. 
+    * **Improved User Experience:** URITokens can be easily located by their keylet (on ledger address) that does not depend on the current owner of the token. The NFT metadata and ownership information can be easily accessed and updated through standard web protocols. Users can simply click on the URI associated with an NFT to view its details, including images, descriptions, and provenance. This approach simplifies the user experience and reduces the complexity of interacting with NFTs on Xahau. 
+15. Thus, URITokens provide a lightweight, flexible, and cost-efficient solution for NFTs on Xahau. 
+
+## 3. Hooks – Smart Contracts for the XRPL Ecosystem
+
+1. Hooks is a smart contract solution developed specifically for the XRPL ecosystem. Hooks are small, efficient pieces of code defined on a Xahau account that execute logic on transactions sent to or received by the account before those transactions are finalised in the ledger. Hooks are thus a way for developers to create and deploy smart contracts on Xahau, opening a wide range of possibilities for decentralized applications (dApps) and automated transactions. 
+2. Xahau implements the Hooks amendment as a sidechain so the XRPL ecosystem can benefit from Hooks now rather than later. It also allows the XRPL community to better evaluate whether and how to implement Hooks on the XRPL mainnet in the future. 
+
+### Benefits of Hooks 
+
+3. Some key benefits of Hooks over other smart contract solutions include: 
+    * **Simplicity and Efficiency:** Hooks are lightweight and efficient compared to conventional smart contract solutions. The underlying architecture of Xahau, which focuses on transaction settlement and fast consensus, ensures quick execution of smart contracts without compromising performance. 
+    * **Native Integration:** Hooks are a layer-one smart contract solution and thus live natively inside the ledger, allowing developers to create contracts that interact directly with on-ledger objects, balances and transactions. In contrast to layer-two smart contract solutions, this tight integration simplifies the development process and ensures seamless interoperability with Xahau's ecosystem. 
+    * **Low Fees and Scalability:** Hooks leverage Xahau's low transaction fees and high scalability. Like most chains, Xahau can handle a high volume of transactions per second, making it suitable for applications that require fast and cost-effective smart contract execution. 
+    * **Security and Reliability:** Hooks inherit the robust security and reliability of the XRPL. The XRP Ledger Consensus Protocol (Previously: Ripple Protocol Consensus Algorithm), which powers Xahau, ensures a decentralized network with consensus among trusted validators. This strong security foundation provides confidence for developers and users alike. 
+    * **Ecosystem Compatibility:** Hooks are designed to be compatible with existing XRPL tools and services, making it easier for developers to integrate smart contracts into their applications. This compatibility enables seamless interaction with other features of the XRPL, such as decentralized exchanges and payment channels. 
+    * **Account Decentralisation:** Using Hooks it is possible for a Xahau account to be fully autonomous and to emit and receive transactions according to the logic of its Hook, instead of relying on external private key holders to manually authorise transactions. 
+
+### Sample Use-Cases
+
+4. By introducing smart contract capabilities to the XRPL ecosystem, Hooks offer a powerful and efficient solution for developers seeking to build decentralized applications and automate transactions. Examples of the kinds of functions Hooks can achieve include: 
+    * **Whitelists:** A Hook enabled account can protect accounts against fraud or sanctioned transactions by being coded to only accept or send transactions to whitelisted accounts. 
+    * **Blacklists:** A hook enabled account can be coded to refuse to receive or send transactions to any prohibited (blacklisted) account. 
+    * **Sophisticated Escrow:** A Hook enabled account can hold any asset received from nominated account and only forward or return those assets if told to do so by a valid transaction that meets predetermined criteria. 
+    * **Automated Registry:** A Hook enabled account can act as an automated registry and mint and redeem URI NFTs as evidence of registration or registration rights. 
+    * **Self-Sovereign Treasury:** Issued currencies can mimic decentralised, counterparty-free assets by being deposited into a self-owned Account with a Hook that emits the currency according to a disclosed and predetermined emission schedule. 
+5. The combination of simplicity, low fees, scalability, security, and ecosystem compatibility means Xahau offers early access to an attractive smart contract solution for the XRPL ecosystem. Xahau’s experience with Hooks will help the community determine whether and how to implement Hooks on the XRPL in the future. 
+
+## 4. XAH – Native Token & Tokenomics
+
+1. Xahau is secured by its native token, XAH. Its salient details are as follows: 
+    * **Native Token:** XAH 
+    * **Ticker:** XAH 
+    * **Smallest Unit:** 1 drop or 0.000001 XAH 
+    * **Function:** XAH is the currency of the network. It is a utility token to purchase network services. Like the XRPL, transactions on Xahau incur a fee or reserve that is charged in XAH to protect the Ledger against spam and bloat. 
+    * **Initial Liquidity:** 600 million distributed to launch participants. 
+    * **Max Supply:** Uncapped. 
+    * **Emission Mechanisms:** The supply of XAH is determined via the amendments enabled in Xahau’s consensus protocol: 
+    * **Monthly Balance Adjustment:** To put back into circulation some of the XAH burned from transaction fees, each active user can claim an increase in their account balance of ~0.34% of their average monthly balance (equal to 4% pa. compounding). This emission is controlled by the Protocol Governance Game which uses a combination of the Hooks, BalanceRewards and the XahauGenesis amendments. 
+    * **Monthly Seat Rewards:** To put back into circulation some of the XAH burned from the transaction fees, and to incentivise active and appropriate governance, an amount matching the total claimed Monthly Balance Adjustments is also rewarded to Governance Game validators. 
+
+### Initial Distribution
+
+2. The Launch parties have invested significant time and resources to launch Xahau. An initial distribution is provided at the protocol level by the XahauGenesis amendment. 
+3. The protocol will pay a modest 600 million Xahau XAH as follows: 12 million to each of the eight Governance Game validator Seats on launch. 
+    * 16 million additional to GateHub for DEX stablecoin liquidity bootstrapping. 
+    * 160 additional million to XRPL Labs (Xaman) for Intellectual Property - Xaman has carried the main technical and financial burden of developing Hooks and xahaud. This additional distribution is for that effort. 
+    * 328 million to the XRPL Foundation (now INFTF), to help ensure the health of the XRPL Protocol (now Xahau) ecosystem moving forward. 
+
+### Monthly Balance Adjustment 
+
+4. One challenge Xahau must manage is the additional expense of smart contracts compared to normal XRPL transactions. 
+5. On the XRPL, transaction fees cost as little as one drop or 0.000001 XRP. Against a total supply of 100 billion XRP, this is a trivial-but-sufficient cost. Hooks transactions, on the other hand, can cost orders of magnitude more to set and to trigger. Further, while every XRPL transaction is standardised, Hooks can vary enormously in their complexity and cost. To properly protect itself against spam and bloat from its Hooks, the Ledger must charge appropriately (and dynamically) for the size and logic complexity of every Hook transaction. 
+6. The consequence is that, as a smart contract chain that burns fees, XAH could easily be burned to near-zero, and certainly much more rapidly than equivalent XRP would be burned on the XRPL, potentially leading to perverse incentives to horde Xahau rather than use it to deploy and run Hooks. 
+7. To guard against these risks, Xahau needs a protocol-level mechanism that puts burned tokens back into circulation, but one that does not simply incentivise high fees. This is the purpose of the monthly balance adjustment. 
+8. The Monthly Balance Adjustment works as follows: 
+    * Each month, each Xahau account can choose to claim (against the protocol) an adjustment based on their average XAH balance (computed since the last adjustment). The adjusted amount is the equivalent of 4% p.a. compounded (roughly 0.34% per month). 
+    * Users can claim their balance adjustment by sending a RewardClaim transaction to the Genesis account at any time provided 30 days has passed since the last claim. Doing so demonstrates they are an active user. 
+    * Upon receipt of the claim transaction, the protocol, via the BalanceRewards and XahauGenesis amendments, increases the user’s account balance by the balance adjustment. 
+    * Unclaimed balance adjustments are foregone as a penalty for inactivity. 
+    * 4% is the initial rate at launch, but it can be changed via the Governance Game if it proves too small or too large in the future. 
+9. This mechanism allows active users to claim a monthly adjustment that puts further XAH into circulating supply, mitigating the risk of the token being burned down to zero through smart contract execution fees. 
+
+### Monthly Governance Validator Rewards 
+
+10. The Xahau Genesis Account is enabled with a Hook that controls, among other things, the emission of XAH. This Hook needs a governance arrangement so that it can be monitored, amended, and/or replaced in the face of changing network and real-world conditions. 
+11. It is well known that XRPL mainnet validators do not receive any kind of reward for the services they provide for underpinning the mainnet Ledger. However, infrastructure costs money to run, and real-world experience shows that this lack of incentive leads to a lack of actively managed validators. 
+12. The Xahau Genesis Hook needs to know, or be told, which accounts it must trust when deciding whether to update itself. So, those accounts must be known in advance, rather than emerging from the overlapping UNLs. 
+13. The technical solution to this problem is an incentivised Genesis Hook Governance Game that rewards certain Validators for overseeing the Hook. It works as follows: 
+    * There are 20 “Seats” on the Genesis Hook Governance Game. 
+    * Each Seat is controlled either by a single Xahau Account (Level 1) or a self-managing committee of 3-20 Accounts (Level 2). 
+    * For each occupied Seat, the protocol mints and distributes 1/20th of the total Monthly Balance Adjustments claimed that month. 
+    * If a Seat is held by a committee of Accounts, the rewards for that Seat are split in a manner of that committee’s choosing. 
+    * If no users claim a Balance Adjustment that month no rewards are paid to any validators. 
+    * Each Flag Ledger (256 ledgers) an on-ledger record called a UNLReport is generated. This report contains a list of validators’ public keys that 80% of other validators believe participated adequately in consensus since the previous Flag Ledger. The Genesis Hook will only distribute validator rewards to Seats that correspond to the public keys of validators on the UNLReport. 
+14. Thus, the Genesis Hook Governance Game includes a reward mechanism designed to ensure that trusted accounts are rewarded for running trustworthy validators, that those rewards are linked to user activity, and that those rewards put new XAH into distribution, mitigating the risk of a token liquidity crunch from high smart contract execution fees. 
+
+## 5. Xahau Governance Game  
+1. XRP Ledger Consensus Protocol (Previously: Ripple Protocol Consensus Algorithm) chains rely on a robust overlap in validator UNLs to define the canonical ledger. If a validator does not trust enough of the same machines that everyone else trusts, they risk unknowingly listening to an irrelevant fork of the ledger. Determining the best UNL is a matter of social (off-chain) consensus. 
+2. To assist that social consensus, various entities publish dUNLs – lists of validators everyone should follow. Xahau will follow the same approach, with the XRPL Foundation and others expected to publish such lists. So, like the XRPL, Xahau will be a public permissionless chain for which anyone can run a validator. And like the XRPL, any update of the protocol will be dependent on more than 80% of UNL validators supporting the changes, in the same manner as the XRPL. 
+3. While the dUNL helps define the validators responsible for the canonical Ledger, Xahau has a second governance challenge, not present in the XRPL mainnet: the governance of its Genesis Hook. The XRPL mainnet minted all of its XRP on creation. Xahau cannot follow this approach. Its native token needs to be minted in response to the happening of predefined events (i.e. Burn2Mint, Account Adjustments, Validator Rewards.) It uses a Hook on its Genesis Account to achieve this. 
+4. This means Xahau needs a governance mechanism for its Genesis Hook in case the Hook needs to be adjusted or replaced. This is known as the Governance Game: 
+    * **Purpose:** The Governance Game exists to ensure that the UNL validators remain active and allows those active members to maintain the Hook on the Genesis account that controls the distribution of XAH. 
+    * **Seats:** There are 20 Seats at a table. A Seat is a Xahau Account whose vote counts in the Governance Game. 
+    * **L1 Table:** The Governance Game requires at least the top-level table. This is called the Level 1 table (L1 Table). This table by definition exists only on the Genesis account according to the Governance Game Hook installed there. A seat at the L1 table may be filled by an Account or may be empty. These seats are called L1s. 
+    * **L2 Table:** An L1 seat may itself be filled by an Account which has another, different, Governance Hook installed on it. The seats at this table are called L2s, and the table is an L2 Table. The structure is a self-managing committee of 3-20 Accounts that collectively control the L1 seat and its voting rights. Thus up to 400 Accounts may be involved in the two layer Governance game, depending on the mix of L1 and L2 Seats. 
+    * **Filling Seats:** L1 Seats are filled or vacated by 80% vote of all existing filled L1 Seats. For L2 Seats, the committee of Accounts that collectively holds that L1 Seat invites or disinvites new members (up to a maximum or 20 and down a minimum of 3) by majority vote, or according to whatever other logic or rules they deem fit. No other Seats have any control over the members of an L2 Table. 
+    * **Voting:** Each L1 Seat has 1 vote in the Governance Game. For L2 Seats, the single vote of its L2 table is determined by whatever logic that L2 table decides. The default is more than 50% vote of the L2 Seat members at that L2 table. 
+    * **Hook Changes:** All changes to the Hook are voted on via the Governance Game. A Hook change is only successful if supported by the defined % vote of all Seats. The regular vote is 80%, but for the increase of the rate of balance adjustment it is 100%. 
+    * **Rewards:** To incentivise L1 Seats to run reliable validators, L1 Seats earn monthly Rewards provided they actively participate in consensus. 
+    * **Foundation of dUNL**: The validators run by those participating in the Genesis Hook Governance Game should form the foundation of any dUNL, as any Seat that performs unreliably risks being voted out by the other Seats. 
+5. The different types of Seats allow for a greater diversity of participating Accounts without undermining security. Level 1 Seats are suitable to Accounts controlled by significant entities the community can trust, while Layer 2 Seats allow a broader pool of participants, but since their collective participation counts as 1 vote, their numbers do not overwhelm the trust placed in Level 1 Seats. 
+6. Thus, the Governance Game allows up to 400 Accounts to participate and rewards those Accounts for doing so provided they also participate in consensus by running a reliable validator. 
+
+## 6. The Xahau Launch Alliance  
+
+1. Xahau has been developed by an alliance of 5 independent entities with a track record of building on and supporting the XRPL ecosystem. Those entities are as follows: 
+    * XRPL Labs (Xaman), the software developer behind the XUMM wallet, Hooks, and Xahaud that has carried most of the expertise and cost of developing Xahau. 
+    * GateHub Limited, a multinational technology company, crypto exchange, and crypto service provider, including Stablecoins issued on the XRPL. 
+    * Titanium OU, an IT consulting and infrastructure firm specialising in providing secure hosting and a major provider of the infrastructure for the XRPL (as Alloy Networks). 
+    * Evernode Labs Ltd, the developer of the Evernode smart contract project and responsible for deploying it to Xahau. 
+    * Digital Governing OU, an incorporated entity associated with a globally active firm for accounting, audit, and legal services. 
+
+## 7. Launch Fully Functional & Decentralised  
+
+1. Xahau will launch fully functional and decentralised without raising funds. No Centralised Control 
+2. Xahau will launch with 8 of its 20 Governance Game Seats filled: 
+    * 5 will be Layer 1 Seats, each filled by a member of the Xahau Launch Alliance. 
+    * 3 will be Layer 2 Tables, one of which will be filled by a committee of Exchanges and the other a diverse committee of XRP community projects, developers, and long-term supporters. 
+    * 1 will be FYEO, a company offering code audit and review services on blockchain development, including software such as Hooks. 
+
+### No Funds Being Raised 
+
+3. There is no ICO, and no funds are being raised from the launch. 
+4. The Xahau Alliance members have each independently funded their own development efforts. There’s no communal funding, nor any pooling of money or resources for the further development of Xahau. Nor is there any roadmap, or “Xahau Foundation”, or other centralised treasury. Any further development is wholly at the discretion of independent actors within the ecosystem. 
+
+### No Promises 
+
+5. The Governance Game members are independent entities. There is no agreement, arrangement, or understanding between them about how to cast their vote, deploy their resources, or use their assets, including any XAH. It is only the logic of the Game – be a trustworthy Validator in the eyes of the other members or be voted out of the Game – that drives Validator behaviour. This is an inherent feature of the XRP Ledger Consensus Protocol (Previously: Ripple Protocol Consensus Algorithm) (PoA) mechanism Xahau uses. 
+
+### No Further Features Needed 
+
+6. While software, by its nature, needs to be maintained, there are no essential functionalities missing from Xahaud or in need of further development for the software to be useful as a smart contract sidechain of the XRPL. 

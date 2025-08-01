@@ -1,0 +1,101 @@
+---
+title: accept
+description: Accept the originating transaction and commit any changes the hook made.
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/introduction/">Introduction</LinkButton>
+<LinkButton href="/docs/hooks/concepts/execution-metadata/">Execution Metadata</LinkButton>
+
+### Behaviour
+
+End the execution of the hook with status: success.
+
+* Record a return string and return code in transaction metadata.
+* Commit all state changes.
+* Submit all `emit()` transactions.
+* Allow originating transaction to continue.
+
+<Aside type="caution">
+If the originating transaction is stopped for some other reason then this accept becomes a rollback. See: Execution Order.
+</Aside>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t accept (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint64_t error_code
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function accept(msg: string, code: number): number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+accept("Success", 7, 100);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+accept('Success', 100)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name        | Type      | Description                                                                                                                                                                         |
+| ----------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr   | uint32_t | <p>Pointer to a return string to be stored in execution metadata.<br />This is any string the hook-developer wishes to return with the acceptance. <em>May be null.</em></p>          |
+| read_len   | uint32_t | The length of the return string. At most 32. _May be null._                                                                                                                         |
+| error_code | uint64_t | <p>A return code specific to this hook to be stored in execution metadata.<br /><br />Similar to the return code of an application on a *nix system. By convention success is zero.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description                                                                                                                                                                         |
+| ---- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| msg  | string | <p>String to be stored in execution metadata.<br />This is any string the hook-developer wishes to return with the acceptance. <em>May be null.</em></p>                              |
+| code | number | <p>A return code specific to this hook to be stored in execution metadata.<br /><br />Similar to the return code of an application on a *nix system. By convention success is zero.</p> |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | Accept ends the hook, therefore no value is returned to the caller. By convention all Hook APIs return `int64_t`, but in this case nothing is returned. |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                                                                                                                              |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| number | Accept ends the hook, therefore no value is returned to the caller. By convention all Hook APIs return `a number`, but in this case nothing is returned. |
+</TabItem>
+</Tabs>
+

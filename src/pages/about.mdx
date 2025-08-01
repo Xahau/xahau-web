@@ -1,0 +1,50 @@
+---
+title: About Xahau
+description: What is Xahau? The short explainer
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import PageSection from '../components/PageSection.astro';
+
+<PageLayout frontmatter={frontmatter} wide="true">
+<PageSection align="center">
+<div class="w-full relative pb-[56.25%]">
+<iframe width="560" height="315" class="absolute h-full w-full top-0 left-0" src="https://www.youtube.com/embed/4pruN6sWJho?si=IlxKDlD2LFLwS6EK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+</PageSection>
+<PageSection align="left" gem="10" gemSize="large" loading="eager">
+Xahau is a L1 blockchain with a unique composition of features and a fresh approach to blockchain programmability, also known as smart contracts.
+
+The long-term proven technology settles transactions in ~4 seconds at very low costs down to fractions of a USD cent. It is scalable, currently with up to 10,000 transactions per ledger, and is an inherently green and energy friendly blockchain.
+
+Xahau offers native features for issuing and trading currencies on the built-in decentralised exchange, native non-fungible tokens, and endless opportunities for DeFi with custom logic through Xahau smart contracts, known as Hooks.
+
+Hooks lives on accounts, making it a fresh take on how custom logic can be used to act on account-based events, such as receiving transactions. Hooks are currently developed in C, but JavaScript support is already developed and in testing, with other programming languages in the scope as well. This makes the world of smart contracts available, without a steep learning curve, to millions of developers.
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="1">
+### What is the technology behind Xahau?
+Xahau is proven technology, as it is an evolved iteration of the XRP Ledger code, enhanced with smart contract, account-based programmability (Hooks), and equal support for issued currencies in native features such as escrows and payment channels.
+
+Xahau, like the XRPL, uses a Federated Consensus mechanism as its method of validating transactions. Transactions are confirmed through a consensus protocol, in which designated independent servers called validators come to an agreement on the order and outcome of transactions. All servers in the network process each transaction according to the same rules, and any transaction that follows the protocol is confirmed right away. All transactions are public and transparent, and anyone can operate a validator.
+
+Xahau introduces a governance game to ensure a community-centric approach towards decision-making of the network. To play the game, the members of the tables cast votes. The topics discussed on this 2 layers table system include seats, hooks and rewards topics.
+</PageSection>
+<PageSection align="left" gem="14">
+## XAH, the native currency of Xahau
+The native currency on Xahau is called XAH and is an inflationary currency. Every account can participate in balance adjustment by interacting with a Hook on the genesis account, monthly accruing 4% of the account balance.
+
+XAH is used to prevent network spam, by adding a cost of transacting. Normal transactions cost fractions of a XAH, while the price of transacting increases if interacting with Hooks. XAH is also required as a locked balance, or reserve, to own an account, own objects, or storing data for smart contract consumption.
+
+Because of Hooks, the burn-rate of XAH is higher compared to that of XRPL. For projects that rely on Hooks for custom logic, it is recommended that they keep a balance of XAH that can generate a monthly balance adjustment to pay for fees.
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="12">
+## What key events have there been for Xahau?
+Xahau was launched on October 30, 2023 by the Xahau Launch Alliance, an interim alliance formed by long-term, non-Ripple, XRPL developers, organisations and infrastructure providers: XRPL Labs, GateHub Limited, Titanium OU, Evernode Labs Ltd, and Digital Governing OU.
+
+In the first year Xahau has received many updates, such as a new native feature, Remit, in March 2024, performance improvements, memory only nodes and JavaScript hook support.
+
+Within the first year, the first cross-border remittance service was launched in collaboration between The Inclusive Financial Technologies Foundation (InFTF) and the Cooperative Bank of Oromia (COOP), one of Ethiopia's largest banks with more than 13 million account holders. The inward remittance solution helps the African Diaspora, many of whom work as blue-collar workers throughout the Middle East, US, and Europe, send money back to their friends and family in Ethiopia. With the service, initially launched for inward remittances using EUR, anyone can buy digital EUR, send it via blockchain for little to no cost, and have it settle in the bank account of a family member or friend in the local currency, ETB, within seconds.
+
+The InFTF also signed a Memorandum of Understanding with the African Union to advance the work of the AU Peace Fund through the deployment of cutting-edge innovative financial technologies. This collaboration will unlock new pathways for contributions, making it easier and more accessible for individuals and organizations to support peace initiatives in Africa through the development of a seamless donation platform using Xahau enabling contributions in multiple currencies.
+</PageSection>
+</PageLayout>
+

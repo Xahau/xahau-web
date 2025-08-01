@@ -1,0 +1,117 @@
+---
+title: float_multiply
+description: Multiply two XFL numbers together
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Compute the multiplication of two XFL (xls17) floating point numbers
+* Return a new XFL as an int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Compute the multiplication of two XFL (xls17) floating point numbers
+* Return n error code or new XFL as a bigint.
+</TabItem>
+</Tabs>
+
+
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_multiply (
+    int64_t float1,
+    int64_t float2
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_multiply(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t max_vault_pusd =
+    float_multiply(vault_xrp, exchange_rate);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const max_vault_pusd =
+    float_multiply(vault_xrp, exchange_rate)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+
+
+| Name   | Type     | Description                                                                                  |
+| ------ | -------- | -------------------------------------------------------------------------------------------- |
+| float1 | int64_t | An XFL floating point enclosing number representing the first operand to the multiplication  |
+| float2 | int64_t | An XFL floating point enclosing number representing the second operand to the multiplication |
+
+<Aside type="caution">
+Certain multiplications may overflow, which return with an `INVALID_FLOAT` error. However an **underflow** returns as XFL Canonical Zero (i.e. enclosing number = 0).
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description                                                                                  |
+| ---- | ------ | -------------------------------------------------------------------------------------------- |
+| f1   | bigint | An XFL floating point enclosing number representing the first operand to the multiplication  |
+| f2   | bigint | An XFL floating point enclosing number representing the second operand to the multiplication |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+
+
+| Type     | Description                                                                                                                                                                                                                                                                       |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The XFL (xls17) enclosing number<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number<br /><br /><code>OVERFLOW</code><br />- the result of the multiplication was too large to store in an XFL.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Type               | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| Errorcor or bigint | An error code or The XFL (xls17) enclosing number |
+</TabItem>
+</Tabs>
+

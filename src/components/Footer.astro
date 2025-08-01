@@ -1,0 +1,38 @@
+---
+import { Image } from 'astro:assets'
+import logo from '../assets/xahau-logo.svg'
+---
+
+<footer class="bg-white text-base font-regular text-black **:text-black **:no-underline">
+  <div class="flex-none container mx-auto py-12 max-w-7xl p-6 grid grid-cols-1 md:grid-cols-10 gap-4">
+    <div class="col-span-1 md:col-span-3 flex flex-col gap-3">
+      <a href="/"><Image src={logo} class="w-1/2" alt="Xahau" /><a>
+      <p>This website is open source and open for contributions <a href="https://github.com/Xahau/xahau-web" target="_blank">on GitHub</a></p>
+    </div>
+    <div class="col-span-1 md:col-span-2 md:col-start-5 flex flex-col gap-3">
+      <p><strong>Xahau</strong></p>
+      <a href="/about">About</a>
+      <a href="/features">Features</a>
+      <a href="/ecosystem">Ecosystem</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/docs/compliance/responsible-disclosure">Break Xahau</a>
+      <a href="/docs/resources/media-kit">Media kit</a>
+      <a href="/privacy-policy">Privacy Policy</a> 
+    </div>
+    <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
+      <p><strong>Documentation</strong></p>
+      <a href="/docs">Get started</a>
+      <a href="/docs/protocol-reference/transactions">Protocol Reference</a>
+      <a href="/docs/hooks">Hooks</a>
+      <a href="/docs/data-apis">Data APIs</a>
+      <a href="/docs/infrastructure/node-requirements">Infrastructure</a>
+      <a href="/docs/resources/whitepaper">Whitepaper</a>
+    </div>
+    <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
+      <p><strong>Connect</strong></p>
+      <a href="https://x.com/XahauNetwork" target="_blank">X</a>
+      <a href="https://github.com/Xahau" target="_blank">GitHub</a>
+      <a href="https://discord.com/invite/UzU58haAn4" target="_blank">Community Discord</a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,42 @@
+name: Build Astro Project
+
+on:
+  push:
+    branches: [ prod ]
+  pull_request:
+    branches: [ prod ]
+    types: [ closed ]
+
+jobs:
+  build:
+    # Only run on merged PRs or direct pushes to prod
+    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
+    
+    runs-on: [self-hosted, web]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build Astro project
+      run: npm run build
+      
+    - name: Backup and deploy to web server
+      run: |
+        # Create backup of current site
+        TIMESTAMP=$(date +%s)
+        cp -r /var/www/site /tmp/site_$TIMESTAMP
+        echo "✅ Current site backed up to /tmp/site_$TIMESTAMP"
+        
+        # Deploy new build
+        cp -r dist/* /var/www/site/
+        echo "✅ Build deployed successfully to /var/www/site"

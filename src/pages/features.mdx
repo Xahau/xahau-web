@@ -1,0 +1,89 @@
+---
+title: Features
+description: Proven technology with a fresh approach
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import PageSection from '../components/PageSection.astro';
+
+<PageLayout frontmatter={frontmatter} wide="true">
+<PageSection align="left" gem="5" gemSize="large" loading="eager">
+## Hooks: Account-Level Smart Contract Logic
+
+Xahau introduces **Hooks**—a unique form of on-ledger smart contract logic that runs directly at the **account level**. Unlike smart contracts on most blockchains that require interacting with external contract addresses, Hooks are lightweight programs embedded inside user accounts themselves. These Hooks can automatically inspect, modify, or reject any transaction involving that account, without the need for explicit function calls.
+
+Because Hooks are executed inline and within consensus, they offer real-time programmability with minimal overhead. This allows for powerful use cases such as rejecting unauthorized token transfers, triggering actions on deposits, or implementing compliance logic—all without slowing down the network. Hooks represent a new security and programmability paradigm, making accounts active participants in transaction logic.
+
+## Token and Asset Control by Design
+
+Xahau gives issuers and users granular **control over tokens and trustlines**. Features like `TrustSet`, `Clawback`, `Freeze`, and `Deposit Authorization` allow full customization of how tokens can be used or received. Assets can be whitelisted, blocked, or burned, all enforced at the protocol level.
+
+This makes Xahau uniquely suited for regulated financial instruments, stablecoins, loyalty programs, or enterprise supply chains—any scenario where compliance, safety, and precision are critical.
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" gem="9" align="right">
+## Governance Game: Decentralized Coordination with Purpose
+
+Xahau features a novel governance system backed by the **Governance Game**, a transparent, on-ledger mechanism for proposing, reviewing, and voting on amendments. Validator operators (Governors) participate directly in shaping the protocol, while also competing in a structured reward system based on accountability and engagement.
+
+This system ensures that protocol upgrades and policy decisions are open and participatory, not dictated by a centralized entity. It combines the benefits of structured enterprise coordination with the transparency and resilience of decentralized consensus. By gamifying governance in a secure and incentive-aligned way, Xahau sets a new standard for on-chain coordination.
+
+## Balance Rewards: Passive Yield Without Staking
+
+Xahau offers a **Balance Reward** system that lets accounts passively accumulate value simply by holding assets. These rewards are calculated based on account balance and distributed through a consensus-enforced mechanism, without requiring staking, delegation, or third-party contracts.
+
+The mechanism is powered by protocol-level logic and on-chain Hooks, ensuring rewards are automatic, fair, and sustainable. Unlike yield farming or staking systems on other blockchains, Xahau’s reward model doesn’t require users to lock assets or chase complex DeFi strategies—it works natively, with transparency and simplicity.
+</PageSection>
+<PageSection align="center">
+## Escrow: Conditional Transfers for Any Asset
+
+Xahau supports **on-ledger escrow** of both native and **issued tokens**, enabling secure conditional transfers for a broad range of business and financial use cases. Funds or tokens can be locked with time-based or condition-based release logic, enforced by the network itself.
+
+Whether you’re building a milestone-based payment system, marketplace settlement, or trusted token distribution, Xahau’s escrows offer a simple yet powerful tool—without the need for external smart contracts. Native support for both fungible and non-fungible assets in escrow makes this a uniquely versatile feature.
+
+## Remit: Native Cross-Account Transfers
+
+The **Remit** feature allows streamlined, multi-operation transactions between accounts—ideal for complex or high-volume payment flows. Instead of sending multiple separate instructions, a single Remit transaction can distribute value to multiple recipients or trigger multiple balance changes atomically.
+
+This improves efficiency and reliability, especially for payment processors, marketplaces, or applications that need to perform bundled operations. Because it’s built into the protocol, Remit ensures predictable performance, low latency, and strong auditability.
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" gem="4" align="right">
+## Low Fees with Fee Burning
+
+Xahau maintains consistently **low transaction fees**, with a built-in **fee-burning** model that reduces spam and rewards long-term network health. Every transaction pays a minimal fee in XAH, and a portion of that fee is permanently destroyed—creating a deflationary effect over time.
+
+This approach discourages network abuse while preserving accessibility, particularly for high-throughput or cost-sensitive applications. Unlike inflationary models or auction-style fees, Xahau provides predictability and economic alignment for all users.
+
+## Fast, Green, and Scalable
+
+Built on a refined version of XRPL’s consensus protocol, Xahau offers **fast finality**, low energy usage, and reliable scalability. Transactions confirm in seconds, with no mining and minimal hardware requirements. The result is a network that can serve real-world financial and enterprise use cases without compromising the environment or user experience.
+
+Xahau’s architecture is ideal for global payment systems, tokenized asset platforms, or high-volume applications where performance and sustainability are non-negotiable.
+</PageSection>
+<PageSection align="left" gem="13">
+## URITokens: Native NFTs on Xahau
+
+**URITokens** represent Xahau’s approach to non-fungible tokens (NFTs), implemented as a native part of the ledger rather than via separate smart contracts. A URIToken is a first-class on-ledger object uniquely identified by the issuing account and a Uniform Resource Identifier (URI) that typically points to the token’s metadata or content. Only one URIToken with a given URI can exist per account, ensuring true uniqueness for each digital asset.
+
+This built-in NFT standard means creators can mint, trade, or burn NFTs with simple transactions (e.g. URITokenMint, URITokenBuy, URITokenBurn) without deploying custom code. The issuer of a URIToken can even allow it to be destroyed (burned) by setting a flag, giving flexibility in how NFTs are managed. By integrating NFTs at the protocol level, Xahau makes issuing and managing digital collectibles or credentials more efficient and secure.
+
+## Offers: Built-In Decentralized Exchange (DEX)
+
+Xahau includes a native **Offers** system, powering a built-in decentralized exchange on the ledger. Users can create **Offer** entries to buy or sell assets (such as tokens or issued currencies) directly on the network, and these offers are automatically matched by the protocol’s order book.
+
+This feature, inherited from XRPL’s DEX, enables a dynamic and responsive trading environment where exchange of value happens peer-to-peer without intermediary exchanges. The ability to place and cancel trade orders is provided by dedicated transactions (OfferCreate and OfferCancel). Unlike many blockchains that require smart contracts or external platforms for trading, Xahau’s DEX is a first-class feature of the ledger. This on-ledger exchange offers fast settlement and low fees, making asset trading seamless for users and applications.
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" gem="2" align="right">
+## Checks: Deferred Payment System
+
+Xahau supports **Checks**, a deferred payment system akin to writing digital checks on the blockchain. One party can issue a Check (promise of payment) that the intended recipient may cash at a later time or cancel if needed. This feature allows secure, flexible transactions – for example, a business can issue payment that the receiver will claim when certain conditions are met.
+
+The ledger has dedicated transactions for creating a check, cashing it, or canceling it. Few other platforms have this kind of native deferred payment instrument; Xahau’s check system provides an extra layer of payment control, all enforced by the network’s rules without requiring custom smart contracts.
+
+## Payments: Multi-Asset Transfers & Channels
+
+The **Payments** functionality in Xahau is designed to facilitate fast, flexible transfer of value across the network. Uniquely, Xahau (like XRPL) supports *multi-asset payments* through a system of trust lines and issued currencies. Using a `TrustSet` transaction, two parties can establish a trust line to transact in a custom asset or IOU, enabling built-in support for multiple currencies or tokens without requiring smart contracts.
+
+This means businesses can issue stablecoins or tokens on Xahau and users can send or exchange them natively. The Payments suite also includes advanced features like **Deposit Preauthorization**, which lets an account whitelist who can send it funds, adding security against unwanted transactions.
+
+In addition, Xahau supports **payment channels** for scalability. Payment channels allow two parties to conduct rapid, high-volume transactions off-ledger and then settle the net result on the blockchain. With transactions like PaymentChannelCreate, Fund, and Claim, Xahau enables micropayments or streaming payments that are secured by the ledger but don’t congest it.
+</PageSection>
+</PageLayout>

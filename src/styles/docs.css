@@ -1,0 +1,30 @@
+@layer base, starlight, theme, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "../styles/global.css";
+
+header * {
+  line-height: 1.5;
+}
+
+header img {
+  display: block;
+  vertical-align: middle;
+}
+
+/* Light mode colors. */
+:root {
+  --sl-color-accent-low: #c3e0c9;
+  --sl-color-accent: #007b3d;
+  --sl-color-accent-high: #003e1b;
+  --sl-color-white: #121a1c;
+  --sl-color-gray-1: #182a2f;
+  --sl-color-gray-2: #2a3b41;
+  --sl-color-gray-3: #495c62;
+  --sl-color-gray-4: #7b8f96;
+  --sl-color-gray-5: #bac4c8;
+  --sl-color-gray-6: #e7eff2;
+  --sl-color-gray-7: #f3f7f9;
+  --sl-color-black: #ffffff;
+}

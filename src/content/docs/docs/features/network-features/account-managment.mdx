@@ -1,0 +1,44 @@
+---
+title: Account Managment
+---
+import { Aside } from '@astrojs/starlight/components';
+
+The Account Management features in the Xahau network are a crucial component for users to manage their accounts effectively.
+
+This includes several transaction types that enable users to perform various operations on their accounts.
+
+### Transaction Types
+
+#### AccountSet
+
+The `AccountSet` transaction type allows users to modify the properties of their accounts. This includes settings such as transfer rate, account flags, and more.
+
+[accountset.md](/docs/protocol-reference/transactions/transaction-types/accountset.md)
+
+#### AccountDelete
+
+The `AccountDelete` transaction type enables users to delete their accounts from the Xahau network. This operation is irreversible and should be used with caution.
+
+[accountdelete.md](/docs/protocol-reference/transactions/transaction-types/accountdelete.md)
+
+#### SetRegularKey
+
+The `SetRegularKey` transaction type allows users to set a regular key pair for their account. This key pair can be used as an alternative to the master key pair for signing transactions.
+
+[setregularkey.md](/docs/protocol-reference/transactions/transaction-types/setregularkey.md)
+
+#### SignersListSet
+
+The `SignersListSet` transaction type enables users to set a list of signers for their account. This is particularly useful for multi-signature accounts where multiple parties are required to sign off on transactions.
+
+[signerlistset.md](/docs/protocol-reference/transactions/transaction-types/signerlistset.md)
+
+#### Import
+
+The `Import` transaction type is used to import transactions from other networks. This feature is especially useful for issuers who need to import transactions for their asset holders. It's recommended to key your accounts first before attempting to import transactions.
+
+Please note that the process of importing for the issuer involves specific transaction types and requires careful configuration. Always ensure that the hooks are correctly set up and that the transactions are valid for the intended operations.
+
+[import.md](/docs/protocol-reference/transactions/transaction-types/import.md)
+
+These transaction types provide users with a comprehensive set of tools for managing their accounts on the Xahau network. As with all operations, users should ensure they understand the implications of each transaction type before use.

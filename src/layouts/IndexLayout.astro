@@ -1,0 +1,86 @@
+---
+import '../styles/main.css'
+import worldmap from '../assets/worldmap.svg'
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+const { frontmatter } = Astro.props
+---
+
+<BaseLayout frontmatter={frontmatter}>
+  <div class="relative flex flex-col items-center justify-center min-h-[80vh] py-40">
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+      <div class="w-full h-full mx-auto">
+        <img src={worldmap.src} alt="World map" class="w-full h-full object-contain" />
+      </div>
+    </div>
+    <div class="flex-none container mx-auto py-12 text-left max-w-7xl p-6 z-10">
+      <div class="flex flex-col items-center text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-black mb-4 max-w-2/3">The Smarter Blockchain with Account-Based Programmability</h1>
+        <p class="text-2xl md:text-2xl font-semibold text-black mb-8 max-w-2/3">Not just smart contracts – smart accounts. Cheap and fast by design. Built for the real world.</p>
+        <div class="flex gap-4">
+          <a href="/about" class="px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition">Learn the basics</a>
+          <a href="/docs" class="px-10 h-12 flex items-center justify-center bg-gray-300 text-black text-base font-bold hover:bg-black hover:text-white transition">View docs</a>
+        </div>
+      </div>
+  </div>
+  </div>
+  <div class="flex flex-col">
+    <div class="flex-none container mx-auto py-12 text-left max-w-7xl p-6">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-black mb-4">The Xahau Network</h1>
+      <h2 class="text-xl md:text-2xl font-semibold text-black mb-8">Why is Xahau the right blockchain for your business?</h2>
+      <div class="items-start grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">1. Smart Contract Hooks</h3>
+          <p class="text-base font-light text-black">Xahau supports lightweight smart contracts directly on accounts, enabling automatic logic for approvals, rejections, or custom behavior without requiring users to call a contract.</p>
+        </div>
+        <div>
+          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">2. Low Fees with Fee Burning</h3>
+          <p class="text-base font-light text-black">Xahau offers predictable, low transaction costs. A portion of each fee is burned, reducing spam and aligning incentives with long-term network health.</p>
+        </div>
+        <div>
+          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">3. Enterprise-Ready Governance</h3>
+          <p class="text-base font-light text-black">With structured governance and validator coordination, Xahau provides a stable environment for regulated and enterprise use, including supply chain, payments, and compliance applications.</p>
+        </div>
+        <div>
+          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">4. Fast, Green, and Scalable</h3>
+          <p class="text-base font-light text-black">With an efficient consensus protocol, Xahau processes transactions quickly without mining—ideal for businesses needing performance and sustainability.</p>
+        </div>
+        <div>
+          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">5. Token and Asset Control by Design</h3>
+          <p class="text-base font-light text-black">Businesses can issue assets or tokens with fine-grained control over how they’re used or transferred, enforcing rules automatically at the ledger level.</p>
+        </div>
+        <a href="/features" class="self-end px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition">Discover more features</a>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col items-end">
+    <div class="flex-none container mx-auto py-12 text-left max-w-7xl p-6">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-black mb-4">Network statistics</h1>
+      <h2 class="text-xl md:text-2xl font-semibold text-black mb-8">Xahau in numbers</h2>
+      <div class="items-end grid grid-cols-3 md:grid-cols-9 gap-4">
+        <div class="text-black flex flex-col col-span-2 md:col-span-3 min-h-40 items-start justify-end p-4 bg-white border-black border-2">
+          <h3 class="text-xl md:text-2xl font-semibold">Accounts</h3>
+          <h4 class="text-4xl md:text-6xl font-extrabold">130K+</h4>
+        </div>
+        <div class="text-black flex flex-col col-span-1 md:col-span-2 min-h-40 items-start justify-end p-4 bg-white border-black border-2">
+          <h3 class="text-xl md:text-2xl font-semibold">Hooks installed</h3>
+          <h4 class="text-4xl md:text-6xl font-extrabold">5K+</h4>
+        </div>
+        <div class="text-xahau-secondary flex flex-col col-span-1 md:col-span-2 min-h-40 items-start justify-end p-4 bg-xahau-gray border-black border-2">
+          <h3 class="text-xl md:text-2xl font-semibold">Nodes</h3>
+          <h4 class="text-4xl md:text-6xl font-extrabold">300+</h4>
+        </div>
+        <div class="text-xahau-secondary flex flex-col col-span-1 md:col-span-2 row-start-auto md:row-start-2 min-h-40 items-start justify-end p-4 bg-xahau-gray border-black border-2">
+          <h3 class="text-xl md:text-2xl font-semibold">Transactions/24h</h3>
+          <h4 class="text-4xl md:text-6xl font-extrabold">1.5M+</h4>
+        </div>
+        <div class="text-black flex flex-col col-span-2 md:col-span-3 row-start-auto md:row-start-2 min-h-40 items-start justify-end p-4 bg-white border-black border-2">
+          <h3 class="text-xl md:text-2xl font-semibold">Ledgers closed</h3>
+          <h4 class="text-4xl md:text-6xl font-extrabold">15M+</h4>
+        </div>
+        <a href="/docs/infrastructure/node-requirements/" class="col-span-3 row-start-auto md:row-start-2 px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition">Want to run a node?</a>
+      </div>
+    </div>
+  </div>
+  <slot />
+</BaseLayout>

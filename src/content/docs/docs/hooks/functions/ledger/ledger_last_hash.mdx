@@ -1,0 +1,98 @@
+---
+title: ledger_last_hash
+description: Retreive the 32 byte namespace biased SHA512H of the last closed ledger
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Write the 32 byte Hash to the write_ptr
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retrieves the hash of the last ledger.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_hash (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_hash(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash[32];
+int64_t bytes_written = 
+    ledger_last_hash(hash, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const hash = ledger_last_hash()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description                                                                              |
+| ---------- | --------- | ---------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Pointer to a buffer of a suitable size to store the output. Should be at least 32 bytes. |
+| write_len | uint32_t | Length of the output buffer.                                                             |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                                                                     |
+| ------ | ----------------------------------------------------------------------------------------------- |
+| number | Returns an error code if an error occurs, or an array representing the hash of the last ledger. |
+</TabItem>
+</Tabs>
+

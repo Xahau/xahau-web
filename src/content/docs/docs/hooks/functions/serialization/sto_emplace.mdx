@@ -1,0 +1,142 @@
+---
+title: sto_emplace
+description: Emplace a field into an existing STObject at its canonical placement
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Parse an STObject `S` (source object) pointed to by `sread_ptr`
+* Parse an STObject `F` (to inject/emplace) pointed to by `fread_ptr`
+* Write a new STObject to `write_ptr` which places `F` into `S` at the canonical position `field_id`
+
+<Aside type="caution" title="Field ID encoding">
+The `sto_` apis accept a `field_id` parameter encoded as follows: `(type << 16U) + field`\
+Thus type 1 field 2 would be `0x10002U`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Ask for the STO object by the param `sto`
+* Ask for the bytes representing the field to be added by the param `field_bytes`
+* Ask for the ID of the field to be added by the param `field_id`
+* Return the updated STO object in binary encoded ledger data format, or an error code if the operation fails.
+</TabItem>
+</Tabs>
+
+### Definition
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_emplace (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t fread_ptr,
+    uint32_t fread_len,
+    uint32_t field_id
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_emplace(
+    sto: ByteArray | HexString,
+    field_bytes: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t tx_out[1024];
+
+int64_t tx_len =
+    sto_emplace(tx_out, sizeof(tx_out),
+                tx_in, tx_len,
+                sequence_field, 5, sfSequence);
+
+if (tx_len <= 0)
+    rollback("Emplacing failed.", 17, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_emplace(tx_in, sequence_field, sfSequence)
+if (typeof tx_out === 'number')
+    rollback("Emplacing failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description                                                                                                                                                             |
+| ---------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | The buffer to write the modified STObject to                                                                                                                            |
+| write_len | uint32_t | The length of the output buffer                                                                                                                                         |
+| sread_ptr | uint32_t | The buffer to read the source STObject from                                                                                                                             |
+| sread_len | uint32_t | The Length of the source object                                                                                                                                         |
+| fread_ptr | uint32_t | The buffer to read the field to be emplaced/injected from                                                                                                               |
+| fread_len | uint32_t | The length of the field to be emplaced/injected                                                                                                                         |
+| field_id  | uint32_t | The `sf` code (location) to form the emplacement. If this already exists in the source object then the existing field is overriden. If it doesn't exist it is inserted. |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Name         | Type                   | Description                                                                   |
+| ------------ | ---------------------- | ----------------------------------------------------------------------------- |
+| sto          | ByteArray \| HexString | The STO object (binary encoded ledger data) to which the field will be added. |
+| field_bytes | ByteArray \| HexString | The bytes representing the field to be added.                                 |
+| field_id    | number                 | The ID of the field to be added.                                              |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The number of bytes written to <code>write_ptr</code><br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Output buffer must be at least as large as the source object + the injected field, even if the field is only being overriden.<br /><br /><code>TOO_BIG</code><br />- Field you are attempting to emplace is too large<br /><br /><code>PARSE_ERROR</code><br />- The supplied STObject is malformed or not an STObject.</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>The updated STO object in binary encoded ledger data format, or an error code if the operation fails.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+

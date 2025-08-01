@@ -1,0 +1,12 @@
+---
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro'
+import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro'
+import Search from '@astrojs/starlight/components/Search.astro'
+
+const { sidebar } = Astro.locals.starlightRoute
+---
+
+<SidebarPersister>
+	<Search class="hidden md:block" />
+	<SidebarSublist sublist={sidebar} />
+</SidebarPersister>

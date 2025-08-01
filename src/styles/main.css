@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import "../styles/global.css";
+
+.page-content h1 {
+  @apply text-3xl font-bold mb-2 mt-24;
+}
+
+.page-content h2 {
+  @apply text-2xl font-bold mb-2 mt-12;
+}
+
+.page-content h3 {
+  @apply text-xl font-bold mb-2 mt-6;
+}
+
+.page-content p {
+  @apply text-base pb-2;
+}
+
+.page-content a {
+  @apply text-xahau-green-dark underline;
+}
+
+.page-content a:hover {
+  @apply text-black;
+}

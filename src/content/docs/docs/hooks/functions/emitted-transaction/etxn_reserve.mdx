@@ -1,0 +1,98 @@
+---
+title: etxn_reserve
+description: Estimate the required fee for a txn to be emitted successfully
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+
+### Behaviour
+
+* Specifies a number of emitted transactions this hook might emit during execution.
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_fee_base (
+    uint32_t count
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_reserve(count: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+etxn_reserve(2);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+etxn_reserve(2)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name  | Type      | Description                                                                                 |
+| ----- | --------- | ------------------------------------------------------------------------------------------- |
+| count | uint32_t | The largest number of transactions this hook might emit during the course of one execution. |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Name  | Type   | Description                                                      |
+| ----- | ------ | ---------------------------------------------------------------- |
+| count | number | The maximum amount of transactions this Hook is allowed to emit. |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                                                                                                                                                                                            |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The maximum number of emitted transactions this hook may emit. This will always be the same as the <code>count</code> parameter or an error as below.<br /><br />If negative, an error:<br /><code>ALREADY_SET</code><br />- The hook already called this function earlier.<br /><br /><code>TOO_BIG</code><br />- The specified number of emitted transactions is too large.</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Type   | Description                                                                        |
+| ------ | ---------------------------------------------------------------------------------- |
+| number | An ErrorCode if there is an error, or the configured transaction count on success. |
+</TabItem>
+</Tabs>
+

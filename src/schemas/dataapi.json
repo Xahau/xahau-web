@@ -1,0 +1,915 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "# Introduction\n\n- The current version of this API offers live Xahau DEX (IOU trades) and ledger info data.\n\n- The API is a middleware layer with multiple data providers.\n\n- This makes it more flexible extendable.\n\n# Data providers \n\n- A data provider is providing data for the API, e.g. a time series database, a graph database, a full history xahaud node, an API or similar. These providers should be scalable.\n\n- Rather than relying on the data providers to supply stored xahaud data, such as object states and transactions, a xahaud data provider should be used to fetch validated data only, using the data provider mainly as an “index” (where applicable).\n\n# Response data\n\n- The API might limit the number of returned objects based on various factors\n\n- This is indicated through the `x-more-data` header in the response.\n\n- If set to `true`, you can use the `skip` query parameter to get more data with a `second request`\n\n- Set the `skip` parameter to the number of objects you already retrieved \n\n# Response Headers\n\n- Each status code 200 response has the following response headers:\n\n- `x-ratelimit-limit`: Maximum number of requests in the rate limit window.\n\n- `x-ratelimit-remaining`: Number of remaining request in current rate limit window.\n\n- `x-ratelimit-reset`: The seconds until the current rate limit window resets.\n\n- `x-has-more-data`: If available and set to `true`, more data can be fetched using `skip`\n\n# Cross-Origin Resource Sharing\n\n- This API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/).\n\n- That allows cross-domain communication from the browser.\n\n- All responses have a wildcard same-origin which makes them completely public and accessible to everyone, including any code on any site.",
+    "version": "0.1b",
+    "title": "Xahau Network Data API provided by the InFTF",
+    "contact": {
+      "name": "InFTF",
+      "email": "info@inftf.org",
+      "url": "https://inftf.org/"
+    }
+  },
+  "servers": [{ "url": "/v1" }],
+  "tags": [
+    {
+      "name": "General",
+      "description": "- General purpose endpoints of this API.\n\n- Check its uptime, version and availablility."
+    },
+    {
+      "name": "DEX",
+      "description": "- This section shows endpoints related to the Decentralized Exchanges (DEX) on the Xahau Network.\n\n- You will find data for all token trades every happened on the Xahau Network"
+    },
+    {
+      "name": "Ledgers",
+      "description": "- This section shows endpoints related to Ledger information.\n\n- Get supply information, ledger close time by `ledger_index` or get a `ledger_index` by its closing time."
+    }
+  ],
+  "x-tagGroups": [
+    { "name": "API Methods", "tags": ["General", "DEX", "Ledgers"] }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Get API version information",
+        "description": "Returns a list of the available API versions",
+        "operationId": "versions",
+        "tags": ["General"],
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/APIVersion" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "summary": "Get server information",
+        "description": "Returns information about the server and its updtime.",
+        "operationId": "ping",
+        "tags": ["General"],
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServerInfo" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/ledgers/supply_info": {
+      "get": {
+        "summary": "Get supply info for a specific time.",
+        "description": "Returns supply information about the Xahau Network of the closest available ledger for the given time.",
+        "operationId": "getSupplyInfo",
+        "tags": ["Ledgers"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "description": "Return latest available supply info by the specified time. The default is the current time.",
+            "schema": { "type": "string", "format": "date-time" },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns supply information about the Xahau Network.\n\n- `ledger` = ledger index of supply information\n\n- `closeTimeHuman` = close time of the ledger in human readable time\n\n- `accounts` = number of accounts\n\n- `xahExisting` = total number of existing XAH\n\n- `xah.xahTotalSupply` = Circulating supply of XAH (Total amount of XAH in accounts minus account reserve, minus non transient reserves, minus blackholed accounts and minus treasury locked funds)\n\n- `xah.xahTotalReserved` = Total number of XAH reserved in Accounts and Objects\n\n- `xah.xahTotalTransientReserves` = Total number of XAH in transient objects like Offers\n\n- `xah.xahInEscrow` = Amount of XAH locked in Escrows\n\n- `xah.xahInTreasury` = Amount of XAH in accounts which have the two Treasury hooks installed\n\n- `xah.xahInTreasuryLocked` = Amount of XAH in accounts which have the two Treasury hooks installed AND the account is blackholed!\n\n- `xah.xahInBlackholedAccounts` = Amount of XAH in accounts which have been blackholed and therefore the funds are inaccessible. This excludes amounts from `xahInTreasuryLocked`!\n\n- `xah.xahInCirculation` = Circulating supply of XAH (Total amount of XAH in accounts minus account reserve, minus non transient reserves, minus blackholed accounts and minus treasury locked funds)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SupplyInfo" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/ledgers/supply/total": {
+      "get": {
+        "summary": "Get the total amount of XAH in existence.",
+        "description": "Returns the total supply of XAH on the Xahau Network.",
+        "operationId": "getSupplyTotal",
+        "tags": ["Ledgers"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "description": "Return latest available total supply by the specified time. The default is the current time.",
+            "schema": { "type": "string", "format": "date-time" },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The total supply of XAH on the Xahau Network, including reserved and locked tokens.",
+            "content": { "text/plain": { "schema": { "type": "number" } } }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/ledgers/supply/circulating": {
+      "get": {
+        "summary": "Get the circulating amount of XAH.",
+        "description": "Returns the circulating supply of XAH on the Xahau Network.",
+        "operationId": "getSupplyCirculating",
+        "tags": ["Ledgers"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "description": "Return latest available circulating supply by the specified time. The default is the current time.",
+            "schema": { "type": "string", "format": "date-time" },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The circulating supply of XAH on the Xahau Network, excluding reserved and locked XAH.",
+            "content": { "text/plain": { "schema": { "type": "number" } } }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/ledgers/ledger_index": {
+      "get": {
+        "summary": "Get a ledger_index by its closing time.",
+        "description": "Retrieve the last closed ledger by a given time.",
+        "operationId": "getLedgerIndex",
+        "tags": ["Ledgers"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "description": "- Search for the last closed ledger by the specified date time.\n\n- Format: '1970-01-01T00:00:00Z'\n\n- Default is the current time. (last closed ledger)",
+            "schema": { "type": "string", "format": "date-time" },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response\n\n- `ledger_index` = The last closed ledger_index by the given time, or null if the ledger_index could not be found.\n\n- `closed` = The time this ledger was closed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ledger_index": {
+                      "type": "number",
+                      "description": "The last closed ledger_index by the given time, or null if the ledger_index could not be found."
+                    },
+                    "closed": {
+                      "type": "string",
+                      "description": "The time this ledger was closed."
+                    }
+                  },
+                  "required": ["ledger_index", "closed"]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/ledgers/ledger_close_time": {
+      "get": {
+        "summary": "Get a ledger_close_time by its ledger_index.",
+        "description": "Retrieve the ledger_close_time by the given ledger_index.",
+        "operationId": "getLedgerCloseTime",
+        "tags": ["Ledgers"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ledger_index",
+            "required": true,
+            "description": "Return the closed ledger by the specified ledger_index.",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns ledger_index and close.\n\n- `ledger_index` = The closed ledger_index by the given time, or null if the ledger_index could not be found.\n\n- `closed` = The time this ledger was closed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ledger_index": {
+                      "type": "number",
+                      "description": "The closed ledger_index by the given time, or null if the ledger_index could not be found."
+                    },
+                    "closed": {
+                      "type": "string",
+                      "description": "The time this ledger was closed."
+                    }
+                  },
+                  "required": ["ledger_index", "closed"]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/iou/exchange_rates/{base}/{counter}": {
+      "get": {
+        "summary": "Get exchange rates",
+        "description": "Retrieve an exchange rate for a given currency pair at a specific time.",
+        "operationId": "getExchangeRates",
+        "tags": ["DEX"],
+        "parameters": [
+          { "$ref": "#/components/parameters/base" },
+          { "$ref": "#/components/parameters/counter" },
+          { "$ref": "#/components/parameters/date" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response\n\n- `rate` = The latest exchange rate, or 0 if the exchange rate could not be determined\n\n- `ledger_index` = The ledger_index the rate was taken from\n\n- `tx_hash` = The transaction hash which this rate is taken from\n\n- `timestamp` = The timestamp of the rate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rate": {
+                      "type": "number",
+                      "description": "The latest exchange rate, or 0 if the exchange rate could not be determined"
+                    },
+                    "ledger_index": {
+                      "type": "number",
+                      "description": "The ledger_index the rate was taken from."
+                    },
+                    "tx_hash": {
+                      "type": "string",
+                      "description": "The transaction hash which this rate is taken from."
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "description": "The timestamp of the rate."
+                    }
+                  },
+                  "required": ["rate", "ledger_index", "tx_hash", "timestamp"]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/iou/exchanges/{base}/{counter}": {
+      "get": {
+        "summary": "Get raw exchanges",
+        "description": "Retrieve Exchanges for a given currency pair over time.",
+        "operationId": "getExchanges",
+        "tags": ["DEX"],
+        "parameters": [
+          { "$ref": "#/components/parameters/base" },
+          { "$ref": "#/components/parameters/counter" },
+          { "$ref": "#/components/parameters/account" },
+          { "$ref": "#/components/parameters/start" },
+          { "$ref": "#/components/parameters/end" },
+          { "$ref": "#/components/parameters/min_base_volume" },
+          { "$ref": "#/components/parameters/min_counter_volume" },
+          { "$ref": "#/components/parameters/descending" },
+          { "$ref": "#/components/parameters/skip" },
+          { "$ref": "#/components/parameters/limit" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response\n\n- `base_amount` = The amount of the base currency that was traded\n\n- `counter_amount` = The amount of the counter currency that was traded\n\n- `rate` = The amount of the counter currency acquired per 1 unit of the base currency\n\n- `buyer` = The account that acquired the base currency\n\n- `seller` = The account that acquired the counter currency\n\n- `provider` = The account that provided liquidity for this trade via existing offers\n\n- `taker` = The account that sent the transaction and took the liquidity\n\n- `ledger_index` = The ledger that included this transaction\n\n - `tx_hash` = The identifying hash of the transaction that executed this exchange\n\n- `executed_time` = The time the exchange occurred (usually the close time of the validated ledger_index)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Exchange" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/iou/market_data/{base}/{counter}": {
+      "get": {
+        "summary": "Get market data",
+        "description": "Retrieve market data for a given currency pair over time.",
+        "operationId": "getMarketData",
+        "tags": ["DEX"],
+        "parameters": [
+          { "$ref": "#/components/parameters/base" },
+          { "$ref": "#/components/parameters/counter" },
+          { "$ref": "#/components/parameters/interval" },
+          { "$ref": "#/components/parameters/start" },
+          { "$ref": "#/components/parameters/end" },
+          { "$ref": "#/components/parameters/min_base_volume" },
+          { "$ref": "#/components/parameters/min_counter_volume" },
+          { "$ref": "#/components/parameters/descending" },
+          { "$ref": "#/components/parameters/skip" },
+          { "$ref": "#/components/parameters/limit" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response\n\n- `base_volume` = The total volume of the base currency in this interval\n\n- `base_volume_buy` = The buy volume of the base currency in this interval\n\n- `base_volume_sell` = The sell volume of the base currency in this interval\n\n- `counter_volume` = The total traded volume of the counter currency in this interval\n\n- `counter_volume_buy` = The buy volume of the counter currency in this interval\n\n- `counter_volume_sell` = The sell volume of the counter currency in this interval\n\n- `open` = The rate at the start of this interval\n\n- `high` = The highest rate in this interval\n\n- `low` = The lowest rate in this interval\n\n- `close` = The rate at the end of this interval\n\n- `exchanges` = Total number of exchanges in this interval\n\n- `unique_buyers` = Total number of unique accounts buying\n\n- `unique_sellers` = Total number of unique accounts selling\n\n- `timestamp` = Start time of this interval",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/MarketData" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/iou/volume_data/{base}": {
+      "get": {
+        "summary": "Get volume data",
+        "description": "Retrieve volume data for a given currency over time",
+        "operationId": "getVolumeData",
+        "tags": ["DEX"],
+        "parameters": [
+          { "$ref": "#/components/parameters/base" },
+          { "$ref": "#/components/parameters/interval" },
+          { "$ref": "#/components/parameters/start" },
+          { "$ref": "#/components/parameters/end" },
+          { "$ref": "#/components/parameters/descending" },
+          { "$ref": "#/components/parameters/skip" },
+          { "$ref": "#/components/parameters/limit" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response\n\n- `volume` = Total volume across `ALL PAIRS` of the requested base currency in this interval\n\n- `exchanges` = Number of exchanges across `ALL PAIRS` of the requested base currency in this interval\n\n- `distinct_pairs` = Number of `DISTINCT PAIRS` for the requested base currency in this interval\n\n- `timestamp` = Start time of this interval",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/VolumeData" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/iou/ticker_data/all": {
+      "get": {
+        "summary": "Get ticker data for all traded pairs",
+        "description": "Retrieve ticker data for all currency pairs in a defined period (interval)",
+        "operationId": "getTickerDataAll",
+        "tags": ["DEX"],
+        "parameters": [
+          { "$ref": "#/components/parameters/interval" },
+          { "$ref": "#/components/parameters/date" },
+          { "$ref": "#/components/parameters/min_exchanges" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success reponse\n\n- `date_from` = Start date of the ticker data\n\n- `date_to` = End date of the ticker data\n\n- `base` = Base currency of the trading pair\n\n- `counter` = Counter currency of the trading pair\n\n- `base_volume` = The total traded volume of the base currency\n\n- `base_volume_buy` = The buy volume of the base currency\n\n- `base_volume_sell` = The sell volume of the base currency\n\n- `counter_volume` = The total traded volume of the counter currency\n\n- `counter_volume_buy` = The buy volume of the counter currency\n\n- `counter_volume_sell` = The sell volume of the counter currency\n\n- `first` = The first exchange rate of the pair in this time frame\n\n- `high` = The highest exchange rate of the pair in this time frame\n\n- `low` = The lowest exchange rate of the pair in this time frame\n\n- `last` = The last exchange rate of the pair in this time frame\n\n- `exchanges` = Total number of exchanges of the pair in this time frame\n\n- `unique_buyers` = Total number of unique accounts buying\n\n- `unique_sellers` = Total number of unique accounts selling\n\n- `trend_interval` = The rate trend of this pair for this time frame compared to the previous time frame. `positive number` = rate is in upwards trend. `negative number` = rate is in downwards trend",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TickerData" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/iou/ticker_data/{base}": {
+      "get": {
+        "summary": "Get ticker data for all traded pairs of a specific base currency",
+        "description": "Retrieve ticker data for a given currency pair over defined period (interval). Sorted descending by base volume.",
+        "operationId": "getTickerDataBase",
+        "tags": ["DEX"],
+        "parameters": [
+          { "$ref": "#/components/parameters/base" },
+          { "$ref": "#/components/parameters/interval" },
+          { "$ref": "#/components/parameters/date" },
+          { "$ref": "#/components/parameters/min_exchanges" },
+          { "$ref": "#/components/parameters/base_as_counter" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success reponse\n\n- `date_from` = Start date of the ticker data\n\n- `date_to` = End date of the ticker data\n\n- `base` = Base currency of the trading pair\n\n- `counter` = Counter currency of the trading pair\n\n- `base_volume` = The traded volume of the base currency\n\n- `base_volume_buy` = The buy volume of the base currency\n\n- `base_volume_sell` = The sell volume of the base currency\n\n- `counter_volume` = The toal traded volume of the counter currency\n\n- `counter_volume_buy` = The buy volume of the counter currency\n\n- `counter_volume_sell` = The sell volume of the counter currency\n\n- `first` = The first exchange rate of the pair in this time frame\n\n- `high` = The highest exchange rate of the pair in this time frame\n\n- `low` = The lowest exchange rate of the pair in this time frame\n\n- `last` = The last exchange rate of the pair in this time frame\n\n- `exchanges` = Total number of exchanges of the pair in this time frame\n\n- `unique_buyers` = Total number of unique accounts buying\n\n- `unique_sellers` = Total number of unique accounts selling\n\n- `trend_interval` = The rate trend of this pair for this time frame compared to the previous time frame. `positive number` = rate is in upwards trend. `negative number` = rate is in downwards trend",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TickerData" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    },
+    "/iou/ticker_data/{base}/{counter}": {
+      "get": {
+        "summary": "Get ticker data for a specific traded pair",
+        "description": "Retrieve ticker data for a given currency pair over defined period (interval).",
+        "operationId": "getTickerDataBaseCounter",
+        "tags": ["DEX"],
+        "parameters": [
+          { "$ref": "#/components/parameters/base" },
+          { "$ref": "#/components/parameters/counter" },
+          { "$ref": "#/components/parameters/interval" },
+          { "$ref": "#/components/parameters/date" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response\n\n- `date_from` = Start date of the ticker data\n\n- `date_to` = End date of the ticker data\n\n- `base` = Base currency of the trading pair\n\n- `counter` = Counter currency of the trading pair\n\n- `base_volume` = The traded volume of the base currency\n\n- `base_volume_buy` = The buy volume of the base currency\n\n- `base_volume_sell` = The sell volume of the base currency\n\n- `counter_volume` = The total traded volume of the counter currency\n\n- `counter_volume_buy` = The buy volume of the counter currency\n\n- `counter_volume_sell` = The sell volume of the counter currency\n\n- `first` = The first exchange rate of the pair in this time frame\n\n- `high` = The highest exchange rate of the pair in this time frame\n\n- `low` = The lowest exchange rate of the pair in this time frame\n\n- `last` = The last exchange rate of the pair in this time frame\n\n- `exchanges` = Total number of exchanges of the pair in this time frame\n\n- `unique_buyers` = Total number of unique accounts buying\n\n- `unique_sellers` = Total number of unique accounts selling\n\n- `trend_interval` = The rate trend of this pair for this time frame compared to the previous time frame. `positive number` = rate is in upwards trend. `negative number` = rate is in downwards trend\n\n- `trend_latest_trades` = The rate trend of this pair for the last two trades. positive number = rate is in upwards trend. negative number = rate is in downwards trend",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TickerDataSingle" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400-Query-input-malformed" },
+          "429": { "$ref": "#/components/responses/429-Too-many-requests" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {},
+    "schemas": {
+      "APIVersion": {
+        "type": "object",
+        "required": ["version", "path"],
+        "properties": {
+          "version": { "type": "integer" },
+          "path": { "type": "string" }
+        },
+        "title": "APIVersion"
+      },
+      "ServerInfo": {
+        "type": "object",
+        "required": ["name", "version", "uptime"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "uptime": { "type": "number" }
+        },
+        "title": "ServerInfo"
+      },
+      "ValidationError": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string" },
+          "code": { "type": "string" },
+          "path": { "type": "string" }
+        },
+        "title": "ValidationError"
+      },
+      "Exchange": {
+        "description": "An object for exchange of currencies",
+        "type": "object",
+        "x-examples": {},
+        "title": "Exchange",
+        "properties": {
+          "base_amount": {
+            "type": "number",
+            "format": "float",
+            "description": "The amount of the base currency that was traded"
+          },
+          "counter_amount": {
+            "type": "number",
+            "format": "float",
+            "description": "The amount of the counter currency that was traded"
+          },
+          "rate": {
+            "type": "number",
+            "format": "float",
+            "description": "The amount of the counter currency acquired per 1 unit of the base currency"
+          },
+          "buyer": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The account that acquired the base currency"
+          },
+          "seller": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The account that acquired the counter currency"
+          },
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The account that had an existing offer in the ledger"
+          },
+          "taker": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The account that sent the transaction which executed this exchange"
+          },
+          "ledger_index": {
+            "type": "integer",
+            "description": "The ledger that included this transaction"
+          },
+          "tx_hash": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The identifying hash of the transaction that executed this exchange"
+          },
+          "executed_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The time the exchange occurred"
+          }
+        },
+        "required": [
+          "base_amount",
+          "counter_amount",
+          "rate",
+          "buyer",
+          "seller",
+          "provider",
+          "taker",
+          "ledger_index",
+          "tx_hash",
+          "executed_time"
+        ]
+      },
+      "MarketData": {
+        "title": "MarketData",
+        "type": "object",
+        "properties": {
+          "base_volume": { "type": "number", "format": "float" },
+          "base_volume_buy": { "type": "number", "format": "float" },
+          "base_volume_sell": { "type": "number", "format": "float" },
+          "counter_volume": { "type": "number", "format": "float" },
+          "counter_volume_buy": { "type": "number", "format": "float" },
+          "counter_volume_sell": { "type": "number", "format": "float" },
+          "open": { "type": "number", "format": "float" },
+          "high": { "type": "number", "format": "float" },
+          "low": { "type": "number", "format": "float" },
+          "close": { "type": "number", "format": "float" },
+          "exchanges": { "type": "number", "format": "integer" },
+          "unique_buyers": { "type": "number", "format": "integer" },
+          "unique_sellers": { "type": "number", "format": "integer" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": [
+          "base_volume",
+          "base_volume_buy",
+          "base_volume_sell",
+          "counter_volume",
+          "counter_volume_buy",
+          "counter_volume_sell",
+          "open",
+          "high",
+          "low",
+          "close",
+          "exchanges",
+          "unique_buyers",
+          "unique_sellers",
+          "timestamp"
+        ]
+      },
+      "VolumeData": {
+        "title": "VolumeData",
+        "type": "object",
+        "properties": {
+          "volume": { "type": "number", "format": "float" },
+          "exchanges": { "type": "number", "format": "float" },
+          "distinct_pairs": { "type": "number", "format": "float" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["volume", "exchanges", "distinct_pairs", "timestamp"]
+      },
+      "TickerData": {
+        "title": "TickerData",
+        "type": "object",
+        "properties": {
+          "date_from": { "type": "string", "format": "date-time" },
+          "date_to": { "type": "string", "format": "date-time" },
+          "base": { "type": "string" },
+          "counter": { "type": "string" },
+          "base_volume": { "type": "number", "format": "float" },
+          "base_volume_buy": { "type": "number", "format": "float" },
+          "base_volume_sell": { "type": "number", "format": "float" },
+          "counter_volume": { "type": "number", "format": "float" },
+          "counter_volume_buy": { "type": "number", "format": "float" },
+          "counter_volume_sell": { "type": "number", "format": "float" },
+          "first": { "type": "number", "format": "float" },
+          "high": { "type": "number", "format": "float" },
+          "low": { "type": "number", "format": "float" },
+          "last": { "type": "number", "format": "float" },
+          "exchanges": { "type": "number", "format": "integer" },
+          "unique_buyers": { "type": "number", "format": "integer" },
+          "unique_sellers": { "type": "number", "format": "integer" },
+          "trend_interval": { "type": "number", "format": "integer" }
+        },
+        "required": [
+          "date_from",
+          "date_to",
+          "base",
+          "counter",
+          "base_volume",
+          "base_volume_buy",
+          "base_volume_sell",
+          "counter_volume",
+          "counter_volume_buy",
+          "counter_volume_sell",
+          "first",
+          "high",
+          "low",
+          "last",
+          "exchanges",
+          "unique_buyers",
+          "unique_sellers",
+          "trend_interval"
+        ]
+      },
+      "TickerDataSingle": {
+        "title": "TickerDataSingle",
+        "type": "object",
+        "properties": {
+          "date_from": { "type": "string", "format": "date-time" },
+          "date_to": { "type": "string", "format": "date-time" },
+          "base": { "type": "string" },
+          "counter": { "type": "string" },
+          "base_volume": { "type": "number", "format": "float" },
+          "base_volume_buy": { "type": "number", "format": "float" },
+          "base_volume_sell": { "type": "number", "format": "float" },
+          "counter_volume": { "type": "number", "format": "float" },
+          "counter_volume_buy": { "type": "number", "format": "float" },
+          "counter_volume_sell": { "type": "number", "format": "float" },
+          "first": { "type": "number", "format": "float" },
+          "high": { "type": "number", "format": "float" },
+          "last": { "type": "number", "format": "float" },
+          "low": { "type": "number", "format": "float" },
+          "exchanges": { "type": "number", "format": "integer" },
+          "unique_buyers": { "type": "number", "format": "integer" },
+          "unique_sellers": { "type": "number", "format": "integer" },
+          "trend_interval": { "type": "number", "format": "integer" },
+          "trend_latest_trades": { "type": "number", "format": "integer" }
+        },
+        "required": [
+          "date_from",
+          "date_to",
+          "base",
+          "counter",
+          "base_volume",
+          "base_volume_buy",
+          "base_volume_sell",
+          "counter_volume",
+          "counter_volume_buy",
+          "counter_volume_sell",
+          "first",
+          "high",
+          "low",
+          "last",
+          "unique_buyers",
+          "unique_sellers",
+          "trend_interval",
+          "trend_latest_trades"
+        ]
+      },
+      "SupplyInfo": {
+        "title": "SupplyInfo",
+        "type": "object",
+        "properties": {
+          "ledger": { "type": "number", "format": "integer" },
+          "closeTimeHuman": { "type": "string" },
+          "accounts": { "type": "number", "format": "integer" },
+          "xahExisting": { "type": "number", "format": "float" },
+          "xah": {
+            "type": "object",
+            "properties": {
+              "xahTotalSupply": { "type": "number", "format": "float" },
+              "xahTotalReserved": { "type": "number", "format": "float" },
+              "xahTotalTransientReserves": {
+                "type": "number",
+                "format": "float"
+              },
+              "xahInEscrow": { "type": "number", "format": "float" },
+              "xahInTreasury": { "type": "number", "format": "float" },
+              "xahInTreasuryLocked": { "type": "number", "format": "float" },
+              "xahInBlackholedAccounts": {
+                "type": "number",
+                "format": "float"
+              },
+              "xahInCirculation": { "type": "number", "format": "float" }
+            }
+          }
+        },
+        "required": [
+          "ledger",
+          "closeTimeHuman",
+          "accounts",
+          "xahExisting",
+          "xah"
+        ]
+      }
+    },
+    "responses": {
+      "400-Query-input-malformed": {
+        "description": "Query input malformed",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ValidationError" }
+          }
+        },
+        "headers": {
+          "x-ratelimit-limit": {
+            "schema": { "type": "integer" },
+            "description": "Maximum number of requests in the rate limit window."
+          },
+          "x-ratelimit-remaining": {
+            "schema": { "type": "integer" },
+            "description": "Number of remaining request in current rate limit window."
+          },
+          "x-ratelimit-reset": {
+            "schema": { "type": "integer" },
+            "description": "The seconds until the current rate limit window resets."
+          }
+        }
+      },
+      "429-Too-many-requests": {
+        "description": "Too Many Requests",
+        "headers": {
+          "x-ratelimit-limit": {
+            "schema": { "type": "integer" },
+            "description": "Maximum number of requests in the rate limit window."
+          },
+          "x-ratelimit-remaining": {
+            "schema": { "type": "integer" },
+            "description": "Number of remaining request in current rate limit window."
+          },
+          "x-ratelimit-reset": {
+            "schema": { "type": "integer" },
+            "description": "The seconds until the current rate limit window resets."
+          }
+        }
+      },
+      "404-Not-found": {
+        "description": "Not found",
+        "headers": {
+          "x-ratelimit-limit": {
+            "schema": { "type": "integer" },
+            "description": "Maximum number of requests in the rate limit window."
+          },
+          "x-ratelimit-remaining": {
+            "schema": { "type": "integer" },
+            "description": "Number of remaining request in current rate limit window."
+          },
+          "x-ratelimit-reset": {
+            "schema": { "type": "integer" },
+            "description": "The seconds until the current rate limit window resets."
+          }
+        }
+      }
+    },
+    "parameters": {
+      "account": {
+        "name": "account",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "- Xahau Network address to use as filter.\n\n- The given address is used as filter on the fields: `buyer`, `seller`, `provider` and `taker`"
+      },
+      "descending": {
+        "name": "descending",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "boolean", "default": false },
+        "description": "- If true, return results in reverse chronological order by timestamp."
+      },
+      "start": {
+        "in": "query",
+        "name": "start",
+        "required": false,
+        "description": "- Filters results `no earlier` than the specified date time.\n\n- Format: '1970-01-01T00:00:00Z'",
+        "schema": { "type": "string", "format": "date-time" },
+        "style": "form"
+      },
+      "end": {
+        "in": "query",
+        "name": "end",
+        "required": false,
+        "description": "- Filters results `no later` than the specified date time.\n\n- Format: '1970-01-01T00:00:00Z'",
+        "schema": { "type": "string", "format": "date-time" },
+        "style": "form"
+      },
+      "base": {
+        "schema": { "type": "string" },
+        "name": "base",
+        "in": "path",
+        "required": true,
+        "description": "- Base currency of the pair as `issuer address`, followed by `_` and the `currency code`. (Or `XAH` with no issuer)\n\n- Examples: `XAH` or `rEvernodee8dJLaFsujS6q1EiXvZYmHXr8_EVR`"
+      },
+      "counter": {
+        "schema": { "type": "string" },
+        "name": "counter",
+        "in": "path",
+        "required": true,
+        "description": "- Counter currency of the pair as `issuer address`, followed by `_` and a `currency code`. (Or `XAH` with no issuer)\n\n- Examples: `XAH` or `rEvernodee8dJLaFsujS6q1EiXvZYmHXr8_EVR`"
+      },
+      "interval": {
+        "name": "interval",
+        "in": "query",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "- Aggregation interval. Possible values are: s,m,h,d,M,y.\n\n- Example: `1d` to aggregate data by 1 day intervals"
+      },
+      "date": {
+        "name": "date",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "format": "date-time" },
+        "description": "- Specific date time the request should be based on. Defaults to `now`.\n\n- Format: `1970-01-01T00:00:00Z`"
+      },
+      "skip": {
+        "name": "skip",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "number" },
+        "description": "- Skip a defined number of entries."
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "number" },
+        "description": "- Limit the entries in the response.\n\n- Higher values result in slower response times!"
+      },
+      "min_base_volume": {
+        "name": "min_base_volume",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "number" },
+        "description": "- Only include exchanges with the requested minimal base volume."
+      },
+      "min_counter_volume": {
+        "name": "min_counter_volume",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "number" },
+        "description": "- Only include exchanges with the requested minimal counter volume."
+      },
+      "min_exchanges": {
+        "name": "min_exchanges",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "number" },
+        "description": "- Only include results with the requested minimal number of exchanges."
+      },
+      "base_as_counter": {
+        "name": "base_as_counter",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "boolean", "default": false },
+        "description": "- If `true`, reverts the data so that the base token becomes the counter token."
+      }
+    },
+    "requestBodies": {},
+    "examples": {}
+  }
+}

@@ -1,0 +1,78 @@
+---
+title: otxn_generation
+description: Get the generation of the originating transaction
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Return the generation of the originating transaction or `1` if no generation field is present.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retrieve the generation number of the originating transaction.
+* Returns the generation number as a number.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_generation (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_generation(): number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t generation = 
+  otxn_generation();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const generation = otxn_generation()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+None
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type   | Description                                |
+| ------ | ------------------------------------------ |
+| number | Returns the generation number as a number. |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type     | Description                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------ |
+| int64_t | The generation of the originating transaction, or `1` if no generation was present on the originating transaction. |
+</TabItem>
+</Tabs>
+

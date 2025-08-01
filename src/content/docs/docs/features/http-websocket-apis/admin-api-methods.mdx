@@ -1,0 +1,67 @@
+---
+title: Admin API Methods
+---
+These methods are intended exclusively for trusted personnel responsible for maintaining xahaud server operations.
+
+### Key Generation Methods
+
+
+
+| Method             | Description                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| validation_create | Generate a formatted key pair for xhaud nodes. (Validators should use tokens instead of keys from this method.) |
+| wallet_propose    | Generate keys for a new account.                                                                                |
+
+### Logging and Data Management Methods
+
+
+
+| Method          | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| can_delete     | Enable online deletion of ledgers up to a specified ledger.     |
+| download_shard | Download a specific shard of ledger history.                    |
+| ledger_cleaner | Set up the ledger cleaner to detect and resolve corrupted data. |
+| ledger_request | Query a peer server for a specific ledger version.              |
+| log_level      | View or change log verbosity levels.                            |
+| logrotate       | Reopen the log file.                                            |
+| node_to_shard | Transfer data from the ledger store to the shard store.         |
+
+### Server Control Methods
+
+| Method         | Description                                       |
+| -------------- | ------------------------------------------------- |
+| ledger_accept | Close and advance the ledger in stand-alone mode. |
+| stop           | Shut down the xahaud server.                      |
+
+### Signing Methods
+
+| Method    | Description                           |
+| --------- | ------------------------------------- |
+| sign      | Cryptographically sign a transaction. |
+| sign_for | Contribute to a multi-signature.      |
+
+### Peer Management Methods
+
+| Method                   | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| connect                  | Force the server to connect to a specific peer.    |
+| peer_reservations_add  | Add or update a reserved slot for a specific peer. |
+| peer_reservations_del  | Remove a reserved slot for a specific peer.        |
+| peer_reservations_list | View all reserved peer slots.                      |
+| peers                    | Retrieve information about connected peers         |
+
+### Status/Debugging Methods
+
+
+
+| Method                 | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| consensus_info        | View the current state of the consensus process.            |
+| feature                | Retrieve information about protocol amendments.             |
+| fetch_info            | Check the server’s synchronization status with the network. |
+| get_counts            | View statistics about server internals and memory usage.    |
+| manifest               | Retrieve public key details for a known validator.          |
+| print                  | Access information about internal subsystems.               |
+| validator_info        | Get the server's validator configuration details.           |
+| validator_list_sites | View sites that publish validator lists.                    |
+| validators             | Retrieve information about the current validators.          |

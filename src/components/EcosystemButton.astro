@@ -1,0 +1,8 @@
+---
+const { class: className, ...rest } = Astro.props
+
+import { Image } from 'astro:assets'
+---
+<a href={Astro.props.href} target="_blank" class:list={["flex hover:border-xahau-green hover:bg-gray-50 !text-black !no-underline items-center justify-center p-4 text-center bg-white font-bold border-black border-2",className]}>
+  {Astro.props.imageSrc ? <Image src={Astro.props.imageSrc} alt={Astro.props.title} class="w-auto h-auto max-h-2/5" /> : Astro.props.title}
+</a>

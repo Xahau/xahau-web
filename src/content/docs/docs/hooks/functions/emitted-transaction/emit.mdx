@@ -1,0 +1,71 @@
+---
+title: prepare
+description: Prepares a JSON transaction for emission.
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/protocol-reference/transactions">Transactions</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="JavaScript">
+* This function takes a transaction JSON object and prepares it for emission.
+* The transaction must be complete except for the Account field, which should always be the Hook account.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function prepare(
+    txJson: Record<string, any> | Transaction
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const prepared_txn = prepare({
+                TransactionType: "Payment",
+                Destination: util_raddr(p1address_ns),
+                Amount: parseFloat(drops_sent)*2
+            })
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th>Name</th><th width="124">Type</th><th>Description</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>The transaction JSON, must be a complete transaction except for Account (always the Hook account).</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="231">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | Record&#x3C;string, any> | Transaction</td><td>Returns an ErrorCode if there is an error, or the prepared transaction JSON or Transaction object.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+

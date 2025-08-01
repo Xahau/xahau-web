@@ -1,0 +1,103 @@
+---
+title: float_mantissa
+description: Get the mantissa of an XFL enclosing number
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Return the mantissa part of an XFL as an unsigned integer
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retrieves the mantissa of a float representation.
+* An error code or the mantissa as a bigint.
+</TabItem>
+</Tabs>
+
+
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mantissa (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mantissa(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t mantissa =
+    float_mantissa(float_one());
+```
+
+<Aside type="tip">
+The mantissa of a negative XFL is always positive. Use `float_sign` to determine the sign of the number.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const mantissa =
+    float_mantissa(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name | Type   | Description                              |
+| ---- | ------ | ---------------------------------------- |
+| f1   | bigint | The float to retrieve the mantissa from. |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type     | Description                            |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | An XFL floating point enclosing number |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                 |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The mantissa of the XFL<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                |
+| ------------------- | ------------------------------------------ |
+| bigint or ErrorCode | An error code or the mantissa as a bigint. |
+</TabItem>
+</Tabs>
+

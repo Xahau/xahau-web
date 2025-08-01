@@ -1,0 +1,80 @@
+---
+const { class: className, ...rest } = Astro.props
+
+import { Image } from 'astro:assets'
+import gem1 from '../assets/gems/1.png'
+import gem2 from '../assets/gems/2.png'
+import gem3 from '../assets/gems/3.png'
+import gem4 from '../assets/gems/4.png'
+import gem5 from '../assets/gems/5.png'
+import gem6 from '../assets/gems/6.png'
+import gem7 from '../assets/gems/7.png'
+import gem8 from '../assets/gems/8.png'
+import gem9 from '../assets/gems/9.png'
+import gem10 from '../assets/gems/10.png'
+import gem11 from '../assets/gems/11.png'
+import gem12 from '../assets/gems/12.png'
+import gem13 from '../assets/gems/13.png'
+import gem14 from '../assets/gems/14.png'
+import gem15 from '../assets/gems/15.png'
+import gem16 from '../assets/gems/16.png'
+import gem17 from '../assets/gems/17.png'
+
+const gemMap = {
+  '1': gem1,
+  '2': gem2,
+  '3': gem3,
+  '4': gem4,
+  '5': gem5,
+  '6': gem6,
+  '7': gem7,
+  '8': gem8,
+  '9': gem9,
+  '10': gem10,
+  '11': gem11,
+  '12': gem12,
+  '13': gem13,
+  '14': gem14,
+  '15': gem15,
+  '16': gem16,
+  '17': gem17,
+}
+
+const gem = gemMap[Astro.props.gem as keyof typeof gemMap] || gem1
+
+var gemSize = 'size-80'
+if (Astro.props.gemSize && Astro.props.gemSize === 'large') {
+  gemSize = 'size-120 -top-40'
+}
+---
+
+<div class:list={["flex",className]}>
+    <div class="flex-none container mx-auto py-12 text-left max-w-7xl p-6">
+        
+        {Astro.props.align ? (
+            <div class="grid grid-cols-1 md:grid-cols-5" >
+                {Astro.props.align === "right" && Astro.props.gem && (
+                    <div class="relative overflow-visible invisible md:visible">
+                        <Image loading={Astro.props.loading} src={gem} alt="Gem" class={`overflow-visible ${gemSize} absolute inset-0 m-auto -left-60 object-cover`} />
+                    </div>
+                )}
+                <div class={
+                    Astro.props.align === "right"
+                        ? "col-span-1 md:col-span-3 md:col-start-3"
+                        : Astro.props.align === "left"
+                            ? "col-span-1 md:col-span-3 md:col-start-1"
+                            : "col-span-1 md:col-span-3 md:col-start-2"
+                }>
+                    <slot />
+                </div>
+                {Astro.props.align === "left" && Astro.props.gem && (
+                    <div class="relative overflow-visible invisible md:visible">
+                        <Image loading={Astro.props.loading} src={gem} alt="Gem" class={`overflow-visible ${gemSize} absolute inset-0 m-auto -right-150 object-cover`} />
+                    </div>
+                )}
+            </div>
+        ) : (
+            <slot />
+        )}
+    </div>
+</div>

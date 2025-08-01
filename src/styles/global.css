@@ -1,0 +1,26 @@
+@theme {
+  --color-xahau-green: #5de48c;
+  --color-xahau-green-dark: #007b3d;
+  --color-xahau-background: #f7f7f7;
+  --color-xahau-gray: #0f2328;
+  --color-xahau-secondary: #fad7ae;
+}
+
+footer a:hover {
+  @apply !underline;
+}
+
+footer {
+  z-index: 100;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    /* biome-ignore lint: noUnknownProperty */
+    navigation: auto;
+  }
+}
