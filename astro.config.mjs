@@ -281,14 +281,8 @@ export default defineConfig({
           label: 'Infrastructure',
           items: [
             'docs/infrastructure/node-requirements',
-            {
-              label: 'Running a Node',
-              collapsed: true,
-              items: [
-                'docs/infrastructure/running-a-node/running-a-mainnet-node',
-                'docs/infrastructure/running-a-node/running-a-testnet-node',
-              ],
-            },
+            'docs/infrastructure/running-a-mainnet-node',
+            'docs/infrastructure/running-a-testnet-node',
             {
               label: 'Building Xahau (Dev)',
               collapsed: true,
