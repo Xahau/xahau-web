@@ -280,8 +280,10 @@ export default defineConfig({
         {
           label: 'Infrastructure',
           items: [
-            'docs/infrastructure/node-requirements',
+            'docs/infrastructure/system-requirements',
             'docs/infrastructure/installing-xahaud',
+            'docs/infrastructure/interacting',
+            'docs/infrastructure/enabling-validation',
             {
               label: 'Building Xahau (Dev)',
               collapsed: true,
