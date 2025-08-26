@@ -1,20 +1,14 @@
 ---
 title: System Requirements
 ---
-Hardware requirements for nodes (RPC, hubs, validators, etc.) should be generally along the lines of the specs outlined below.
+Hardware requirements for nodes customized for various tasks (e.g., RPC, hubs, validators, etc.) should be consistent with the specs outlined below. Consider tailoring your individual system based on your intended use case.
 
-For specific node use cases (e.g. full history) specs may differ (and grow) over time.
-
-### Nodes should run (reasonably) well for own use with:
-
-* CPU: Minimum 8 cores
-* Memory: Minimum 16GB (32GB+ advised)
-* Disk IO: Minimum 10k random RW
-* Disk size: Contingent on the amount of history stored. Memory databases take virtually no disk space, while full history requires 10TB+.
-* Filesystem: Machines storing full history should use XFS or similar, to avoid limitations with single file size in EXT4. If storing less history, EXT4 is sufficient.
-* Network IO: 100Mbit+
-
-***As of August 6, 2025 the full history for the Xahau Network is approximately 8TB***
+### General Notes
+* Builds are typically tested on Ubuntu LTS. However, Docker, portable binaries, custom builds, and other install methods allow for diverse operating system support.
+* Machines storing full history must use XFS or similar to avoid limitations with single file size in EXT4 (max. file size of 16TB). If storing less history, EXT4 is sufficient.
+* It may be possible to run xahaud on machines that do not meet the below "Minimum" specifications for production servers. However, doing so risks instability.
+* These system requirements may grow over time. For example, disk space for full history servers is consistently increasing.
+* As of August 6, 2025 <strong>the full history for the Xahau Network is approximately 8TB</strong>.
 
 ### Production Server Recommended Specs:
 
