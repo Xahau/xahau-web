@@ -1,0 +1,54 @@
+---
+title: Installing xahaud
+description: >-
+  Xahau Mainnet allows anyone to run a node locally. Users can run a Docker container, a local instance, or a binary file.
+---
+## Docker Container
+
+To connect to the Xahau Mainnet you can use this docker container:
+
+1. Clone the appropriate (Mainnet or Testnet) Xahau Docker GitHub repository. URLs are in the table at the bottom of this page. <code>git clone [repository-url]</code>
+2. Navigate to the repository directory. <code>cd [repository-name]</code>
+3. Run `./build`
+4. Run `./up`
+5. Commands and additional information are located in the README.md file in the repository.
+
+## Local Install
+The Xahau Docker containers repositories (mainnet and testnet) each contains a script to automate the local install process. The URLs for these scripts are contained in the table at the bottom of this page. To install locally:
+
+1. Download and run the install script: <code>curl -sL [link-to-script] | bash</code>
+2. Edit the configuration file: <code>/opt/xahahud/etc/xahaud.cfg</code>
+3. Verify and, if needed, edit the contents of the trusted validators file: <code>/opt/xahaud/etc/validators-xahau.txt</code>
+4. Start and enable xahaud to run automatically: <code>systemctl enable --now xahaud</code>
+
+## Binary Files
+Users seeking to install xahaud in non-traditional environments (e.g., outside Ubuntu) may benefit from the binary release packages, which are built with necessary dependencies. Download and run the binary:
+1. Download the latest release from [https://build.xahau.tech](https://build.xahau.tech)
+2. Extract the downloaded file.
+3. Download and edit the appropriate (main or test network) configuration and trusted validators files using the links in the table below.
+3. Run <code>./xahaud --net --conf xahaud.cfg</code> (replace 'xahaud.cfg') with the path to your downloaded configuration file. The validators' file path is defined in the configuration file and thus is not specified at runtime.
+
+## Resources, Peering, and Configurations
+This peering is relevant for both docker containers and local installations.
+
+<table style="width: 100%; table-layout: fixed;">
+<thead><tr><th>Resource</th><th>Main Network</th><th>Test Network</th></tr></thead>
+<tbody>
+<tr><td>Documentation and Resources</td><td><a href="https://xahau.network/">https://xahau.network/</a></td><td>Same as Mainnet</td></tr>
+<tr><td>Hooks Smart Contract Documentation</td><td><a href="https://xrpl-hooks.readme.io/">https://xrpl-hooks.readme.io</a></td><td>Same as Mainnet</td></tr>
+<tr><td>Explorer</td><td><a href="https://explorer.xahau.network/">https://explorer.xahau.network/</a></td><td><a href="https://explorer.xahau-test.net/">https://explorer.xahau-test.net</a></td></tr>
+<tr><td>WebSocket URL</td><td><a href="wss://xahau.network">wss://xahau.network</a></td><td><a href="https://xahau-test.net">https://xahau-test.net</a></td></tr>
+<tr><td>Network ID</td><td>21337</td><td>21338</td></tr>
+<tr>
+<td>Peering and Bootstrap Servers</td>
+<td>bacab.alloy.ee 21337<br></br>hubs.xahau.as16089.net 21337</td>
+<td>79.110.60.122 21338<br></br>79.110.60.124 21338<br></br>79.110.60.125 21338<br></br>79.110.60.121 21338<br></br><br></br>2a0c:3bc0::1c74 21338<br></br>2a0c:3bc0::169d 21338<br></br>2a0c:3bc0::1aaf 21338<br></br>2a0c:3bc0::1d78 21338</td>
+</tr>
+<tr><td>Binary xahaud Releases</td><td><a href="https://build.xahau.tech">https://build.xahau.tech</a></td><td>Same as Mainnet</td></tr>
+<tr><td>Local Install Scripts</td><td><a href="https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh">https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh</a></td></tr>
+<tr><td>Docker Container</td><td><a href="https://github.com/Xahau/mainnet-docker">https://github.com/Xahau/mainnet-docker</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker">https://github.com/Xahau/Xahau-Testnet-Docker</a></td></tr>
+<tr><td>Sample Configuration File</td><td><a href="https://github.com/Xahau/mainnet-docker/blob/main/store/etc/xahaud.sample.cfg">https://github.com/Xahau/mainnet-docker/blob/main/store/etc/xahaud.sample.cfg</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg</a></td></tr>
+<tr><td>Sample Trusted Validators (UNL) File</td><td><a href="https://github.com/Xahau/mainnet-docker/blob/main/store/etc/validators-xahau.sample.txt">https://github.com/Xahau/mainnet-docker/blob/main/store/etc/validators-xahau.sample.txt</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt</a></td></tr>
+<tr><td>Github Build Actions (release numbers)</td><td style="word-break: break-all;"><a href="https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker">https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker</a></td><td>Same as Mainnet</td></tr>
+</tbody>
+</table>

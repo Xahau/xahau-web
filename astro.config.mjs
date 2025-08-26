@@ -281,8 +281,7 @@ export default defineConfig({
           label: 'Infrastructure',
           items: [
             'docs/infrastructure/node-requirements',
-            'docs/infrastructure/running-a-mainnet-node',
-            'docs/infrastructure/running-a-testnet-node',
+            'docs/infrastructure/installing-xahaud',
             {
               label: 'Building Xahau (Dev)',
               collapsed: true,
