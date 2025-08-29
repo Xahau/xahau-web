@@ -1,2 +1,0 @@
-- Xahau refers to either the network or the native currency
-- Xahaud is software and should start lower case

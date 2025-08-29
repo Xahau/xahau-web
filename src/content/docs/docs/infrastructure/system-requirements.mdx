@@ -1,7 +1,15 @@
 ---
 title: System Requirements
 ---
-Hardware requirements for nodes customized for various tasks (e.g., RPC, hubs, validators, etc.) should be consistent with the specs outlined below. Consider tailoring your individual system based on your intended use case.
+Hardware requirements for nodes customized for various tasks (e.g., RPC/WS, hubs, validators, etc.) should be consistent with the specs outlined below. Consider tailoring your individual system based on your intended use case.
+
+### Types of Nodes
+It is possible to run xahaud in diverse configurations, based on a users needs. Similarly,  one xahaud server can be configured for multiple purposes, such as a full history server that is also used for RPC/WS calls. Some xahaud configurations might include:
+1. Stock server - This term is commonly used to refer to any xahaud node that is not configured as a validator. A stock server generally has very few changes from the default configuration.
+2. Full history servers - Are useful for querying historic data. In addition to a large amount of storage space, potentially higher disk IOPS and network bandwidth are needed, depending on the number of users querying the server.
+3. RPC/Websocket servers - Are tailored for tasks such as submitting transactions or querying current ledger data, like order books or the validation stream. Nginx or other proxy sofware is often placed in front of RPC/WS servers to provide load balancing, encryption, and other benefits.
+4. Hub server - Peering between nodes is critical for relaying messages across the Xahau Network, and xahaud can be configured to provide peering for hundreds of peers. However, a large amount of bandwidth can be required (10 Gbit+).
+5. [Validating servers](../enabling-validation) - Validators differ from other types of nodes, in that they require an additional cryptographic key to be installed, so they can sign off on the sequence of transactions in a proposed ledger. As availability and security are critical, it is not recommended to use a validator for other functions.
 
 ### General Notes
 * Builds are typically tested on Ubuntu LTS. However, Docker, portable binaries, custom builds, and other install methods allow for diverse operating system support.
@@ -12,4 +20,4 @@ Hardware requirements for nodes customized for various tasks (e.g., RPC, hubs, v
 
 ### Recommended Specs for Production xahaud Servers
 
-<table><thead><tr><th width="140"></th><th width="200">Minimum</th><th width="199">Preferred</th><th>Ideal</th></tr></thead><tbody><tr><td>CPU</td><td>8 cores</td><td>20 cores</td><td>40+ cores</td></tr><tr><td>Memory</td><td>32GB</td><td>64GB</td><td>128GB+</td></tr><tr><td>Disk IO</td><td>15k random RW</td><td>20k random RW</td><td>30k random RW</td></tr><tr><td>Disk Size</td><td>500GB</td><td>1TB</td><td>20TB+</td></tr><tr><td>Filesystem</td><td>XFS</td><td>XFS</td><td>XFS</td></tr><tr><td>Network IO</td><td>500Mbit+</td><td>1Gbit</td><td>10Gbit</td></tr></tbody></table>
+<table><thead><tr><th width="140"></th><th width="200">Minimum</th><th width="199">Preferred</th><th>Ideal</th></tr></thead><tbody><tr><td>CPU (2.5+ GHz x86_64)</td><td>8 cores</td><td>20 cores</td><td>40+ cores</td></tr><tr><td>Memory</td><td>32GB</td><td>64GB</td><td>128GB+</td></tr><tr><td>Disk IO (sustained)</td><td>15k random RW</td><td>20k random RW</td><td>30k random RW</td></tr><tr><td>Disk Size</td><td>500GB</td><td>1TB</td><td>20TB+</td></tr><tr><td>Filesystem</td><td>XFS</td><td>XFS</td><td>XFS</td></tr><tr><td>Network IO</td><td>500Mbit+</td><td>1Gbit</td><td>10Gbit</td></tr></tbody></table>
