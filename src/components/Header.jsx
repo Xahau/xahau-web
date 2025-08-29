@@ -29,7 +29,7 @@ const docs = [
   { name: 'Protocol Reference', href: '/docs/protocol-reference/transactions' },
   { name: 'Hooks', href: '/docs/hooks' },
   { name: 'Data APIs', href: '/docs/data-apis' },
-  { name: 'Infrastructure', href: '/docs/infrastructure/node-requirements' },
+  { name: 'Infrastructure', href: '/docs/infrastructure/system-requirements' },
   { name: 'Whitepaper', href: '/docs/resources/whitepaper' },
 ]
 

@@ -37,4 +37,4 @@ All commands are run from the root of the project, from a terminal:
 
 ## Standards for Formatting Contributions
 
-When contributing, please adhere to the standards defined in "[contributing.md](contributing.md)."
+When contributing, please adhere to the standards defined in "[contributing.md](contributing.md)".
