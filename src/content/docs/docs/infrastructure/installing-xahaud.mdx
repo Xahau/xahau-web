@@ -1,8 +1,11 @@
 ---
-title: Installing Xahau
+title: Installing xahaud
 description: >-
-  Xahau Mainnet allows anyone to run a node locally. Users can run a Docker container, a local instance, or a binary file.
+  The software behind Xahau is open source, and anyone can run a node locally. Users can run a Docker container, a local instance, or a binary file.
 ---
+When running a node, users will have to configure settings based on whether the node will run on the test network or the main network. When transitioning a single node from one network to the other, database files must be wiped (with the exception of wallet.db, which contains the server's identity credentials).
+
+In addition to [building from scratch](../building-xahau), there are three ways to install xahaud: Docker, locally, and using a portable binary.
 ## Docker Container
 
 To connect to the Xahau Mainnet you can use this docker container:
