@@ -12,7 +12,7 @@ Public contributions to the documentation are welcome. When contributing, please
 * Individual webpages may be formatted using Markdown, HTML, CSS, and JavaScript in any combination. To the extent possible, favor style templates and avoid inline CSS.
 * When using bulleted or numbered lists end sentences with a period ('.'), unless doing so interferes with content. For example, if a bulleted list item ends with a link to a webpage, do not add a '.' at the end of the link, as doing so breaks the link. Similarly, do not add a '.' after code snippets.
 * Capitalize proper nouns, including "Testnet" and "Mainnet". Prefer single word for these terms.
-* Use square brackets: "[like this]" inside code snippets to offset user specific information, such as file names and paths. For example: `cd [path/to/xahaud]`.
+* Use square brackets inside code snippets to offset user specific information, such as file names and paths. For example: `cd [/path/to/xahaud] && ./xahaud server_info`
 
 ### General Guidelines
 * Include meaningful commit messages.

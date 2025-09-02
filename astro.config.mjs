@@ -282,8 +282,9 @@ export default defineConfig({
           items: [
             'docs/infrastructure/system-requirements',
             'docs/infrastructure/installing-xahaud',
-            'docs/infrastructure/interacting',
+            'docs/infrastructure/updating-xahaud',
             'docs/infrastructure/enabling-validation',
+            'docs/infrastructure/interacting',
             {
               label: 'Building Xahau (Dev)',
               collapsed: true,
