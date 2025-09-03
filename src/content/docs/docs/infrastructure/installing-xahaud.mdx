@@ -3,12 +3,12 @@ title: Installing xahaud
 description: >-
   The software behind Xahau is open source, and anyone can run a node locally. Users can run a Docker container, a local instance, or a binary file.
 ---
-When running a node, users will have to configure settings based on whether the node will run on the test network or the main network. When transitioning a single node from one network to the other, database files must be wiped (with the exception of wallet.db, which contains the server's identity credentials).
+When running a node, users will have to configure settings based on whether the node will run on the test network or the main network. When transitioning a single node from one network to the other, database files must be wiped, except wallet.db, which contains the server's identity credentials. The below install methods all rely on the xahaud builds published at: [https://build.xahau.tech](https://build.xahau.tech), though the end result is different.
 
 In addition to [building from scratch](../building-xahau), there are three ways to install xahaud: Docker, locally, and using a portable binary.
 ## Docker Container
 
-To connect to the Xahau Mainnet you can use this docker container:
+To run xahaud in a Docker Container:
 
 1. Clone the appropriate (Mainnet or Testnet) Xahau Docker GitHub repository using the URL in the table below: <code>git clone [repository-url]</code>
 2. Navigate to the repository directory: <code>cd [repository-name]</code>
@@ -17,20 +17,21 @@ To connect to the Xahau Mainnet you can use this docker container:
 5. Commands and additional information are located in the README.md file in the repository.
 
 ## Local Install
-The Xahau Docker containers repositories (Mainnet and Testnet) each contains a script to automate the local install process. The URLs for these scripts are contained in the table at the bottom of this page. To install locally:
+The Xahau Docker repositories (Mainnet and Testnet) each contains a script to automate the local install process, so that xahaud can be run outside of Docker. These scripts will create systemd files as well as default configuration files. The URLs for these scripts are in the table at the bottom of this page. To install locally:
 
-1. Download and run the install script: <code>curl -sL [link-to-script] | bash</code>
+1. Download and run the install script: <code>curl -sL [https://link-to-script] | bash</code>
 2. Edit the configuration file: <code>/opt/xahahud/etc/xahaud.cfg</code>
 3. Verify and, if needed, edit the contents of the trusted validators file: <code>/opt/xahaud/etc/validators-xahau.txt</code>
 4. Start and enable xahaud to run automatically: <code>systemctl enable --now xahaud</code>
 5. Verify xahaud is running: <code>/opt/xahaud/bin/xahaud server_info</code>
 
 ## Binary Files
-Users seeking to install xahaud in non-traditional environments (e.g., outside Ubuntu) may benefit from the binary release packages, which are built with necessary dependencies. Download and run the binary:
+Users seeking to install xahaud in non-traditional environments (e.g., outside Ubuntu) may benefit from the binary release packages, which are built with necessary dependencies. This install process is essentially the same as the "Local Install", however, xahaud is not configured as a systemd service and config files are not installed in default directories.
 1. Download the latest release from [https://build.xahau.tech](https://build.xahau.tech)
 2. Download and edit the relevant configuration and trusted validators files (see the table below for links to Mainnet and Testnet configurations).
-3. Change permissions on the downloaded binary, so it is executable: <code>chmod 555 [filename]</code>
-5. Run the binary: <code>./[filename] --net --conf [path to xahaud.cfg]</code>
+3. Change permissions on the downloaded binary, so it is executable: <code>chmod 500 [/path/to/xahaud]</code>
+4. Consider restricting access to xahaud.cfg and validators-xahau.txt: <code>chmod 400 xahaud.cfg validators-xahau.txt</code>
+5. Run the binary: <code>./[path/to/xahaud] --net --conf [path to xahaud.cfg]</code>
 6. Verify xahaud is running: <code>./[filename] server_info</code>
 
 ## Resources, Peering, and Configurations
@@ -49,9 +50,9 @@ This peering is relevant for both docker containers and local installations.
 <td>bacab.alloy.ee 21337<br></br>hubs.xahau.as16089.net 21337</td>
 <td>79.110.60.122 21338<br></br>79.110.60.124 21338<br></br>79.110.60.125 21338<br></br>79.110.60.121 21338<br></br><br></br>2a0c:3bc0::1c74 21338<br></br>2a0c:3bc0::169d 21338<br></br>2a0c:3bc0::1aaf 21338<br></br>2a0c:3bc0::1d78 21338</td>
 </tr>
-<tr><td>Binary xahaud Releases</td><td><a href="https://build.xahau.tech">https://build.xahau.tech</a></td><td>Same as Mainnet</td></tr>
-<tr><td>Local Install Scripts</td><td><a href="https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh">https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh</a></td></tr>
 <tr><td>Docker Container</td><td><a href="https://github.com/Xahau/mainnet-docker">https://github.com/Xahau/mainnet-docker</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker">https://github.com/Xahau/Xahau-Testnet-Docker</a></td></tr>
+<tr><td>Local Install Scripts</td><td><a href="https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh">https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh</a></td></tr>
+<tr><td>Binary Releases</td><td><a href="https://build.xahau.tech">https://build.xahau.tech</a></td><td>Same as Mainnet</td></tr>
 <tr><td>Sample Configuration File</td><td><a href="https://github.com/Xahau/mainnet-docker/blob/main/store/etc/xahaud.sample.cfg">https://github.com/Xahau/mainnet-docker/blob/main/store/etc/xahaud.sample.cfg</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg</a></td></tr>
 <tr><td>Sample Trusted Validators (UNL) File</td><td><a href="https://github.com/Xahau/mainnet-docker/blob/main/store/etc/validators-xahau.sample.txt">https://github.com/Xahau/mainnet-docker/blob/main/store/etc/validators-xahau.sample.txt</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt</a></td></tr>
 <tr><td>Github Build Actions (release numbers)</td><td style="word-break: break-all;"><a href="https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker">https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker</a></td><td>Same as Mainnet</td></tr>

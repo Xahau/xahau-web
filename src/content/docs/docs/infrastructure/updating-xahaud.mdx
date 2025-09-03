@@ -1,13 +1,17 @@
 ---
 title: Updating xahaud
 ---
-The process for updating xahaud varies depending on the install method used.
+The process for updating xahaud varies depending on the install method used, however, all three methods rely on the releases published at [https://build.xahau.tech](https://build.xahau.tech). When updating a validator, hub, or other 'critical' infrastructure, please check the network health prior to restarting a server to install an update.
 
 ### Backup
-Prior to updating, users should backup:
+Users should always keep backups of:
 1. The primary configuration file: `xahaud.cfg`
+    - Location varies based on install type.
 2. The trusted validators file: `validators-xahau.txt`
+    - Location is specified in 'xahaud.cfg'.
 3. The server's identity credentials: `wallet.db`
+    - Located in the database directory defined in 'xahaud.cfg'.
+4. Validators must keep their validation private key backed up in a secure, offline location.
 
 ### Updating Docker Containers
 Will go here.
@@ -15,5 +19,9 @@ Will go here.
 ### Updating Local Installations
 Will go here
 
-### Updating Portable Binaries
-Will go here
+### Updating Binary Files
+Updating the xahaud binary files is essentially the same as the original install instructions:
+1. Remove the currently running version: `rm [/path/to/xahaud]`
+2. Download the new version: [https://build.xahau.tech/](https://build.xahau.tech)
+3. Mark the download as executable: `chmod 500 [/path/to/xahaud]`
+4. Start xahaud: `./[path/to/xahud] --net --conf [/path/to/xahaud.cfg]`

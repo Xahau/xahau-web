@@ -4,11 +4,11 @@ title: System Requirements
 Hardware requirements for nodes customized for various tasks (e.g., RPC/WS, hubs, validators, etc.) should be consistent with the specs outlined below. Consider tailoring your individual system based on your intended use case.
 
 ### Types of Nodes
-It is possible to run xahaud in diverse configurations, based on a users needs. Similarly,  one xahaud server can be configured for multiple purposes, such as a full history server that is also used for RPC/WS calls. Some xahaud configurations might include:
+It is possible to run xahaud in diverse configurations, based on a users needs. Similarly, one xahaud server can be configured for multiple purposes, such as a full history server that is also used for RPC/WS calls. The server's purpose dictates necessary system requirements. Some xahaud configurations might include:
 1. Stock server - This term is commonly used to refer to any xahaud node that is not configured as a validator. A stock server generally has very few changes from the default configuration.
 2. Full history servers - Are useful for querying historic data. In addition to a large amount of storage space, potentially higher disk IOPS and network bandwidth are needed, depending on the number of users querying the server.
 3. RPC/Websocket servers - Are tailored for tasks such as submitting transactions or querying current ledger data, like order books or the validation stream. Nginx or other proxy sofware is often placed in front of RPC/WS servers to provide load balancing, encryption, and other benefits.
-4. Hub server - Peering between nodes is critical for relaying messages across the Xahau Network, and xahaud can be configured to provide peering for hundreds of peers. However, a large amount of bandwidth can be required (10 Gbit+).
+4. Hub server - Peering between nodes is critical for relaying messages across the Xahau Network, and a single server can be configured to provide peering for hundreds of peers. However, a large amount of bandwidth can be required (10 Gbit+).
 5. [Validating servers](../enabling-validation) - Validators differ from other types of nodes, in that they require an additional cryptographic key to be installed, so they can sign off on the sequence of transactions in a proposed ledger. As availability and security are critical, it is not recommended to use a validator for other functions.
 
 ### General Notes
