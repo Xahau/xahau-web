@@ -31,7 +31,15 @@ To replace the current Docker image with a new version, without overwriting data
 6. Start the new instance: `./build && ./up`
 
 ### Updating Local Installations
-Will go here
+To update a locally installed version of xahaud, simply replace the current binary with a new binary:
+1. Download the new binary from: [https://build.xahau.tech](https://build.xahau.tech)
+2. Mark the new binary executable: `chmod +x [/path/to/download]`
+3. Stop the currently running xahaud instance: `/opt/xahaud/bin/xahaud stop`
+4. Replace the old binary with the new: `mv [/path/to/download] /opt/xahaud/bin/xahaud`
+5. Start xahaud: `systemctl start xahaud`
+6. Verify xahaud is running: `/opt/xahaud/bin/xahaud server_info`
+<br></br>
+A [script](https://gist.githubusercontent.com/WietseWind/9480a4fc95e904e54524406005c8c963/raw/2b200fdc2e5b471ae4f6625674aff1765d63e744/update.sh) that automates the above steps is available.
 
 ### Updating Binary Files
 Updating the xahaud binary files is essentially the same as the original install instructions:
