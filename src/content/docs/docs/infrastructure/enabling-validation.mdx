@@ -11,8 +11,19 @@ The private/public validation keypair should be stored and backed up in a secure
 ### Peering
 To maintain a high level of security, xahaud nodes that are configured as validators should only peer with known, trusted peers. Enabling the `peer_private` setting and explicitly defining `ips_fixed` in the xahaud.cfg file will force a server to only connect to defined peers. Operating system and hardware level protections, such as firewalls, provide additional reassurance that the server is only connecting to defined peers. However, this can be a challenge, as validators with too few peers, typically less than about five, are at risk of falling out of sync with the rest of the network.
 
+### Building the Validation Keys Tool
+At this time, there is not a packaged tool for generating validation keys. Thus, users can build the tool from scratch or rely on a packaged version provided with rippled (this tool is not packaged with the xahaud binary). The instructions for building the tool are the same as the instructions for building rippled, and they are provided on the [ripple/validator-keys-tool](https://github.com/ripple/validator-keys-tool) repository page.
+
 ### Generating and Installing Validation Keys
-Will go here
+Consider using an offline machine to generate validation keys and a validation token.
+1. Navigate to the directory containing the validation keys tool: `cd [/path/to/tool]`
+2. Generate a new keypair: `./validator-keys create_keys`
+3. The newly generated keypair is stored in `/home/[username]/.ripple/validator-keys.json`. 
+4. Ideally, validators should provide identity attestation. To do so, set your domain in the validator-keys.json file: `./validator-keys set_domain [example.com]`
+    - If you do not wish to provide an identifying domain, generate a validation token without a domain: `./validator-keys create_token --keyfile /home/[username]/.ripple/validator-keys.json`
+5. Review the output of the previous command. Note the `[validator_token]`, as this will be installed in xahaud.cfg to enable validation. If a domain was set, note the `attestation=""` line, as it will need to be added into the TOML file served at your domain.
+6. Open xahaud.cfg and paste in the `[validation_token]`, then restart the xahaud service.
+7. Paste the `attestation=""` into your TOML file to prove the identity of your validator.
 
 ### Identity Attestation
-Will go here. TOML + token
+To avoid a [Sybil attack](https://en.wikipedia.org/wiki/Sybil_attack) and build trust, validating xahaud nodes attest to their identity by cryptographically signing a domain name with their validation keys. This signature is then hosted at the same domain, in a TOML format file. In addition to verifying the identity of a validator, this TOML file can also be used to verify the identity of individual account holders on the Xahau Network, by providing an attestation signed by the private account key instead of the private validation key. The TOML file should be hosted on a web server with TLS encryption enabled at:<br></br><code>https://[your-domain.com]/.well-known/xah-ledger.toml</code><br></br>
