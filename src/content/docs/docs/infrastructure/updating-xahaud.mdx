@@ -14,7 +14,21 @@ Users should always keep backups of:
 4. Validators must keep their validation private key backed up in a secure, offline location.
 
 ### Updating Docker Containers
-Will go here.
+Updating xahaud inside a Docker container involves replacing the currently running binary with the new version, downloaded from [https://build.xahau.tech](https://build.xahau.tech). This can be accomplished either by replacing the xahaud binary inside the container or by updating the entire container.
+<br></br>
+To update the xahaud binary inside a running Docker container:
+1. Download the [script](https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh): `wget https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh`
+2. Edit the script and change the first line to the [release version](https://build.xahau.tech) you would like to install.
+3. Run the script: `bash ./update.sh`
+4. Verify xahaud is running: `docker exec xahaud-[mainnet/testnet] xahaud server_info`
+<br></br>
+To replace the current Docker image with a new version, without overwriting databases or configuration files (which are ignored via the .gitignore file):
+1. Navigate to the repository: `cd [/path/to/docker-repo]`
+2. Update to the latest version `git pull`
+3. List running Docker containers and note the name of the xahaud container: `docker ps`
+4. Stop the old xahaud instance: `docker stop xahaud-[mainnet/testnet]`
+5. Remove the old instance: `docker rm xahaud-[mainnet/testnet]`
+6. Start the new instance: `./build && ./up`
 
 ### Updating Local Installations
 Will go here
@@ -22,6 +36,6 @@ Will go here
 ### Updating Binary Files
 Updating the xahaud binary files is essentially the same as the original install instructions:
 1. Remove the currently running version: `rm [/path/to/xahaud]`
-2. Download the new version: [https://build.xahau.tech/](https://build.xahau.tech)
+2. Download the new version: [https://build.xahau.tech](https://build.xahau.tech)
 3. Mark the download as executable: `chmod 500 [/path/to/xahaud]`
 4. Start xahaud: `./[path/to/xahud] --net --conf [/path/to/xahaud.cfg]`

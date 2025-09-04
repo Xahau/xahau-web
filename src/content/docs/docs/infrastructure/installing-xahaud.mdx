@@ -14,10 +14,10 @@ To run xahaud in a Docker Container:
 2. Navigate to the repository directory: <code>cd [repository-name]</code>
 3. Run: <code>./build</code>
 4. Run: <code>./up</code>
-5. Commands and additional information are located in the README.md file in the repository.
+5. Commands and additional information are located in the README.md file in the Docker repository. Configuration files and databases are located in the `store` directory inside the Docker directory.
 
 ## Local Install
-The Xahau Docker repositories (Mainnet and Testnet) each contains a script to automate the local install process, so that xahaud can be run outside of Docker. These scripts will create systemd files as well as default configuration files. The URLs for these scripts are in the table at the bottom of this page. To install locally:
+The Xahau Docker repositories (Mainnet and Testnet) each contains a script to automate the local install process, so that xahaud can be run outside of Docker. These scripts will create systemd files, a 'xahaud' user, and default configuration files. The URLs for these scripts are in the table at the bottom of this page. To install locally:
 
 1. Download and run the install script: <code>curl -sL [https://link-to-script] | bash</code>
 2. Edit the configuration file: <code>/opt/xahahud/etc/xahaud.cfg</code>
@@ -28,14 +28,14 @@ The Xahau Docker repositories (Mainnet and Testnet) each contains a script to au
 ## Binary Files
 Users seeking to install xahaud in non-traditional environments (e.g., outside Ubuntu) may benefit from the binary release packages, which are built with necessary dependencies. This install process is essentially the same as the "Local Install", however, xahaud is not configured as a systemd service and config files are not installed in default directories.
 1. Download the latest release from [https://build.xahau.tech](https://build.xahau.tech)
-2. Download and edit the relevant configuration and trusted validators files (see the table below for links to Mainnet and Testnet configurations).
+2. Download and edit the relevant configuration and trusted validators files (see the table below for links to Mainnet and Testnet configurations). Ensure the paths to the validators-xahau.txt file, the database directory, and the logfile are accessible.
 3. Change permissions on the downloaded binary, so it is executable: <code>chmod 500 [/path/to/xahaud]</code>
 4. Consider restricting access to xahaud.cfg and validators-xahau.txt: <code>chmod 400 xahaud.cfg validators-xahau.txt</code>
 5. Run the binary: <code>./[path/to/xahaud] --net --conf [path to xahaud.cfg]</code>
 6. Verify xahaud is running: <code>./[filename] server_info</code>
 
 ## Resources, Peering, and Configurations
-This peering is relevant for both docker containers and local installations.
+This peering is relevant for both Docker containers and local installations.
 
 <table style="width: 100%; table-layout: fixed;">
 <thead><tr><th>Resource</th><th>Main Network</th><th>Test Network</th></tr></thead>
