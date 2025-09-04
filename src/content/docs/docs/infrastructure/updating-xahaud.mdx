@@ -1,7 +1,7 @@
 ---
 title: Updating xahaud
 ---
-The process for updating xahaud varies depending on the install method used, however, all three methods rely on the releases published at [https://build.xahau.tech](https://build.xahau.tech). When updating a validator, hub, or other 'critical' infrastructure, please check the network health prior to restarting a server to install an update.
+The process for updating xahaud varies depending on the install method used, however, all three methods rely on the releases published at [https://build.xahau.tech](https://build.xahau.tech). When updating a validator, hub, or other 'critical' infrastructure, please check the network health prior to restarting a server to install an update. It is possible to automate the update process using a crontab entry and an update script, however, administrators are discouraged from doing so, as automatic updates may result in restarts at times when the network is unstable. Similarly, human presence allows operators to ensure updates are successful, thereby minimizing downtime.
 
 ### Backup
 Users should always keep backups of:

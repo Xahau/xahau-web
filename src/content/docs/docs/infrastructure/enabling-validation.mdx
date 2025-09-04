@@ -1,4 +1,18 @@
 ---
-title: Enabling Validation in xahaud
+title: Enabling Validations in xahaud
 ---
-Will go here.
+Validators are xahaud nodes that are configured with an additional public/private keypair, which is used to sign each proposed ledger. Thus, validators are the primary mechanism used to achieve consensus regarding the order in which transactions are applied on the Xahau Network.
+
+### Security and Availability
+When running xahaud as a validator, system security and availability are critical. Validator operators are expected to actively monitor their servers and to respond quickly to outages. Some validator operators choose to host standby machines in diverse data centers, so they can quickly recover from outages. While it is possible to host a reliable validator in one's home, it is unlikely that such a setup could provide sufficient stability and security for the validator to gain broader trust (e.g., inclusion on published UNLs). Similarly, validator operators are strongly discouraged from running software other than xahaud on a machine used as a xahaud validator, since this increases the probability of running out of resources or exposing a security vulnerability. System administrators who require websocket or RPC access to a server are encouraged to run different machines for queries, so resources are not taken away from the critical task of validating ledgers. It is possible for system administrators who run multiple xahaud nodes to "cluster" their nodes.
+<br></br>
+The private/public validation keypair should be stored and backed up in a secure, offline environment. Anyone with access to the keys of a trusted validator has potential to harm the network. After installing a validation token into the xahaud.cfg file, it is advised to restrict read access (`chmod 400 xahaud.cfg`) and change ownership of the file to "root" or "xahaud", depending on the type of install (`chown root:root xahaud.cfg`).
+
+### Peering
+To maintain a high level of security, xahaud nodes that are configured as validators should only peer with known, trusted peers. Enabling the `peer_private` setting and explicitly defining `ips_fixed` in the xahaud.cfg file will force a server to only connect to defined peers. Operating system and hardware level protections, such as firewalls, provide additional reassurance that the server is only connecting to defined peers. However, this can be a challenge, as validators with too few peers, typically less than about five, are at risk of falling out of sync with the rest of the network.
+
+### Generating and Installing Validation Keys
+Will go here
+
+### Identity Attestation
+Will go here. TOML + token
