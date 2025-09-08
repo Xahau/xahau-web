@@ -3,7 +3,7 @@ Public contributions to the documentation are welcome. When contributing, please
 
 ### Disambiguation
 * Strive for brevity and clarity. Avoid jargon and use a professional writing tone.
-* When referring to the software `xahaud`, use a lowercase "x" and include the 'd'. When referring to the broader `Xahau Network`, capitalize both terms. Use the capitalized `Xahau` or the all caps abbreviation `XAH` when referring to the currency.
+* When referring to the software `xahaud`, use a lowercase "x" and include the 'd'. When referring to the broader `Xahau Network`, capitalize both terms and,if appropriate, subsequently use the capitalized term "the Network". Use the capitalized `Xahau` or the all caps abbreviation `XAH` when referring to the currency.
 * Be mindful that this documentation is shared by a global community. Avoid culture-specific jargon or slang.
 
 ### Formatting
