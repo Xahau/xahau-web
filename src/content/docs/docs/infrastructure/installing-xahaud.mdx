@@ -3,9 +3,9 @@ title: Installing xahaud
 description: >-
   The software behind Xahau is open source, and anyone can run a node locally. Users can run a Docker container, a local instance, or a binary file.
 ---
-When running a node, users will have to configure settings based on whether the node will run on the test network or the main network. When transitioning a single node from one network to the other, database files must be wiped, except wallet.db, which contains the server's identity credentials. The below install methods all rely on the xahaud builds published at: [https://build.xahau.tech](https://build.xahau.tech), though the end result is different.
+When running a node, users will have to configure settings based on whether the node will run on the test network or the main network. When transitioning a single node from one network to the other, database files must be wiped, except wallet.db, which contains the server's identity credentials.
 
-In addition to [building from scratch](../building-xahau), there are three ways to install xahaud: Docker, locally, and using a portable binary.
+In addition to [building from scratch](../building-xahau), there are three ways to install xahaud: Docker, locally, and using a portable binary. The below install methods all rely on the xahaud builds published at: [https://build.xahau.tech](https://build.xahau.tech), though the end result is different. 
 ## Docker Container
 
 To run xahaud in a Docker Container:
@@ -32,7 +32,7 @@ Users seeking to install xahaud in non-traditional environments (e.g., outside U
 3. Change permissions on the downloaded binary, so it is executable: <code>chmod 500 [/path/to/xahaud]</code>
 4. Consider restricting access to xahaud.cfg and validators-xahau.txt: <code>chmod 400 xahaud.cfg validators-xahau.txt</code>
 5. Run the binary: <code>./[path/to/xahaud] --net --conf [path to xahaud.cfg]</code>
-6. Verify xahaud is running: <code>./[filename] server_info</code>
+6. Verify xahaud is running: <code>./[path/to/xahaud] server_info</code>
 
 ## Resources, Peering, and Configurations
 This peering is relevant for both Docker containers and local installations.

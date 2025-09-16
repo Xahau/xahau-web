@@ -5,24 +5,30 @@ The xahaud software provides both websocket and RPC interfaces that can be confi
 
 ### Configuring Websocket and RPC Ports
 To enable listening ports, edit the `xahaud.cfg` file. Enabled ports are listed under the `[server]` stanza in the configuration file. Each port listed under the `[server]` section must be further defined via it's own stanza. In addition to configuring websocket or RPC ports, administrators can also configure the port used to listen for incoming peer connections (`port_peer`). On validating servers, it is ideal to remove `port_peer` from the configuration file, to avoid incoming connections. A configuration file with the peer protocol, one websocket port, and one RPC port might look like:<br></br><br></br>
-[server]<br></br>port_peer<br></br>port_ws_public<br></br>port_rpc_public<br></br><br></br>
-[port_peer] # Name of the port.<br></br>
-protocol = peer # Required field.<br></br>
-port = 21337 # Required field.<br></br>
-ip = :: # Address of interface to find to.<br></br>
-<br></br>
-[port_ws_public]<br></br>
-protocol = ws<br></br>
-port = 16006<br></br>
-ip = ::<br></br>
-limit = 150 # Maximum number of clients allowed to connect to a given port. "0" is unlimited.<br></br>
-admin = [ 10.10.10.5, 10.11.11.0/24 ] # IP addresses or subnets allowed to submit [admin](../../features/http-websocket-apis/admin-api-methods) requests.<br></br>
-secure_gateway = [ 10.10.10.20, 10.15.15.0/24 ] # Addresses allowed to send X-Forwarded-For and X-User headers.<br></br>
 
-<br></br>
-[port_rpc_public]<br></br>
-protocol = http<br></br>
-port = 16007<br></br>
-ip = :: <br></br>
+```
+[server]
+port_peer
+port_ws_public
+port_rpc_public
+
+[port_peer] # Name of the port.
+protocol = peer # Required field.
+port = 21337 # Required field.
+ip = :: # Address of interface to bind to.
+
+[port_ws_public]
+protocol = ws
+port = 16006
+ip = ::
+limit = 150 # Maximum number of clients allowed to connect to a given port. "0" is unlimited.
+admin = [ 10.10.10.5, 10.11.11.0/24 ] # IP addresses or subnets allowed to submit [admin](../../features/http-websocket-apis/admin-api-methods) requests.
+secure_gateway = [ 10.10.10.20, 10.15.15.0/24 ] # Addresses allowed to send X-Forwarded-For and X-User headers.
+
+[port_rpc_public]
+protocol = http
+port = 16007
+ip = ::
+```
 <br></br>
 Additional configuration options for websocket and RPC connections are available in the [Example Configuration File](https://github.com/Xahau/xahaud/blob/dev/cfg/rippled-example.cfg).
