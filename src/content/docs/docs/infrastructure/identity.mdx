@@ -1,4 +1,34 @@
 ---
 title: Serving a TOML File for Identity Verification
 ---
-Given that trust is foundational to the Xahau Network, it is ideal that xahaud validator operators take credit for their validators. This is is done by publishing two attestations: one from a validating server on the Xahau Network and a second from a webserver that serves the identifying domain over TLS. Similarly, individual Xahau account holders might wish to publish a TOML file attesting that specific accounts on the network are under their control. This is particularly relevant for enterprises, such as exchanges or financial institutions.
+Given that trust is foundational to the Xahau Network, it is ideal for entities operating xahaud validators to take credit for their servers. Identity attestation provides users with assurances that one entity isn't gaining disproportionate control over the trusted (default UNL) validators in the Network. This is is done by publishing two attestations: one from a validating server on the Xahau Network and a second from a webserver that serves the identifying domain over TLS. Thus, the validator claims association with the web domain and the web domain claims association with the validator. Similarly, individual Xahau account holders might wish to publish a TOML file attesting that specific accounts on the network are under their control. Account ownership attestations are particularly relevant for enterprises, such as exchanges or financial institutions.
+
+## Configuring the Web Server
+1. The TOML file must be served from: `https://[optional-subdomain.your-domain.com]/.well-known/xah-ledger.toml`
+    * The path `/.well-known/xah-ledger.toml` must not be altered. The path must be all lower case.
+    * See [RFC 5785](https://datatracker.ietf.org/doc/html/rfc5785) for more information on the "/.well-known/" path.
+2. A TLS certificate chaining to a trusted authority must be used to encrypt connections to the TOML file.
+3. DNS Sec is recommended for the domain.
+4. Subdomains may be used to serve the file, and identical files may be hosted from multiple subdomains.
+5. Content type for the file is `application/toml`.
+6. The TOML file must be served with a CORS header: `Access-Control-Allow-Origin: *`
+7. Additional headers may be included with the TOML file, if needed.
+
+### CORS Configuration
+Apache:
+```
+<Location "/.well-known/xrp-ledger.toml">
+    Header set Access-Control-Allow-Origin "*"
+</Location>
+```
+Nginx:
+```
+location /.well-known/xrp-ledger.toml {
+    add_header 'Access-Control-Allow-Origin' '*';
+}
+```
+
+### TOML File Contents
+
+
+## Configuring the xahaud Validator
