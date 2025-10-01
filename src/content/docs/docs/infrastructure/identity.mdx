@@ -45,6 +45,11 @@ The below example is intended to illustrate all sections that are commonly inclu
 modified = 2025-08-04T14:24:34.123Z
 expired = 2025-12-31T14:24:34.123Z
 
+[ORGANIZATION]
+name = "A Company B.V."
+website = "https://example.com"
+email = "contact@example.com"
+
 [[PRINCIPALS]]
 name = "A. Person"
 email = "a_person@example.com"
@@ -94,12 +99,23 @@ Dates/times in the TOML file should be specified in UTC and include millisecond 
 <tr><td>`expires`</td><td>Date-Time</td><td>After this date/time, the TOML file will be considered expired and thus invalid.</td></tr>
 </table>
 
+#### Organization
+If an entity rather than an individual is claiming responsibility for the TOML file, that entity should use this section to identify itself. It would be unusual and likely an error for one TOML file to have multiple `[ORGANIZATION]` sections. If multiple sections are needed, ensure an additional set of brackets are added: `[[ORGANIZATION]]`.
+<table>
+<thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>The name of organization hosting the TOML file.</td></tr>
+<tr><td>`email`</td><td>String</td><td>Email address for the organization.</td></tr>
+<tr><td>`website`</td><td>String</td><td>Website for the organization (typically this is the same as the URL where the TOML is hosted).</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>Link to a social media profile. This field is not standardized at this time. Thus, `x = "@IncFinTech` and `social_1 = https://x.com/IncFinTech` are both valid.</td></tr>
+</table>
+
 #### Principals
 This section is used to identify individual points of contact for the Xahau Network infrastructure and/or accounts.
 <table>
 <thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
 <tr><td>`name`</td><td>String</td><td>The name of an individual responsible for overseeing the organizations Xahau Network operations.</td></tr>
 <tr><td>`email`</td><td>String</td><td>Email address for the principal.</td></tr>
+<tr><td>`website`</td><td>String</td><td>Website for the principal.</td></tr>
 <tr><td>`social_[x]`</td><td>String</td><td>Link to a social media profile. This field is not standardized at this time. Thus, `x = "@IncFinTech` and `social_1 = https://x.com/IncFinTech` are both valid.</td></tr>
 </table>
 
