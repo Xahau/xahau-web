@@ -17,13 +17,13 @@ Given that trust is foundational to the Xahau Network, it is ideal for entities 
 ### CORS Configuration
 Apache:
 ```
-<Location "/.well-known/xrp-ledger.toml">
+<Location "/.well-known/xah-ledger.toml">
     Header set Access-Control-Allow-Origin "*"
 </Location>
 ```
 Nginx:
 ```
-location /.well-known/xrp-ledger.toml {
+location /.well-known/xah-ledger.toml {
     add_header 'Access-Control-Allow-Origin' '*';
 }
 ```
