@@ -1,34 +1,152 @@
 ---
 title: Serving a TOML File for Identity Verification
 ---
-Given that trust is foundational to the Xahau Network, it is ideal for entities operating xahaud validators to take credit for their servers. Identity attestation provides users with assurances that one entity isn't gaining disproportionate control over the trusted (default UNL) validators in the Network. This is is done by publishing two attestations: one from a validating server on the Xahau Network and a second from a webserver that serves the identifying domain over TLS. Thus, the validator claims association with the web domain and the web domain claims association with the validator. Similarly, individual Xahau account holders might wish to publish a TOML file attesting that specific accounts on the network are under their control. Account ownership attestations are particularly relevant for enterprises, such as exchanges or financial institutions.
+***Identity verification requires two parts. NEVER TRUST TOML FILES OR ON NETWORK VALIDATOR/ACCOUNT ATTESTATIONS ALONE TO CONFIRM IDENTITY, AS ANYONE CAN SET THEM. A website (URL) must claim ownership of the validator/account, and the on-network data must match.***
 
-## Configuring the Web Server
-1. The TOML file must be served from: `https://[optional-subdomain.your-domain.com]/.well-known/xah-ledger.toml`
-    * The path `/.well-known/xah-ledger.toml` must not be altered. The path must be all lower case.
-    * See [RFC 5785](https://datatracker.ietf.org/doc/html/rfc5785) for more information on the "/.well-known/" path.
-2. A TLS certificate chaining to a trusted authority must be used to encrypt connections to the TOML file.
-3. DNS Sec is recommended for the domain.
-4. Subdomains may be used to serve the file, and identical files may be hosted from multiple subdomains.
-5. Content type for the file is `application/toml`.
-6. The TOML file must be served with a CORS header: `Access-Control-Allow-Origin: *`
-7. Additional headers may be included with the TOML file, if needed.
+Given that trust is foundational to the Xahau Network, it is ideal for entities operating xahaud validators to take credit for their servers. Identity attestation provides users with assurances that one entity isn't gaining disproportionate control over the trusted (default UNL) validators in the Network. This is is done by publishing two attestations: one from a validating server on the Xahau Network and a second from a web server that serves the identifying domain over TLS. Thus, the validator claims association with the web domain and the web domain claims association with the validator. *Without both of these claims, it is not possible to trust the identity attestation.* 
+
+Similarly, individual Xahau account holders might wish to publish a TOML file attesting that specific accounts on the network are under their control. Account ownership attestations are particularly relevant for enterprises, such as exchanges or financial institutions. As with validators, these attestations require two parts: a web server that claims ownership of a Xahau Network address as well as an on-network account address that claims to be owned by the same domain. Account attestations provide users with confidence that they are routing deposits to the correct address.
+
+## Configuring the Web Server and DNS
+1. The file contents must be in the [TOML format](https://github.com/toml-lang/toml).
+2. The TOML file must be served from: `https://[optional-subdomain.your-domain.com]/.well-known/xahau.toml`
+    * The path `/.well-known/xahau.toml` must not be altered. The path must be all lower case.
+    * [RFC 5785](https://datatracker.ietf.org/doc/html/rfc5785) contains more information on the "/.well-known/" path.
+3. A TLS certificate chaining to a trusted certificate authority must be used to encrypt connections serving the TOML file.
+4. DNS Sec is recommended for the domain.
+5. Subdomains may be used to serve the file, and identical files may be hosted from multiple subdomains.
+6. Content type for the file is `application/toml`.
+7. The TOML file must be served with a CORS header: `Access-Control-Allow-Origin: *`
+8. Additional headers may be served with the TOML file, if needed.
+9. Custom or nonstandard fields may be added to the TOML file, as required by individual users.
+10. No field is strictly required in the TOML file.
 
 ### CORS Configuration
 Apache:
 ```
-<Location "/.well-known/xah-ledger.toml">
+<Location "/.well-known/xahau.toml">
     Header set Access-Control-Allow-Origin "*"
 </Location>
 ```
 Nginx:
 ```
-location /.well-known/xah-ledger.toml {
+location /.well-known/xahau.toml {
     add_header 'Access-Control-Allow-Origin' '*';
 }
 ```
 
 ### TOML File Contents
+TOML files are typically subdivided into sections describing the TOML file itself (metadata), principals (responsible parties), and claimed assets including: validators, non-validating xahaud servers, accounts, and issued currencies.
+
+#### Example TOML
+The below example is intended to illustrate all sections that are commonly included in a Xahau Network TOML file. Individual users may not have all of these sections in their TOML file, and some users may need to include multiple of the same section. For example, if one exchange issues multiple currencies, it would include a `[[CURRENCIES]]` section for each IOU issued on the Network.
+```
+[METADATA]
+modified = 2025-08-04T14:24:34.123Z
+expired = 2025-12-31T14:24:34.123Z
+
+[[PRINCIPALS]]
+name = "A. Person"
+email = "a_person@example.com"
+social_1 = "https://www.linkedin.com/company/incfintech"
+x = "@IncFinTech"
+
+[[VALIDATORS]]
+public_key = "nHBixLw8q7XUP5AKceK2aZriN67PPjQW7JJ7hLkJgxvkTTs5go6k"
+attestation = "07FA61020CA5E0605BE29D213DCC33F934B631EB6215F52D3E99D8AEA841272E300758B5C03CD2332190307324B4869838B77BAD275B31CF59D13E8FA6A8780B"
+owner_country = "US"
+server_country = "CA"
+network_asn = "398726"
+network = "21337"
+unl = "https://vl.xahau.org"
+
+[[SERVERS]]
+ws = "wss://"
+json_rpc = "https://"
+peer = "https://"
+network = "21337"
+
+[[ACCOUNTS]]
+address = "rabc..."
+network = "21337"
+desc = "This wallet is used for client deposits."
+
+[[CURRENCIES]]
+code = "USD"
+issuer = "rabc..."
+symbol = "$"
+network = "21337"
+display_decimals = 2
+
+[[CURRENCIES]]
+code = "EUR"
+issuer = "rabc..."
+symbol = "€"
+network = "21337"
+display_decimals = 2
+```
+
+#### Metadata
+Dates/times in the TOML file should be specified in UTC and include millisecond precision. For example, `2025-08-04T14:24:34.123Z`. Only one metadata section can be included in a TOML file.
+<table>
+<thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
+<tr><td>`modified`</td><td>Date-Time</td><td>Date and time when the TOML was most recently modified.</td></tr>
+<tr><td>`expires`</td><td>Date-Time</td><td>After this date/time, the TOML file will be considered expired and thus invalid.</td></tr>
+</table>
+
+#### Principals
+This section is used to identify individual points of contact for the Xahau Network infrastructure and/or accounts.
+<table>
+<thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>The name of an individual responsible for overseeing the organizations Xahau Network operations.</td></tr>
+<tr><td>`email`</td><td>String</td><td>Email address for the principal.</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>Link to a social media profile. This field is not standardized at this time. Thus, `x = "@IncFinTech` and `social_1 = https://x.com/IncFinTech` are both valid.</td></tr>
+</table>
+
+#### Validators
+Validator operators are strongly encouraged to publish an attestation as proof of ownership. Providing geographic and ISP information is important, as it enables trusted (dUNL) list publishers to evaluate the geographic diversity of trusted validators on the network. If too many trusted validators are concentrated in one geographic region or on one network ASN, there is a risk to the broader network.
+<table>
+<thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
+<tr><td>`public_key`</td><td>String</td><td>The master public key used to validations.</td></tr>
+<tr><td>`attestation`</td><td>String</td><td>Domain attestation generated by the validator-keys tool.</td></tr>
+<tr><td>`owner_country`</td><td>String</td><td>[ISO-3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) country code for the entity or person in charge of the server.</td></tr>
+<tr><td>`server_country`</td><td>String</td><td>ISO-3166-2 country code for the server's physical location.</td></tr>
+<tr><td>`network_asn`</td><td>String</td><td>The Autonomous System Number (ASN) for the Internet Service Provider(s) providing internet connectivity to the server.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifies which network (Mainnet, Testnet, etc.) the server participates in.</td></tr>
+<tr><td>`unl`</td><td>String</td><td>A URL hosting the list of trusted validators that the validator subscribes to.</td></tr>
+</table>
+
+#### Servers
+Network participants who provide public peering or API access via websocket or RPC can publish details for accessing individual servers.
+<table>
+<thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
+<tr><td>`ws`</td><td>String</td><td>The URL for public websocket access. This begins with "ws:// or wss://".</td></tr>
+<tr><td>`json_rpc`</td><td>String</td><td>The URL for public RPC access. This begins with "http:// or https://".</td></tr>
+<tr><td>`peer`</td><td>String</td><td>URL other servers can use to peer with the server identified in the TOML.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifies which network (Mainnet, Testnet, etc.) the server participates in.</td></tr>
+</table>
+
+#### Accounts
+Entities needing account verification can use this section to claim ownership of a given Xahau Network wallet.
+<table>
+<thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
+<tr><td>`address`</td><td>String</td><td>The encoded public key (beginning with `r`) identifying a Xahau Network wallet.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifies which network (Mainnet, Testnet, etc.) the wallet is used on.</td></tr>
+<tr><td>`desc`</td><td>String</td><td>Human readable description of what the wallet is used for.</td></tr>
+</table>
+
+#### Currencies
+It is possible for multiple wallets to issue currencies with the same currency code. ***Thus, it is critical that users verify the issuing wallet as well as the currency code.***
+<table>
+<thead><tr><td>Field</td><td>Data Type</td><td>Description</td></tr></thead>
+<tr><td>`code`</td><td>String</td><td>The ticker symbol of the token as three digits or 40 hex characters. This field is case sensitive.</td></tr>
+<tr><td>`issuer`</td><td>String</td><td>The wallet address (beginning with `r`) that issued the currency. The referenced wallet should be present in the `[[ACCOUNTS]]` section of the TOML file.</td></tr>
+<tr><td>`symbol`</td><td>String</td><td>The symbol (e.g., "$") used to identify the currency.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifies which network (Mainnet, Testnet, etc.) the currency is issued on.</td></tr>
+<tr><td>`display_decimals`</td><td>Integer</td><td>The number of digits to the right of the decimal point that clients should display when showing quantities of the currency.</td></tr>
+</table>
 
 
-## Configuring the xahaud Validator
+## Configuring xahaud Validators
+
+## Configuring Account Verification
