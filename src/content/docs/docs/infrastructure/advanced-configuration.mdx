@@ -5,6 +5,21 @@ There are numerous configuration options available to xahaud operators. This sec
 
 For complete documentation on configuration options, please see the example configuration files in the [xahaud GitHub repository](https://github.com/Xahau/xahaud/tree/dev/cfg).
 
+## Running Databases in Memory
+Users seeking to maximize xahaud performance may choose to run databases in memory, rather than on dedicated storage media. Memory databases are not suited for machines storing history, as the databases are not persistent across xahaud restarts. Likewise, the amount of history stored is contingent on available system memory. Thus, `online_delete` and `advisory_delete` are required in the `xahaud.cfg` to prevent out of memory errors. When using a memory database, it is advisable to disable SWAP, as SWAP writes the contents of memory to disk, thereby potentially defeating the benefits obtained by storing the database in memory.
+
+To enable the memory database, edit the `xahaud.cfg` file:
+
+```
+[relational_db]
+type=RWDB
+
+[node_db]
+type=RWDB #RWDB is the memory database
+online_delete=256 # This value should be low on machines using memory databases. '256' is the minimum value.
+advisory_delete=0 # Do not require human intervention to delete history. This is necessary for preventing out of memory errors.
+```
+
 ## Clustering
 Clustering allows xahaud operators to configure multiple xahaud servers so that the servers trust one another, thereby reducing workload. Properly clustered servers can share information about malicious or problematic websocket, rpc, and peer connections, while also automatically propagating submitted transactions throughout the cluster. Thus, if a transaction is submitted on a sever with a higher load than the transaction's fee allows for, the transaction will still propagate to other servers in the cluster, thereby increasing the probability that the transaction is included in an upcoming ledger.
 
@@ -40,20 +55,3 @@ n9JFK8xUcy9S9TBmCcZKKmY28LEVjTurcpzC5XkXnyAAj1Svytee # validation_public_key fro
 sn8QEFTpBM8nydnLD6FjxKN845uRG # Private validation_seed from the local xahaud instance
 
 ```
-
-## Running Databases in Memory
-Users seeking to maximize xahaud performance may choose to run databases in memory, rather than on dedicated storage media. Memory databases are not suited for machines storing history, as the databases are not persistent across xahaud restarts. Likewise, the amount of history stored is contingent on available system memory. Thus, `online_delete` and `advisory_delete` are required in the `xahaud.cfg` to prevent out of memory errors. When using a memory database, it is advisable to disable SWAP, as SWAP writes the contents of memory to disk, thereby potentially defeating the benefits obtained by storing the database in memory.
-
-To enable the memory database, edit the `xahaud.cfg` file:
-
-```
-[relational_db]
-type=RWDB
-
-[node_db]
-type=RWDB #RWDB is the memory database
-online_delete=256 # This value should be low on machines using memory databases. '256' is the minimum value.
-advisory_delete=0 # Do not require human intervention to delete history. This is necessary for preventing out of memory errors.
-```
-
-## Ledger Pinning
