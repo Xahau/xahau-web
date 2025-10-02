@@ -3,7 +3,43 @@ title: Advanced xahaud Configuration
 ---
 There are numerous configuration options available to xahaud operators. This section will cover some of the more commonly used options, including those required for clustering servers and configuring databases.
 
+For complete documentation on configuration options, please see the example configuration files in the [xahaud GitHub repository](https://github.com/Xahau/xahaud/tree/dev/cfg).
+
 ## Clustering
+Clustering allows xahaud operators to configure multiple xahaud servers so that the servers trust one another, thereby reducing workload. Properly clustered servers can share information about malicious or problematic websocket, rpc, and peer connections, while also automatically propagating submitted transactions throughout the cluster. Thus, if a transaction is submitted on a sever with a higher load than the transaction's fee allows for, the transaction will still propagate to other servers in the cluster, thereby increasing the probability that the transaction is included in an upcoming ledger.
+
+Administrators operating xahaud validators can benefit from clustering, as the cluster provides connectivity for the highly secure validator, thereby eliminating the need for the validator to connect to unknown or untrusted servers.
+
+Server operators should not cluster their servers with servers outside of their own control. Likewise, clustered servers should have low latency connections, ideally being located in the same data center.
+
+Generating cluster seeds (public/private keys) is done via the `validation_create` [API method](../../features/http-websocket-apis/admin-api-methods). While the method name includes the term 'validation', this method is not used to [create the keys](../enabling-validation) used to sign validation messages. Instead, it is used to create keys to identify any xahaud server, validating or non-validating.
+
+To create a cluster:
+1. On each xahaud instance that will be included in the cluster, generate a public key and seed: `./xahaud validation_create`.
+2. Open each server's `xahaud.cfg` file, and add or edit the following sections:
+    * `[ips_fixed]` - Include the IPv4/6 addresses and peer listening ports (e.g., `10.1.1.2 21337`) for other servers that will be in the cluster. The listening port is defined under the `[port_peer]` stanza in the `xahaud.cfg` file on the server listening for incoming connections.
+    * `[node_seed]` - The output in the `validation_seed` field from the `validation_create` command. This is a private key, and it must be installed on the same server on which it was generated.
+    * `[cluster_nodes]` - The output from the `validation_public_key` field of the `validation_create` command. This is a public key, and it must be installed on peer servers, not the server on which it was generated.
+3. Restart xahaud on each server in the cluster: `systemctl restart xahaud`
+4. Backup each server's `xahaud.cfg`.
+5. Verify connectivity among clustered peers via the `peers` command: `./xahaud peers`
+
+The cluster section of a `xahaud.cfg` file might look like this:
+```
+[ips_fixed]
+10.1.1.2 21337 # Clustered peer 1
+10.1.1.3 21337 # Clustered peer 2
+10.1.1.4 21337 # Clustered peer 3
+
+[cluster_nodes]
+n9LzAHaB7ka318dAJWLQD1WkpGR86NyvaCzrtUAt4PuNtDCTCqxn # validation_public_key from clustered peer 1
+n9KWNMsRdQ66jYHLCVgFBAQAzb16DwDioVdXSuV8pTcfEfaHkdvZ # validation_public_key from clustered peer 2
+n9JFK8xUcy9S9TBmCcZKKmY28LEVjTurcpzC5XkXnyAAj1Svytee # validation_public_key from clustered peer 3
+
+[node_seed]
+sn8QEFTpBM8nydnLD6FjxKN845uRG # Private validation_seed from the local xahaud instance
+
+```
 
 ## Running Databases in Memory
 
