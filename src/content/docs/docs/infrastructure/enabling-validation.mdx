@@ -3,18 +3,21 @@ title: Enabling Validation in xahaud
 ---
 Validators are xahaud nodes that are configured with an additional public/private keypair, which is used to sign each proposed ledger. Thus, validators are the primary mechanism used to achieve consensus regarding the order in which transactions are applied on the Xahau Network.
 
-## Security and Availability
+## Background Considerations
+Running a validating xahaud server may seem straight forward, however, there are a number of considerations for production node operators including uptime and security. This following introductory sections provide background on these considerations.
+
+### Security and Availability
 When running xahaud as a validator, system security and availability are critical. Validator operators are expected to actively monitor their servers and to respond quickly to outages. Some validator operators choose to host standby machines in diverse data centers, so they can quickly recover from outages. While it is possible to host a reliable validator in one's home, it is unlikely that such a setup could provide sufficient stability and security for the validator to gain broader trust (e.g., inclusion on published UNLs). Similarly, validator operators are strongly discouraged from running software other than xahaud on a machine used as a xahaud validator, since this increases the probability of running out of resources or exposing a security vulnerability. System administrators who require websocket or RPC access to a server are encouraged to run different machines for queries, so resources are not taken away from the critical task of validating ledgers.
 <br></br>
 The private/public validation keypair should be stored and backed up in a secure, offline environment. Anyone with access to the keys of a trusted validator has potential to harm the network. After installing a validation token into the xahaud.cfg file, it is advised to restrict read access (`chmod 400 xahaud.cfg`) and change ownership of the file to "root" or "xahaud", depending on the type of install (`chown root:root xahaud.cfg`).
 
-## Identity Attestation
+### Identity Attestation
 To avoid a [Sybil attack](https://en.wikipedia.org/wiki/Sybil_attack) and build trust, validating xahaud nodes attest to their identity by cryptographically signing a domain name with their validation keys. This signature is then hosted at the same domain, in a [TOML format file](../identity). In addition to verifying the identity of a validator, this TOML file can also be used to verify the identity of individual account holders on the Xahau Network, by providing an attestation signed by the private account key instead of the private validation key. The TOML file should be hosted on a web server with TLS encryption enabled at:<br></br><code>https://[your-domain.com]/.well-known/xahau.toml</code><br></br>
 
-## Peering
+### Peering
 To maintain a high level of security, xahaud nodes that are configured as validators should only peer with known, trusted peers. Enabling the `peer_private` setting and explicitly defining `ips_fixed` in the xahaud.cfg file will force a server to only connect to defined peers. Operating system and hardware level protections, such as firewalls, provide additional reassurance that the server is only connecting to defined peers. However, this can be a challenge, as validators with too few peers, typically less than about five, are at risk of falling out of sync with the rest of the network.
 
-## Governance and Trust
+### Governance and Trust
 The Xahau Network utilizes the [Governance Game](../../features/governance-game) as a democratic method for managing the Network. Additionally, each xahaud instance participating in the Network is required to install a list of trusted validating servers, called a Unique Node List or UNL. Thus, the existing governance participants can vote a new validator into a seat at the governance table. Separately, trusted UNL publishers, such as the [InFTF](https://inftf.org), can choose to include a validator in their recommended list of trusted validators. Running a validator does not guarantee inclusion in either the Governance Game or any UNL. Typically, validating servers that are selected for inclusion in the governance process have:
 1. High availability
     - Effective 24/7/365 monitoring with rapid responses to outages
@@ -23,17 +26,21 @@ The Xahau Network utilizes the [Governance Game](../../features/governance-game)
 4. A proactive approach to updating and voting for [amendments](../../features/amendments) and fees
     - This requires taking the time to watch what is in development
 
-## Building the Validation Keys Tool
+## Enabling Validation
+Switching a stock xahaud server into a validator is a straight forward process. Essentially, users will generate a public/private keypair, which is then used to generate a token using an ephemeral key derived from the master pair. That token is installed into the `xahaud.cfg` file, thereby instructing xahaud to propose validations to the Network.
+
+### Building the Validation Keys Tool
 At this time, there is not an official release of the software used for generating validation keys. Thus, users can either build the tool from scratch or rely on a packaged version provided with rippled (this tool is not packaged with the xahaud binary). The instructions for building the tool are the same as the instructions for building rippled, and they are provided on the [ripple/validator-keys-tool](https://github.com/ripple/validator-keys-tool) repository page. There are also some [packaged binaries](https://https://github.com/jscottbranson/xahau-examples/) available in unofficial repositories. Users seeking to generate keys for production validators should build the tool from scratch on a secure, air-gapped machine.
 
-## Generating and Installing Validation Keys
+### Generating and Installing Validation Keys
 Consider using an offline machine to generate validation keys and a validation token.
 1. Navigate to the directory containing the validation keys tool: `cd [/path/to/tool]`
 2. Generate a new keypair: `./validator-keys create_keys`
-3. The newly generated keypair is stored in `/home/[username]/.ripple/validator-keys.json`. 
+3. The newly generated keypair is stored in `/home/[username]/[.ripple or .xahaud]/validator-keys.json`. The storage path depends on which version of the validator-keys-tool is used.
 4. Ideally, validators should provide identity attestation. To do so, set your domain in the validator-keys.json file: `./validator-keys set_domain [example.com]`
-    - If you do not wish to provide an identifying domain, generate a validation token without a domain: `./validator-keys create_token --keyfile /home/[username]/.ripple/validator-keys.json`
+    - If you do not wish to provide an identifying domain, generate a validation token without a domain: `./validator-keys create_token --keyfile /home/[username]/.xahaud/validator-keys.json`
 5. Review the output of the previous command. Note the `[validator_token]`, as this will be installed in xahaud.cfg to enable validation. If a domain was set, note the `attestation=""` line, as it will need to be added into the TOML file served at your domain.
+    - Anytime the tool is used to generate a new `validator_token`, a field, `token_sequence`, is incremented in the `validator-keys.json` file. The Network will ignore validations from any server that has a token generated with a lower sequence number than the highest observed number. For example, if your validation token has sequence number "3" and you generate a new token with sequence number "2", validations from any machine using the new token with the lower sequence number will be ignored. This feature enables server operators to generate a new token, rather than generating new master validation keys, in the event of a security compromise or other incident.
 6. Open xahaud.cfg and paste in the `[validation_token]`, then restart the xahaud service.
-7. Paste the `attestation=""` into your TOML file to prove the identity of your validator.
-
+7. Paste the `attestation=""` into your [TOML](../identity) file to prove the identity of your validator.
+8. Ensure private validation keys are stored securely, ideally separate from the validator.

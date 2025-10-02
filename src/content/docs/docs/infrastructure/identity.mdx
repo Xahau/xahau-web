@@ -7,7 +7,9 @@ Given that trust is foundational to the Xahau Network, it is ideal for entities 
 
 Similarly, individual Xahau account holders might wish to publish a TOML file attesting that specific accounts on the network are under their control. Account ownership attestations are particularly relevant for enterprises, such as exchanges or financial institutions. As with validators, these attestations require two parts: a web server that claims ownership of a Xahau Network address as well as an on-network account address that claims to be owned by the same domain. Account attestations provide users with confidence that they are routing deposits to the correct address.
 
-## Configuring the Web Server and DNS
+The contents and structure of this file are similar to those used by [Stellar](https://developers.stellar.org/docs/tokens/publishing-asset-info) and the [XRP Ledger](https://xrpl.org/docs/references/xrp-ledger-toml). Since the file can contain custom fields, it is important to allow flexibility when building tools designed to parse the TOML file.
+
+## Web Server and DNS Configuration
 1. The file contents must be in the [TOML format](https://github.com/toml-lang/toml).
 2. The TOML file must be served from: `https://[optional-subdomain.your-domain.com]/.well-known/xahau.toml`
     * The path `/.well-known/xahau.toml` must not be altered. The path must be all lower case.
@@ -162,7 +164,16 @@ It is possible for multiple wallets to issue currencies with the same currency c
 <tr><td>`display_decimals`</td><td>Integer</td><td>The number of digits to the right of the decimal point that clients should display when showing quantities of the currency.</td></tr>
 </table>
 
+## Validator Domain Verification
+Hosting the `xahau.toml` file enables domain owners to claim ownership of a validator. However, it is critical that the validator also acknowledge this ownership, so third parties can reliably trust network operators. Since validators form the backbone of forward progress on the Xahau Network, it is important that operators appropriately secure their private validation keys.
 
-## Configuring xahaud Validators
+If you are not familiar with the Validator Keys Tool, see the page on [Enabling Validation in xahaud](../enabling-validation).
 
-## Configuring Account Verification
+Users who have already complete the steps on the Enabling Validation page do not need to repeat them. Simply paste the `attestation = ""` field into the TOML file and ensure the correct `[validator_token]` is installed in the `xahaud.cfg`.
+
+Users who did not configure a domain when they initially generated a validation token may do so by running `./validator-keys set_domain [example.com]`. Prior to attempting to set the domain, ensure that the master validation key JSON file is stored in the correct path: `/home/[username]/[.ripple or .xahaud]/validator-keys.json`.
+
+## Wallet Address Verification
+Consistent with validator domain verification, verifying ownership of a wallet address on the Xahau Network requires two components: A TOML file served over a TLS encrypted connection (with a properly chained certificate) from the domain claiming ownership and a transaction from the wallet address verifying the ownership claim. To claim ownership of a wallet address:
+1. Include the address as an `[[accounts]]` section in the TOML file.
+2. Submit an [AccountSet transaction](../../protocol-reference/transactions/transaction-types/accountset) with the `Domain` field specified.
