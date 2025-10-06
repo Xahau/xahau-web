@@ -15,7 +15,7 @@ To enable the memory database, edit the `xahaud.cfg` file:
 type=RWDB
 
 [node_db]
-type=RWDB #RWDB is the memory database
+type=RWDB # RWDB is the memory database
 online_delete=256 # This value should be low on machines using memory databases. '256' is the minimum value.
 advisory_delete=0 # Do not require human intervention to delete history. This is necessary for preventing out of memory errors.
 ```
