@@ -1,6 +1,7 @@
 // @ts-check
 
 import mdx from '@astrojs/mdx'
+import node from '@astrojs/node'
 import react from '@astrojs/react'
 import starlight from '@astrojs/starlight'
 import tailwindcss from '@tailwindcss/vite'
@@ -10,6 +11,10 @@ import { remarkGlobalReferences } from './src/plugins/remarkGlobalReferences'
 
 // https://astro.build/config
 export default defineConfig({
+  output: 'server',
+  adapter: node({
+    mode: 'standalone',
+  }),
   integrations: [
     react(),
     starlight({
