@@ -3,7 +3,7 @@ title: Interacting With xahaud Using Websocket and RPC
 ---
 The xahaud software provides both websocket and RPC interfaces that can be configured for a variety of use cases, such as submitting transactions or querying ledger history. Some users may choose to place proxy software in front of xahaud to provide encryption, load balancing, or other benefits. It is possible to install TLS certificates in the xahaud.cfg file using parameters such as `ssl_key = [/path/to/key]`.
 
-### Configuring Websocket and RPC Ports
+## Configuring Websocket and RPC Ports
 To enable listening ports, edit the `xahaud.cfg` file. Enabled ports are listed under the `[server]` stanza in the configuration file. Each port listed under the `[server]` section must be further defined via it's own stanza. In addition to configuring websocket or RPC ports, administrators can also configure the port used to listen for incoming peer connections (`port_peer`). On validating servers, it is ideal to remove `port_peer` from the configuration file, to avoid incoming connections. A configuration file with the peer protocol, one websocket port, and one RPC port might look like:<br></br><br></br>
 
 ```

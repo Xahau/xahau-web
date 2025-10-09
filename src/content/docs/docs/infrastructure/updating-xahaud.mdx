@@ -3,7 +3,7 @@ title: Updating xahaud
 ---
 The process for updating xahaud varies depending on the install method used, however, all three methods rely on the releases published at [https://build.xahau.tech](https://build.xahau.tech). When updating a validator, hub, or other 'critical' infrastructure, please check the network health prior to restarting a server to install an update. It is possible to automate the update process using a crontab entry and an update script, however, administrators are discouraged from doing so, as automatic updates may result in restarts at times when the network is unstable. Similarly, human presence allows operators to ensure updates are successful, thereby minimizing downtime.
 
-### Backup
+## Backup
 Users should always keep backups of:
 1. The primary configuration file: `xahaud.cfg`
     - Location varies based on install type.
@@ -13,7 +13,7 @@ Users should always keep backups of:
     - Located in the database directory defined in 'xahaud.cfg'.
 4. Validators must keep their validation private key backed up in a secure, offline location.
 
-### Updating Docker Containers
+## Updating Docker Containers
 Updating xahaud inside a Docker container involves replacing the currently running binary with the new version, downloaded from [https://build.xahau.tech](https://build.xahau.tech). This can be accomplished either by replacing the xahaud binary inside the container or by updating the entire container.
 <br></br>
 To update the xahaud binary inside a running Docker container:
@@ -30,7 +30,7 @@ To replace the current Docker image with a new version, without overwriting data
 5. Remove the old instance: `docker rm xahaud-[mainnet/testnet]`
 6. Start the new instance: `./build && ./up`
 
-### Updating Local Installations
+## Updating Local Installations
 To update a locally installed version of xahaud, simply replace the current binary with a new binary:
 1. Download the new binary from: [https://build.xahau.tech](https://build.xahau.tech)
 2. Mark the new binary executable: `chmod +x [/path/to/download]`
@@ -41,7 +41,7 @@ To update a locally installed version of xahaud, simply replace the current bina
 <br></br>
 A [script](https://gist.githubusercontent.com/WietseWind/9480a4fc95e904e54524406005c8c963/raw/2b200fdc2e5b471ae4f6625674aff1765d63e744/update.sh) that automates the above steps is available.
 
-### Updating Binary Files
+## Updating Binary Files
 Updating the xahaud binary files is essentially the same as the original install instructions:
 1. Remove the currently running version: `rm [/path/to/xahaud]`
 2. Download the new version: [https://build.xahau.tech](https://build.xahau.tech)
