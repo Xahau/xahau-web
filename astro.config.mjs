@@ -288,12 +288,12 @@ export default defineConfig({
             'docs/infrastructure/interacting',
             'docs/infrastructure/advanced-configuration',
             {
-              label: 'Building Xahau (Dev)',
+              label: 'Build xahaud (Advanced)',
               collapsed: true,
               items: [
-                'docs/infrastructure/building-xahau',
-                'docs/infrastructure/building-xahau/ubuntu-22-04',
-                'docs/infrastructure/building-xahau/mac-os-13-5-2',
+                'docs/infrastructure/build-xahaud',
+                'docs/infrastructure/build-xahaud/linux',
+                'docs/infrastructure/build-xahaud/macos',
               ],
             },
           ],

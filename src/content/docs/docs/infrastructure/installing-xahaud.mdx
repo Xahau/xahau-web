@@ -5,7 +5,8 @@ description: >-
 ---
 When running a node, users will have to configure settings based on whether the node will run on the test network or the main network. When transitioning a single node from one network to the other, database files must be wiped, except wallet.db, which contains the server's identity credentials.
 
-In addition to [building from scratch](/docs/infrastructure/building-xahau), there are three ways to install xahaud: Docker, locally, and using a portable binary. The below install methods all rely on the xahaud builds published at: [https://build.xahau.tech](https://build.xahau.tech), though the end result is different. 
+In addition to [building from scratch](/docs/infrastructure/build-xahaud), there are three ways to install xahaud: Docker, locally, and using a portable binary. The below install methods all rely on the xahaud builds published at: [https://build.xahau.tech](https://build.xahau.tech), though the methods of running that binary differ.
+
 ## Docker Container
 
 To run xahaud in a Docker Container:
@@ -53,8 +54,8 @@ This peering is relevant for both Docker containers and local installations.
 <tr><td>Docker Container</td><td><a href="https://github.com/Xahau/mainnet-docker">https://github.com/Xahau/mainnet-docker</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker">https://github.com/Xahau/Xahau-Testnet-Docker</a></td></tr>
 <tr><td>Local Install Scripts</td><td><a href="https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh">https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh</a></td></tr>
 <tr><td>Binary Releases</td><td><a href="https://build.xahau.tech">https://build.xahau.tech</a></td><td>Same as Mainnet</td></tr>
-<tr><td>Sample Configuration File</td><td><a href="https://github.com/Xahau/mainnet-docker/blob/main/store/etc/xahaud.sample.cfg">https://github.com/Xahau/mainnet-docker/blob/main/store/etc/xahaud.sample.cfg</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg</a></td></tr>
-<tr><td>Sample Trusted Validators (UNL) File</td><td><a href="https://github.com/Xahau/mainnet-docker/blob/main/store/etc/validators-xahau.sample.txt">https://github.com/Xahau/mainnet-docker/blob/main/store/etc/validators-xahau.sample.txt</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt</a></td></tr>
+<tr><td>Sample Configuration File</td><td><a href="https://github.com/Xahau/xahaud/blob/dev/cfg/xahaud-example.cfg">https://github.com/Xahau/xahaud/blob/dev/cfg/xahaud-example.cfg</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg</a></td></tr>
+<tr><td>Sample Trusted Validators (UNL) File</td><td><a href="https://github.com/Xahau/xahaud/blob/dev/cfg/validators-example.txt">https://github.com/Xahau/xahaud/blob/dev/cfg/validators-example.txt</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt</a></td></tr>
 <tr><td>Documented Configuration Files</td><td><a href="https://github.com/Xahau/xahaud/tree/dev/cfg">https://github.com/Xahau/xahaud/tree/dev/cfg</a></td><td>Same as Mainnet</td></tr>
 <tr><td>Github Build Actions (release numbers)</td><td style="word-break: break-all;"><a href="https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker">https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker</a></td><td>Same as Mainnet</td></tr>
 </tbody>

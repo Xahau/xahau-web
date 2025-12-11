@@ -1,0 +1,46 @@
+---
+title: Build xahaud
+description: Setting Up the xahaud Build Environment and Compiling xahaud
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Building software, such as xahaud, from the openly available source code is a complex process that requires in-depth knowledge and experience. Thus, there are multiple approaches that developers might take, depending on the environment (e.g., Linux, MacOS, Windows). The instructions in the following documentation chapters are meant to simplify and expand on those in the [xahaud GitHub repository](https://github.com/Xahau/xahaud/blob/dev/BUILD.md). Developers might need to deviate from these instructions to accomplish specific tasks or to ensure compatibility with specific operating systems. 
+
+The following articles detail the process of setting up a build environment and building xahaud across various operating system environments.
+
+<Aside type="danger">
+Building software from source code is a complex task requiring advanced technical knowledge and experience. It is possible to make changes at an operating system level that cannot be easily recovered from. Undertake the build process at your own risk. This documentation is designed to guide, rather than be definitively accurate.
+</Aside>
+
+## Building Software from Source
+When developers write software, they do so in programming languages that are designed to be human readable. However, it is not efficient for computers to run this human readable code. Thus, there is a need for software to be "compiled" from human readable code into bytecode that can be quickly read and interpreted by a computer.
+
+Adding complexity to this process, developers often rely on software that was written by other developers, called "dependencies" because one software package depends on (requires) the other. In order for these dependencies to be included in the final product, they must be "linked" to the code before the code is compiled. The linking process can be very intensive, as dependencies for the original software package might have their own dependencies (which in turn can have even more dependencies, adding layers). Developers rely on tools, such as Conan, to simplify the process of locating, configuring, and linking dependencies.
+
+The entire process of ensuring dependencies are met, compiling software into a machine optimized format, and running tests against the final product is called "building".
+
+Since xahaud is [published as open source software on GitHub](https://github.com/Xahau/xahaud), anyone may view, audit, modify, build, and run the code. Building from the source code enables certainty that the product being run is based off of the publicly viewable source code, which also has a full audit trail. Thus, validator operators who prioritize a maximum level of security should consider building from source.
+
+## Dependencies
+
+For compatibility, it is important to attend to specific versions of software used in the build process. xahaud is written in the C++20 language.
+
+Current requirements for building xahaud include:
+
+
+| Dependency  | Version   | 
+| :---------- | :-------- | 
+| Python3     | >= 3.7    |
+| GCC / G++   | >= 14.x   |
+| CMake       | >= 3.16   |
+| Conan2      | 2.x       |
+| openssl     | 1.1.1     |
+| boost       | 1.86.0    | 
+| SQLite3     | 3.42.0    |
+| Snappy*     | 1.1.10    |
+| SOCI*       | 4.0.3     |
+| WasmEdge*   | 0.11.2    |
+
+\* Included in the Xahau/xahaud GitHub repository.
+
