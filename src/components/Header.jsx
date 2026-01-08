@@ -44,13 +44,13 @@ const explorers = [
 
 // Navigation items definition shared between desktop and mobile
 const navItems = [
-  { name: 'About', link: '/about', urlPattern: 'about' },
-  { name: 'Features', link: '/features', urlPattern: 'features' },
-  { name: 'Ecosystem', link: '/ecosystem', urlPattern: 'ecosystem' },
-  { name: 'Roadmap', link: '/roadmap', urlPattern: 'roadmap' },
-  { name: 'Documentation', links: docs, urlPattern: 'docs' },
-  { name: 'Connect', links: socials },
-  { name: 'Explorers', links: explorers },
+  { name: 'About', href: '/about', urlPattern: 'about' },
+  { name: 'Features', href: '/features', urlPattern: 'features' },
+  { name: 'Ecosystem', href: '/ecosystem', urlPattern: 'ecosystem' },
+  { name: 'Roadmap', href: '/roadmap', urlPattern: 'roadmap' },
+  { name: 'Documentation', children: docs, urlPattern: 'docs' },
+  { name: 'Connect', children: socials },
+  { name: 'Explorers', children: explorers },
 ]
 
 import logo from '../assets/xahau-logo.svg'
@@ -91,11 +91,11 @@ export default function Header(props) {
               navItem.urlPattern &&
               props.url.pathname.slice(1).split('/')[0] === navItem.urlPattern
             // Single link item
-            if (navItem.link) {
+            if (navItem.href) {
               return (
                 <a
                   key={navItem.name}
-                  href={navItem.link}
+                  href={navItem.href}
                   className={`selected:no-underline no-underline text-base text-black ${isActive ? 'font-bold' : 'font-regular'}`}
                 >
                   {navItem.name}
@@ -119,7 +119,7 @@ export default function Header(props) {
                   className="absolute left-1/2 z-10 mt-3 w-screen max-w-max -translate-x-1/2 overflow-hidden bg-xahau-gray shadow-lg ring-1 ring-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
                 >
                   <div className="p-4">
-                    {navItem.links.map((item) => (
+                    {navItem.children.map((item) => (
                       <a
                         key={item.name}
                         href={item.href}
@@ -167,11 +167,11 @@ export default function Header(props) {
                     props.url.pathname.slice(1).split('/')[0] ===
                       navItem.urlPattern
                   // Single link item
-                  if (navItem.link) {
+                  if (navItem.href) {
                     return (
                       <a
                         key={navItem.name}
-                        href={navItem.link}
+                        href={navItem.href}
                         className={`selected:no-underline no-underline -mx-3 block rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 text-black ${isActive ? 'font-bold' : 'font-regular'}`}
                       >
                         {navItem.name}
@@ -191,7 +191,7 @@ export default function Header(props) {
                         />
                       </DisclosureButton>
                       <DisclosurePanel className="mt-2 space-y-2">
-                        {navItem.links.map((item) => (
+                        {navItem.children.map((item) => (
                           <DisclosureButton
                             key={item.name}
                             as="a"
