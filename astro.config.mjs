@@ -5,6 +5,7 @@ import react from '@astrojs/react'
 import starlight from '@astrojs/starlight'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'astro/config'
+import starlightLlmsTxt from 'starlight-llms-txt'
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi'
 import { remarkGlobalReferences } from './src/plugins/remarkGlobalReferences'
 
@@ -40,6 +41,30 @@ export default defineConfig({
             },
           },
         ]),
+        starlightLlmsTxt({
+          customSets: [
+            {
+              label: 'Hook Concepts',
+              description: 'Xahau Hook Concepts',
+              paths: ['docs/hooks/**'],
+            },
+            {
+              label: 'Hook API',
+              description: 'Documentation for the Hook API',
+              paths: ['docs/hooks/functions/**'],
+            },
+            {
+              label: 'Transactions',
+              description: 'Documentation for Xahau Transactions',
+              paths: ['docs/protocol-reference/transactions/**'],
+            },
+            {
+              label: 'Ledger Entries',
+              description: 'Documentation for Xahau Ledger Entries',
+              paths: ['docs/protocol-reference/ledger-data/**'],
+            },
+          ],
+        }),
       ],
       sidebar: [
         {
