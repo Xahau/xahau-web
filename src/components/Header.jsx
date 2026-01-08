@@ -143,7 +143,7 @@ export default function Header(props) {
                   <a
                     key={item.name}
                     href={item.href}
-                    target="_blank"
+                    target={item.href.startsWith('http') ? '_blank' : undefined}
                     className="no-underline block font-regular text-white"
                   >
                     <div
@@ -298,7 +298,9 @@ export default function Header(props) {
                         key={item.name}
                         as="a"
                         href={item.href}
-                        target="_blank"
+                        target={
+                          item.href.startsWith('http') ? '_blank' : undefined
+                        }
                         className="no-underline block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-regular text-black hover:bg-gray-50"
                       >
                         {item.name}
