@@ -85,12 +85,12 @@ export default function Header(props) {
   ]
 
   const docs = [
-    { name: t.getstarted, href: '/docs' },
-    { name: t.protocol, href: '/docs/protocol-reference/transactions' },
-    { name: 'Hooks', href: '/docs/hooks' },
-    { name: 'Data APIs', href: '/docs/data-apis' },
-    { name: t.infra, href: '/docs/infrastructure/system-requirements' },
-    { name: 'Whitepaper', href: '/docs/resources/whitepaper' },
+    { name: t.getstarted, href: `${p}/docs` },
+    { name: t.protocol, href: `${p}/docs/protocol-reference/transactions` },
+    { name: 'Hooks', href: `${p}/docs/hooks` },
+    { name: 'Data APIs', href: `${p}/docs/data-apis` },
+    { name: t.infra, href: `${p}/docs/infrastructure/system-requirements` },
+    { name: 'Whitepaper', href: `${p}/docs/resources/whitepaper` },
   ]
 
   const explorers = [

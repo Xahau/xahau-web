@@ -40,8 +40,8 @@
     },
     es: {
       hero_title: 'La Blockchain Inteligente con Programabilidad Basada en Cuentas',
-      hero_subtitle: 'No solo contratos inteligentes – cuentas inteligentes. Barato y rápido por diseño. Construido para el mundo real.',
-      hero_learn: 'Aprende los conceptos básicos',
+      hero_subtitle: 'No solo contratos inteligentes. Cuentas inteligentes. Barato y rápido por diseño. Construido para el mundo real.',
+      hero_learn: 'Aprende lo básico',
       hero_docs: 'Ver documentación',
       network_title: 'La Red Xahau',
       network_subtitle: '¿Por qué Xahau es la blockchain adecuada para tu negocio?',
@@ -129,7 +129,7 @@
             {i.hero_learn}
           </a>
           <a
-            href="/docs"
+            href={`${p}/docs`}
             class="px-10 h-12 flex items-center justify-center bg-gray-300 text-black text-base font-bold hover:bg-black hover:text-white transition"
           >
             {i.hero_docs}
@@ -205,7 +205,7 @@
           <h4 class="text-4xl md:text-6xl font-extrabold">16M+</h4>
         </div>
         <a
-          href="/docs/infrastructure/system-requirements/"
+          href={`${p}/docs/infrastructure/system-requirements/`}
           class="col-span-6 row-start-auto md:row-start-2 px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
           >{i.stats_node_cta}</a
         >
