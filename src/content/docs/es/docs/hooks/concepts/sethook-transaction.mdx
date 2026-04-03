@@ -47,7 +47,7 @@ El cuerpo principal de la transacción SetHook es el array Hooks:
 }
 ```
 
-Este array *refleja* la [cadena de Hooks](/docs/hooks/concepts/chaining) instalada en la cuenta:
+Este array *refleja* la [cadena de Hooks](/es/docs/hooks/concepts/chaining) instalada en la cuenta:
 
 * La posición 0 del array corresponde a la posición 0 en la cadena.
 * La posición 3 corresponde a la posición 3 en la cadena, etc.
@@ -62,11 +62,11 @@ Cada Hook correspondiente contiene una referencia a un objeto `HookDefinition`.
 
 Este objeto es un objeto del ledger sin propietario y con conteo de referencias que evita duplicar bytecode idéntico.
 
-Consulta: [Reference Counting](/docs/hooks/concepts/reference-counted-hook-definitions)
+Consulta: [Reference Counting](/es/docs/hooks/concepts/reference-counted-hook-definitions)
 
 ### Valores por defecto del Hook
 
-Cuando se crea un `HookDefinition`, contiene los [Parameters](/docs/hooks/concepts/parameters), [Namespace](/docs/hooks/concepts/namespaces) y [Grants](/docs/hooks/concepts/grants) iniciales. Estos se convierten en valores por defecto.
+Cuando se crea un `HookDefinition`, contiene los [Parameters](/es/docs/hooks/concepts/parameters), [Namespace](/es/docs/hooks/concepts/namespaces) y [Grants](/es/docs/hooks/concepts/grants) iniciales. Estos se convierten en valores por defecto.
 
 ### Operaciones HookSet
 

@@ -46,7 +46,7 @@ Como pseudo-transacción, `Cron` utiliza los valores estándar de pseudo-transac
 
 ### Comportamiento de Ejecución
 
-Cuando un [objeto ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron) está listo para ejecutarse (basándose en sus campos `StartTime`, `DelaySeconds` y `RepeatCount`), el motor Cron inserta automáticamente una pseudo-transacción `Cron` en el ledger.
+Cuando un [objeto ledger Cron](/es/docs/protocol-reference/ledger-data/ledger-objects-types/cron) está listo para ejecutarse (basándose en sus campos `StartTime`, `DelaySeconds` y `RepeatCount`), el motor Cron inserta automáticamente una pseudo-transacción `Cron` en el ledger.
 
 La pseudo-transacción contiene un campo `Owner` que referencia la cuenta con el Hook programado. El Hook en esa cuenta será invocado automáticamente, y la cuenta es tratada como un **TSH (transactional stakeholder) débil** durante la ejecución.
 
@@ -54,7 +54,7 @@ La pseudo-transacción contiene un campo `Owner` que referencia la cuenta con el
 
 ### Documentación Relacionada
 
-* [Transacción CronSet](/docs/protocol-reference/transactions/transaction-types/cronset): Crea, actualiza o elimina ejecuciones de Hooks programadas
-* [Objeto ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron): El objeto ledger que representa una ejecución de Hook programada
-* [Débil y Fuerte](/docs/hooks/concepts/weak-and-strong): Entendiendo los TSH transaccionales
-* [Collect Call Hooks](/docs/hooks/concepts/collect-call): Cómo se ejecutan los Hooks de TSH débiles
+* [Transacción CronSet](/es/docs/protocol-reference/transactions/transaction-types/cronset): Crea, actualiza o elimina ejecuciones de Hooks programadas
+* [Objeto ledger Cron](/es/docs/protocol-reference/ledger-data/ledger-objects-types/cron): El objeto ledger que representa una ejecución de Hook programada
+* [Débil y Fuerte](/es/docs/hooks/concepts/weak-and-strong): Entendiendo los TSH transaccionales
+* [Collect Call Hooks](/es/docs/hooks/concepts/collect-call): Cómo se ejecutan los Hooks de TSH débiles

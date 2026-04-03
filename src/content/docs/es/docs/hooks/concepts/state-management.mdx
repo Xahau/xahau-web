@@ -12,13 +12,13 @@ El **estado de un Hook** se refiere a un mapeo clave-valor que existe lógicamen
 
 La gestión de estado se realiza mediante:
 
-* [state](/docs/hooks/functions/state/state)
-* [state_set](/docs/hooks/functions/state/state_set)
-* [state_foreign](/docs/hooks/functions/state/state_foreign)
+* [state](/es/docs/hooks/functions/state/state)
+* [state_set](/es/docs/hooks/functions/state/state_set)
+* [state_foreign](/es/docs/hooks/functions/state/state_foreign)
 
 ### Almacenamiento y recuperación
 
-El siguiente ejemplo utiliza la API [state_set](/docs/hooks/functions/state/state_set) para asignar el valor `0xC001CAFE` a la clave `0x0..000001` (uint256 = 1) en el estado del Hook de la cuenta:
+El siguiente ejemplo utiliza la API [state_set](/es/docs/hooks/functions/state/state_set) para asignar el valor `0xC001CAFE` a la clave `0x0..000001` (uint256 = 1) en el estado del Hook de la cuenta:
 
 ```c
 uint8_t key[32] = {
@@ -58,8 +58,8 @@ Después de ejecutar este código, el buffer `value` contendrá el valor almacen
 
 ### Estado externo (foreign state)
 
-En ocasiones puede ser útil que un Hook que se ejecuta en una cuenta lea el estado de otro Hook en otra cuenta. La API [state_foreign](/docs/hooks/functions/state/state_foreign) permite hacer esto. Dado que el ledger es público, no hay expectativa real de privacidad. Por tanto, cualquier Hook puede *leer* (pero no escribir) el estado de otro Hook.
+En ocasiones puede ser útil que un Hook que se ejecuta en una cuenta lea el estado de otro Hook en otra cuenta. La API [state_foreign](/es/docs/hooks/functions/state/state_foreign) permite hacer esto. Dado que el ledger es público, no hay expectativa real de privacidad. Por tanto, cualquier Hook puede *leer* (pero no escribir) el estado de otro Hook.
 
 ### Namespaces y consultas
 
-Consulta [Namespaces](/docs/hooks/concepts/namespaces)
+Consulta [Namespaces](/es/docs/hooks/concepts/namespaces)

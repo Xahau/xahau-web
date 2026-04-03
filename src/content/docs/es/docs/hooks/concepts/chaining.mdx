@@ -18,11 +18,11 @@ Esto iba en contra de la Filosofía de diseño de Hooks, por lo que se introdujo
 
 Una cadena de Hooks es una secuencia de hasta **10** Hooks instalados en una cuenta de Xahau.
 
-* Una cadena de Hooks se ejecuta correctamente cuando cada Hook de la cadena ha sido ejecutado individualmente y posteriormente llama a [accept](/docs/hooks/functions/control/accept).
+* Una cadena de Hooks se ejecuta correctamente cuando cada Hook de la cadena ha sido ejecutado individualmente y posteriormente llama a [accept](/es/docs/hooks/functions/control/accept).
 * La ejecución de cada cadena comienza en la posición 0 y termina en la posición 9. Si una posición está vacía (porque nunca fue ocupada o porque el Hook instalado allí ha sido eliminado), entonces esa posición se omite y se considera exitosa.
 * Para que una transacción tenga éxito, ambos extremos de la transacción (lado emisor y lado receptor) deben haberse ejecutado correctamente. Esto significa que, si hay una cadena de Hooks instalada en ambos lados, ambas cadenas deben ejecutarse correctamente para que la transacción tenga éxito.
 
-Los Hooks se instalan en la cadena utilizando la [transacción SetHook](/docs/hooks/concepts/sethook-transaction). Al instalarlos, quien los instala puede especificar [parámetros](/docs/hooks/concepts/parameters) en el momento de la instalación, los cuales pueden cambiar el comportamiento del Hook instalado.
+Los Hooks se instalan en la cadena utilizando la [transacción SetHook](/es/docs/hooks/concepts/sethook-transaction). Al instalarlos, quien los instala puede especificar [parámetros](/es/docs/hooks/concepts/parameters) en el momento de la instalación, los cuales pueden cambiar el comportamiento del Hook instalado.
 
 <figure>
 ![Example: Execution flow for a transaction passing through two Hook Chains](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_0OucxySTRinbe13SITJT_5561b32-sethook-Page-3.png)
@@ -31,17 +31,17 @@ Los Hooks se instalan en la cadena utilizando la [transacción SetHook](/docs/ho
 
 ### Manipulación de la cadena
 
-Además de las operaciones en el momento de la instalación especificadas en la [transacción SetHook](/docs/hooks/concepts/sethook-transaction), los Hooks tienen cierto control en tiempo de ejecución sobre la ejecución de la cadena:
+Además de las operaciones en el momento de la instalación especificadas en la [transacción SetHook](/es/docs/hooks/concepts/sethook-transaction), los Hooks tienen cierto control en tiempo de ejecución sobre la ejecución de la cadena:
 
-* Un Hook puede determinar su propio `HookHash` llamando a [hook_hash](/docs/hooks/functions/hook-context/hook_hash).
-* Un Hook puede determinar su posición en la cadena de Hooks utilizando [hook_pos](/docs/hooks/functions/hook-context/hook_pos).
-* Un Hook puede omitir (o volver a habilitar) otro Hook más adelante en la cadena utilizando [hook_skip](/docs/hooks/functions/hook-context/hook_skip).
-* Un Hook puede modificar los [parámetros](/docs/hooks/concepts/parameters) de otro Hook más adelante en la cadena utilizando [hook_param_set](/docs/hooks/functions/hook-context/hook_param_set).
+* Un Hook puede determinar su propio `HookHash` llamando a [hook_hash](/es/docs/hooks/functions/hook-context/hook_hash).
+* Un Hook puede determinar su posición en la cadena de Hooks utilizando [hook_pos](/es/docs/hooks/functions/hook-context/hook_pos).
+* Un Hook puede omitir (o volver a habilitar) otro Hook más adelante en la cadena utilizando [hook_skip](/es/docs/hooks/functions/hook-context/hook_skip).
+* Un Hook puede modificar los [parámetros](/es/docs/hooks/concepts/parameters) de otro Hook más adelante en la cadena utilizando [hook_param_set](/es/docs/hooks/functions/hook-context/hook_param_set).
 
 ### Ejecuciones débiles
 
-Las cadenas de Hooks se ejecutan de forma [fuerte](/docs/hooks/concepts/weak-and-strong). Sin embargo, cualquier Hook en cualquier cadena puede indicar que requiere una segunda ejecución débil llamando a [hook_again](/docs/hooks/functions/hook-context/hook_again). Si todas las cadenas de Hooks se ejecutan correctamente, entonces la transacción original se aplica. Una vez aplicada la transacción original, pueden producirse ejecuciones débiles en el siguiente orden:
+Las cadenas de Hooks se ejecutan de forma [fuerte](/es/docs/hooks/concepts/weak-and-strong). Sin embargo, cualquier Hook en cualquier cadena puede indicar que requiere una segunda ejecución débil llamando a [hook_again](/es/docs/hooks/functions/hook-context/hook_again). Si todas las cadenas de Hooks se ejecutan correctamente, entonces la transacción original se aplica. Una vez aplicada la transacción original, pueden producirse ejecuciones débiles en el siguiente orden:
 
 1. Ejecución `cbak` si se trata de una transacción emitida.
-2. Participantes transaccionales débiles que hayan optado por permitir una [Collect Call](/docs/hooks/concepts/collect-call). El orden de ejecución es por orden de llegada según el evento que provocó que el participante fuera marcado (como el pathing).
+2. Participantes transaccionales débiles que hayan optado por permitir una [Collect Call](/es/docs/hooks/concepts/collect-call). El orden de ejecución es por orden de llegada según el evento que provocó que el participante fuera marcado (como el pathing).
 3. Cualquier Hook marcado como _Again as Weak_ (AAW). El orden de ejecución para AAW es primero numérico según el ID de la cuenta y luego numérico según la posición del Hook.

@@ -5,7 +5,7 @@ description: ¡Manipula objetos serializados de xahaud directamente!
 
 ### ¿Qué son los objetos serializados?
 
-Xahau tiene formas [serializadas](/docs/protocol-reference/binary-format) canónicas de todos los objetos sujetos a consenso. Al escribir un Hook, es inevitable encontrarse con objetos serializados. Estos aparecen como buffers que pueden parecer blobs binarios opacos para el desarrollador. Sin embargo, pueden analizarse utilizando el [XRPL-Binary-Visualiser](https://richardah.github.io/xrpl-binary-visualizer/).
+Xahau tiene formas [serializadas](/es/docs/protocol-reference/binary-format) canónicas de todos los objetos sujetos a consenso. Al escribir un Hook, es inevitable encontrarse con objetos serializados. Estos aparecen como buffers que pueden parecer blobs binarios opacos para el desarrollador. Sin embargo, pueden analizarse utilizando el [XRPL-Binary-Visualiser](https://richardah.github.io/xrpl-binary-visualizer/).
 
 Por ejemplo, un campo `sfAmount` se serializa como una secuencia de bytes como `61D50F26109A32B7EC`.
 
@@ -15,11 +15,11 @@ Para ayudar a los desarrolladores de Hooks a trabajar con objetos serializados, 
 
 | Hook API                                                                    | Qué hace                                                                                 |
 | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [sto_subfield](/docs/hooks/functions/serialization/sto_subfield) | Indexa dentro de un objeto serializado de xrpld y devuelve la posición y longitud de un subcampo |
-| [sto_subarray](/docs/hooks/functions/serialization/sto_subarray) | Indexa dentro de un array serializado de xrpld y devuelve la posición y longitud de un índice |
-| [sto_emplace](/docs/hooks/functions/serialization/sto_emplace)   | Inserta un campo en un STObject en su posición canónica                                  |
-| [sto_erase](/docs/hooks/functions/serialization/sto_erase)       | Elimina un campo de un STObject                                                          |
-| [sto_validate](/docs/hooks/functions/serialization/sto_validate) | Valida un STObject                                                                       |
+| [sto_subfield](/es/docs/hooks/functions/serialization/sto_subfield) | Indexa dentro de un objeto serializado de xrpld y devuelve la posición y longitud de un subcampo |
+| [sto_subarray](/es/docs/hooks/functions/serialization/sto_subarray) | Indexa dentro de un array serializado de xrpld y devuelve la posición y longitud de un índice |
+| [sto_emplace](/es/docs/hooks/functions/serialization/sto_emplace)   | Inserta un campo en un STObject en su posición canónica                                  |
+| [sto_erase](/es/docs/hooks/functions/serialization/sto_erase)       | Elimina un campo de un STObject                                                          |
+| [sto_validate](/es/docs/hooks/functions/serialization/sto_validate) | Valida un STObject                                                                       |
 
 Cuando corresponde, estas APIs devuelven un _offset_ y una _longitud_ codificados en un único `int64_t`. Consulta la documentación específica para más detalles.
 

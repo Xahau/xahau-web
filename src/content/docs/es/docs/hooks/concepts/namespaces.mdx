@@ -5,15 +5,15 @@ description: Evita sobrescrituras de estado utilizando el namespace correcto
 
 ### Namespaces
 
-Para evitar que dos o más Hooks instalados en la misma cuenta sobrescriban accidentalmente el [estado del Hook](/docs/hooks/concepts/state-management) entre sí, se debe proporcionar un namespace de 32 bytes al crear o instalar cada Hook.
+Para evitar que dos o más Hooks instalados en la misma cuenta sobrescriban accidentalmente el [estado del Hook](/es/docs/hooks/concepts/state-management) entre sí, se debe proporcionar un namespace de 32 bytes al crear o instalar cada Hook.
 
 El namespace puede ser cualquier valor arbitrario de 32 bytes elegido por el desarrollador. Siempre que el namespace sea único dentro de la cadena de Hooks, no se producirá sobrescritura de estado.
 
 Recomendamos encarecidamente usar `SHA256` sobre el nombre de trabajo del Hook definido por el desarrollador. SHA256 es uno de los dos algoritmos de hash utilizados en la generación de direcciones en Xahau (a partir de la clave maestra de una cuenta), por lo que suele estar fácilmente disponible para el desarrollador.
 
-El campo `HookNamespace` se proporciona como un blob _hexadecimal_ de 32 bytes dentro de cada objeto `Hook` en el array `Hooks` al [ejecutar una transacción SetHook](/docs/hooks/concepts/sethook-transaction).
+El campo `HookNamespace` se proporciona como un blob _hexadecimal_ de 32 bytes dentro de cada objeto `Hook` en el array `Hooks` al [ejecutar una transacción SetHook](/es/docs/hooks/concepts/sethook-transaction).
 
-El namespace configurado bajo el que opera un Hook modifica los [Keylets](/docs/hooks/concepts/slots-and-keylets) bajo los que se almacena su [estado](/docs/hooks/concepts/state-management). Por lo tanto, dos Hooks bajo diferentes namespaces instalados en la misma cuenta de Xahau pueden usar la misma clave de estado para referirse a diferentes objetos de estado. Por el contrario, dos Hooks distintos que utilicen el mismo namespace en la misma cuenta pueden acceder y modificar los objetos de estado del otro utilizando las mismas claves.
+El namespace configurado bajo el que opera un Hook modifica los [Keylets](/es/docs/hooks/concepts/slots-and-keylets) bajo los que se almacena su [estado](/es/docs/hooks/concepts/state-management). Por lo tanto, dos Hooks bajo diferentes namespaces instalados en la misma cuenta de Xahau pueden usar la misma clave de estado para referirse a diferentes objetos de estado. Por el contrario, dos Hooks distintos que utilicen el mismo namespace en la misma cuenta pueden acceder y modificar los objetos de estado del otro utilizando las mismas claves.
 
 ### Ejemplo
 
@@ -26,7 +26,7 @@ HookNamespace: addr.codec.sha256('carbon').toString('hex')
 
 ### Namespace por defecto
 
-El primer usuario que [establece un Hook nuevo](/docs/hooks/concepts/sethook-transaction) define un `HookNamespace` que se convierte en el *namespace por defecto* para ese Hook. Esto significa que cualquier usuario posterior que [referencie la misma *HookDefinition*](/docs/hooks/concepts/reference-counted-hook-definitions) recibirá este namespace por defecto.
+El primer usuario que [establece un Hook nuevo](/es/docs/hooks/concepts/sethook-transaction) define un `HookNamespace` que se convierte en el *namespace por defecto* para ese Hook. Esto significa que cualquier usuario posterior que [referencie la misma *HookDefinition*](/es/docs/hooks/concepts/reference-counted-hook-definitions) recibirá este namespace por defecto.
 
 El usuario posterior puede especificar su propio namespace, sobrescribiendo el namespace por defecto solo para su instalación.
 
@@ -34,9 +34,9 @@ El usuario posterior puede especificar su propio namespace, sobrescribiendo el n
 
 La elección del HookNamespace afecta al comportamiento de las siguientes APIs de Hook:
 
-* [state](/docs/hooks/functions/state/state)
-* [state_set](/docs/hooks/functions/state/state_set)
+* [state](/es/docs/hooks/functions/state/state)
+* [state_set](/es/docs/hooks/functions/state/state_set)
 
 ### Helper de API para namespaces
 
-Consulta [account_info](/docs/hooks/functions/websocket-apis/account_info) y [account_namespace](/docs/hooks/functions/websocket-apis/account_namespace) para obtener información sobre cómo consultar el ledger respecto a namespaces.
+Consulta [account_info](/es/docs/hooks/functions/websocket-apis/account_info) y [account_namespace](/es/docs/hooks/functions/websocket-apis/account_namespace) para obtener información sobre cómo consultar el ledger respecto a namespaces.

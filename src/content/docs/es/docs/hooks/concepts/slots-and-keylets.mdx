@@ -25,22 +25,22 @@ Las APIs disponibles son:
 
 | Hook API                                                             | Qué hace                                                                              |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| [slot](/docs/hooks/functions/slot/slot)                    | Serializa y devuelve un objeto asignado a un slot                                     |
-| [slot_clear](/docs/hooks/functions/slot/slot_clear)       | Libera un slot ocupado                                                                |
-| [slot_count](/docs/hooks/functions/slot/slot_count)       | Cuenta los elementos de un array en un slot                                            |
+| [slot](/es/docs/hooks/functions/slot/slot)                    | Serializa y devuelve un objeto asignado a un slot                                     |
+| [slot_clear](/es/docs/hooks/functions/slot/slot_clear)       | Libera un slot ocupado                                                                |
+| [slot_count](/es/docs/hooks/functions/slot/slot_count)       | Cuenta los elementos de un array en un slot                                            |
 | slot_id                                                             | Calcula el hash canónico del objeto en el slot y lo devuelve                          |
-| [slot_set](/docs/hooks/functions/slot/slot_set)           | Localiza un objeto mediante su keylet y lo coloca en un slot                          |
-| [slot_subarray](/docs/hooks/functions/slot/slot_subarray) | Indexa un array en un slot y asigna un subobjeto a otro slot                          |
-| [slot_subfield](/docs/hooks/functions/slot/slot_subfield) | Indexa un objeto en un slot y asigna un subobjeto a otro slot                         |
-| [slot_type](/docs/hooks/functions/slot/slot_type)         | Obtiene el tipo de campo de un objeto en un slot y otra información opcional          |
-| [slot_float](/docs/hooks/functions/slot/slot_float)       | Convierte un STI_AMOUNT en el slot a un número XFL                                    |
-| [slot_size](/docs/hooks/functions/slot/slot_size)         | Calcula el tamaño serializado de un objeto en un slot                                 |
+| [slot_set](/es/docs/hooks/functions/slot/slot_set)           | Localiza un objeto mediante su keylet y lo coloca en un slot                          |
+| [slot_subarray](/es/docs/hooks/functions/slot/slot_subarray) | Indexa un array en un slot y asigna un subobjeto a otro slot                          |
+| [slot_subfield](/es/docs/hooks/functions/slot/slot_subfield) | Indexa un objeto en un slot y asigna un subobjeto a otro slot                         |
+| [slot_type](/es/docs/hooks/functions/slot/slot_type)         | Obtiene el tipo de campo de un objeto en un slot y otra información opcional          |
+| [slot_float](/es/docs/hooks/functions/slot/slot_float)       | Convierte un STI_AMOUNT en el slot a un número XFL                                    |
+| [slot_size](/es/docs/hooks/functions/slot/slot_size)         | Calcula el tamaño serializado de un objeto en un slot                                 |
 
 ### ¿Qué son los keylets?
 
 Los keylets se utilizan para localizar (apuntar a) objetos en el ledger. Básicamente, son un _hash_ de la información identificativa del objeto, que actúa como identificador canónico.
 
-Los Hooks utilizan un formato serializado de 34 bytes para keylets, que puede generarse con la función [util_keylet](/docs/hooks/functions/utilities/util_keylet). Sin esto, localizar y asignar objetos sería prácticamente imposible.
+Los Hooks utilizan un formato serializado de 34 bytes para keylets, que puede generarse con la función [util_keylet](/es/docs/hooks/functions/utilities/util_keylet). Sin esto, localizar y asignar objetos sería prácticamente imposible.
 
 <Aside type="tip">
   Las APIs de Hooks que aceptan keylets de 34 bytes también suelen aceptar hashes de transacción canónicos de 32 bytes.

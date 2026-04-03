@@ -12,7 +12,7 @@ Un Hook siempre implementa y exporta exactamente una o ambas de las siguientes f
 `int64_t hook(uint32_t ctx) { ... }` _obligatoria_
 
 * Se ejecuta cuando una transacción entra o sale de la cuenta en la que está configurado el Hook (`ctx = 0`) o
-* Se ejecuta cuando se ejecuta como un [Participante Transaccional Débil](/docs/hooks/concepts/weak-and-strong) (`ctx > 0`).
+* Se ejecuta cuando se ejecuta como un [Participante Transaccional Débil](/es/docs/hooks/concepts/weak-and-strong) (`ctx > 0`).
 
 `int64_t cbak(uint32_t ctx) { ... }` _opcional_
 

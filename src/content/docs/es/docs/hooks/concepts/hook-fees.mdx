@@ -9,7 +9,7 @@ Las transacciones SetHook se cobran por byte de WebAssembly creado. La tarifa es
 
 ### Comisiones de ejecución de Hooks
 
-Cuando los Hooks se ejecutan de forma [fuerte](/docs/hooks/concepts/weak-and-strong), la transacción originaria debe pagar estas ejecuciones dentro de su propia comisión.
+Cuando los Hooks se ejecutan de forma [fuerte](/es/docs/hooks/concepts/weak-and-strong), la transacción originaria debe pagar estas ejecuciones dentro de su propia comisión.
 
 Las comisiones de ejecución de Hooks se cobran a razón de 1 drop por instrucción de WebAssembly en el peor caso de ejecución de la función `hook` (o `cbak` en el caso de un callback). Por lo tanto, un Hook pequeño con muchos bucles puede generar comisiones elevadas en tiempo de ejecución.
 
@@ -60,6 +60,6 @@ Si `tx_blob` es inválido o falta, se devolverá un resultado JSON estándar con
 
 ### Comisiones de emisión
 
-Los Hooks tienen acceso al mismo cálculo que el *Fee RPC Helper*. Para usarlo, llama a [etxn_fee_base](/docs/hooks/functions/emitted-transaction/etxn_fee_base) pasando como argumento un buffer con la transacción serializada. Al igual que en la llamada RPC, debes asegurarte de que el campo `Fee` está presente en la transacción serializada (su valor es irrelevante).
+Los Hooks tienen acceso al mismo cálculo que el *Fee RPC Helper*. Para usarlo, llama a [etxn_fee_base](/es/docs/hooks/functions/emitted-transaction/etxn_fee_base) pasando como argumento un buffer con la transacción serializada. Al igual que en la llamada RPC, debes asegurarte de que el campo `Fee` está presente en la transacción serializada (su valor es irrelevante).
 
-Cuando `etxn_fee_base` devuelve la comisión recomendada, puedes usar [sto_emplace](/docs/hooks/functions/serialization/sto_emplace) para insertarla en la transacción serializada antes de emitirla. El campo correspondiente es `sfFee`.
+Cuando `etxn_fee_base` devuelve la comisión recomendada, puedes usar [sto_emplace](/es/docs/hooks/functions/serialization/sto_emplace) para insertarla en la transacción serializada antes de emitirla. El campo correspondiente es `sfFee`.

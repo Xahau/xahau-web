@@ -8,7 +8,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 Los [números de punto flotante](https://en.wikipedia.org/wiki/Floating-point_arithmetic) se utilizan ampliamente en informática para realizar cálculos de precisión finita pero escala arbitraria.
 
-La mayoría de las CPUs modernas son capaces de realizar operaciones rápidas de punto flotante utilizando el [estándar IEEE de punto flotante binario](https://en.wikipedia.org/wiki/Double-precision_floating-point_format), sin embargo `xahaud` **no** utiliza este formato. En su lugar, Xahau utiliza un [estándar decimal de punto flotante personalizado](/docs/protocol-reference/binary-format).
+La mayoría de las CPUs modernas son capaces de realizar operaciones rápidas de punto flotante utilizando el [estándar IEEE de punto flotante binario](https://en.wikipedia.org/wiki/Double-precision_floating-point_format), sin embargo `xahaud` **no** utiliza este formato. En su lugar, Xahau utiliza un [estándar decimal de punto flotante personalizado](/es/docs/protocol-reference/binary-format).
 
 Este formato personalizado tiene tres propiedades básicas:
 
@@ -50,26 +50,26 @@ Una vez que tienes un XFL, puedes usar la API de Float para realizar distintos c
 
 | Hook API                                                                | Qué hace                                                          |
 | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| [float_set](/docs/hooks/functions/float/float_set)           | Crear un float a partir de un exponente y una mantisa             |
-| [float_multiply](/docs/hooks/functions/float/float_multiply) | Multiplicar dos números XFL                                       |
-| [float_mulratio](/docs/hooks/functions/float/float_mulratio) | Multiplicar un XFL por un numerador y denominador no-XFL          |
-| [float_negate](/docs/hooks/functions/float/float_negate)     | Negar un número de punto flotante XFL                             |
-| [float_compare](/docs/hooks/functions/float/float_compare)   | Comparar dos números XFL                                          |
-| [float_sum](/docs/hooks/functions/float/float_sum)           | Sumar dos números XFL                                             |
-| [float_sto](/docs/hooks/functions/float/float_sto)           | Convertir un XFL en un objeto serializado                         |
-| [float_sto_set](/docs/hooks/functions/float/float_sto_set)   | Leer una cantidad serializada en un XFL                           |
-| [float_invert](/docs/hooks/functions/float/float_invert)     | Calcular el inverso de un XFL                                     |
-| [float_divide](/docs/hooks/functions/float/float_divide)     | Dividir un XFL entre otro XFL                                     |
-| [float_one](/docs/hooks/functions/float/float_one)           | Devolver el número 1 como XFL                                     |
-| [float_exponent](/docs/hooks/functions/float/float_exponent) | Obtener el exponente de un XFL                                    |
-| [float_mantissa](/docs/hooks/functions/float/float_mantissa) | Obtener la mantisa de un XFL                                      |
-| [float_sign](/docs/hooks/functions/float/float_sign)         | Obtener el signo de un XFL                                        |
+| [float_set](/es/docs/hooks/functions/float/float_set)           | Crear un float a partir de un exponente y una mantisa             |
+| [float_multiply](/es/docs/hooks/functions/float/float_multiply) | Multiplicar dos números XFL                                       |
+| [float_mulratio](/es/docs/hooks/functions/float/float_mulratio) | Multiplicar un XFL por un numerador y denominador no-XFL          |
+| [float_negate](/es/docs/hooks/functions/float/float_negate)     | Negar un número de punto flotante XFL                             |
+| [float_compare](/es/docs/hooks/functions/float/float_compare)   | Comparar dos números XFL                                          |
+| [float_sum](/es/docs/hooks/functions/float/float_sum)           | Sumar dos números XFL                                             |
+| [float_sto](/es/docs/hooks/functions/float/float_sto)           | Convertir un XFL en un objeto serializado                         |
+| [float_sto_set](/es/docs/hooks/functions/float/float_sto_set)   | Leer una cantidad serializada en un XFL                           |
+| [float_invert](/es/docs/hooks/functions/float/float_invert)     | Calcular el inverso de un XFL                                     |
+| [float_divide](/es/docs/hooks/functions/float/float_divide)     | Dividir un XFL entre otro XFL                                     |
+| [float_one](/es/docs/hooks/functions/float/float_one)           | Devolver el número 1 como XFL                                     |
+| [float_exponent](/es/docs/hooks/functions/float/float_exponent) | Obtener el exponente de un XFL                                    |
+| [float_mantissa](/es/docs/hooks/functions/float/float_mantissa) | Obtener la mantisa de un XFL                                      |
+| [float_sign](/es/docs/hooks/functions/float/float_sign)         | Obtener el signo de un XFL                                        |
 | float_exponent_set                                           | Establecer el exponente de un XFL                                 |
 | float_mantissa_set                                           | Establecer la mantisa de un XFL                                   |
 | float_sign_set                                               | Establecer el signo de un XFL                                     |
-| [float_int](/docs/hooks/functions/float/float_int)           | Convertir un XFL a entero (redondeo hacia abajo)                  |
-| [float_root](/docs/hooks/functions/float/float_root)         | Calcular la raíz n-ésima de un XFL                                |
-| [float_log](/docs/hooks/functions/float/float_log)           | Calcular el logaritmo decimal de un XFL                           |
+| [float_int](/es/docs/hooks/functions/float/float_int)           | Convertir un XFL a entero (redondeo hacia abajo)                  |
+| [float_root](/es/docs/hooks/functions/float/float_root)         | Calcular la raíz n-ésima de un XFL                                |
+| [float_log](/es/docs/hooks/functions/float/float_log)           | Calcular el logaritmo decimal de un XFL                           |
 
 <Aside type="caution">
   Nunca debes realizar cálculos directos o comparaciones sobre el _número contenedor_. Esto casi siempre dará resultados incorrectos.

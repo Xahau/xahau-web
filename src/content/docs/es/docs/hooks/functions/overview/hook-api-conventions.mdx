@@ -30,13 +30,13 @@ Cuando los Hooks se comunican con `xahaud`, solo pueden pasar valores _enteros_.
 
 ### Funciones permitidas
 
-Solo se permiten dos funciones dentro de un Hook: `hook()` y `cbak()`. Puedes leer más sobre esto [aquí](/docs/hooks/concepts/compiling-hooks)
+Solo se permiten dos funciones dentro de un Hook: `hook()` y `cbak()`. Puedes leer más sobre esto [aquí](/es/docs/hooks/concepts/compiling-hooks)
 
 ### Parámetros
 
 <Tabs>
 <TabItem label="C">
-Todos los parámetros pasados a una API de Hook deben ser uno de los siguientes tipos: `uint32_t, int32_t, uint64_t, int64_t`. Normalmente son punteros y longitudes de buffers dentro del stack frame del Hook. En algunos casos pueden ser [números en coma flotante codificados como enteros (XFL)](/docs/hooks/concepts/floating-point-numbers-xfl) u otros datos.
+Todos los parámetros pasados a una API de Hook deben ser uno de los siguientes tipos: `uint32_t, int32_t, uint64_t, int64_t`. Normalmente son punteros y longitudes de buffers dentro del stack frame del Hook. En algunos casos pueden ser [números en coma flotante codificados como enteros (XFL)](/es/docs/hooks/concepts/floating-point-numbers-xfl) u otros datos.
 
 Los parámetros de una API de Hook siempre siguen este orden:
 
@@ -50,7 +50,7 @@ Algunas APIs solo escriben, otras solo leen, y algunas no hacen ninguna de las d
 </TabItem>
 
 <TabItem label="JavaScript">
-Todos los parámetros pasados a una API de Hook deben ser uno de los siguientes tipos: `string, number[], bigint(xfl), object(json)`. Normalmente representan buffers o datos dentro del contexto del Hook. En algunos casos pueden ser [números en coma flotante codificados como enteros (XFL)](/docs/hooks/concepts/floating-point-numbers-xfl) u otros datos.
+Todos los parámetros pasados a una API de Hook deben ser uno de los siguientes tipos: `string, number[], bigint(xfl), object(json)`. Normalmente representan buffers o datos dentro del contexto del Hook. En algunos casos pueden ser [números en coma flotante codificados como enteros (XFL)](/es/docs/hooks/concepts/floating-point-numbers-xfl) u otros datos.
 
 Los parámetros de una API de Hook siempre siguen este orden:
 
@@ -64,4 +64,4 @@ Algunas APIs solo escriben, otras solo leen, y algunas no hacen ninguna de las d
 
 ### Códigos de retorno
 
-Todas las APIs de Hooks devuelven un _entero con signo_. Puedes leer más sobre los códigos de retorno aquí: [Códigos de retorno](/docs/hooks/functions/overview/return-codes)
+Todas las APIs de Hooks devuelven un _entero con signo_. Puedes leer más sobre los códigos de retorno aquí: [Códigos de retorno](/es/docs/hooks/functions/overview/return-codes)

@@ -26,7 +26,7 @@ int32_t _g (uint32_t id, uint32_t maxiter);
 
 El primer argumento `id` es el identificador del guard. Es una constante única elegida por el desarrollador, normalmente se usa el número de línea del archivo fuente.
 
-El segundo argumento `maxiter` es una promesa del desarrollador al ledger de que este guard no será ejecutado más de `maxiter` veces durante la ejecución del Hook. Si el guard se ejecuta más veces, el Hook hará automáticamente rollback con un error `GUARD_VIOLATION` ([códigos de retorno de la Hook API](/docs/hooks/functions/overview/return-codes)). Como el guard se ejecuta *antes* de comprobar la condición del bucle, es importante sumar uno al número total esperado de iteraciones. (Nota: la macro GUARD() ya suma uno).
+El segundo argumento `maxiter` es una promesa del desarrollador al ledger de que este guard no será ejecutado más de `maxiter` veces durante la ejecución del Hook. Si el guard se ejecuta más veces, el Hook hará automáticamente rollback con un error `GUARD_VIOLATION` ([códigos de retorno de la Hook API](/es/docs/hooks/functions/overview/return-codes)). Como el guard se ejecuta *antes* de comprobar la condición del bucle, es importante sumar uno al número total esperado de iteraciones. (Nota: la macro GUARD() ya suma uno).
 
 <Aside type="caution">
   Los guards deben definirse usando valores numéricos literales. No puedes usar variables ni valores calculados en tiempo de ejecución.
