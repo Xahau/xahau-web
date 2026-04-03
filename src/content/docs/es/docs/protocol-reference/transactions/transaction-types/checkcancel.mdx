@@ -1,0 +1,29 @@
+---
+title: CheckCancel
+description: >-
+  Cancela un Check no canjeado, eliminándolo del ledger sin enviar dinero.
+  La fuente o el destino del check pueden cancelarlo en cualquier momento.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Añadido por la enmienda \[Checks]\[].)_
+
+### Ejemplo
+
+```json
+{
+    "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+    "TransactionType": "CheckCancel",
+    "CheckID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Fee": "12"
+}
+```
+
+| Campo     | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                        |
+| --------- | --------- | ------------------- | ---------------------------------------------------------------------------------- |
+| `CheckID` | String    | Hash256             | El ID del objeto ledger Check a cancelar, como una cadena hexadecimal de 64 caracteres. |
+
+### Casos de Error
+
+* Si el objeto identificado por el `CheckID` no existe o no es un Check, la transacción falla con el resultado `tecNO_ENTRY`.
+* Si el Check no ha expirado y el emisor de la transacción CheckCancel no es la fuente ni el destino del Check, la transacción falla con el resultado `tecNO_PERMISSION`.

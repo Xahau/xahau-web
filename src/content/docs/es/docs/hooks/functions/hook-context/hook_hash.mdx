@@ -1,0 +1,87 @@
+---
+title: hook_hash
+description: Obtener el SHA512H (con sesgo de namespace) de 32 bytes del Hook en ejecución
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Busca el hash del hook instalado en la cuenta del hook en la posición `hook_no`
+* Escribe el hash de 32 bytes en `write_ptr`
+</TabItem>
+<TabItem label="JavaScript">
+* Obtiene el hash del hook instalado en la cuenta del hook en la posición indicada.
+* Devuelve el SHA512H (con sesgo de namespace) del hook en ejecución, o un código de error si falla.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_hash (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    int32_t  hook_no
+);
+````
+
+</TabItem>
+<TabItem label="JavaScript">
+```javascript id="hook-hash-js"
+function hook_hash(hookno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c id="hook-hash-c"
+uint8_t hash[32];
+int64_t bytes_written = 
+    hook_hash(hash, 32, -1);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript id="hook-hash-js-ex"
+const hash = hook_hash(hookno)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                                                                      |
+| --------- | -------- | ------------------------------------------------------------------------------------------------ |
+| write_ptr | uint32_t | Puntero a un buffer adecuado para almacenar la salida (mínimo 32 bytes)                         |
+| write_len | uint32_t | Longitud del buffer de salida                                                                   |
+| hook_no   | int32_t  | Posición del hook en la cadena, o `-1` para el hook en ejecución                                |
+</TabItem>
+<TabItem label="JavaScript">
+| Nombre  | Tipo   | Descripción                                                                                      |
+| ------- | ------ | ------------------------------------------------------------------------------------------------ |
+| hook_no | number | Posición del hook en la cadena, o `-1` para el hook en ejecución                                |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                 |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de memoria<br /><br /><code>DOESNT_EXIST</code><br />- el hook indicado no existe en la cadena</p> |
+</TabItem>
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------------- |
+| ByteArray o ErrorCode  | Devuelve el SHA512H del hook en ejecución o un código de error si falla la operación                     |
+</TabItem>
+</Tabs>

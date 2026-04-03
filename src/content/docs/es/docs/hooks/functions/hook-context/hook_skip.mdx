@@ -1,0 +1,97 @@
+---
+title: hook_skip
+description: Omitir un hook que aparece más adelante en la cadena de hooks de la cuenta
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Busca en la cadena de hooks un hook identificado por el hash en `read_ptr`
+* Lo marca como deshabilitado para esta ejecución de la cadena
+</TabItem>
+
+<TabItem label="JavaScript">
+* Omite la ejecución de un hook basándose en el hash y el flag proporcionados.
+* Devuelve un código de estado indicando el resultado de la operación.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_skip (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t flags
+);
+````
+
+</TabItem>
+<TabItem label="JavaScript">
+```javascript id="hook-skip-js"
+function hook_skip(
+    hash: ByteArray | HexString,
+    flag: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c id="hook-skip-c"
+uint8_t phash[] = { 0x19U, 0xFEU, 0x69U, 0xF1U, 0x53U, 0x66U, 0x4EU, 0x8CU, 
+                    0x97U, 0xF4U, 0x4CU, 0x5CU, 0x3CU, 0x65U, 0x63U, 0x79U, 
+                    0xC2U, 0xD0U, 0x26U, 0xE7U, 0x90U, 0xEFU, 0x38U, 0xF7U, 
+                    0xEDU, 0x73U, 0xE9U, 0xCEU, 0x9CU, 0x9DU, 0xBFU, 0x03U };
+int64_t result = 
+  	hook_skip(phash, 32, 0);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript id="hook-skip-js-ex"
+const phash = [ 0x19, 0xFE, 0x69, 0xF1, 0x53, 0x66, 0x4E, 0x8C, 
+                0x97, 0xF4, 0x4C, 0x5C, 0x3C, 0x65, 0x63, 0x79, 
+                0xC2, 0xD0, 0x26, 0xE7, 0x90, 0xEF, 0x38, 0xF7, 
+                0xED, 0x73, 0xE9, 0xCE, 0x9C, 0x9D, 0xBF, 0x03 ]
+const result = hook_skip(phash, 0);
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre   | Tipo     | Descripción                                                                                          |
+| -------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| read_ptr | uint32_t | Puntero a un buffer que contiene el hash del hook                                                    |
+| read_len | uint32_t | Longitud del hash (siempre 32)                                                                       |
+| flags    | uint32_t | <p>Si es 0:<br />- añade el hash a la lista de hooks omitidos<br /><br />Si es 1:<br />- elimina el hash de la lista de hooks omitidos</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo                   | Descripción                                   |
+| ------ | ---------------------- | --------------------------------------------- |
+| hash   | ByteArray o HexString  | Hash del hook a omitir                        |
+| flag   | number                 | Indicador de la acción (añadir o eliminar)    |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="163">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>int64_t</td><td>Si tiene éxito: <code>1</code><br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de memoria<br /><br /><code>DOESNT_EXIST</code><br />- el parámetro no existe o es nulo<br /><br /><code>INVALID_ARGUMENT</code><br />- el hash no tiene 32 bytes</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="163">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>number o ErrorCode</td><td>Devuelve un código de estado indicando el resultado de la operación.</td></tr></tbody></table>
+</TabItem>
+</Tabs>

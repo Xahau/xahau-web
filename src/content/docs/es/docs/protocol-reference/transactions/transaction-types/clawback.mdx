@@ -1,0 +1,51 @@
+---
+title: Clawback
+description: >-
+  Revocar tokens que fueron emitidos previamente por su cuenta.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Clawback.cpp)]
+
+_(Añadido por la enmienda \[Clawback]\[].)_
+
+Revocar tokens que fueron emitidos previamente por su cuenta. La función **Clawback** está deshabilitada por defecto. Para usarla, primero debe enviar una transacción **AccountSet** que habilite *Allow Trust Line Clawback*. Si su cuenta ya ha emitido tokens, no puede habilitar Clawback después. Solo puede activar *Allow Trust Line Clawback* si el directorio de propietarios de su cuenta está completamente vacío — es decir, antes de crear líneas de confianza, ofertas, escrows, canales de pago, checks o listas de firmantes. Una vez habilitado, Clawback se convierte en una capacidad permanente de su cuenta y no puede deshacerse.
+
+---
+
+## Ejemplo
+
+```json
+{
+  "TransactionType": "Clawback",
+  "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Amount": {
+    "currency": "USD",
+    "issuer": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+    "value": "123.45"
+  }
+}
+````
+
+---
+
+### Campos
+
+Una transacción **Clawback** incluye:
+
+| Campo    | Tipo JSON                     | Descripción                                                                                                                                                                                                                                                                    |
+| -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Amount` | *Monto de Moneda*             | La cantidad a revocar, así como la contraparte de quien se toma. El `value` no debe ser cero. Si es mayor que el saldo del titular, se revoca el saldo completo. En el subcampo `issuer`, especifique la dirección del titular (no la del emisor). |
+
+En Xahau, un IOU/token no-XAH en una línea de confianza siempre tiene un emisor, pero las líneas de confianza son bidireccionales y bajo ciertas configuraciones ambos lados pueden actuar como emisores. En esta transacción, la dirección del emisor va en el campo `Account`, mientras que la dirección del titular va en el subcampo `issuer` de `Amount`.
+
+---
+
+## Casos de Error
+
+Además de los errores de transacción estándar, Clawback puede fallar con:
+
+| Código de Error    | Descripción                                                                                                                                                                                                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`      | La enmienda **Clawback** no está habilitada en Xahau.                                                                                                                                                                                                                 |
+| `temBAD_AMOUNT`    | El saldo del titular es cero. (No es un error si el monto especificado excede el saldo del titular; en ese caso, se revoca todo el saldo disponible). También ocurre si la contraparte en `Amount` es la misma cuenta que envía la transacción. |
+| `tecNO_LINE`       | No existe línea de confianza con la contraparte especificada, o la línea de confianza tiene un saldo de cero.                                                                                                                                                             |
+| `tecNO_PERMISSION` | Ocurre si intenta habilitar `lsfAllowTrustLineClawback` cuando `lsfNoFreeze` ya está habilitado, o viceversa.                                                                                                                                                            |

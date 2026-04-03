@@ -1,0 +1,117 @@
+---
+title: Formatos de Moneda
+---
+Xahau tiene dos tipos de activos digitales: XAH y tokens. Ambos tipos tienen alta precisión, aunque sus formatos son diferentes.
+
+### Comparación
+
+La siguiente tabla resume algunas de las diferencias entre XAH y tokens en Xahau:
+
+| XAH                                                                                  | Tokens                                                                                         |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| No tiene emisor.                                                                     | Siempre emitido por una cuenta de Xahau.                                                       |
+| Se especifica como una cadena.                                                       | Se especifica como un objeto.                                                                  |
+| Se rastrea en cuentas.                                                               | Se rastrea en líneas de confianza.                                                             |
+| Nunca puede crearse; solo puede destruirse.                                          | Puede emitirse o canjearse libremente.                                                         |
+| Valor mínimo: `0`. (No puede ser negativo.)                                          | Valor mínimo: `-9999999999999999e80`. Valor absoluto mínimo no nulo: `1000000000000000e-96`.   |
+| Valor máximo `100000000000` (1011) XAH. Eso es `100000000000000000` (1017) "drops". | Valor máximo `9999999999999999e80`.                                                            |
+| Preciso al "drop" más cercano (0.000001 XAH)                                         | 15 dígitos decimales de precisión.                                                             |
+| No se puede congelar.                                                               | El emisor puede congelar saldos.                                                               |
+| Sin tarifas de transferencia; los pagos XAH a XAH son siempre directos.              | Puede tomar rutas indirectas con cada emisor cobrando una tarifa de transferencia porcentual.  |
+| Se puede usar en Canales de Pago y Escrow.                                           | Se puede usar con Canales de Pago o Escrow.                                                    |
+
+Para más información, consulta ¿Qué es XAH? y Tokens.
+
+### Especificando Montos de Moneda
+
+Usa el formato apropiado para el tipo de moneda que quieres especificar:
+
+* Montos XAH
+* Montos de Token
+
+#### Montos XAH
+
+Para especificar una cantidad de XAH, usa un número de tipo String que indique _drops_ de XAH, donde cada drop equivale a 0.000001 XAH. Por ejemplo, para especificar 13.1 XAH:
+
+```
+"13100000"
+```
+
+**No especifiques XAH como un objeto.**
+
+Los montos XAH no pueden ser negativos.
+
+#### Montos de Token
+
+Para especificar una cantidad de un token (fungible), usa un objeto Amount. Este es un objeto JSON con tres campos:
+
+| `Campo`    | Tipo                   | Descripción                                                                                                                                                                                                                                                                                                       |
+| ---------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `currency` | String - Código de Moneda | Código de moneda arbitrario para el token. No puede ser XAH.                                                                                                                                                                                                                                                      |
+| `value`    | String Number          | Representación decimal entre comillas del monto del token. Puede incluir notación científica, como `1.23e11` que significa 123,000,000,000. Puede ser negativo al mostrar saldos, pero los valores negativos no están permitidos en otros contextos como al especificar cuánto enviar.                            |
+| `issuer`   | String                 | Generalmente, la cuenta que emite este token. En casos especiales, puede referirse a la cuenta que tiene el token en lugar de eso (por ejemplo, en una transacción Clawback).                                                                                                                                    |
+
+**Precaución:** Estos nombres de campo son sensibles a mayúsculas y minúsculas.
+
+Por ejemplo, para representar $153.75 dólares estadounidenses emitidos por la cuenta `r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59`, especificarías:
+
+```json
+{
+    "currency": "USD",
+    "value": "153.75",
+    "issuer": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59"
+}
+```
+
+#### Especificando Sin Montos
+
+En algunos casos, necesitas definir un activo (que puede ser XAH o un token) sin una cantidad específica, como al definir un libro de órdenes en el intercambio descentralizado.
+
+Para describir un token sin una cantidad, especifícalo como un objeto de moneda, pero omite el campo `value`. Por ejemplo:
+
+```json
+{
+  "currency": "TST",
+  "issuer": "rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd"
+}
+```
+
+Para describir XAH sin una cantidad, especifícalo como un objeto JSON con _solo_ un campo `currency`. Nunca incluyas un campo `issuer` para XAH. Por ejemplo:
+
+```json
+{
+  "currency": "XAH"
+}
+```
+
+### Números de Cadena
+
+### Precisión de XAH
+
+XAH tiene la misma precisión que un entero sin signo de 64 bits donde cada unidad equivale a 0.000001 XAH. Usa matemáticas enteras, por lo que cualquier monto menor a un drop completo se redondea hacia abajo.
+
+### Precisión de Tokens
+
+Los tokens pueden representar una amplia variedad de activos, incluidos los típicamente medidos en denominaciones muy pequeñas o muy grandes. Este formato usa dígitos significativos y un exponente de potencia de diez de manera similar a la notación científica. El formato admite dígitos significativos y exponentes positivos y negativos dentro del rango especificado. A diferencia de las representaciones típicas de punto flotante de números no enteros, este formato usa matemáticas enteras para todos los cálculos, por lo que siempre mantiene 15 dígitos decimales de precisión.
+
+Al enviar montos de token en la red entre pares de Xahau, los servidores serializan el monto a un valor binario de 64 bits.
+
+**Consejo:** Para tokens que no deben ser divisibles en absoluto, consulta Tokens No Fungibles (NFTs).
+
+### Códigos de Moneda
+
+#### Códigos de Moneda Estándar
+
+El formato estándar para los códigos de moneda es una cadena de tres caracteres como `USD`. Está destinado para su uso con [Códigos de Moneda ISO 4217](https://www.xe.com/iso4217.php). Se aplican las siguientes reglas:
+
+* Los códigos de moneda deben tener exactamente 3 caracteres ASCII de longitud. Los siguientes caracteres están permitidos: todas las letras mayúsculas y minúsculas, dígitos, así como los símbolos `?`, `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `<`, `>`, `(`, `)`, `{`, `}`, `[`, `]` y `|`.
+* Los códigos de moneda son sensibles a mayúsculas y minúsculas.
+* El código de moneda XAH (todo en mayúsculas) está prohibido. El XAH real normalmente no usa un código de moneda en el protocolo de Xahau.
+
+A nivel de protocolo, este formato se serializa en un valor binario de 160 bits que comienza con `0x00`.
+
+#### Códigos de Moneda No Estándar
+
+También puedes usar una cadena hexadecimal de 160 bits (40 caracteres) como `015841551A748AD2C1F76FF6ECB0CCCD00000000` como código de moneda. Para evitar que sea tratado como un código de moneda "estándar", los primeros 8 bits NO DEBEN ser `0x00`.
+
+**Obsoleto:** Algunas versiones anteriores de [ripple-lib](https://github.com/XRPLF/xrpl.js) admitían un tipo de código de moneda "devengador de intereses" o "con demurraje". Estos códigos tienen los primeros 8 bits como `0x01`. Las monedas con demurraje/devengadoras de intereses ya no están soportadas, pero puedes encontrarlas en datos del ledger.

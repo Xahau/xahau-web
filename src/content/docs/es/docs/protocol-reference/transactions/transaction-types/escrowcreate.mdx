@@ -1,0 +1,42 @@
+---
+title: EscrowCreate
+description: Retiene XAH o IOU hasta que el proceso de escrow finalice o sea cancelado.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_Añadido por la enmienda \[Escrow]\[]._
+
+### Ejemplo
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCreate",
+    "Amount" : {
+       "currency" : "USD",
+       "value" : "1",
+       "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+    },
+    "Destination": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+    "CancelAfter": 533257958,
+    "FinishAfter": 533171558,
+    "Condition": "A0258020E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855810100",
+    "DestinationTag": 23480,
+    "SourceTag": 11747
+}
+```
+
+### Campos
+
+| Campo            | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                            |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Amount`         | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | Monto a deducir del saldo del emisor y poner en escrow. Una vez en escrow, el Amount puede ir a la dirección `Destination` (después del tiempo `FinishAfter`) o ser devuelto al emisor (después del tiempo `CancelAfter`).            |
+| `Destination`    | String                                                                                                                             | AccountID           | Dirección para recibir el Amount en escrow.                                                                                                                                                                                            |
+| `CancelAfter`    | Number                                                                                                                             | UInt32              | _(Opcional)_ El tiempo, en \[segundos desde la Época Ripple]\[], cuando este escrow expira. Este valor es inmutable; los fondos solo pueden devolverse al emisor después de este tiempo.                                               |
+| `FinishAfter`    | Number                                                                                                                             | UInt32              | _(Opcional)_ El tiempo, en \[segundos desde la Época Ripple]\[], cuando el Amount en escrow puede liberarse al destinatario. Este valor es inmutable; los fondos no pueden moverse hasta que se alcance este tiempo.                  |
+| `Condition`      | String                                                                                                                             | Blob                | _(Opcional)_ Valor hex que representa una [crypto-condición PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1). Los fondos solo pueden entregarse al destinatario si esta condición se cumple. |
+| `DestinationTag` | Number                                                                                                                             | UInt32              | _(Opcional)_ Etiqueta arbitraria para especificar más el destino de este pago en escrow, como un destinatario alojado en la dirección de destino.                                                                                     |
+
+Se debe especificar `CancelAfter` o `FinishAfter`. Si ambos se incluyen, el tiempo `FinishAfter` debe ser anterior al tiempo `CancelAfter`.
+
+Con la enmienda \[fix1571]\[] habilitada, debe proporcionar `FinishAfter`, `Condition`, o ambos. \[Nuevo en: rippled 1.0.0]\[]

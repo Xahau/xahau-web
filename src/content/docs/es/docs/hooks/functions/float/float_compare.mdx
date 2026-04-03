@@ -1,0 +1,110 @@
+---
+title: float_compare
+description: Realiza una comparación entre dos números de punto flotante XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Evalúa una comparación entre dos números de punto flotante XFL
+* Devuelve el resultado de la comparación como un booleano codificado en un int64_t.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Evalúa una comparación entre dos números de punto flotante XFL
+* Devuelve un código de error o el resultado de la comparación como un número.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_compare (
+    int64_t float1,
+    int64_t float2,
+    uint32_t mode
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="6xt3c7"
+function float_compare(
+    f1: bigint,
+    f2: bigint,
+    mode: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c id="az5p3m"
+if (float_compare(pusd_to_send, 0, COMPARE_LESS) == 1)
+{
+  // pusd_to_send es menor que 0
+}
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="k9v8n2"
+if (float_compare(pusd_to_send, 0n, COMPARE_LESS) == 1)
+{
+  // pusd_to_send es menor que 0
+}
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre | Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| float1 | int64_t  | Número XFL que representa el primer operando de la comparación                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| float2 | int64_t  | Número XFL que representa el segundo operando de la comparación                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| mode   | uint32_t | Campo de flags que puede contener cualquiera de (o combinaciones válidas de) los siguientes valores:<br /><code>COMPARE_EQUAL</code> `1`<br /><code>COMPARE_LESS</code> `2`<br /><code>COMPARE_GREATER</code> `4`<br /><br />Combinaciones válidas:<br /><code>COMPARE_LESS</code> \| <code>COMPARE_GREATER</code><br />- Distinto<br /><br /><code>COMPARE_LESS</code> \| <code>COMPARE_EQUAL</code><br />- Menor o igual<br /><br /><code>COMPARE_GREATER</code> \| <code>COMPARE_EQUAL</code><br />- Mayor o igual |
+
+<Aside type="caution">
+Verifica siempre que la función devuelve `1` en lugar de simplemente `no cero`, ya que los códigos de error negativos también se consideran `no cero`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción                                                        |
+| ------ | ------ | ------------------------------------------------------------------ |
+| f1     | bigint | El primer valor flotante a comparar                                |
+| f2     | bigint | El segundo valor flotante a comparar                               |
+| mode   | number | El modo de comparación (por ejemplo: menor, igual, mayor)          |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                              |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <code>0</code> si la comparación es falsa.<br /><code>1</code> si la comparación es verdadera.<br /><br />Si es negativo, error:<br /><code>INVALID_FLOAT</code><br />- alguno de los parámetros no es un número XFL válido<br /><br /><code>INVALID_ARGUMENT</code><br />- combinación inválida de flags de comparación |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                                      |
+| ------------------- | ---------------------------------------------------------------- |
+| ErrorCode o number  | Devuelve un código de error o el resultado de la comparación     |
+</TabItem>
+</Tabs>

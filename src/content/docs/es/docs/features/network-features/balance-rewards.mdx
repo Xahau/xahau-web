@@ -1,0 +1,20 @@
+---
+title: Recompensas de Balance
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+La característica de Recompensas de Balance es un aspecto único de la red Xahau que permite a los usuarios acumular y reclamar recompensas basadas en el balance de su cuenta. Esta característica se implementa mediante una combinación de código nativo (Enmienda BalanceRewards) y código de hook (Hook de Recompensa de la Cuenta Génesis).
+
+### Tipos de Transacciones
+
+#### ClaimReward
+
+Una transacción `ClaimReward` permite a una cuenta reclamar las recompensas que ha acumulado. Las recompensas pueden ser reclamadas por el propietario de la cuenta o por un emisor especificado. La cuenta también puede excluirse de las recompensas estableciendo el campo Flags en 1.
+
+<LinkCard title="ClaimReward" href="/docs/protocol-reference/transactions/transaction-types/claimreward" />
+
+#### GenesisMint
+
+El tipo de transacción `GenesisMint` también está asociado con la característica de Recompensas de Balance. Esta es una transacción Emitida que se ejecuta a través del Hook de Recompensa cada vez que un usuario reclama sus recompensas de balance.
+
+<LinkCard title="GenesisMint - (Txn Emitida)" href="/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn" />

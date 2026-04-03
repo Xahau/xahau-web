@@ -1,0 +1,44 @@
+---
+title: CheckCreate
+description: >-
+  Crea un objeto Check en el ledger, que es un pago diferido que puede ser
+  canjeado por su destino previsto. El emisor de esta transacción es el
+  emisor del Check.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Añadido por la enmienda \[Checks]\[].)_
+
+### Ejemplo
+
+```json
+{
+  "TransactionType": "CheckCreate",
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "Destination": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+  "SendMax": "100000000",
+  "Expiration": 570113521,
+  "InvoiceID": "6F1DFD1D0FE8A32E40E1F2C05CF1C15545BAB56B617F9C6C2D63A6B704BEF59B",
+  "DestinationTag": 1,
+  "Fee": "12"
+}
+```
+
+| Campo            | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                                                                                                 |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Destination`    | String                                                                                                                             | AccountID           | La dirección única de la cuenta que puede canjear el Check.                                                                                                                                                                                                                                                 |
+| `SendMax`        | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | Monto máximo de moneda fuente que el Check puede debitar al emisor, incluyendo tarifas de transferencia en monedas que no son XAH. El Check solo puede acreditar al destino con la misma moneda (del mismo emisor, para monedas que no son XAH). Para montos que no son XAH, los nombres de campos anidados DEBEN estar en minúsculas. |
+| `DestinationTag` | Number                                                                                                                             | UInt32              | _(Opcional)_ Etiqueta arbitraria que identifica la razón del Check, o un destinatario alojado al que pagar.                                                                                                                                                                                                 |
+| `Expiration`     | Number                                                                                                                             | UInt32              | _(Opcional)_ Tiempo después del cual el Check ya no es válido, en \[segundos desde la Época Ripple]\[].                                                                                                                                                                                                     |
+| `InvoiceID`      | String                                                                                                                             | Hash256             | _(Opcional)_ Hash arbitrario de 256 bits que representa una razón o identificador específico para este Check.                                                                                                                                                                                               |
+
+### Casos de Error
+
+* Si la cuenta `Destination` está bloqueando Checks entrantes, la transacción falla con el código de resultado `tecNO_PERMISSION`.
+* Si el `Destination` es el emisor de la transacción, la transacción falla con el código de resultado `temREDUNDANT`.
+* Si la cuenta `Destination` no existe en el ledger, la transacción falla con el código de resultado `tecNO_DST`.
+* Si la cuenta `Destination` tiene habilitado el indicador `RequireDest` pero la transacción no incluye un campo `DestinationTag`, la transacción falla con el código de resultado `tecDST_TAG_NEEDED`.
+* Si `SendMax` especifica un token que está congelado, la transacción falla con el resultado `tecFROZEN`.
+* Si la `Expiration` de la transacción ya pasó, la transacción falla con el resultado `tecEXPIRED`.
+* Si el emisor no tiene suficiente XAH para cumplir con la reserva del propietario después de agregar el Check, la transacción falla con el resultado `tecINSUFFICIENT_RESERVE`.
+* Si el emisor o el destino del Check no pueden poseer más objetos en el ledger, la transacción falla con el resultado `tecDIR_FULL`.

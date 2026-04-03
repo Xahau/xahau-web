@@ -1,0 +1,66 @@
+---
+title: Ledger Hashes
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L104-L108)
+
+(No confundir con el \[tipo de dato de cadena "hash de ledger"]\[Hash], que identifica de forma única una versión del ledger. Esta sección describe el tipo de objeto del ledger `LedgerHashes`.)
+
+El tipo de objeto `LedgerHashes` contiene un historial de ledgers anteriores que llevaron a esta versión del ledger, en forma de sus hashes. Los objetos de este tipo del ledger se modifican automáticamente al cerrar un ledger. Los objetos `LedgerHashes` existen para hacer posible buscar el hash de un ledger anterior con solo la versión actual del ledger y como máximo una búsqueda de una versión de ledger anterior.
+
+Hay dos tipos de objetos `LedgerHashes`. Ambos tipos tienen los mismos campos. Cada versión del ledger contiene:
+
+* Exactamente un objeto `LedgerHashes` de "historial reciente"
+* Un número de objetos `LedgerHashes` de "historial anterior" basado en el índice del ledger actual. Específicamente, Xahau agrega un nuevo objeto de "historial anterior" cada 65536 versiones del ledger.
+
+**Nota:** Como excepción, un nuevo ledger de génesis no tiene ningún objeto `LedgerHashes`, porque no tiene historial del ledger.
+
+Ejemplo de objeto `LedgerHashes` (reducido):
+
+```json
+{
+  "LedgerEntryType": "LedgerHashes",
+  "Flags": 0,
+  "FirstLedgerSequence": 2,
+  "LastLedgerSequence": 33872029,
+  "Hashes": [
+    "D638208ADBD04CBB10DE7B645D3AB4BA31489379411A3A347151702B6401AA78",
+    "254D690864E418DDD9BCAC93F41B1F53B1AE693FC5FE667CE40205C322D1BE3B",
+    "A2B31D28905E2DEF926362822BC412B12ABF6942B73B72A32D46ED2ABB7ACCFA",
+    "AB4014846DF818A4B43D6B1686D0DE0644FE711577C5AB6F0B2A21CCEE280140",
+    "3383784E82A8BA45F4DD5EF4EE90A1B2D3B4571317DBAC37B859836ADDE644C1",
+    ... (hasta 256 hashes de ledger) ...
+  ],
+  "index": "B4979A36CDC7F3D3D5C31A4EAE2AC7D7209DDA877588B9AFC66799692AB0D66B"
+}
+```
+
+Un objeto `LedgerHashes` tiene los siguientes campos:
+
+| Nombre                  | Tipo JSON        | \[Tipo Interno]\[] | ¿Requerido? | Descripción                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------------- | ---------------- | ------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FirstLedgerSequence` | Number           | UInt32              | Sí          | **OBSOLETO** No usar. (El objeto de "hashes recientes" del Xahau de producción tiene el valor `2` en este campo como resultado de un software `rippled` anterior. Ese valor se mantiene al actualizar el objeto de "hashes recientes". Los nuevos objetos de "historial anterior" no tienen este campo.) |
+| `Flags`               | Number           | UInt32              | Sí          | Un mapa de bits de indicadores booleanos habilitados para este objeto. Actualmente, el protocolo no define indicadores para objetos `LedgerHashes`. El valor es siempre `0`.                                                                                                                                                                                                                        |
+| `Hashes`              | Array of Strings | Vector256           | Sí          | Un arreglo de hasta 256 hashes de ledger. El contenido depende del subtipo de objeto `LedgerHashes` que sea.                                                                                                                                                                                                                                                                                        |
+| `LastLedgerSequence`  | Number           | UInt32              | Sí          | El \[Índice del Ledger]\[] de la última entrada en el arreglo `Hashes` de este objeto.                                                                                                                                                                                                                                                                                                              |
+| `LedgerEntryType`     | String           | UInt16              | Sí          | El valor `0x0068`, mapeado a la cadena `LedgerHashes`, indica que este objeto es una lista de hashes de ledger.                                                                                                                                                                                                                                                                                     |
+
+### LedgerHashes de Historial Reciente
+
+Hay exactamente un objeto `LedgerHashes` del subtipo de "historial reciente" en cada ledger después del ledger de génesis. Este objeto contiene los hashes identificadores de las 256 versiones del ledger más recientes (o menos, si el historial del ledger tiene menos de 256 ledgers en total) en el arreglo `Hashes`. Cada vez que se cierra un nuevo ledger, parte del proceso de cierre implica actualizar el objeto de "historial reciente" con el hash de la versión del ledger anterior del que se derivó esta versión. Cuando hay más de 256 hashes, se elimina el más antiguo.
+
+### LedgerHashes de Historial Anterior
+
+Las entradas de `LedgerHashes` de "historial anterior" contienen colectivamente el hash de cada 256.ª versión del ledger (también llamadas "ledgers de bandera") en el historial completo del ledger. Cuando el hijo de un ledger de bandera se cierra, el hash del ledger de bandera se agrega al arreglo `Hashes` del objeto `LedgerHashes` de "historial anterior" más reciente. Cada 65536 ledgers, `rippled` crea un nuevo objeto `LedgerHashes`, de modo que cada objeto de "historial anterior" tiene los hashes de 256 ledgers de bandera.
+
+Los objetos `LedgerHashes` de "historial anterior" actúan como una [lista de salto](https://en.wikipedia.org/wiki/Skip_list) para que puedas obtener el hash de cualquier ledger de bandera histórico desde su índice.
+
+### Formatos del ID LedgerHashes
+
+Hay dos formatos para los IDs de objetos `LedgerHashes`, dependiendo de si el objeto es del subtipo de "historial reciente" o de "historial anterior".
+
+El objeto `LedgerHashes` de **"historial reciente"** tiene un ID que es el \[SHA-512Half]\[] de la clave de espacio `LedgerHashes` (`0x0073`). En otras palabras, el "historial reciente" siempre tiene el ID `B4979A36CDC7F3D3D5C31A4EAE2AC7D7209DDA877588B9AFC66799692AB0D66B`.
+
+Los objetos `LedgerHashes` de **"historial anterior"** tienen un ID que es el \[SHA-512Half]\[] de los siguientes valores, concatenados en orden:
+
+* La clave de espacio `LedgerHashes` (`0x0073`)
+* El \[Índice del Ledger]\[] de 32 bits de un ledger de bandera en el arreglo `Hashes` del objeto, dividido por 65536.

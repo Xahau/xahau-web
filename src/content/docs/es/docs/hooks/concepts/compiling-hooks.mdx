@@ -1,0 +1,227 @@
+---
+title: Compilación de Hooks
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Restricciones
+
+Todos los Hooks se compilan en un único [módulo de WebAssembly](https://webassembly.github.io/spec/core/syntax/modules.html) antes de poder ser establecidos en una cuenta de Xahau.
+
+Un Hook siempre implementa y exporta exactamente una o ambas de las siguientes funciones:
+
+`int64_t hook(uint32_t ctx) { ... }` _obligatoria_
+
+* Se ejecuta cuando una transacción entra o sale de la cuenta en la que está configurado el Hook (`ctx = 0`) o
+* Se ejecuta cuando se ejecuta como un [Participante Transaccional Débil](/docs/hooks/concepts/weak-and-strong) (`ctx > 0`).
+
+`int64_t cbak(uint32_t ctx) { ... }` _opcional_
+
+* Se ejecuta cuando una transacción emitida es aceptada con éxito en un ledger (`ctx = 0`) o
+* Se ejecuta cuando una transacción emitida no puede ser aceptada en ningún ledger (`ctx = 1`).
+
+Los Hooks no pueden definir otras funciones. En su lugar, deben hacer un uso ingenioso de macros para realizar todos sus cálculos dentro de estas dos funciones. Esto forma parte de una restricción computacional diseñada para mantener predecible el tiempo de ejecución de los Hooks.
+
+Además, los Hooks no disponen de memoria _heap_. Toda la memoria necesaria debe reservarse y utilizarse en la pila (_stack_).
+
+### Ejemplo
+
+Aquí tienes un ejemplo de un Hook escrito en C. El Hook imprime 0...3 en el log de trazas antes de aceptar la transacción original.
+
+```c
+#include <stdint.h>
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+extern int32_t _g (uint32_t id, uint32_t maxiter);
+extern int64_t accept (uint32_t read_ptr, uint32_t read_len, int64_t error_code);
+extern int64_t trace_num (uint32_t read_ptr, uint32_t read_len, int64_t number);
+
+int64_t hook(uint32_t ctx)
+{
+    for (int i = 0; GUARD(3), i < 3; ++i)
+    {
+        trace_num("test", 4, i);
+    }
+    accept (0,0,0); 
+    return 0;
+}
+````
+
+<Aside type="tip">
+Con fines educativos, el ejemplo anterior no incluye deliberadamente `hookapi.h` (que normalmente utilizarían los desarrolladores).
+</Aside>
+
+### Compilación
+
+Una [variedad de compiladores](https://www.google.com/search?q=webassembly+compiler+C) puede generar WebAssembly válido a partir de un archivo fuente en C. Una vez compilado, un Hook existe como un archivo binario `.wasm`. Este contiene un módulo de WebAssembly. Utilizando `wasmcc` para compilar y la herramienta `wasm2wat` para convertirlo a una forma legible por humanos, este binario puede representarse en formato comprensible. A continuación se muestra el resultado de compilación del ejemplo anterior.
+
+```
+(module
+  (type (;0;) (func (param i32 i32) (result i32)))
+  (type (;1;) (func (param i32 i32 i64) (result i64)))
+  (type (;2;) (func))
+  (type (;3;) (func (param i32) (result i64)))
+  (import "env" "_g" (func $_g (type 0)))
+  (import "env" "trace_num" (func $trace_num (type 1)))
+  (import "env" "accept" (func $accept (type 1)))
+  (func $__wasm_call_ctors (type 2))
+  (func $cbak (type 3) (param i32) (result i64)
+    (local i32 i32 i32 i64)
+    global.get 0
+    local.set 1
+    i32.const 16
+    local.set 2
+    local.get 1
+    local.get 2
+    i32.sub
+    local.set 3
+    i64.const 0
+    local.set 4
+    local.get 3
+    local.get 0
+    i64.store offset=8
+    local.get 4
+    return)
+  (func $hook (type 3) (param i32) (result i64)
+    (local i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i64 i32 i32 i32 i64 i32 i32 i32)
+    global.get 0
+    local.set 1
+    i32.const 16
+    local.set 2
+    local.get 1
+    local.get 2
+    i32.sub
+    local.set 3
+    local.get 3
+    global.set 0
+    i32.const 0
+    local.set 4
+    local.get 3
+    local.get 0
+    i64.store offset=8
+    local.get 3
+    local.get 4
+    i32.store offset=4
+    block  ;; label = @1
+      loop  ;; label = @2
+        i32.const 3
+        local.set 5
+        i32.const 14
+        local.set 6
+        i32.const 4
+        local.set 7
+        local.get 6
+        local.get 7
+        call $_g
+        drop
+        local.get 3
+        i32.load offset=4
+        local.set 8
+        local.get 8
+        local.set 9
+        local.get 5
+        local.set 10
+        local.get 9
+        local.get 10
+        i32.lt_s
+        local.set 11
+        i32.const 1
+        local.set 12
+        local.get 11
+        local.get 12
+        i32.and
+        local.set 13
+        local.get 13
+        i32.eqz
+        br_if 1 (;@1;)
+        i32.const 1024
+        local.set 14
+        i32.const 4
+        local.set 15
+        local.get 3
+        i32.load offset=4
+        local.set 16
+        local.get 16
+        local.set 17
+        local.get 17
+        i64.extend_i32_s
+        local.set 18
+        local.get 14
+        local.get 15
+        local.get 18
+        call $trace_num
+        drop
+        local.get 3
+        i32.load offset=4
+        local.set 19
+        i32.const 1
+        local.set 20
+        local.get 19
+        local.get 20
+        i32.add
+        local.set 21
+        local.get 3
+        local.get 21
+        i32.store offset=4
+        br 0 (;@2;)
+      end
+    end
+    i64.const 0
+    local.set 22
+    i32.const 0
+    local.set 23
+    local.get 23
+    local.get 23
+    local.get 22
+    call $accept
+    drop
+    i32.const 16
+    local.set 24
+    local.get 3
+    local.get 24
+    i32.add
+    local.set 25
+    local.get 25
+    global.set 0
+    local.get 22
+    return)
+  (table (;0;) 1 1 funcref)
+  (memory (;0;) 2)
+  (global (;0;) (mut i32) (i32.const 66576))
+  (global (;1;) i32 (i32.const 1029))
+  (global (;2;) i32 (i32.const 1024))
+  (global (;3;) i32 (i32.const 66576))
+  (global (;4;) i32 (i32.const 1024))
+  (export "memory" (memory 0))
+  (export "__wasm_call_ctors" (func $__wasm_call_ctors))
+  (export "__data_end" (global 1))
+  (export "__global_base" (global 2))
+  (export "__heap_base" (global 3))
+  (export "__dso_handle" (global 4))
+  (export "cbak" (func $cbak))
+  (export "hook" (func $hook))
+  (data (;0;) (i32.const 1024) "test\00"))
+```
+
+El desarrollador promedio de Hooks nunca necesitará examinar directamente WebAssembly. Sin embargo, es un ejercicio conceptual útil revisar el contenido del Hook de ejemplo.
+
+Arriba podemos ver:
+
+* Se importan tres funciones desde la API de Hooks (`_g`, `accept`, `trace_num`)
+* El Hook define dos funciones (`cbak`, `hook`)
+* El Hook exporta dos funciones (de nuevo: `cbak`, `hook`)
+* Algunos datos estáticos (constantes) se registran en el Hook (ver `data` al final).
+
+Es muy importante tener en cuenta que un Hook *solo debe* importar funciones disponibles desde la API de Hooks y *solo debe* exportar las funciones `cbak` y `hook`. Además, todos los Hooks deben importar `_g` desde la API de Hooks, que es la función `guard`.
+
+<Aside type="tip">
+WebAssembly es un lenguaje de `bytecode` de computación general independiente de la plataforma. Tiene una correspondencia directa con una versión legible por humanos. Ambos formatos se utilizan de forma intercambiable.
+</Aside>
+
+### Exportaciones no deseadas
+
+La mayoría de los compiladores de WebAssembly (incluido el anterior) generan exportaciones adicionales para sus propios propósitos de enlace. En muchos casos, desactivar su generación es difícil o imposible.
+
+Las exportaciones no deseadas provocarán que un Hook válido sea rechazado. Por lo tanto, tras la compilación, los desarrolladores deben usar la [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c) para eliminarlas. No hacerlo provocará que tu Hook sea rechazado.
+
+<Aside type="caution">
+No olvides usar la [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c) o tus Hooks serán rechazados.
+</Aside>

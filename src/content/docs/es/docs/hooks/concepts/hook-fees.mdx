@@ -1,0 +1,65 @@
+---
+title: Comisiones de Hooks
+description: Qué esperar cuando tu Hook se ejecuta.
+---
+
+### Comisiones de creación de Hooks
+
+Las transacciones SetHook se cobran por byte de WebAssembly creado. La tarifa es de 500 drops por byte. Por lo tanto, un Hook de 1 KiB costará 0.5 XAH crearlo.
+
+### Comisiones de ejecución de Hooks
+
+Cuando los Hooks se ejecutan de forma [fuerte](/docs/hooks/concepts/weak-and-strong), la transacción originaria debe pagar estas ejecuciones dentro de su propia comisión.
+
+Las comisiones de ejecución de Hooks se cobran a razón de 1 drop por instrucción de WebAssembly en el peor caso de ejecución de la función `hook` (o `cbak` en el caso de un callback). Por lo tanto, un Hook pequeño con muchos bucles puede generar comisiones elevadas en tiempo de ejecución.
+
+### Helper RPC de comisiones
+
+Las comisiones de transacción en un ledger con la enmienda Hooks habilitada se vuelven complejas de calcular para usuarios finales y/o aplicaciones de cartera. Esto se debe a que los Hooks fuertes deben ser pagados por el originador de la transacción, y puede haber hasta 4 Hooks fuertes en la cuenta emisora y 4 en la cuenta receptora, además de otros posibles participantes transaccionales fuertes (como ocurre en algunos tipos de transacciones más complejos). Además, si la transacción es un SetHook, el tamaño de los parámetros, el tamaño del código y si se trata de una operación de _create_ o _install_ también afectan a la comisión.
+
+Por lo tanto, se recomienda encarecidamente que **todas** las transacciones se pasen por la llamada RPC de comisiones actualizada antes de enviarlas al ledger.
+
+Para invocar la llamada RPC:
+
+1. Abre una conexión websocket con el nodo Hooks con el que vas a trabajar.
+2. Construye la transacción serializada para la que quieres conocer la comisión con los siguientes campos:
+
+* `Fee: "0"`
+* `SigningPubKey: ""` (es decir: VL de 0 bytes de tipo 0x73. En hexadecimal: `0x7300`)
+* **No firmes la transacción**
+
+3. Envíala como un blob hexadecimal al RPC de la siguiente forma:
+
+```json
+{"command":"fee", "tx_blob":"<hex blob>"}
+````
+
+Para HTTP POST RPC:
+
+```json
+{"method":"fee", "params": [{"tx_blob":"<hex blob>"}] }
+```
+
+La respuesta tendrá un formato similar a:
+
+```json
+{
+  result: {
+    drops: {
+      base_fee: '130520',
+    },
+  //...
+  },
+  type: 'response'
+}
+```
+
+Toma el valor de `base_fee` y establécelo como el campo `Fee` en la transacción. Después, fírmala y envíala siguiendo el proceso habitual.
+
+Si `tx_blob` es inválido o falta, se devolverá un resultado JSON estándar con un `base_fee` de 10.
+
+### Comisiones de emisión
+
+Los Hooks tienen acceso al mismo cálculo que el *Fee RPC Helper*. Para usarlo, llama a [etxn_fee_base](/docs/hooks/functions/emitted-transaction/etxn_fee_base) pasando como argumento un buffer con la transacción serializada. Al igual que en la llamada RPC, debes asegurarte de que el campo `Fee` está presente en la transacción serializada (su valor es irrelevante).
+
+Cuando `etxn_fee_base` devuelve la comisión recomendada, puedes usar [sto_emplace](/docs/hooks/functions/serialization/sto_emplace) para insertarla en la transacción serializada antes de emitirla. El campo correspondiente es `sfFee`.

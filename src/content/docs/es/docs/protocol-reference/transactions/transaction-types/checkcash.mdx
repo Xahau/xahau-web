@@ -1,0 +1,38 @@
+---
+title: CheckCash
+description: >-
+  Intenta canjear un objeto Check en el ledger para recibir hasta el monto
+  autorizado por la transacción CheckCreate correspondiente.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Añadido por la enmienda \[Checks]\[].)_
+
+### Ejemplo
+
+```json
+{
+    "Account": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+    "TransactionType": "CheckCash",
+    "Amount": "100000000",
+    "CheckID": "838766BA2B995C00744175F69A1B11E32C3DBC40E64801A4056FCBD657F57334",
+    "Fee": "12"
+}
+```
+
+| Campo        | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                     |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CheckID`    | String                                                                                                                             | Hash256             | El ID del objeto ledger Check a canjear, como una cadena hexadecimal de 64 caracteres.                                                                                                                                          |
+| `Amount`     | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(Opcional)_ Canjear el Check por exactamente esta cantidad, si es posible. La moneda debe coincidir con la del `SendMax` de la transacción CheckCreate correspondiente. Debe proporcionar este campo o `DeliverMin`.           |
+| `DeliverMin` | \[Monto de Moneda]\[]                                                                                                              | Amount              | _(Opcional)_ Canjear el Check por al menos esta cantidad y por todo lo posible. La moneda debe coincidir con la del `SendMax` de la transacción CheckCreate correspondiente. Debe proporcionar este campo o `Amount`.           |
+
+La transacción _**debe**_ incluir `Amount` o `DeliverMin`, pero no ambos.
+
+### Casos de Error
+
+* Si el emisor de la transacción CheckCash no es el `Destination` del check, la transacción falla con el código de resultado `tecNO_PERMISSION`.
+* Si el Check identificado por el campo `CheckID` no existe, la transacción falla con el resultado `tecNO_ENTRY`.
+* Si el Check identificado por el campo `CheckID` ya ha expirado, la transacción falla con el resultado `tecEXPIRED`.
+* Si el destino del Check tiene habilitado el indicador `RequireDest` pero el Check, tal como fue creado, no tiene una etiqueta de destino, la transacción falla con el código de resultado `tecDST_TAG_NEEDED`.
+* Si la transacción especifica tanto `Amount` como `DeliverMin`, u omite ambos, la transacción falla con el resultado `temMALFORMED`.
+* Si el `Amount` o `DeliverMin` no coincide con la moneda (y emisor, si no es XAH) del Check, la transacción falla con el resultado `temBAD_CURRENCY`.

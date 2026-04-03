@@ -1,0 +1,65 @@
+---
+title: Gestión de estado
+description: Los Hooks pueden leer y guardar pequeños fragmentos de datos en el ledger 🚀
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### ¿Qué es el estado de un Hook?
+
+El [estado](https://en.wikipedia.org/wiki/State_\(computer_science\)) en informática describe la información que un sistema mantiene entre ejecuciones (a diferencia de entradas y salidas). Por ejemplo, tu navegador te mantiene conectado a un sitio web incluso después de cerrarlo y volver a abrirlo. La cookie de sesión se guarda en el _estado_ del navegador.
+
+El **estado de un Hook** se refiere a un mapeo clave-valor que existe lógicamente para cada cuenta en Xahau, independientemente de si actualmente hay claves almacenadas o no. Las claves son siempre de 32 bytes (entero sin signo de 256 bits) y los valores tienen longitud variable, con un tamaño máximo determinado por votación de validadores (en el momento de escribir esto, 256 bytes).
+
+La gestión de estado se realiza mediante:
+
+* [state](/docs/hooks/functions/state/state)
+* [state_set](/docs/hooks/functions/state/state_set)
+* [state_foreign](/docs/hooks/functions/state/state_foreign)
+
+### Almacenamiento y recuperación
+
+El siguiente ejemplo utiliza la API [state_set](/docs/hooks/functions/state/state_set) para asignar el valor `0xC001CAFE` a la clave `0x0..000001` (uint256 = 1) en el estado del Hook de la cuenta:
+
+```c
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+uint8_t value[4] = { 0xC0U, 0x01U, 0xCAU, 0xFEU };
+if (state_set(value, 4, key, 32) == 4)
+{
+    // ... estado guardado correctamente
+}
+````
+
+En una ejecución posterior del Hook, este valor puede recuperarse utilizando la misma clave:
+
+```c
+uint8_t value[4];
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+if (state(value, 4, key, 32) < 0)
+{
+    // ... error al recuperar el estado
+}
+```
+
+Después de ejecutar este código, el buffer `value` contendrá el valor almacenado en esa clave.
+
+<Aside type="tip">
+  El buffer en el que <code>state()</code> escribe (<code>writeptr</code>) debe ser lo suficientemente grande para almacenar el valor asociado a la clave. Si no lo es, la API devolverá un error <code>TOO_SMALL</code>.
+</Aside>
+
+### Estado externo (foreign state)
+
+En ocasiones puede ser útil que un Hook que se ejecuta en una cuenta lea el estado de otro Hook en otra cuenta. La API [state_foreign](/docs/hooks/functions/state/state_foreign) permite hacer esto. Dado que el ledger es público, no hay expectativa real de privacidad. Por tanto, cualquier Hook puede *leer* (pero no escribir) el estado de otro Hook.
+
+### Namespaces y consultas
+
+Consulta [Namespaces](/docs/hooks/concepts/namespaces)

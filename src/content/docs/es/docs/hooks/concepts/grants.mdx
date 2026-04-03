@@ -1,0 +1,90 @@
+---
+title: Grants
+description: Hook Grants
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+  La mayoría de los desarrolladores de Hooks rara vez necesitarán usar HookGrants, y deben extremar la precaución al otorgar permisos de modificación de estado a Hooks y cuentas externas.
+
+  Aunque un HookGrant no puede utilizarse directamente para robar fondos, la modificación externa intencionada del estado de un Hook puede hacer que este se comporte de forma inesperada, lo que en algunos casos podría derivar en un robo.
+  
+  Si crees que necesitas usar un Grant, revisa primero tu diseño para asegurarte de que realmente es necesario antes de continuar.
+</Aside>
+
+### Grants
+
+Los Grants proporcionan una forma para que quien instala un Hook asigne permisos de [gestión de estado](/docs/hooks/concepts/state-management) a un Hook _externo_ en otras cuentas de Xahau.
+
+Una [transacción SetHook](/docs/hooks/concepts/sethook-transaction) puede especificar un array `HookGrants` dentro de cualquier objeto `Hook` en su array `Hooks`. El array `HookGrants` contiene uno o más objetos `HookGrant` (hasta un máximo de 8).
+
+A diferencia de los [Parameters](/docs/hooks/concepts/parameters), el array `HookGrants` siempre se establece exactamente como se especifica en la [transacción SetHook](/docs/hooks/concepts/sethook-transaction). Por lo tanto, si deseas actualizar un `HookGrant` manteniendo otros previamente definidos, debes obtener primero el array existente, modificarlo y reenviar el array completo en una operación de [_Update_](/docs/hooks/concepts/sethook-transaction).
+
+Para eliminar todos los Grants, envía un array `HookGrants` vacío.
+
+<Aside type="caution">
+  A diferencia de los [Parameters](/docs/hooks/concepts/parameters), el array `HookGrants` siempre se establece exactamente como se especifica en la [transacción SetHook](/docs/hooks/concepts/sethook-transaction).
+</Aside>
+
+Un Grant permite que una cuenta XRPL externa o un Hook modifique el estado del Hook dentro del namespace del Hook específico para el que se define el Grant.
+
+El HookGrant debe especificar al menos:
+
+* `HookHash`\
+  Y también puede especificar una cuenta:
+* `Authorize`
+
+Solo el Hook especificado por `HookHash` puede modificar el estado del Hook dentro del namespace del Hook para el cual se define el Grant. Si se especifica `Authorize`, este permiso se restringe aún más al Hook con ese `HookHash` cuando está instalado en la cuenta indicada en `Authorize`.
+
+<Aside type="tip">
+  Los Grants solo se aplican a Hooks externos y nunca limitan el funcionamiento de los Hooks respecto al estado en la cuenta donde están instalados.
+</Aside>
+
+### Ejemplo
+
+```json
+Account: "rALicebv3hMYNBWtu1VEEWkToArgYsYERs",
+TransactionType: "SetHook",
+Hooks:
+[   
+    {   
+        Hook: {
+            ...,
+            HookNamespace: "3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8",
+            HookGrants:
+            [   
+                {   
+                    HookGrant:    // primer grant
+                    {   
+                        HookHash:  "78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8"
+                    },
+                    HookGrant:    // segundo grant
+                    {   
+                        Authorize: "rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9",
+                        HookHash:  "A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6"
+                    }
+                },  
+            ]   
+        }   
+    }   
+],  
+... 
+````
+
+El *primer grant* anterior permite:
+
+* cualquier instancia del Hook cuyo código tenga el hash `78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8`
+* ejecutándose en **cualquier cuenta**
+* modificar el estado del Hook de la cuenta `rALicebv3hMYNBWtu1VEEWkToArgYsYERs`
+* dentro del namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`
+
+El *segundo grant* anterior permite:
+
+* cualquier instancia del Hook cuyo código tenga el hash `A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6`
+* pero solo cuando se ejecuta en la cuenta `rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9`
+* modificar el estado del Hook de la cuenta `rALicebv3hMYNBWtu1VEEWkToArgYsYERs`
+* dentro del namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`
+
+### Uso del Grant
+
+Para utilizar un grant, un Hook modifica objetos de estado en una cuenta externa llamando a [state_foreign_set](/docs/hooks/functions/state/state_foreign_set).

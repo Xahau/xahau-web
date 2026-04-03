@@ -1,0 +1,139 @@
+---
+title: sto_subfield
+description: >-
+  Indexar dentro de un objeto serializado de xahaud y devolver la ubicación y longitud de un subcampo
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Parsea un STObject apuntado por `read_ptr`
+* Encuentra el campo especificado por `field_id`
+* Si el campo se encuentra, y:
+*
+  1. Es un array, devuelve el inicio y la longitud del array incluyendo los bytes de cabecera y cierre, o
+*
+  2. **No** es un array, devuelve el inicio y la longitud del PAYLOAD del campo (excluyendo los bytes de cabecera)
+
+<Aside type="caution" title="Codificación del Field ID">
+Las APIs `sto_` aceptan un parámetro `field_id` codificado así: `(type << 16U) + field`
+Por ejemplo, tipo 1 campo 2 sería `0x10002U`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Parsea un STObject en la variable `sto`
+* Encuentra el campo especificado por `field_id`
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_subfield (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t field_id
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_subfield(
+    sto: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+int64_t memos_lookup =
+    sto_subfield(txn_ptr, txn_len, sfMemos);
+if (memos_lookup < 0)
+{
+    // sfMemos no fue encontrado en el STObject apuntado por memo_ptr
+}
+else
+{
+    // sfMemos fue encontrado y su ubicación es la siguiente:
+    uint8_t* memos_ptr = SUB_OFFSET(memos_lookup) + memos_ptr;
+    int64_t  memos_len = SUB_LENGTH(memos_lookup);
+}
+```
+
+<Aside type="tip">
+hookmacro.h ya contiene las macros `SUB_OFFSET` y `SUB_LENGTH`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const SUB_OFFSET = (x) => Number(x >> 32n)
+const SUB_LENGTH = (x) => Number(x & 0xFFFFFFFFn)
+const memos_lookup = sto_subfield(txn, sfMemos);
+if (typeof memos_lookup === 'number')
+{
+    // sfMemos no fue encontrado en el STObject
+}
+else
+{
+    // sfMemos fue encontrado y su ubicación es la siguiente:
+    const memo_start = SUB_OFFSET(memos_lookup)
+    const memo_len = SUB_LENGTH(memos_lookup)
+    const memo = txn.slice(memo_start, memo_len)
+}
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre   | Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr | uint32_t | Puntero al buffer que contiene el STObject                                                                                                                                                                                                                                                                                                                                                              |
+| read_len | uint32_t | Longitud del STObject                                                                                                                                                                                                                                                                                                                                                                                   |
+| field_id | uint32_t | <p>Código <code>sf</code> del campo que se desea buscar.<br /><br />Para calcularlo manualmente, toma el <code>type</code> serializado y desplázalo a los 16 bits más altos de un uint32_t, luego toma el <code>field</code> y colócalo en los 16 bits más bajos.<br /><br />Ejemplo:<br /><code>sfEmitNonce</code> tiene <code>type</code> 5 y <code>field</code> 11, por lo que su valor es <code>0x050BU</code></p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre   | Tipo                   | Descripción                                                                     |
+| -------- | ---------------------- | ------------------------------------------------------------------------------- |
+| sto      | ByteArray or HexString | Objeto STO (datos del ledger codificados en binario) del que extraer el subcampo |
+| field_id | number                 | Identificador del campo a extraer                                               |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Ubicación del campo dentro del buffer especificado:<br />- Los 32 bits altos son el desplazamiento (offset)<br />- Los 32 bits bajos son la longitud<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_SMALL</code><br />- el buffer es demasiado pequeño para contener un STObject válido<br /><br /><code>DOESNT_EXIST</code><br />- el campo no existe en el STObject<br /><br /><code>PARSE_ERROR</code><br />- el STObject es inválido o mal formado</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo               | Descripción                                                                                                                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| bigint / ErrorCode | <p>Ubicación del campo dentro del buffer:<br />- 32 bits altos = offset<br />- 32 bits bajos = longitud</p><p>o un código de error si la extracción falla</p> |
+</TabItem>
+</Tabs>

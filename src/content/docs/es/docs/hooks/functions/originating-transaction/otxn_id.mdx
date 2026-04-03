@@ -1,0 +1,92 @@
+---
+title: otxn_id
+description: Obtener el hash canónico de la transacción origen
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Escribe el hash canónico de la transacción origen en el buffer de salida.
+* Si `flags = 1` y la transacción es de tipo EMIT_FAILURE, escribe el hash canónico de la transacción origen que provocó la emisión.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Obtiene el hash canónico de la transacción origen.
+* Devuelve el hash como un array de números, o un ErrorCode si falla.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_id (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t flags
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="otxn-id-js"
+function otxn_id(flag: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c id="otxn-id-c"
+uint8_t txn_id[32];
+int64_t bytes_written = 
+    otxn_id(txn_id, 32, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="otxn-id-js-ex"
+const tx_id = otxn_id(0)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                                                                                                                                                                                 |
+| --------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Puntero a un buffer donde almacenar el hash                                                                                                                                                                 |
+| write_len | uint32_t | Longitud del buffer de salida (mínimo 32 bytes)                                                                                                                                                             |
+| flags     | uint32_t | <p>Si <code>0</code>:<br />Escribe el hash canónico de la transacción origen.<br /><br />Si <code>1</code> y la transacción es EMIT_FAILURE:<br />Escribe el hash canónico de la transacción emisora.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción                                                                                                                                                                                                 |
+| ------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| flags  | number | <p>Si <code>0</code>:<br />Devuelve el hash canónico de la transacción origen.<br /><br />Si <code>1</code> y la transacción es EMIT_FAILURE:<br />Devuelve el hash canónico de la transacción emisora.</p> |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                 |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_SMALL</code><br />- buffer insuficiente</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
+| ErrorCode \| ByteArray | Devuelve el hash de la transacción como array de números, o un ErrorCode si falla                |
+</TabItem>
+</Tabs>

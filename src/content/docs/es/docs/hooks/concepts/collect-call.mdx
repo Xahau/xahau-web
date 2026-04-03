@@ -1,0 +1,27 @@
+---
+title: Collect Call
+---
+import { Card, Aside } from '@astrojs/starlight/components';
+
+<Card title="Filosofía de diseño de Hooks">
+_Cada parte afectada por una transacción debería tener la oportunidad de que sus hooks se ejecuten._
+</Card>
+
+Cuando los hooks no se ejecutan de forma fuerte (Strongly Executed), no es justo cargar el coste de su ejecución a la transacción original. Por ejemplo, un _OfferCreate_ que cruza 20 ofertas en el DEX no debería verse obligado a pagar por la ejecución de los Hooks de cada una de esas cuentas.
+
+Por lo tanto, durante la ejecución débil típica, la tarifa de ejecución se cobra al propietario del Hook. Para habilitar esto:
+
+* El propietario del Hook debe haber configurado `asfTshCollect` en su cuenta de Xahau utilizando la transacción AccountSet.
+* El propietario del Hook debe haber configurado `hsfCollect` en el Hook específico que desea que sea llamado como un TSH débil.
+
+### Tabla de responsabilidad de tarifas
+
+| Tipo de ejecución débil                                                                                                                                                  | Tarifa                                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <p><strong>Again As Weak</strong><br />- Ocurre cuando un Hook ejecutado de forma fuerte llama a <a href="/docs/hooks/functions/hook-context/hook_again">hook_again</a></p> | Gratis (ya pagado durante la ejecución fuerte).                                                                                                                                       |
+| <p><strong>Callback</strong><br />- Ocurre cuando una transacción emitida entra en un ledger o se marca como imposible de entrar en un ledger.</p>                         | Gratis (ya pagado durante la emisión).                                                                                                                                                 |
+| <p><strong>Participante transaccional débil</strong><br />- Ocurre si una transacción afecta de alguna manera a tu cuenta.</p>                                             | Pagado por tu cuenta (no por la transacción original) solo si tu cuenta tiene activada la bandera `asfTshCollect` y tu Hook tiene activada la bandera `hsfCollect`. |
+
+<Aside type="caution">
+Esta es una funcionalidad avanzada que probablemente la mayoría de desarrolladores de Hooks no utilizarán.
+</Aside>

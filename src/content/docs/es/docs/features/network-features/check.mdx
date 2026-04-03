@@ -1,0 +1,26 @@
+---
+title: Check
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+La característica Check en la red Xahau es un sistema de pago diferido que permite la creación, cancelación y cobro de cheques dentro del ledger. Esta característica está diseñada para facilitar transacciones seguras y eficientes entre partes.
+
+### Tipos de Transacciones
+
+#### CheckCreate
+
+La transacción `CheckCreate` se usa para crear un objeto Check en el ledger. Esto representa un pago diferido que puede ser cobrado por su destino previsto.
+
+<LinkCard title="CheckCreate" href="/docs/protocol-reference/transactions/transaction-types/checkcreate" />
+
+#### CheckCancel
+
+La transacción `CheckCancel` se usa para cancelar un Check que ha sido creado pero aún no cobrado. Esto permite al remitente detener el procesamiento del pago si es necesario.
+
+<LinkCard title="CheckCancel" href="/docs/protocol-reference/transactions/transaction-types/checkcancel" />
+
+#### CheckCash
+
+La transacción `CheckCash` se usa para cobrar un Check que ha sido creado. Esto permite al destinatario recibir los fondos que han sido diferidos.
+
+<LinkCard title="CheckCash" href="/docs/protocol-reference/transactions/transaction-types/checkcash" />

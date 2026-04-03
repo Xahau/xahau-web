@@ -1,0 +1,102 @@
+---
+title: Configuración avanzada de xahaud
+---
+
+Existen numerosas opciones de configuración disponibles para los operadores de xahaud. Esta sección cubre algunas de las más utilizadas, incluyendo aquellas necesarias para clustering de servidores y configuración de bases de datos.
+
+Para una documentación completa, consulta los archivos de configuración de ejemplo en el [repositorio GitHub de xahaud](https://github.com/Xahau/xahaud/tree/dev/cfg).
+
+## Bases de datos en memoria
+
+Los usuarios que buscan maximizar el rendimiento pueden ejecutar las bases de datos en memoria en lugar de almacenamiento físico. Sin embargo:
+
+* No son persistentes tras reiniciar xahaud
+* La cantidad de historial depende de la memoria disponible
+
+Por ello, es obligatorio usar:
+
+* `online_delete`
+* `advisory_delete`
+
+Además, se recomienda desactivar SWAP para evitar que la memoria se escriba en disco.
+
+Configuración:
+
+```
+
+[relational_db]
+type=RWDB
+
+[node_db]
+type=RWDB
+online_delete=256
+advisory_delete=0
+
+```
+
+## Clustering
+
+El clustering permite que múltiples servidores xahaud confíen entre sí y compartan carga.
+
+Beneficios:
+
+* Compartir información sobre conexiones maliciosas
+* Propagar transacciones automáticamente
+* Mayor probabilidad de inclusión en el ledger
+* Mejor conectividad para validadores seguros
+
+Recomendaciones:
+
+* No conectar con servidores externos
+* Baja latencia (idealmente mismo datacenter)
+
+### Crear cluster
+
+1. Generar claves en cada nodo:
+
+```
+
+./xahaud validation_create
+
+```
+
+2. Configurar `xahaud.cfg`:
+
+* `[ips_fixed]`: IP y puerto de peers
+* `[node_seed]`: clave privada
+* `[cluster_nodes]`: claves públicas de peers
+
+3. Reiniciar:
+
+```
+
+systemctl restart xahaud
+
+```
+
+4. Verificar:
+
+```
+
+./xahaud peers
+
+```
+
+### Ejemplo
+
+```
+
+[ips_fixed]
+10.1.1.2 21337
+10.1.1.3 21337
+10.1.1.4 21337
+
+[cluster_nodes]
+clave_pub_1
+clave_pub_2
+clave_pub_3
+
+[node_seed]
+clave_privada_local
+
+```

@@ -1,0 +1,65 @@
+---
+title: Interactuar con xahaud usando WebSocket y RPC
+---
+
+El software xahaud proporciona interfaces tanto WebSocket como RPC que pueden configurarse para diversos casos de uso, como enviar transacciones o consultar el historial del ledger. Algunos usuarios pueden optar por colocar software proxy delante de xahaud para proporcionar cifrado, balanceo de carga u otros beneficios. Es posible instalar certificados TLS en el archivo `xahaud.cfg` usando parámetros como `ssl_key = [/ruta/a/clave]`.
+
+## Configuración de puertos WebSocket y RPC
+
+Para habilitar puertos de escucha, edita el archivo `xahaud.cfg`. Los puertos habilitados se enumeran en la sección `[server]` del archivo de configuración. Cada puerto listado bajo la sección `[server]` debe definirse además mediante su propia sección.
+
+Además de configurar puertos WebSocket o RPC, los administradores también pueden configurar el puerto utilizado para escuchar conexiones peer entrantes (`port_peer`). En servidores validadores, lo ideal es eliminar `port_peer` del archivo de configuración para evitar conexiones entrantes.
+
+Un archivo de configuración con el protocolo peer, un puerto WebSocket y un puerto RPC podría verse así:
+
+```
+
+[server]
+port_peer
+port_ws_public
+port_rpc_public
+
+[port_peer] # Nombre del puerto.
+protocol = peer # Campo obligatorio.
+port = 21337 # Campo obligatorio.
+ip = :: # Dirección de la interfaz a la que se vincula.
+
+[port_ws_public]
+protocol = ws
+port = 16006
+ip = ::
+limit = 150 # Número máximo de clientes permitidos en este puerto. "0" significa ilimitado.
+admin = [ 10.10.10.5, 10.11.11.0/24 ] # Direcciones IP o subredes autorizadas para enviar solicitudes [admin](/docs/features/http-websocket-apis/admin-api-methods).
+secure_gateway = [ 10.10.10.20, 10.15.15.0/24 ] # Direcciones autorizadas para enviar cabeceras X-Forwarded-For y X-User.
+
+[port_rpc_public]
+protocol = http
+port = 16007
+ip = ::
+
+```id="j1gk8r"
+
+Opciones adicionales de configuración para conexiones WebSocket y RPC están disponibles en el [archivo de configuración de ejemplo](https://github.com/Xahau/xahaud/blob/dev/cfg/rippled-example.cfg).
+
+## UDP RPC
+
+xahaud soporta RPC basado en UDP para consultas de alto rendimiento y baja latencia. UDP RPC es útil para aplicaciones que necesitan realizar muchas consultas rápidas y pueden tolerar alguna pérdida ocasional de paquetes.
+
+Para habilitar UDP RPC, añade una definición de puerto UDP en tu `xahaud.cfg`:
+
+```
+
+[server]
+port_udp_rpc
+
+[port_udp_rpc]
+protocol = http
+port = 16008
+ip = ::
+transport = udp
+
+```id="dc0rrx"
+
+Las solicitudes UDP RPC utilizan el mismo formato JSON-RPC que HTTP RPC, pero se envían como datagramas UDP. Las respuestas también se envían por UDP. Como UDP no mantiene conexión, cada solicitud debe incluir todo el contexto necesario, y los clientes deben manejar posibles pérdidas de paquetes implementando lógica de reintento.
+
+**Nota:** UDP RPC es más adecuado para operaciones de solo lectura. El envío de transacciones debe hacerse usando WebSocket o HTTP RPC para mayor fiabilidad.

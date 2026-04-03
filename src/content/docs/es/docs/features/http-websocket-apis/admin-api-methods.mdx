@@ -1,0 +1,61 @@
+---
+title: Métodos de API de Administrador
+---
+Estos métodos están destinados exclusivamente al personal de confianza responsable del mantenimiento de las operaciones del servidor xahaud.
+
+### Métodos de Generación de Claves
+
+| Método             | Descripción                                                                                                          |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| validation_create | Genera un par de claves formateado para nodos xahaud. (Los validadores deben usar tokens en lugar de claves de este método.) |
+| wallet_propose    | Genera claves para una nueva cuenta.                                                                                  |
+
+### Métodos de Registro y Gestión de Datos
+
+| Método          | Descripción                                                              |
+| --------------- | ------------------------------------------------------------------------ |
+| can_delete     | Habilita la eliminación en línea de ledgers hasta un ledger especificado. |
+| download_shard | Descarga un fragmento específico del historial del ledger.               |
+| ledger_cleaner | Configura el limpiador de ledger para detectar y resolver datos corruptos. |
+| ledger_request | Consulta a un servidor par por una versión específica del ledger.        |
+| log_level      | Ver o cambiar los niveles de verbosidad del registro.                    |
+| logrotate       | Reabre el archivo de registro.                                           |
+| node_to_shard | Transfiere datos del almacén del ledger al almacén de fragmentos.        |
+
+### Métodos de Control del Servidor
+
+| Método         | Descripción                                              |
+| -------------- | -------------------------------------------------------- |
+| ledger_accept | Cierra y avanza el ledger en modo autónomo.              |
+| stop           | Apaga el servidor xahaud.                                |
+
+### Métodos de Firma
+
+| Método    | Descripción                                  |
+| --------- | -------------------------------------------- |
+| sign      | Firma criptográficamente una transacción.    |
+| sign_for | Contribuye a una firma múltiple.             |
+
+### Métodos de Gestión de Pares
+
+| Método                   | Descripción                                            |
+| ------------------------ | ------------------------------------------------------ |
+| connect                  | Fuerza al servidor a conectarse a un par específico.   |
+| peer_reservations_add  | Añade o actualiza un espacio reservado para un par específico. |
+| peer_reservations_del  | Elimina un espacio reservado para un par específico.   |
+| peer_reservations_list | Ver todos los espacios de par reservados.              |
+| peers                    | Recupera información sobre los pares conectados.       |
+
+### Métodos de Estado/Depuración
+
+| Método                 | Descripción                                                        |
+| ---------------------- | ------------------------------------------------------------------ |
+| consensus_info        | Ver el estado actual del proceso de consenso.                      |
+| feature                | Recupera información sobre las enmiendas del protocolo.            |
+| fetch_info            | Comprueba el estado de sincronización del servidor con la red.     |
+| get_counts            | Ver estadísticas sobre los componentes internos y el uso de memoria del servidor. |
+| manifest               | Recupera detalles de clave pública para un validador conocido.     |
+| print                  | Accede a información sobre los subsistemas internos.               |
+| validator_info        | Obtiene los detalles de configuración del validador del servidor.  |
+| validator_list_sites | Ver los sitios que publican listas de validadores.                 |
+| validators             | Recupera información sobre los validadores actuales.               |

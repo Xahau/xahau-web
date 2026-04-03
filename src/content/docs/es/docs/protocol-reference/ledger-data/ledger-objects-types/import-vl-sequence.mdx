@@ -1,0 +1,36 @@
+---
+title: Import VL Sequence
+---
+_(Añadido por la enmienda \[Import]\[].)_
+
+El `ImportVLSequence` ayuda a rastrear y validar el orden de las operaciones durante el proceso de importación. Se usa para asegurar que ocurra la secuencia correcta de eventos y para manejar cualquier discrepancia o actualización en el dUNL en el ledger "quemador".
+
+### Ejemplo JSON
+
+```json
+{
+  "LedgerEntryType": "ImportVLSequence",
+  "Flags": 0,
+  "ImportSequence": 2023102101,
+  "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### Campos
+
+Un objeto `ImportVLSequence` tiene los siguientes campos:
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | ¿Requerido? | Descripción                                                                                                           |
+| ----------------- | --------- | ------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| `LedgerEntryType` | String    | UInt16              | Sí          | El valor `0x0049`, mapeado a la cadena `ImportVLSequence`, indica que este objeto es un objeto ImportVLSequence.      |
+| `Flags`           | Number    | UInt32              | Sí          | Un mapa de bits de indicadores booleanos. No se definen indicadores para el tipo de objeto `ImportVLSequence`, por lo que este valor es siempre `0`. |
+| `ImportSequence`  | Number    | UInt32              | Sí          | El número de secuencia actual de la lista dUNL en el ledger "quemador".                                               |
+| `PublicKey`       | String    | Blob                | Sí          | La `PublicKey` de la lista dUNL del ledger "quemador".                                                                |
+
+#### Formato del ID Import VL Sequence
+
+El ID de un objeto `ImportVLSequence` es el \[SHA-512Half]\[] de los siguientes valores, concatenados en orden:
+
+* La clave de espacio Import VL Sequence (`0x0049`)
+* La Clave Pública de la Lista de Validadores de Importación

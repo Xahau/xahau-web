@@ -1,0 +1,33 @@
+---
+title: SetRegularKey
+description: >-
+  Una transacción SetRegularKey asigna, cambia o elimina el par de claves
+  regular asociado con una cuenta.
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/4239880acb5e559446d2067f00dabb31cf102a23/src/ripple/app/transactors/SetRegularKey.cpp)
+
+Puede proteger su cuenta asignándole un par de claves regular y usándolo en lugar del par de claves maestro para firmar transacciones siempre que sea posible. Si su par de claves regular está comprometido, pero su par de claves maestro no lo está, puede usar una transacción `SetRegularKey` para recuperar el control de su cuenta.
+
+### Ejemplo SetRegularKey JSON
+
+```json
+{
+    "Flags": 0,
+    "TransactionType": "SetRegularKey",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "RegularKey": "rAR8rR8sUkBoCZFawhkWzY4Y5YoyuznwD"
+}
+```
+
+| Campo        | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                             |
+| ------------ | --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RegularKey` | String    | AccountID           | _(Opcional)_ Una \[Dirección]\[] codificada en base-58 que indica el par de claves regular a asignar a la cuenta. Si se omite, elimina cualquier par de claves regular existente de la cuenta. No debe coincidir con el par de claves maestro de la dirección. |
+
+### Véase También
+
+Para más información sobre pares de claves regulares y maestras, consulte Claves Criptográficas.
+
+Para un tutorial sobre cómo asignar un par de claves regular a una cuenta, consulte Trabajar con un Par de Claves Regular.
+
+Para mayor seguridad, puede usar firma múltiple, pero la firma múltiple requiere XAH adicional para el \[costo de transacción]\[] y la reserva.

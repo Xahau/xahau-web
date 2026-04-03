@@ -1,0 +1,26 @@
+---
+title: Tipos de Pseudo-Transacciones
+---
+Las pseudo-transacciones nunca son enviadas por usuarios ni propagadas a través de la red. En cambio, un servidor puede optar por inyectar pseudo-transacciones en un ledger propuesto directamente según reglas de protocolo específicas. Si suficientes servidores proponen exactamente la misma pseudo-transacción, el proceso de consenso la aprueba y la pseudo-transacción se incluye en los datos de transacción de ese ledger.
+
+### Valores Especiales para Campos Comunes
+
+Algunos de los \[campos comunes]\[] requeridos para transacciones normales no tienen sentido para pseudo-transacciones. Las pseudo-transacciones usan los siguientes valores especiales para estos campos comunes:
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | Valor               |
+| --------------- | --------- | ------------------- | ------------------- |
+| `Account`       | String    | AccountID           | ACCOUNT_ZERO        |
+| `Fee`           | String    | Amount              | `0`                 |
+| `Sequence`      | Number    | UInt32              | `0`                 |
+| `SigningPubKey` | String    | Blob                | `""` (Cadena vacía) |
+| `TxnSignature`  | String    | Blob                | `""` (Cadena vacía) |
+
+Las pseudo-transacciones usan los siguientes campos comunes de forma normal:
+
+* `TransactionType`
+* `Flags`
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                                                               |
+| ----------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `TransactionType` | String    | UInt16              | _(Requerido)_ El tipo de transacción.                                                                                     |
+| `Flags`           | Number    | UInt32              | _(Opcional)_ Un conjunto de indicadores de bits para esta transacción. El significado de los indicadores específicos varía según el tipo de transacción. |

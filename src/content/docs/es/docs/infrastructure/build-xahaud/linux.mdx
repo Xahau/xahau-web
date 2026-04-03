@@ -1,0 +1,211 @@
+---
+title: Instrucciones de compilación en Linux
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Estas instrucciones están diseñadas para funcionar en distribuciones basadas en Debian (como Ubuntu 22.04 y 24.04) y Red Hat Enterprise Linux (9 o 10). Muchas instrucciones son comunes, aunque se indican diferencias entre sistemas operativos cuando corresponde. Aunque se intenta probar en múltiples entornos, Ubuntu es el entorno más probado y soportado para compilar y ejecutar xahaud.
+
+Para instrucciones adicionales, consulta el archivo [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md) en el repositorio GitHub de Xahau/xahaud.
+
+<Aside type="caution">
+Crear un entorno para compilar xahaud puede causar daños permanentes en el sistema. La sección [Entornos de compilación](#build-environments-for-beginners) incluye técnicas para aislar el entorno de compilación del sistema operativo. Procede bajo tu propia responsabilidad.
+</Aside>
+
+## Instalar dependencias
+
+Usuarios Debian/Ubuntu:
+
+```
+
+sudo apt install -y git curl wget python3-pip python3-venv python3-dev ca-certificates gcc g++ build-essential cmake ninja-build libc6-dev libssl-dev libsqlite3-dev
+
+```
+
+Usuarios RHEL 9/10:
+
+```
+
+sudo dnf install epel-release && sudo dnf update -y
+sudo dnf config-manager --set-enabled crb -y
+sudo dnf groupinstall "Development Tools" -y
+sudo dnf install curl wget git ca-certificates cmake glibc-headers glibc-devel ninja-build perl-interpreter perl perl-FindBin sqlite-devel libstdc++ libstdc++-devel libstdc++-static gcc-c++ -y
+
+```
+
+## Clonar el repositorio
+
+```
+
+git clone [https://github.com/Xahau/xahaud.git](https://github.com/Xahau/xahaud.git)
+
+```
+
+### Seleccionar rama
+
+```
+
+git checkout [nombre-de-rama]
+
+```
+
+### Preparar directorio de build
+
+```
+
+mkdir [/ruta/xahaud]/.build
+
+```
+
+## Instalar y configurar Conan2
+
+```
+
+cd [/ruta/xahaud]/.build
+python3 -m venv env
+source ./env/bin/activate
+pip install --upgrade pip
+pip install conan
+conan profile detect
+
+```
+
+Exportar dependencias:
+
+```
+
+conan export external/snappy --version 1.1.10 --user xahaud --channel stable
+conan export external/soci --version 4.0.3 --user xahaud --channel stable
+conan export external/wasmedge --version 0.11.2 --user xahaud --channel stable
+
+```
+
+Editar perfil Conan si es necesario:
+
+```
+
+[settings]
+compiler.cppstd=20
+compiler.libcxx=libstdc++11
+
+[conf]
+tools.build:cxxflags=['-Wno-restrict']
+
+```
+
+## Compilar xahaud
+
+```
+
+conan install .. --output-folder . --build missing --settings build_type=["Release" o "Debug"]
+
+```
+
+Opcional:
+
+```
+
+conan install .. --output-folder . --build missing --settings build_type=["Release" o "Debug"] -s compiler=gcc ...
+
+```
+
+Ejecutar cmake:
+
+```
+
+cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW 
+-DCMAKE_BUILD_TYPE=["Release" o "Debug"] 
+-DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake 
+..
+
+```
+
+Compilar:
+
+```
+
+cmake --build .
+
+```
+
+El binario resultante es `rippled`. Renómbralo a `xahaud`.
+
+## Test
+
+```
+
+./xahaud --unittest
+
+```
+
+## Entornos de compilación
+
+### Contenedores
+
+Puedes usar Docker para aislar el entorno.
+
+Instalación:
+
+```
+
+# Ubuntu
+
+sudo apt install docker.io docker-compose-v2 docker-buildx
+
+# RHEL
+
+sudo dnf install docker-ce docker-ce-cli containerd.io
+
+```
+
+Ejemplo:
+
+```
+
+docker buildx build -t xahaud-builder .
+docker run -d --name xahaud xahaud:latest
+
+```
+
+### Sistemas amnésicos
+
+Permiten restaurar el sistema tras reiniciar.
+
+#### Debian
+
+```
+
+apt install overlayroot
+sudo sed -i '...' /etc/overlayroot.conf
+update-initramfs -u
+reboot
+
+```
+
+#### RHEL
+
+```
+
+dnf install dracut
+dracut -f
+grubby --update-kernel=ALL --args="systemd.volatile=overlay"
+
+```
+
+### Desactivar modo amnésico
+
+Debian:
+
+```
+
+overlayroot=disabled
+
+```
+
+RHEL:
+
+```
+
+grubby --remove-args="systemd.volatile=overlay"
+
+```

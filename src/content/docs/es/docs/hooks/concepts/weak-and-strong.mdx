@@ -1,0 +1,116 @@
+---
+title: Débil y Fuerte
+description: ¿Qué Hooks pueden ejecutarse y cuándo?
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip" title="Filosofía de diseño de Hooks">
+  Toda parte afectada por una transacción debería tener la oportunidad de ejecutar sus Hooks.
+</Aside>
+
+Los Transactional Stake Holders (TSH) son las partes que tienen algún tipo de interés o se ven afectadas por una transacción. Su relación puede ser _débil_ o _fuerte_. El grado de conexión determina si tienen derecho a ejecutar sus Hooks y quién paga por esa ejecución.
+
+Por ejemplo:
+
+* En una transacción **Payment** directa de XAH, los TSH son la _cuenta originaria_ y la _cuenta destino_.
+* En una transacción **SetSignerList**, los TSH son la _cuenta originaria_ y cada cuenta incluida en la lista de firmantes.
+* En una transacción **OfferCreate**, las cuentas cuyas ofertas son cruzadas son TSH débiles.
+* Con la enmienda **IOUIssuerWeakTSH**, los emisores de moneda pueden ejecutar Hooks en transacciones de terceros si lo han activado.
+
+Debido a la diversidad de transacciones en Xahau, los TSH pueden ser complejos y poco intuitivos.
+
+### Débil y Fuerte
+
+Cada TSH tiene una conexión débil o fuerte:
+
+#### Conexión Fuerte
+
+1. La transacción paga la ejecución del Hook.
+2. Puede hacer rollback completo usando `rollback()`.
+
+#### Conexión Débil
+
+1. La transacción **no paga** la ejecución.
+2. El TSH paga su ejecución mediante [Collect Call Hooks](/docs/hooks/concepts/collect-call).
+3. Debe tener activado `asfTshCollect`.
+4. **No puede hacer rollback**, pero sí modificar estado o emitir transacciones.
+
+### Antes o Después
+
+* Los Hooks **fuertes** se ejecutan **antes** de aplicar la transacción → pueden bloquearla.
+* Los Hooks **débiles** se ejecutan **después** → no pueden bloquearla pero acceden al metadata.
+
+<Aside type="tip">
+  Hooks fuertes pueden usar <code>hook_again</code> para ejecutarse después como débiles.
+</Aside>
+
+### Contexto de ejecución
+
+El parámetro `uint32_t` indica el contexto:
+
+#### En `hook`:
+
+* 0 → ejecución fuerte  
+* 1 → ejecución débil  
+* 2 → débil tras `hook_again`
+
+#### En `cbak`:
+
+* 0 → transacción emitida aceptada  
+* 1 → transacción emitida fallida  
+
+### Tabla de referencia
+
+Si una transacción no aparece, solo tiene como TSH a la cuenta originaria.
+
+| Tipo de transacción | Tipo TSH | Quién es el TSH |
+|--------------------|---------|----------------|
+| AccountDelete | Fuerte | Cuenta destino |
+| AccountSet | Ninguno | N/A |
+| CheckCancel | Débil | Cuenta destino |
+| CheckCreate | Fuerte | Cuenta destino |
+| ClaimReward | Fuerte | Emisor |
+| DepositPreauth | Fuerte | Cuenta autorizada |
+| EscrowCreate | Fuerte | Cuenta destino |
+| OfferCreate | Débil | Cuentas cruzadas |
+| Payment | Fuerte + Débil | Destino (fuerte), intermediarios (débil) |
+| SetHook | Ninguno | N/A |
+| TrustSet | Débil | Emisor |
+
+### Tablas detalladas
+
+**AccountSet**
+
+| OTXN    | TSH     | AccountSet |
+| ------- | ------- | ---------- |
+| Account | Account | Fuerte     |
+
+**AccountDelete**
+
+| OTXN    | TSH         | AccountDelete |
+| ------- | ----------- | ------------- |
+| Account | Account     | Ninguno       |
+| Account | Beneficiario| Fuerte        |
+
+**Payment**
+
+| OTXN    | TSH         | Payment |
+| ------- | ----------- | ------- |
+| Account | Account     | Fuerte  |
+| Account | Destino     | Fuerte  |
+| Account | Cruzado     | Débil   |
+
+**TrustSet**
+
+| OTXN    | TSH     | TrustSet |
+| ------- | ------- | -------- |
+| Account | Account | Fuerte   |
+| Account | Emisor  | Débil    |
+
+**URIToken**
+
+| OTXN   | Burnable | TSH    | Mint   | Burn   | Buy    | Sell   | Cancel |
+| ------ | -------- | ------ | ------ | ------ | ------ | ------ | ------ |
+| Owner  | False    | Owner  | Ninguno| Fuerte | Fuerte | Fuerte | Fuerte |
+| Owner  | False    | Issuer | Ninguno| Débil  | Débil  | Débil  | Ninguno|
+| Owner  | True     | Issuer | Ninguno| Débil  | Fuerte | Fuerte | Ninguno|

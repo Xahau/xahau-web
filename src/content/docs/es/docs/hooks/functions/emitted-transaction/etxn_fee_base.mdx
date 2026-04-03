@@ -1,0 +1,81 @@
+---
+title: etxn_fee_base
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+Las comisiones en un ledger con Hooks no son triviales. Ver: [Hook Fees](/docs/hooks/concepts/hook-fees) para más detalles.
+</Aside>
+
+### Conceptos
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">Transacciones emitidas</LinkButton>
+
+### Comportamiento
+
+* Devuelve la cantidad de comisión en drops recomendada para una transacción que va a ser emitida.
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_fee_base (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_fee_base(txblob: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee_to_pay =
+    etxn_fee_base(tx_blob, tx_blob_len);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const fee_to_pay = etxn_fee_base(tx_blob)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Nombre</th><th width="118">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>read_ptr</td><td>uint32_t</td><td>Puntero al buffer que contiene la transacción serializada que se desea emitir. El campo de comisión es obligatorio pero se ignora (puedes usar cero). Usa el resultado de esta función para rellenar correctamente el campo de comisión.</td></tr><tr><td>read_len</td><td>uint32_t</td><td>La longitud del blob de la transacción.</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Nombre</th><th width="118">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>txblob</td><td>ByteArray | HexString</td><td>El blob de la transacción, que puede ser un array de números o una cadena.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>El número mínimo de drops que una transacción emitida necesita para ser aceptada.<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- El buffer proporcionado no es válido dentro de la memoria del hook.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- No se ha llamado previamente a <code>etxn_reserve</code>.<br /><br /><code>INVALID_TXN</code><br />- El buffer no contiene una transacción serializada válida (fallo de deserialización o falta un campo requerido).</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descripción                                                                 |
+| ------ | --------------------------------------------------------------------------- |
+| number | Devuelve un ErrorCode si hay un error, o la comisión base calculada si tiene éxito. |
+</TabItem>
+</Tabs>

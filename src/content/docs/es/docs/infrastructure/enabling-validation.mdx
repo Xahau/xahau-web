@@ -1,0 +1,152 @@
+---
+title: Habilitar validación en xahaud
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Los validadores son nodos de xahaud configurados con un par de claves pública/privada adicional, utilizado para firmar cada ledger propuesto. Por ello, los validadores son el mecanismo principal para lograr consenso sobre el orden de las transacciones en la red Xahau.
+
+## Consideraciones previas
+
+### Seguridad y disponibilidad
+
+Operar un validador requiere altos niveles de seguridad y disponibilidad:
+
+* Monitorización continua del servidor
+* Respuesta rápida ante caídas
+* Uso de servidores de respaldo en distintos centros de datos
+
+Ejecutar un validador desde casa es posible, pero difícilmente alcanzará el nivel de confianza necesario (por ejemplo, inclusión en UNLs).
+
+Recomendaciones:
+
+* No ejecutar otros servicios en el mismo servidor
+* Separar nodos de consulta (RPC/WebSocket) de validadores
+* Proteger el archivo `xahaud.cfg`:
+```
+
+chmod 400 xahaud.cfg
+chown root:root xahaud.cfg
+
+```id="f6e1n7"
+
+Las claves privadas deben almacenarse de forma segura y offline.
+
+### Identidad
+
+Para evitar ataques Sybil y generar confianza:
+
+* Firmar un dominio con las claves del validador
+* Publicar un archivo TOML en:
+
+```
+
+[https://tu-dominio.com/.well-known/xahau.toml](https://tu-dominio.com/.well-known/xahau.toml)
+
+```id="g0e9m3"
+
+Este archivo permite verificar la identidad del validador o cuentas.
+
+### Peering
+
+Para mayor seguridad:
+
+* Solo conectarse a nodos confiables
+* Usar `peer_private` y `ips_fixed`
+* Usar firewall
+
+Advertencia: menos de ~5 peers puede causar desincronización.
+
+### Gobernanza y confianza
+
+Xahau usa el [Governance Game](/docs/features/governance-game) y listas UNL.
+
+Un validador confiable suele tener:
+
+1. Alta disponibilidad (24/7)
+2. Alto consenso con la red
+3. Identidad clara (propietario y ubicación)
+4. Participación activa en enmiendas y fees
+
+## Habilitar validación
+
+Proceso:
+
+1. Generar claves
+2. Crear token de validación
+3. Instalar token en `xahaud.cfg`
+
+### Herramienta de claves
+
+No existe binario oficial, por lo que debes:
+
+* Compilar desde el repositorio:
+https://github.com/Xahau/validator-keys-tool
+
+Recomendado: hacerlo en máquina offline segura.
+
+Nota: `validation_create` NO genera tokens de validación, solo claves para identificar nodos.
+
+### Generar e instalar claves
+
+1. Ir al directorio:
+```
+
+cd [/ruta/tool]
+
+```id="y3m7g5"
+
+2. Generar claves:
+```
+
+./validator-keys create_keys
+
+```id="dlf9g2"
+
+3. Se guardan en:
+```
+
+~/.xahaud/validator-keys.json
+
+```id="qk8l1z"
+
+4. Opcional: añadir dominio:
+```
+
+./validator-keys set_domain ejemplo.com
+
+```id="k2r6js"
+
+O generar token sin dominio:
+```
+
+./validator-keys create_token --keyfile ~/.xahaud/validator-keys.json
+
+```id="n8f3qp"
+
+5. Guardar:
+
+* `validator_token`
+* `attestation=""` (si usas dominio)
+
+⚠️ Importante:  
+El campo `token_sequence` se incrementa automáticamente.  
+Tokens antiguos serán ignorados si existe uno más reciente.
+
+6. Añadir en `xahaud.cfg`:
+
+```
+
+[validation_token]
+...
+
+```id="4g8t1c"
+
+7. Añadir attestation al archivo TOML
+
+8. Reiniciar xahaud
+
+---
+
+🔒 Recomendación final:  
+Mantén siempre las claves privadas fuera del servidor validador.

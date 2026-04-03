@@ -1,0 +1,60 @@
+---
+title: AccountDelete
+description: >-
+  Una transacción AccountDelete elimina una cuenta y cualquier objeto que posea en
+  Xahau, si es posible, enviando el XAH restante de la cuenta a una cuenta de
+  destino especificada.
+sidebar:
+  badge:
+    text: Disabled
+    variant: danger
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/DeleteAccount.cpp)]
+
+_Añadido por la enmienda DeletableAccounts_
+
+<Aside type="danger" title="Not enabled">
+The _DeletableAccounts_ amendment is not enabled at this time.
+</Aside>
+
+### Ejemplo
+
+```json
+{
+    "TransactionType": "AccountDelete",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "DestinationTag": 13,
+    "Fee": "2000000",
+    "Sequence": 2470665,
+    "Flags": 2147483648
+}
+```
+
+| Campo            | Tipo JSON              | \[Tipo Interno]\[] | Descripción                                                                                                                                                            |
+| ---------------- | ---------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Destination`    | String - \[Address]\[] | AccountID           | La dirección de una cuenta que recibirá cualquier XAH restante después de eliminar la cuenta emisora. Debe ser una cuenta financiada en el ledger y no puede ser la cuenta emisora. |
+| `DestinationTag` | Number                 | UInt32              | _(Opcional)_ Etiqueta de destino arbitraria que identifica un destinatario alojado u otra información para el receptor del XAH sobrante de la cuenta eliminada.        |
+
+### Costo de Transacción Especial
+
+Como elemento disuasorio adicional contra el spam del ledger, la transacción AccountDelete requiere un costo de transacción mucho mayor de lo habitual: en lugar del mínimo estándar de 0.00001 XAH, AccountDelete debe destruir al menos el monto de la reserva del propietario, actualmente 2 XRP. Esto desalienta la creación excesiva de nuevas cuentas porque el requisito de reserva no puede recuperarse completamente al eliminar la cuenta.
+
+El costo de transacción siempre aplica cuando una transacción se incluye en un ledger validado, incluso si la transacción no logra eliminar la cuenta. (Consulte Casos de Error.) Para reducir en gran medida las posibilidades de pagar el alto costo si la cuenta no puede eliminarse, envíe la transacción con `fail_hard` habilitado.
+
+### Casos de Error
+
+Además de los errores que pueden ocurrir para todas las transacciones, las transacciones AccountDelete pueden resultar en los siguientes códigos de resultado:
+
+| Código de Error      | Descripción                                                                                                                                                                                                                                                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`        | Ocurre si la enmienda DeletableAccounts no está habilitada.                                                                                                                                                                                                                                                                         |
+| `temDST_IS_SRC`      | Ocurre si el `Destination` coincide con el emisor de la transacción (campo `Account`).                                                                                                                                                                                                                                              |
+| `tecDST_TAG_NEEDED`  | Ocurre si la cuenta `Destination` requiere una etiqueta de destino, pero no se proporcionó el campo `DestinationTag`.                                                                                                                                                                                                               |
+| `tecNO_DST`          | Ocurre si la cuenta `Destination` no es una cuenta financiada en el ledger.                                                                                                                                                                                                                                                         |
+| `tecNO_PERMISSION`   | Ocurre si la cuenta `Destination` requiere autorización de depósito y el emisor no está preautorizado.                                                                                                                                                                                                                              |
+| `tecTOO_SOON`        | Ocurre si el número `Sequence` del emisor es demasiado alto. El número `Sequence` de la transacción más 256 debe ser menor que el \[Índice de Ledger]\[] actual. Esto previene la repetición de transacciones antiguas si esta cuenta se reactiva después de ser eliminada.                                                         |
+| `tecHAS_OBLIGATIONS` | Ocurre si la cuenta a eliminar está conectada a objetos que no pueden eliminarse en el ledger. (Esto incluye objetos creados por otras cuentas, como escrows y NFTs acuñados, [incluso si son de otra cuenta](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/DeleteAccount.cpp#L197).) |
+| `tefTOO_BIG`         | Ocurre si la cuenta emisora está vinculada a más de 1000 objetos en el ledger. La transacción podría tener éxito al reintentarla si algunos de esos objetos se eliminaran por separado primero.                                                                                                                                     |

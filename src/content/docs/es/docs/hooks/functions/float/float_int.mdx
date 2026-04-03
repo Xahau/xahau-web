@@ -1,0 +1,107 @@
+---
+title: float_int
+description: Convierte un número de punto flotante XFL en un entero (floor)
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Desplaza a la izquierda (multiplica por 10) el XFL según el número de decimales especificado
+* Convierte el XFL resultante a un entero, descartando cualquier resto
+* Devuelve el entero
+</TabItem>
+
+<TabItem label="JavaScript">
+* Convierte una representación flotante en un entero con un número específico de decimales.
+* Devuelve un código de error o el entero resultante como número.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_int (
+    int64_t float1,
+    uint32_t decimal_places,
+    uint32_t absolute
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="u2c8fh"
+function float_int(
+    f1: bigint,
+    decimal_places: number,
+    abs: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c id="p9k4wd"
+int64_t drops =
+    float_int(xahbalance, 6, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="q7x3mz"
+const drops =
+    float_int(xahbalance, 6, 0);
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre          | Tipo     | Descripción                                                                                                  |
+| --------------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| float1          | int64_t  | Número XFL que representa el operando                                                                        |
+| decimal_places  | uint32_t | Número de posiciones decimales a desplazar antes de calcular el valor entero                                |
+| absolute        | uint32_t | Si es `1`, devuelve el valor absoluto del resultado                                                          |
+
+<Aside type="tip">
+Los valores negativos están reservados para códigos de error. Si necesitas aplicar esta función a un XFL negativo, usa `absolute = 1`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre          | Tipo   | Descripción                                       |
+| --------------- | ------ | ------------------------------------------------- |
+| f1              | bigint | El número flotante a convertir                    |
+| decimal_places  | number | Número de decimales a considerar                  |
+| abs             | number | Indica si se debe tomar el valor absoluto         |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>El entero positivo calculado<br /><br />Si es negativo, error:<br /><code>INVALID_FLOAT</code><br />- uno de los parámetros no es un número XFL válido<br /><br /><code>INVALID_ARGUMENT</code><br />- se intentó usar más de 15 decimales<br /><br /><code>CANT_RETURN_NEGATIVE</code><br />- se intentó devolver un entero negativo, lo cual no está permitido; usa <code>absolute = 1</code></p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                                      |
+| ------------------- | ---------------------------------------------------------------- |
+| number o ErrorCode  | Devuelve un código de error o el entero resultante               |
+</TabItem>
+</Tabs>

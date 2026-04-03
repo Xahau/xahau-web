@@ -1,0 +1,46 @@
+---
+title: PaymentChannelFund
+description: >-
+  Agrega Amount adicional a un canal de pago abierto, y opcionalmente actualiza
+  el tiempo de expiración del canal. Solo la dirección fuente del canal puede
+  usar esta transacción.
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_Añadido por la enmienda \[PayChan]\[]._
+
+### Ejemplo
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "PaymentChannelFund",
+    "Channel": "C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
+    "Amount" : {
+         "currency" : "USD",
+         "value" : "1",
+         "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+      },
+    "Expiration": 543171558
+}
+```
+
+| Campo        | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Channel`    | String                                                                                                                             | Hash256             | El ID único del canal a financiar, como una cadena hexadecimal de 64 caracteres.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `Amount`     | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | Monto a agregar al canal. Debe ser una cantidad positiva.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Expiration` | Number                                                                                                                             | UInt32              | _(Opcional)_ Nuevo tiempo de `Expiration` a establecer para el canal, en \[segundos desde la Época Ripple]\[]. Debe ser posterior tanto al tiempo actual más el `SettleDelay` del canal, como a la `Expiration` existente del canal. Después del tiempo de `Expiration`, cualquier transacción que acceda al canal cierra el canal sin realizar su acción normal. Cualquier Amount no gastado se devuelve a la dirección fuente cuando el canal se cierra. (`Expiration` es independiente del tiempo inmutable `CancelAfter` del canal.) |
+
+### Casos de Error
+
+Además de los errores que pueden ocurrir para todas las transacciones, las transacciones PaymentChannelFund pueden resultar en los siguientes códigos de resultado:
+
+| Código de Error           | Descripción                                                                                                                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tecINSUFFICIENT_RESERVE` | La cuenta emisora tiene menos XAH que el requisito de reserva.                                                                                                                                     |
+| `tecNO_DST`               | La cuenta de destino del canal ha sido eliminada. Esto solo es posible si el canal de pago fue creado antes de que la enmienda fixPayChanRecipientOwnerDir se habilitara (el 2020-05-01).          |
+| `tecNO_ENTRY`             | El Canal de Pago identificado por el campo `Channel` no existe.                                                                                                                                    |
+| `tecNO_PERMISSION`        | El emisor de la transacción no es la dirección fuente del canal.                                                                                                                                   |
+| `tecUNFUNDED`             | La cuenta emisora no tiene suficiente Amount para financiar el canal con el monto solicitado y aun así cumplir con el requisito de reserva.                                                        |
+| `temBAD_AMOUNT`           | El campo `Amount` de la transacción es inválido. El monto no puede ser cero o negativo.                                                                                                            |
+| `temBAD_EXPIRATION`       | El campo `Expiration` es inválido.                                                                                                                                                                 |

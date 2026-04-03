@@ -1,0 +1,57 @@
+---
+title: Cron
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/LedgerFormats.cpp)
+
+_(Añadido por la enmienda [Cron][].)_
+
+Un objeto `Cron` representa una ejecución programada de Hook creada por una [transacción CronSet](/docs/protocol-reference/transactions/transaction-types/cronset). El motor Cron inserta automáticamente pseudo-transacciones de tipo `Cron` en el ledger cuando las ejecuciones programadas están pendientes.
+
+### Ejemplo JSON
+
+```json
+{
+  "Owner": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+  "OwnerNode": "0000000000000000",
+  "StartTime": 816348759,
+  "RepeatCount": 3,
+  "DelaySeconds": 120,
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "LedgerEntryType": "Cron",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### Campos
+
+Un objeto `Cron` tiene los siguientes campos:
+
+| Campo               | Tipo JSON | \[Tipo Interno]\[] | ¿Requerido? | Descripción                                                                                                                                                                                                                                                                    |
+| ------------------- | --------- | ------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Owner`             | String    | AccountID           | Sí          | La cuenta propietaria de la ejecución programada del Hook. Esta es la cuenta que se invocará cuando el cron se ejecute.                                                                                                                                                        |
+| `OwnerNode`         | String    | UInt64              | Sí          | Una pista que indica qué página del directorio del propietario enlaza a este objeto, en caso de que el directorio consista de múltiples páginas.                                                                                                                              |
+| `StartTime`         | Number    | UInt32              | Sí          | Marca de tiempo de la Época de Ripple para cuando debe ocurrir la primera ejecución. Usa `0` para ejecución inmediata.                                                                                                                                                         |
+| `RepeatCount`       | Number    | UInt32              | Sí          | Número de veces que el cron debe ejecutarse. Puede extenderse mediante \[transacciones CronSet]\[] posteriores. Máximo 256 por transacción, pero puede extenderse más allá de este límite.                                                                                    |
+| `DelaySeconds`      | Number    | UInt32              | Sí          | Intervalo de tiempo en segundos entre cada ejecución. Máximo de 31,536,000 segundos (365 días).                                                                                                                                                                               |
+| `PreviousTxnID`     | String    | Hash256             | Sí          | El hash identificador de la transacción que modificó más recientemente este objeto.                                                                                                                                                                                            |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | Sí          | El \[índice del ledger]\[Ledger Index] que contiene la transacción que modificó más recientemente este objeto.                                                                                                                                                                |
+| `LedgerEntryType`   | String    | UInt16              | Sí          | El valor `0x0061`, mapeado a la cadena `Cron`, indica que este objeto es un objeto Cron.                                                                                                                                                                                      |
+
+### Formato del ID Cron
+
+El ID de un objeto `Cron` es el \[SHA-512Half]\[] de los siguientes valores, concatenados en orden:
+
+* La clave de espacio Cron (`0x0076`)
+* La marca de tiempo del campo `StartTime`
+* El AccountID aleatorizado del campo `Owner`
+
+### Comportamiento de Ejecución
+
+Cuando un cron está listo para ejecutarse, el motor Cron inserta una pseudo-transacción de tipo `Cron` en el ledger. Esta pseudo-transacción contiene un campo `Owner` que hace referencia a la cuenta Hook de origen. El Hook programado se invocará automáticamente en los intervalos especificados sin requerir disparadores externos.
+
+Los desarrolladores de Hooks deben habilitar las llamadas de recolección (indicador `hsfCOLLECT`) en sus Hooks, ya que el `Owner` constituye un interesado transaccional débil (TSH) cuando se ejecuta la pseudo-transacción Cron.
+
+### Transacciones Relacionadas
+
+* [Transacción CronSet](/docs/protocol-reference/transactions/transaction-types/cronset): Crea, actualiza o elimina un objeto Cron

@@ -16,6 +16,11 @@ export default defineConfig({
     starlight({
       title: 'Xahau Docs',
       description: 'Documentation for the Xahau blockchain',
+      locales: {
+        root: { label: 'English', lang: 'en' },
+        es: { label: 'Español', lang: 'es' },
+        ja: { label: '日本語', lang: 'ja' },
+      },
       tableOfContents: {
         minHeadingLevel: 1,
         maxHeadingLevel: 3,

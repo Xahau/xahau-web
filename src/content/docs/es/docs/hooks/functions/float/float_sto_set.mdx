@@ -1,0 +1,98 @@
+---
+title: float_sto_set
+description: Leer una cantidad serializada en un XFL
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Objetos serializados</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Lee un número de punto flotante serializado.
+* Si hay más campos/datos después del número flotante serializado, se ignoran.
+* Lo devuelve como un número XFL
+</TabItem>
+
+<TabItem label="JavaScript">
+* Establece el buffer para almacenar representaciones flotantes.
+* Devuelve un ErrorCode o el resultado como número.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sto_set (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sto_set(buf: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t vault_pusd = float_sto_set(vault, 8);
+if (vault_pusd < 0)
+  rollback("Failed to parse serialized float.", 33, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const vault_pusd = float_sto_set(vault)
+if (typeof vault_pusd === 'string')
+  rollback("Failed to parse serialized float.", 1)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre   | Tipo      | Descripción                                                        |
+| -------- | --------- | ------------------------------------------------------------------ |
+| read_ptr | uint32_t  | Puntero a un buffer que contiene el XFL serializado. _Puede ser null._ |
+| read_len | uint32_t  | Longitud del buffer.                                               |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo                   | Descripción            |
+| ------ | ---------------------- | ---------------------- |
+| buf    | ByteArray \| HexString | El buffer a procesar.  |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t  | <p>El número de bytes escritos en el buffer de salida.<br /><br />Si es negativo, error:<br /><code>NOT_AN_OBJECT</code><br />- el buffer no contiene un número flotante serializado válido<br /><br /><code>OUT_OF_BOUNDS</code><br />- los punteros/longitudes están fuera de la memoria del hook.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                |
+| ------------------- | ------------------------------------------ |
+| ErrorCode o number  | Un código de error o el resultado como número. |
+</TabItem>
+</Tabs>

@@ -1,0 +1,69 @@
+---
+title: Payment
+description: >-
+  Una transacción Payment representa una transferencia de valor de una cuenta
+  a otra.
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/5425a90f160711e46b2c1f1c93d68e5941e4bfb6/src/ripple/app/transactors/Payment.cpp)
+
+### Ejemplo
+
+```json
+{
+  "TransactionType" : "Payment",
+  "Account" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Destination" : "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+  "Amount" : {
+     "currency" : "USD",
+     "value" : "1",
+     "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+  },
+  "Fee": "12",
+  "Flags": 2147483648,
+  "Sequence": 2,
+}
+```
+
+| Campo            | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Amount`         | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | La cantidad de moneda a entregar. Para montos que no son XAH, los nombres de campos anidados DEBEN estar en minúsculas. Si el indicador `tfPartialPayment` está activado, entrega _hasta_ este monto en su lugar.                                                                                                                                                                                                                                |
+| `Destination`    | String                                                                                                                             | AccountID           | La dirección única de la cuenta que recibe el pago.                                                                                                                                                                                                                                                                                                                                                                                              |
+| `DestinationTag` | Number                                                                                                                             | UInt32              | _(Opcional)_ Etiqueta arbitraria que identifica la razón del pago al destino, o un destinatario alojado al que pagar.                                                                                                                                                                                                                                                                                                                            |
+| `InvoiceID`      | String                                                                                                                             | Hash256             | _(Opcional)_ Hash arbitrario de 256 bits que representa una razón o identificador específico para este pago.                                                                                                                                                                                                                                                                                                                                     |
+| `Paths`          | Array de arrays de rutas                                                                                                           | PathSet             | (Opcional, auto-rellenable) Array de rutas de pago a usar para esta transacción. Debe omitirse para transacciones XAH a XAH.                                                                                                                                                                                                                                                                                                                     |
+| `SendMax`        | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(Opcional)_ Monto máximo de moneda fuente que puede costar esta transacción, incluyendo tarifas de transferencia, tipos de cambio y [deslizamiento](http://en.wikipedia.org/wiki/Slippage_\(finance\)). No incluye el XAH destruido como costo de envío. Para montos que no son XAH, los nombres de campos anidados DEBEN estar en minúsculas. Debe proporcionarse para pagos entre diferentes monedas. Debe omitirse para pagos XAH a XAH. |
+| `DeliverMin`     | \[Monto de Moneda]\[]                                                                                                              | Amount              | _(Opcional)_ Monto mínimo de moneda de destino que debe entregar esta transacción. Solo válido para pagos parciales. Para montos que no son XAH, los nombres de campos están en minúsculas.                                                                                                                                                                                                                                                       |
+
+### Tipos de Pagos
+
+El tipo de transacción Payment es una herramienta de propósito general que puede representar varios tipos diferentes de acciones abstractas:
+
+| Tipo de pago                 | `Amount`                        | `SendMax`                       | `Paths`          | ¿`Address` = `Destination`? | Descripción                                                                                                                             |
+| ---------------------------- | ------------------------------- | ------------------------------- | ---------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Pago directo XAH a XAH       | String (XAH)                    | Omitido                         | Omitido          | No                          | Transfiere XAH directamente de una cuenta a otra. Siempre entrega el monto exacto.                                                      |
+| Creación o canje de tokens   | Object                          | Object (opcional)               | Opcional         | No                          | Aumenta o disminuye la cantidad de una moneda o activo que no es XAH rastreado en Xahau.                                                |
+| Pago entre diferentes monedas| Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Generalmente requerido | No                   | Envía tokens de un titular a otro. Puede tomar rutas más largas a través de varios intermediarios.                                      |
+| Pago parcial                 | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Generalmente requerido | No                   | Envía _hasta_ una cantidad específica de cualquier moneda. Usa el indicador `tfPartialPayment`.                                          |
+| Conversión de moneda         | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Requerido        | Sí                          | Consume ofertas en el intercambio descentralizado para convertir una moneda a otra. También llamado _pago circular_.                     |
+
+### Indicadores Payment
+
+Las transacciones del tipo Payment admiten valores adicionales en el campo `Flags`, de la siguiente manera:
+
+| Nombre del Indicador | Valor Hex    | Valor Decimal | Descripción                                                                                                                                                                          |
+| -------------------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tfNoDirectRipple`   | `0x00010000` | 65536         | No usar la ruta predeterminada; solo usar las rutas incluidas en el campo `Paths`. Esto está destinado a forzar que la transacción aproveche oportunidades de arbitraje.             |
+| `tfPartialPayment`   | `0x00020000` | 131072        | Si el `Amount` especificado no puede enviarse sin gastar más de `SendMax`, reducir el monto recibido en lugar de fallar. Consulte Pagos Parciales para más detalles.                |
+| `tfLimitQuality`     | `0x00040000` | 262144        | Solo tomar rutas donde todas las conversiones tengan una relación entrada:salida igual o mejor que la relación de `Amount`:`SendMax`. Consulte Límite de Calidad para más detalles. |
+
+### Pagos Parciales
+
+Un pago parcial permite que un pago tenga éxito reduciendo el monto recibido. Los pagos parciales son útiles para devolver pagos sin incurrir en costos adicionales. Sin embargo, los pagos parciales también pueden usarse para explotar integraciones que ingenuamente asumen que el campo `Amount` de una transacción exitosa siempre describe el monto exacto entregado.
+
+Un pago parcial es cualquier \[transacción Payment]\[] con el indicador `tfPartialPayment` habilitado. Un pago parcial puede ser exitoso si entrega cualquier cantidad positiva mayor o igual a su campo `DeliverMin` sin enviar más que el valor `SendMax`.
+
+El campo `delivered_amount` de los metadatos de un pago indica la cantidad de moneda realmente recibida por la cuenta de destino.
+
+### Creación de Cuentas
+
+El tipo de transacción Payment puede crear nuevas cuentas en Xahau enviando suficiente XAH a una dirección sin financiar. Otras transacciones a direcciones sin financiar siempre fallan.

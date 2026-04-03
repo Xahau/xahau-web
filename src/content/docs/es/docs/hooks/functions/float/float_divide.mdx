@@ -1,0 +1,95 @@
+---
+title: float_divide
+description: Divide un número XFL entre otro número de punto flotante XFL
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Divide un XFL entre otro XFL
+* Devuelve un nuevo XFL como un int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Divide una representación flotante entre otra.
+* Devuelve un código de error o el cociente como bigint.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_divide (
+    int64_t float1,
+    int64_t float2
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="w8n3jf"
+ function float_divide(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c id="u7k2lz"
+int64_t still_one =
+    float_divide(float_one(), float_one());
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript id="m2p9xc"
+const still_one =
+    float_divide(float_one(), float_one())
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre | Tipo     | Descripción                                                      |
+| ------ | -------- | ---------------------------------------------------------------- |
+| float1 | int64_t  | Número XFL que actúa como numerador                             |
+| float2 | int64_t  | Número XFL que actúa como denominador                           |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción              |
+| ------ | ------ | ------------------------ |
+| f1     | bigint | El dividendo             |
+| f2     | bigint | El divisor               |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                     |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>El número XFL (xls17) resultante<br /><br />Si es negativo, error:<br /><code>INVALID_FLOAT</code><br />- el parámetro no es un número XFL válido o el resultado no puede representarse<br /><br /><code>DIVISION_BY_ZERO</code><br />- el divisor es cero.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                 |
+| ------------------- | ------------------------------------------- |
+| bigint o ErrorCode  | Devuelve un código de error o el cociente   |
+</TabItem>
+</Tabs>

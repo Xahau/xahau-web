@@ -1,0 +1,57 @@
+---
+title: hook_again
+description: Devuelve la posición en la cadena de hooks que ocupa el hook en ejecución
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+* Si el hook se está ejecutando en modo fuerte, marca este hook en la cadena para [Again As Weak Execution](/docs/hooks/concepts/weak-and-strong).
+* Si la transacción originaria se aplica correctamente, el hook será llamado de nuevo en una segunda ejecución débil.
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_again(void);
+````
+
+</TabItem>
+<TabItem label="JavaScript">
+```javascript id="hook-again-js"
+function hook_again(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c id="hook-again-c"
+int64_t result = 
+  	hook_again();
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript id="hook-again-js-ex"
+const result = hook_again()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+Esta API no tiene parámetros
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="176">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>int64_t</td><td><code>1</code> si se marcó correctamente para Again As Weak.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- Este hook ya se está ejecutando en modo débil en el momento de la llamada.<br /><br /><code>ALREADY_SET</code><br />- La función ya fue llamada en esta ejecución.</td></tr></tbody></table>
+</TabItem>
+<TabItem label="JavaScript">
+<table><thead><tr><th width="176">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>number</td><td>Devuelve un código de estado que indica el resultado de la operación.</td></tr></tbody></table>
+</TabItem>
+</Tabs>

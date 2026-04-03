@@ -1,0 +1,24 @@
+---
+title: Codificaciones Base 58
+---
+Las APIs de Xahau frecuentemente usan una codificación "base58" con suma de verificación (a veces llamada "Base58Check") para representar direcciones de cuentas y otros tipos de valores relacionados con claves criptográficas. Esta codificación es igual a [la usada para las direcciones de Bitcoin](https://en.bitcoin.it/wiki/Base58Check_encoding), excepto que Xahau usa el siguiente diccionario: `rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz`.
+
+Xahau prefija diferentes tipos de valores con un número de 8 bits específico antes de codificarlos para distinguir entre diferentes tipos de datos. Con la disposición de caracteres en el diccionario base58 de Xahau, el resultado es que las representaciones base58 para diferentes tipos de valores codificados comienzan con letras específicas según el tipo.
+
+La siguiente tabla lista todas las codificaciones que usa Xahau:
+
+| Tipo de Dato                             | Comienza con | Prefijo de Tipo | Tamaño del contenido¹ | Máximo de caracteres |
+| ---------------------------------------- | ------------ | --------------- | --------------------- | -------------------- |
+| Dirección de cuenta                      | r            | `0x00`          | 20 bytes              | 35                   |
+| Clave pública de cuenta                  | a            | `0x23`          | 33 bytes              | 53                   |
+| Valor semilla (para claves secretas)     | s            | `0x21`          | 16 bytes              | 29                   |
+| Clave pública de validación o nodo       | n            | `0x1C`          | 33 bytes              | 53                   |
+
+¹ El tamaño del contenido excluye el prefijo de tipo de 1 byte.
+
+### Véase También
+
+* Codificación de Direcciones - información detallada sobre la codificación de direcciones
+* Claves Criptográficas - tipos de claves criptográficas en Xahau y cómo se usan
+* \[Referencia wallet_propose]\[método wallet_propose] - Método API para generar claves de cuenta
+* \[Referencia validation_create]\[método validation_create] - Método API para generar claves de validador

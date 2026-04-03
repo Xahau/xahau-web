@@ -1,0 +1,155 @@
+---
+title: Transacción SetHook
+---
+
+### Transacción SetHook
+
+El bytecode WebAssembly de un Hook se instala en una cuenta de Xahau utilizando la transacción `SetHook`.
+
+Un ejemplo:
+
+```js
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                CreateCode: fs.readFileSync('accept.wasm').toString('hex').toUpperCase(),
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                HookApiVersion: 0
+            }
+        }
+    ]
+}
+````
+
+La transacción parece sencilla, pero oculta una complejidad significativa que se describe a continuación.
+
+### Array Hooks
+
+El cuerpo principal de la transacción SetHook es el array Hooks:
+
+```js
+{
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Hooks:                         // Este es el array Hooks
+    [            
+          {  Hook: { ... }  },     // HookSet Object (posición 0)
+          {  Hook: { ... }  },  
+          {  Hook: { ... }  },  
+          {  Hook: { ... }  }.     // HookSet Object (posición 3)
+    ]
+}
+```
+
+Este array *refleja* la [cadena de Hooks](/docs/hooks/concepts/chaining) instalada en la cuenta:
+
+* La posición 0 del array corresponde a la posición 0 en la cadena.
+* La posición 3 corresponde a la posición 3 en la cadena, etc.
+
+### HookSet Object y Hook correspondiente
+
+Cada entrada del array Hooks se llama *HookSet Object*, y su Hook correspondiente en la cuenta se llama *Hook correspondiente*.
+
+### HookDefinition
+
+Cada Hook correspondiente contiene una referencia a un objeto `HookDefinition`.
+
+Este objeto es un objeto del ledger sin propietario y con conteo de referencias que evita duplicar bytecode idéntico.
+
+Consulta: [Reference Counting](/docs/hooks/concepts/reference-counted-hook-definitions)
+
+### Valores por defecto del Hook
+
+Cuando se crea un `HookDefinition`, contiene los [Parameters](/docs/hooks/concepts/parameters), [Namespace](/docs/hooks/concepts/namespaces) y [Grants](/docs/hooks/concepts/grants) iniciales. Estos se convierten en valores por defecto.
+
+### Operaciones HookSet
+
+Existen seis operaciones: No Operation, Create, Install, Update, Delete y Namespace Reset.
+
+Se determinan según los campos incluidos u omitidos en el HookSet Object.
+
+---
+
+### No Operation
+
+**Ocurre cuando**:
+
+* El HookSet Object está vacío
+
+**Comportamiento**:
+
+* No se realiza ningún cambio
+
+---
+
+### Create Operation
+
+**Ocurre cuando**:
+
+* No existe Hook o se usa `FLAG_OVERRIDE`
+* Se incluye `CreateCode`
+* No existe aún ese bytecode en el ledger
+
+**Comportamiento**:
+
+* Se crea un `HookDefinition`
+* Se crea el Hook en la cuenta
+* El Hook apunta a ese HookDefinition
+
+---
+
+### Install Operation
+
+**Ocurre cuando**:
+
+* Existe HookDefinition previo (mismo bytecode o hash)
+
+**Comportamiento**:
+
+* Se incrementa el contador de referencias
+* El Hook apunta al HookDefinition existente
+
+---
+
+### Update Operation
+
+**Ocurre cuando**:
+
+* El Hook ya existe
+* Se modifican parámetros, namespace o grants
+
+**Comportamiento**:
+
+* Se actualizan los campos del Hook
+
+---
+
+### Delete Operation
+
+**Ocurre cuando**:
+
+* Se usa `CreateCode: ""` y `hsfOVERRIDE`
+
+**Comportamiento**:
+
+* Se elimina el Hook
+* Se reduce el contador de referencias
+
+---
+
+### Namespace Reset
+
+**Ocurre cuando**:
+
+* Se usa `hsfNSDELETE`
+* Se especifica namespace
+
+**Comportamiento**:
+
+* Se eliminan entradas de estado asociadas al namespace

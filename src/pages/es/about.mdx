@@ -1,0 +1,49 @@
+---
+title: Sobre Xahau
+description: ¿Qué es Xahau? El resumen breve
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import PageSection from '../../components/PageSection.astro';
+
+<PageLayout frontmatter={frontmatter} wide="true">
+<PageSection align="center">
+<div class="w-full relative pb-[56.25%]">
+<iframe width="560" height="315" class="absolute h-full w-full top-0 left-0" src="https://www.youtube.com/embed/4pruN6sWJho?si=IlxKDlD2LFLwS6EK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+</PageSection>
+<PageSection align="left" gem="10" gemSize="large" loading="eager">
+Xahau es una blockchain L1 con una composición única de características y un enfoque innovador sobre la programabilidad blockchain, también conocida como contratos inteligentes.
+
+La tecnología, probada a largo plazo, liquida transacciones en aproximadamente 4 segundos a costes muy bajos, por fracciones de un centavo de USD. Es escalable, actualmente con hasta 10.000 transacciones por ledger, y es una blockchain inherentemente verde y respetuosa con el medio ambiente.
+
+Xahau ofrece características nativas para emitir y negociar monedas en el exchange descentralizado integrado, tokens no fungibles nativos, y oportunidades infinitas para DeFi con lógica personalizada a través de los contratos inteligentes de Xahau, conocidos como Hooks.
+
+Los Hooks residen en cuentas, lo que supone un enfoque innovador sobre cómo se puede usar la lógica personalizada para actuar sobre eventos de cuentas, como recibir transacciones. Los Hooks se desarrollan actualmente en C, pero el soporte para JavaScript ya está desarrollado y en pruebas, con otros lenguajes de programación en perspectiva. Esto pone el mundo de los contratos inteligentes al alcance de millones de desarrolladores, sin una curva de aprendizaje empinada.
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="1">
+### ¿Cuál es la tecnología detrás de Xahau?
+Xahau es tecnología probada, ya que es una iteración evolucionada del código del XRPL, mejorada con contratos inteligentes, programabilidad basada en cuentas (Hooks), e igual soporte para monedas emitidas en características nativas como garantías y canales de pago.
+
+Xahau, como el XRPL, utiliza un mecanismo de Consenso Federado como método de validación de transacciones. Las transacciones se confirman mediante un protocolo de consenso, en el que servidores independientes designados llamados validadores alcanzan un acuerdo sobre el orden y el resultado de las transacciones. Todos los servidores de la red procesan cada transacción según las mismas reglas, y cualquier transacción que siga el protocolo se confirma de inmediato. Todas las transacciones son públicas y transparentes, y cualquiera puede operar un validador.
+
+Xahau introduce un juego de gobernanza para garantizar un enfoque centrado en la comunidad en la toma de decisiones de la red. Para jugar, los miembros de las mesas emiten votos. Los temas discutidos en este sistema de 2 capas de mesas incluyen asientos, hooks y temas de recompensas.
+</PageSection>
+<PageSection align="left" gem="14">
+## XAH, la moneda nativa de Xahau
+La moneda nativa de Xahau se llama XAH y es una moneda inflacionaria. Cada cuenta puede participar en el ajuste de saldo interactuando con un Hook en la cuenta génesis, acumulando mensualmente el 4% del saldo de la cuenta.
+
+XAH se utiliza para prevenir el spam de red, añadiendo un coste de transacción. Las transacciones normales cuestan fracciones de un XAH, mientras que el precio de transacción aumenta al interactuar con Hooks. XAH también se requiere como saldo bloqueado, o reserva, para poseer una cuenta, poseer objetos o almacenar datos para el consumo de contratos inteligentes.
+
+Debido a los Hooks, la tasa de quema de XAH es mayor en comparación con la del XRPL. Para los proyectos que dependen de Hooks para lógica personalizada, se recomienda que mantengan un saldo de XAH que pueda generar un ajuste de saldo mensual para pagar las comisiones.
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="12">
+## ¿Cuáles han sido los eventos clave para Xahau?
+Xahau fue lanzado el 30 de octubre de 2023 por la Xahau Launch Alliance, una alianza interina formada por desarrolladores, organizaciones y proveedores de infraestructura de XRPL de largo plazo, no relacionados con Ripple: XRPL Labs, GateHub Limited, Titanium OU, Evernode Labs Ltd y Digital Governing OU.
+
+En el primer año, Xahau recibió muchas actualizaciones, como una nueva característica nativa, Remit, en marzo de 2024, mejoras de rendimiento, nodos solo en memoria y soporte para hooks en JavaScript.
+
+En el primer año, se lanzó el primer servicio de remesas transfronterizas en colaboración entre The Inclusive Financial Technologies Foundation (InFTF) y el Cooperative Bank of Oromia (COOP), uno de los bancos más grandes de Etiopía con más de 13 millones de titulares de cuentas. La solución de remesas entrantes ayuda a la diáspora africana, muchos de los cuales trabajan como trabajadores de cuello azul en todo Oriente Medio, EE.UU. y Europa, a enviar dinero a sus amigos y familiares en Etiopía. Con el servicio, inicialmente lanzado para remesas entrantes usando EUR, cualquiera puede comprar EUR digital, enviarlo a través de blockchain por poco o ningún costo, y liquidarlo en la cuenta bancaria de un familiar o amigo en la moneda local, ETB, en segundos.
+
+InFTF también firmó un Memorando de Entendimiento con la Unión Africana para avanzar en el trabajo del Fondo de Paz de la UA a través del despliegue de tecnologías financieras innovadoras de vanguardia. Esta colaboración abrirá nuevas vías para las contribuciones, haciendo más fácil y accesible para individuos y organizaciones apoyar iniciativas de paz en África a través del desarrollo de una plataforma de donación fluida que permita contribuciones en múltiples monedas.
+</PageSection>
+</PageLayout>

@@ -1,0 +1,57 @@
+---
+title: PaymentChannelClaim
+description: >-
+  Reclama Amount de un canal de pago, ajusta la expiración del canal de pago,
+  o ambos.
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_Añadido por la enmienda \[PayChan]\[]._
+
+La **dirección fuente** de un canal puede:
+
+* Enviar Amount del canal al destino _con o sin_ un Claim firmado.
+* Establecer que el canal expire tan pronto como haya pasado el `SettleDelay` del canal.
+* Limpiar un tiempo de `Expiration` pendiente.
+* Cerrar un canal inmediatamente, con o sin procesar un claim primero. La dirección fuente no puede cerrar el canal inmediatamente si el canal tiene Amount restante.
+
+La **dirección de destino** de un canal puede:
+
+* Recibir Amount del canal usando un Claim firmado.
+* Cerrar el canal inmediatamente después de procesar un Claim, devolviendo cualquier Amount no reclamado a la fuente del canal.
+
+**Cualquier dirección** que envíe esta transacción puede:
+
+* Causar que un canal se cierre si su tiempo de `Expiration` o `CancelAfter` es anterior al tiempo de cierre del ledger anterior. Cualquier transacción PaymentChannelClaim válidamente formada tiene este efecto independientemente del contenido de la transacción.
+
+### Ejemplo
+
+```json
+{
+  "Channel": "C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
+  "Amount" : {
+     "currency" : "USD",
+     "value" : "1",
+     "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+  },
+  "Signature": "30440220718D264EF05CAED7C781FF6DE298DCAC68D002562C9BF3A07C1E721B420C0DAB02203A5A4779EF4D2CCC7BC3EF886676D803A9981B928D3B8ACA483B80ECA3CD7B9B",
+  "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A"
+}
+```
+
+| Campo       | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Channel`   | String                                                                                                                             | Hash256             | El ID único del canal, como una cadena hexadecimal de 64 caracteres.                                                                                                                                                                                                                                                                                                                                                         |
+| `Balance`   | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(Opcional)_ Monto total entregado por este canal después de procesar este claim. Requerido para entregar Amount. Debe ser mayor que el monto total entregado por el canal hasta ahora, pero no mayor que el `Amount` del claim firmado.                                                                                                                                                                                     |
+| `Amount`    | [Monto de Moneda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(Opcional)_ El monto autorizado por la `Signature`. Esto debe coincidir con el monto en el mensaje firmado. Este es el monto acumulativo de Amount que puede dispensarse por el canal, incluyendo XAH previamente canjeado.                                                                                                                                                                                                 |
+| `Signature` | String                                                                                                                             | Blob                | _(Opcional)_ La firma de este claim, en hexadecimal. El mensaje firmado contiene el ID del canal y el monto del claim. Requerido a menos que el emisor de la transacción sea la dirección fuente del canal.                                                                                                                                                                                                                  |
+| `PublicKey` | String                                                                                                                             | Blob                | _(Opcional)_ La clave pública usada para la firma, en hexadecimal. Debe coincidir con el `PublicKey` almacenado en el ledger para el canal. Requerido a menos que el emisor de la transacción sea la dirección fuente del canal y el campo `Signature` sea omitido.                                                                                                                                                          |
+
+### Indicadores PaymentChannelClaim
+
+Las transacciones del tipo PaymentChannelClaim admiten valores adicionales en el campo `Flags`, de la siguiente manera:
+
+| Nombre del Indicador | Valor Hex    | Valor Decimal | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------------- | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfRenew`            | `0x00010000` | 65536         | Limpiar el tiempo de `Expiration` del canal. (`Expiration` es diferente del tiempo inmutable `CancelAfter` del canal.) Solo la dirección fuente del canal de pago puede usar este indicador.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `tfClose`            | `0x00020000` | 131072        | Solicitar el cierre del canal. Solo las direcciones fuente y destino del canal pueden usar este indicador. Este indicador cierra el canal inmediatamente si no tiene más Amount asignado después de procesar el claim actual, o si la dirección de destino lo usa. Si la dirección fuente usa este indicador cuando el canal aún tiene Amount, programa el cierre del canal después de que hayan pasado los segundos `SettleDelay`. Si la dirección de destino usa este indicador cuando el canal aún tiene Amount, cualquier Amount que quede después de procesar el claim se devuelve a la dirección fuente.                                                                                                                                                                                           |
