@@ -34,7 +34,7 @@ int64_t etxn_nonce (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="7xw2qf"
+```javascript
 function etxn_nonce(): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -44,7 +44,7 @@ function etxn_nonce(): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="m9q3zk"
+```c
 uint8_t n[32];
 int64_t bytes_written = 
     etxn_nonce(n, 32);
@@ -52,7 +52,7 @@ int64_t bytes_written =
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="v5n1pt"
+```javascript
 const nonce = etxn_nonce()
 ```
 </TabItem>

@@ -34,7 +34,7 @@ int64_t util_accid (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="util-accid-js"
+```javascript
 function util_accid(raddress: string): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -44,7 +44,7 @@ function util_accid(raddress: string): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="util-accid-c"
+```c
 uint8_t accid_out[20];
 uint8_t raddr_in[] = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh";
 
@@ -56,7 +56,7 @@ util_accid(accid_out, 20, raddr_in, sizeof(raddr_in)-1);
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="util-accid-js-ex"
+```javascript
 const accId = util_accid('rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh')
 ````
 

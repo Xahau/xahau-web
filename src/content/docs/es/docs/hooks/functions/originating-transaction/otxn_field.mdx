@@ -33,7 +33,7 @@ int64_t otxn_field (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="otxn-field-js"
+```javascript
 function otxn_field(field_id: number): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -43,14 +43,14 @@ function otxn_field(field_id: number): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="otxn-field-c"
+```c
 int64_t account_field_len = 
     otxn_field(account_field, 20, sfAccount);
 ```
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="otxn-field-js-ex"
+```javascript
 const account_field = otxn_field(sfAccount)
 ```
 </TabItem>

@@ -37,7 +37,7 @@ protocol = http
 port = 16007
 ip = ::
 
-```id="j1gk8r"
+```
 
 Opciones adicionales de configuración para conexiones WebSocket y RPC están disponibles en el [archivo de configuración de ejemplo](https://github.com/Xahau/xahaud/blob/dev/cfg/rippled-example.cfg).
 
@@ -58,7 +58,7 @@ port = 16008
 ip = ::
 transport = udp
 
-```id="dc0rrx"
+```
 
 Las solicitudes UDP RPC utilizan el mismo formato JSON-RPC que HTTP RPC, pero se envían como datagramas UDP. Las respuestas también se envían por UDP. Como UDP no mantiene conexión, cada solicitud debe incluir todo el contexto necesario, y los clientes deben manejar posibles pérdidas de paquetes implementando lógica de reintento.
 

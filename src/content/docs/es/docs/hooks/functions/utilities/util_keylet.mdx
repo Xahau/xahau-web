@@ -38,7 +38,7 @@ int64_t util_keylet (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="util-keylet-js"
+```javascript
 function util_keylet(
     keylet_type: number,
     accountid: ByteArray | HexString,
@@ -53,7 +53,7 @@ function util_keylet(
 
 <Tabs>
 <TabItem label="C">
-```c id="util-keylet-c"
+```c
 uint8_t keylet[34];
 if (util_keylet(keylet, 34, KEYLET_LINE,
               hook_accid, 20,
@@ -64,7 +64,7 @@ if (util_keylet(keylet, 34, KEYLET_LINE,
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="util-keylet-js-ex"
+```javascript
 if (util_keylet(
         KEYLET_LINE, hook_accid, account_field, currency_code
         ).length < 34) 

@@ -41,7 +41,7 @@ int64_t state_foreign (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="state-foreign-js"
+```javascript
 function state_foreign(
     key: ByteArray | HexString,
     namespace: ByteArray | HexString | undefined | null,
@@ -55,7 +55,7 @@ function state_foreign(
 
 <Tabs>
 <TabItem label="C">
-```c id="state-foreign-c"
+```c
 #define SBUF(str) (uint32_t)(str), sizeof(str)
 uint8_t ns[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int64_t lookup =
@@ -66,7 +66,7 @@ if (lookup < 0)
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="state-foreign-js-ex"
+```javascript
 const ns = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 const blacklist_status =
     state_foreign(otxn_accid, ns, blacklist_accid)

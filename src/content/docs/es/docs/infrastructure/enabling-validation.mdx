@@ -28,7 +28,7 @@ Recomendaciones:
 chmod 400 xahaud.cfg
 chown root:root xahaud.cfg
 
-```id="f6e1n7"
+```
 
 Las claves privadas deben almacenarse de forma segura y offline.
 
@@ -43,7 +43,7 @@ Para evitar ataques Sybil y generar confianza:
 
 [https://tu-dominio.com/.well-known/xahau.toml](https://tu-dominio.com/.well-known/xahau.toml)
 
-```id="g0e9m3"
+```
 
 Este archivo permite verificar la identidad del validador o cuentas.
 
@@ -94,35 +94,35 @@ Nota: `validation_create` NO genera tokens de validación, solo claves para iden
 
 cd [/ruta/tool]
 
-```id="y3m7g5"
+```
 
 2. Generar claves:
 ```
 
 ./validator-keys create_keys
 
-```id="dlf9g2"
+```
 
 3. Se guardan en:
 ```
 
 ~/.xahaud/validator-keys.json
 
-```id="qk8l1z"
+```
 
 4. Opcional: añadir dominio:
 ```
 
 ./validator-keys set_domain ejemplo.com
 
-```id="k2r6js"
+```
 
 O generar token sin dominio:
 ```
 
 ./validator-keys create_token --keyfile ~/.xahaud/validator-keys.json
 
-```id="n8f3qp"
+```
 
 5. Guardar:
 
@@ -140,7 +140,7 @@ Tokens antiguos serán ignorados si existe uno más reciente.
 [validation_token]
 ...
 
-```id="4g8t1c"
+```
 
 7. Añadir attestation al archivo TOML
 

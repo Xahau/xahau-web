@@ -32,7 +32,7 @@ int64_t ledger_nonce (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="ledger-nonce-js"
+```javascript
 function ledger_nonce(): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -42,7 +42,7 @@ function ledger_nonce(): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="ledger-nonce-c"
+```c
 uint8_t n[32];
 int64_t bytes_written = 
     ledger_nonce(n, 32);
@@ -50,7 +50,7 @@ int64_t bytes_written =
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="ledger-nonce-js-ex"
+```javascript
 const nonce = ledger_nonce()
 ```
 </TabItem>

@@ -37,7 +37,7 @@ int64_t slot (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="slot-js"
+```javascript
 function slot(slotno: number): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -47,7 +47,7 @@ function slot(slotno: number): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="slot-c"
+```c
 uint8_t txn[512];
 int64_t bytes_written = 
     slot(txn, 512, 1); // asume que hay una transacción en el slot=1
@@ -55,7 +55,7 @@ int64_t bytes_written =
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="slot-js-ex"
+```javascript
 const txn = slot(1) // asume que hay una transacción en el slot=1
 ```
 </TabItem>

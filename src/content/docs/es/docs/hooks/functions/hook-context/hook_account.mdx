@@ -30,7 +30,7 @@ int64_t hook_account (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="hook-account-js"
+```javascript
 function hook_account(): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -40,7 +40,7 @@ function hook_account(): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="hook-account-c"
+```c
 uint8_t hook_acc_id[20];
 int64_t bytes_written = 
     hook_account(hook_acc_id, 20);
@@ -48,7 +48,7 @@ int64_t bytes_written =
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="hook-account-js-ex"
+```javascript
 const hook_acc_id = hook_account()
 ```
 </TabItem>

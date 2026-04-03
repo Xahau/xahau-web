@@ -35,7 +35,7 @@ int64_t state_set (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="state-set-js"
+```javascript
 function state_set(
     value: ByteArray | HexString | undefined | null,
     key: ByteArray | HexString
@@ -48,7 +48,7 @@ function state_set(
 
 <Tabs>
 <TabItem label="C">
-```c id="state-set-c"
+```c
 #define SBUF(str) (uint32_t)(str), sizeof(str)
 if (state_set(SBUF(vault), SBUF(vault_key)) < 0)
 		rollback(SBUF("Error: no se pudo establecer el estado!"), 1);
@@ -60,7 +60,7 @@ Para eliminar el estado usa `state_set(0, 0, SBUF(key));`.
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="state-set-js-ex"
+```javascript
 const result = state_set(vault, vault_key)
 if (result < 0)
     rollback("Error: no se pudo establecer el estado!", 1);

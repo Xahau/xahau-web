@@ -36,7 +36,7 @@ int64_t etxn_details (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="gafmxu"
+```javascript
 function etxn_details(): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -46,7 +46,7 @@ function etxn_details(): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="r3de95"
+```c
 uint8_t emitdet[105];
 int64_t result =
     etxn_details(emitdet, 105);
@@ -56,7 +56,7 @@ if (result != 105)
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="g0pizp"
+```javascript
 const emitdet = etxn_details()
 if (typeof emitdet === 'string || emitdet.length != 105)
     rollback("Etxndetails falló.", 1)

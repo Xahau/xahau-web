@@ -25,7 +25,7 @@ int64_t trace (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="trace-js"
+```javascript
 function trace(
     message: string | null,
     data: any,
@@ -39,14 +39,14 @@ function trace(
 
 <Tabs>
 <TabItem label="C">
-```c id="trace-c"
+```c
 #define SBUF(str) (uint32_t)(str), sizeof(str)
 trace(SBUF("Contenido del buffer"), SBUF(some_buffer), 1);
 ```
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="trace-js-ex"
+```javascript
 trace("Contenido del buffer", some_buffer, 1);
 ```
 </TabItem>

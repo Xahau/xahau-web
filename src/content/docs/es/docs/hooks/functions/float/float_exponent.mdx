@@ -39,7 +39,7 @@ Debido a que los exponentes pueden ser negativos, y los valores negativos están
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="4c9m2t"
+```javascript
 const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
 ```
 </TabItem>
@@ -49,7 +49,7 @@ const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
 
 <Tabs>
 <TabItem label="C">
-```c id="d8k3pz"
+```c
 int64_t exponent =
     float_exponent(float_one());
 ```

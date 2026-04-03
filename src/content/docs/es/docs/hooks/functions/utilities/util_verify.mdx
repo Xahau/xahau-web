@@ -29,7 +29,7 @@ int64_t util_verify (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="util-verify-js"
+```javascript
 function util_verify(
     signedData: ByteArray | HexString,
     signature: ByteArray | HexString,
@@ -43,7 +43,7 @@ function util_verify(
 
 <Tabs>
 <TabItem label="C">
-```c id="util-verify-c"
+```c
 if (!util_verify(payload_ptr,    payload_len,
                  signature_ptr,  signature_len,
                  publickey_ptr,  publickey_len))
@@ -52,7 +52,7 @@ if (!util_verify(payload_ptr,    payload_len,
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="util-verify-js-ex"
+```javascript
 if (util_verify(signedData, signature, pubkey))
     rollback("Firma inválida", 60)
 ```

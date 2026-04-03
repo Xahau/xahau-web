@@ -51,7 +51,7 @@ int64_t sto_emplace (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="sto-emplace-js"
+```javascript
 function sto_emplace(
     sto: ByteArray | HexString,
     field_bytes: ByteArray | HexString,
@@ -65,7 +65,7 @@ function sto_emplace(
 
 <Tabs>
 <TabItem label="C">
-```c id="sto-emplace-c"
+```c
 uint8_t tx_out[1024];
 
 int64_t tx_len =
@@ -80,7 +80,7 @@ rollback("Emplacing failed.", 17, 1);
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="sto-emplace-js-ex"
+```javascript
 const tx_out = sto_emplace(tx_in, sequence_field, sfSequence)
 if (typeof tx_out === 'number')
     rollback("Emplacing failed.", 1)

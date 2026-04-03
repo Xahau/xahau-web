@@ -31,7 +31,7 @@ int64_t hook_hash (
 
 </TabItem>
 <TabItem label="JavaScript">
-```javascript id="hook-hash-js"
+```javascript
 function hook_hash(hookno: number): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -41,14 +41,14 @@ function hook_hash(hookno: number): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="hook-hash-c"
+```c
 uint8_t hash[32];
 int64_t bytes_written = 
     hook_hash(hash, 32, -1);
 ```
 </TabItem>
 <TabItem label="JavaScript">
-```javascript id="hook-hash-js-ex"
+```javascript
 const hash = hook_hash(hookno)
 ```
 </TabItem>

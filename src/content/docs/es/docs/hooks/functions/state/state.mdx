@@ -36,7 +36,7 @@ int64_t state (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="state-js"
+```javascript
 function state(key: ByteArray | HexString): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -46,7 +46,7 @@ function state(key: ByteArray | HexString): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="state-c"
+```c
 #define SBUF(str) (uint32_t)(str), sizeof(str)
 if (state(SBUF(vault), SBUF(vault_key)) != 16)
     rollback(SBUF("Error: no se pudo leer el estado!"), 1);
@@ -54,7 +54,7 @@ if (state(SBUF(vault), SBUF(vault_key)) != 16)
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="state-js-ex"
+```javascript
 const value = state(SBUF(vault), SBUF(vault_key))
 if (typeof value === 'number' || value.length != 16)
     rollback("Error: no se pudo leer el estado!", 1);

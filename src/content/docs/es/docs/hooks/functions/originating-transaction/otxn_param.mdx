@@ -34,7 +34,7 @@ int64_t otxn_param (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="otxn-param-js"
+```javascript
 function otxn_param(name: ByteArray | HexString): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -44,7 +44,7 @@ function otxn_param(name: ByteArray | HexString): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="otxn-param-c"
+```c
 uint8_t pname[] = {0xCAU, 0xFEU};
 uint8_t pvalue[32];
 int64_t value_len = 
@@ -53,7 +53,7 @@ int64_t value_len =
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="otxn-param-js-ex"
+```javascript
 const pname = [0xCA, 0xFE]
 const pvalue = otxn_param(pname)
 ```

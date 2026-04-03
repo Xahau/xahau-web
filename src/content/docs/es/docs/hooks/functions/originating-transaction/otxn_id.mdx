@@ -33,7 +33,7 @@ int64_t otxn_id (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="otxn-id-js"
+```javascript
 function otxn_id(flag: number): ErrorCode | ByteArray
 ```
 </TabItem>
@@ -43,7 +43,7 @@ function otxn_id(flag: number): ErrorCode | ByteArray
 
 <Tabs>
 <TabItem label="C">
-```c id="otxn-id-c"
+```c
 uint8_t txn_id[32];
 int64_t bytes_written = 
     otxn_id(txn_id, 32, 0);
@@ -51,7 +51,7 @@ int64_t bytes_written =
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="otxn-id-js-ex"
+```javascript
 const tx_id = otxn_id(0)
 ```
 </TabItem>

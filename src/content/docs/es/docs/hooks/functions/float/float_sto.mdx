@@ -43,7 +43,7 @@ int64_t float_sto (
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="fsto-js"
+```javascript
 function float_sto(
     currency: ByteArray | HexString | undefined,
     issuer: ByteArray | HexString | undefined,
@@ -58,7 +58,7 @@ function float_sto(
 
 <Tabs>
 <TabItem label="C">
-```c id="fsto-c"
+```c
 #define SBUF(str) (uint32_t)(str), sizeof(str)
 uint8_t amt_out[48];
 if (float_sto(SBUF(amt_out),
@@ -68,7 +68,7 @@ if (float_sto(SBUF(amt_out),
 </TabItem>
 
 <TabItem label="JavaScript">
-```javascript id="fsto-js-ex"
+```javascript
 const amt_out = float_sto(currency, hook_accid, pusd_to_send, -1)
 if (typeof amt_out === 'number')
         rollback("Peggy: No se pudo serializar la cantidad pusd", 1)

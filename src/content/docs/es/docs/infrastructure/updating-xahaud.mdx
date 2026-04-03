@@ -34,7 +34,7 @@ Actualizar xahaud en un contenedor Docker implica reemplazar el binario en ejecu
 
 wget [https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh](https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh)
 
-```id="k4o2dj"
+```
 
 2. Editar el script y cambiar la primera línea por la versión deseada  
 3. Ejecutar el script:
@@ -42,14 +42,14 @@ wget [https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de295893
 
 bash ./update.sh
 
-```id="2y8n3p"
+```
 
 4. Verificar:
 ```
 
 docker exec xahaud-[mainnet/testnet] xahaud server_info
 
-```id="9r0qfw"
+```
 
 ---
 
@@ -60,42 +60,42 @@ docker exec xahaud-[mainnet/testnet] xahaud server_info
 
 cd [/ruta/al/repositorio]
 
-```id="w9lm1x"
+```
 
 2. Actualizar:
 ```
 
 git pull
 
-```id="xq5p2k"
+```
 
 3. Ver contenedores activos:
 ```
 
 docker ps
 
-```id="j3v8ns"
+```
 
 4. Detener instancia:
 ```
 
 docker stop xahaud-[mainnet/testnet]
 
-```id="c8f7rd"
+```
 
 5. Eliminar instancia:
 ```
 
 docker rm xahaud-[mainnet/testnet]
 
-```id="5b2hya"
+```
 
 6. Iniciar nueva:
 ```
 
 ./build && ./up
 
-```id="l6m4qp"
+```
 
 ---
 
@@ -109,35 +109,35 @@ https://build.xahau.tech
 
 chmod +x [/ruta/al/binario]
 
-```id="r2w8kf"
+```
 
 3. Detener xahaud:
 ```
 
 /opt/xahaud/bin/xahaud stop
 
-```id="0g6ytn"
+```
 
 4. Reemplazar binario:
 ```
 
 mv [/ruta/al/binario] /opt/xahaud/bin/xahaud
 
-```id="h9p2xe"
+```
 
 5. Iniciar:
 ```
 
 systemctl start xahaud
 
-```id="q8j5vd"
+```
 
 6. Verificar:
 ```
 
 /opt/xahaud/bin/xahaud server_info
 
-```id="f4z7nm"
+```
 
 Existe un script que automatiza estos pasos:
 https://gist.githubusercontent.com/WietseWind/9480a4fc95e904e54524406005c8c963/raw/2b200fdc2e5b471ae4f6625674aff1765d63e744/update.sh
@@ -151,7 +151,7 @@ https://gist.githubusercontent.com/WietseWind/9480a4fc95e904e54524406005c8c963/r
 
 rm [/ruta/a/xahaud]
 
-```id="k1z7tx"
+```
 
 2. Descargar nueva versión:
 https://build.xahau.tech  
@@ -161,11 +161,11 @@ https://build.xahau.tech
 
 chmod 500 [/ruta/a/xahaud]
 
-```id="e7h2qs"
+```
 
 4. Ejecutar:
 ```
 
 ./[ruta/a/xahaud] --net --conf [/ruta/a/xahaud.cfg]
 
-```id="p6n3wa"
+```
