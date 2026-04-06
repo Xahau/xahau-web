@@ -10,29 +10,61 @@
   const translations = {
     en: {
       tagline: 'This website is open source and open for contributions',
-      on: 'on', about: 'About', features: 'Features', ecosystem: 'Ecosystem',
-      roadmap: 'Roadmap', break: 'Break Xahau', fraud: 'Report Fraud',
-      media: 'Media kit', privacy: 'Privacy Policy', docs: 'Documentation',
-      getstarted: 'Get started', protocol: 'Protocol Reference',
-      infra: 'Infrastructure', connect: 'Connect', events: 'Events',
+      on: 'on',
+      about: 'About',
+      features: 'Features',
+      ecosystem: 'Ecosystem',
+      roadmap: 'Roadmap',
+      break: 'Break Xahau',
+      fraud: 'Report Fraud',
+      media: 'Media kit',
+      privacy: 'Privacy Policy',
+      docs: 'Documentation',
+      getstarted: 'Get started',
+      protocol: 'Protocol Reference',
+      infra: 'Infrastructure',
+      connect: 'Connect',
+      events: 'Events',
       discord: 'Community Discord',
     },
     es: {
-      tagline: 'Este sitio web es de código abierto y está abierto a contribuciones',
-      on: 'en', about: 'Acerca de', features: 'Características', ecosystem: 'Ecosistema',
-      roadmap: 'Hoja de ruta', break: 'Break Xahau', fraud: 'Reportar Fraude',
-      media: 'Kit de Prensa', privacy: 'Política de Privacidad', docs: 'Documentación',
-      getstarted: 'Primeros pasos', protocol: 'Referencia de Protocolo',
-      infra: 'Infraestructura', connect: 'Conectar', events: 'Eventos',
+      tagline:
+        'Este sitio web es de código abierto y está abierto a contribuciones',
+      on: 'en',
+      about: 'Acerca de',
+      features: 'Características',
+      ecosystem: 'Ecosistema',
+      roadmap: 'Hoja de ruta',
+      break: 'Break Xahau',
+      fraud: 'Reportar Fraude',
+      media: 'Kit de Prensa',
+      privacy: 'Política de Privacidad',
+      docs: 'Documentación',
+      getstarted: 'Primeros pasos',
+      protocol: 'Referencia de Protocolo',
+      infra: 'Infraestructura',
+      connect: 'Conectar',
+      events: 'Eventos',
       discord: 'Discord de la Comunidad',
     },
     ja: {
-      tagline: 'このウェブサイトはオープンソースで、コントリビューションを受け付けています',
-      on: 'にて', about: 'Xahauについて', features: '機能', ecosystem: 'エコシステム',
-      roadmap: 'ロードマップ', break: 'Break Xahau', fraud: '不正を報告',
-      media: 'メディアキット', privacy: 'プライバシーポリシー', docs: 'ドキュメント',
-      getstarted: 'はじめる', protocol: 'プロトコルリファレンス',
-      infra: 'インフラストラクチャ', connect: 'コネクト', events: 'イベント',
+      tagline:
+        'このウェブサイトはオープンソースで、コントリビューションを受け付けています',
+      on: 'にて',
+      about: 'Xahauについて',
+      features: '機能',
+      ecosystem: 'エコシステム',
+      roadmap: 'ロードマップ',
+      break: 'Break Xahau',
+      fraud: '不正を報告',
+      media: 'メディアキット',
+      privacy: 'プライバシーポリシー',
+      docs: 'ドキュメント',
+      getstarted: 'はじめる',
+      protocol: 'プロトコルリファレンス',
+      infra: 'インフラストラクチャ',
+      connect: 'コネクト',
+      events: 'イベント',
       discord: 'コミュニティDiscord',
     },
   }
@@ -52,12 +84,14 @@
       <p>
         {t.tagline}
         <a href="https://github.com/Xahau/xahau-web" target="_blank"
-          >{t.on} GitHub</a
+          >{t.on}GitHub</a
         >
       </p>
     </div>
     <div class="col-span-1 md:col-span-2 md:col-start-5 flex flex-col gap-3">
-      <p><strong>Xahau</strong></p>
+      <p>
+        <strong>Xahau</strong>
+      </p>
       <a href={`${p}/about`}>{t.about}</a>
       <a href={`${p}/features`}>{t.features}</a>
       <a href={`${p}/ecosystem`}>{t.ecosystem}</a>
@@ -68,7 +102,9 @@
       <a href="/privacy-policy">{t.privacy}</a>
     </div>
     <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
-      <p><strong>{t.docs}</strong></p>
+      <p>
+        <strong>{t.docs}</strong>
+      </p>
       <a href={`${p}/docs`}>{t.getstarted}</a>
       <a href={`${p}/docs/protocol-reference/transactions`}>{t.protocol}</a>
       <a href={`${p}/docs/hooks`}>Hooks</a>
@@ -77,12 +113,16 @@
       <a href={`${p}/docs/resources/whitepaper`}>Whitepaper</a>
     </div>
     <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
-      <p><strong>{t.connect}</strong></p>
+      <p>
+        <strong>{t.connect}</strong>
+      </p>
       <a href={`${p}/connect`}>{t.events}</a>
       <a href={`${p}/contest`}>Dev Contest</a>
       <a href="https://x.com/XahauNetwork" target="_blank">X</a>
       <a href="https://github.com/Xahau" target="_blank">GitHub</a>
-      <a href="https://discord.com/invite/UzU58haAn4" target="_blank">{t.discord}</a>
+      <a href="https://discord.com/invite/UzU58haAn4" target="_blank"
+        >{t.discord}</a
+      >
     </div>
   </div>
 </footer>

@@ -31,25 +31,46 @@ const languages = [
 
 const nav = {
   en: {
-    about: 'About', features: 'Features', ecosystem: 'Ecosystem',
-    roadmap: 'Roadmap', docs: 'Documentation', connect: 'Connect',
-    explorers: 'Explorers', events: 'Events',
-    getstarted: 'Get started', protocol: 'Protocol Reference',
-    infra: 'Infrastructure', discord: 'Community Discord',
+    about: 'About',
+    features: 'Features',
+    ecosystem: 'Ecosystem',
+    roadmap: 'Roadmap',
+    docs: 'Documentation',
+    connect: 'Connect',
+    explorers: 'Explorers',
+    events: 'Events',
+    getstarted: 'Get started',
+    protocol: 'Protocol Reference',
+    infra: 'Infrastructure',
+    discord: 'Community Discord',
   },
   es: {
-    about: 'Acerca de', features: 'Características', ecosystem: 'Ecosistema',
-    roadmap: 'Hoja de ruta', docs: 'Documentación', connect: 'Conectar',
-    explorers: 'Exploradores', events: 'Eventos',
-    getstarted: 'Primeros pasos', protocol: 'Referencia de Protocolo',
-    infra: 'Infraestructura', discord: 'Discord de la Comunidad',
+    about: 'Acerca de',
+    features: 'Características',
+    ecosystem: 'Ecosistema',
+    roadmap: 'Hoja de ruta',
+    docs: 'Documentación',
+    connect: 'Conectar',
+    explorers: 'Exploradores',
+    events: 'Eventos',
+    getstarted: 'Primeros pasos',
+    protocol: 'Referencia de Protocolo',
+    infra: 'Infraestructura',
+    discord: 'Discord de la Comunidad',
   },
   ja: {
-    about: 'Xahauについて', features: '機能', ecosystem: 'エコシステム',
-    roadmap: 'ロードマップ', docs: 'ドキュメント', connect: 'コネクト',
-    explorers: 'エクスプローラー', events: 'イベント',
-    getstarted: 'はじめる', protocol: 'プロトコルリファレンス',
-    infra: 'インフラストラクチャ', discord: 'コミュニティDiscord',
+    about: 'Xahauについて',
+    features: '機能',
+    ecosystem: 'エコシステム',
+    roadmap: 'ロードマップ',
+    docs: 'ドキュメント',
+    connect: 'コネクト',
+    explorers: 'エクスプローラー',
+    events: 'イベント',
+    getstarted: 'はじめる',
+    protocol: 'プロトコルリファレンス',
+    infra: 'インフラストラクチャ',
+    discord: 'コミュニティDiscord',
   },
 }
 
@@ -71,7 +92,7 @@ export default function Header(props) {
 
   function langUrl(code) {
     const prefix = currentLocale !== 'en' ? `/${currentLocale}` : ''
-    const basePath = prefix ? (pathname.slice(prefix.length) || '/') : pathname
+    const basePath = prefix ? pathname.slice(prefix.length) || '/' : pathname
     if (code === 'en') return basePath
     return basePath === '/' ? `/${code}` : `/${code}${basePath}`
   }
@@ -111,9 +132,12 @@ export default function Header(props) {
   ]
 
   const pathSegments = pathname.slice(1).split('/')
-  const activeSegment = LOCALES.includes(pathSegments[0]) ? pathSegments[1] : pathSegments[0]
+  const activeSegment = LOCALES.includes(pathSegments[0])
+    ? pathSegments[1]
+    : pathSegments[0]
 
-  const dropdownItemClass = 'group relative flex items-center gap-x-6 p-2 text-sm/6'
+  const dropdownItemClass =
+    'group relative flex items-center gap-x-6 p-2 text-sm/6'
 
   return (
     <header className="header bg-xahau-background z-20">
@@ -138,7 +162,8 @@ export default function Header(props) {
         {/* Desktop navigation */}
         <PopoverGroup className="hidden lg:flex lg:gap-x-12 lg:items-center">
           {navItems.map((navItem) => {
-            const isActive = navItem.urlPattern && activeSegment === navItem.urlPattern
+            const isActive =
+              navItem.urlPattern && activeSegment === navItem.urlPattern
             if (navItem.href) {
               return (
                 <a
@@ -156,7 +181,10 @@ export default function Header(props) {
                   className={`selected:no-underline no-underline p-0 border-none text-base text-black flex items-center gap-x-1 bg-transparent hover:cursor-pointer ${isActive ? 'font-bold' : 'font-regular'}`}
                 >
                   {navItem.name}
-                  <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-black" />
+                  <ChevronDownIcon
+                    aria-hidden="true"
+                    className="size-5 flex-none text-black"
+                  />
                 </PopoverButton>
                 <PopoverPanel
                   transition
@@ -167,7 +195,9 @@ export default function Header(props) {
                       <a
                         key={item.name}
                         href={item.href}
-                        target={item.href.startsWith('http') ? '_blank' : undefined}
+                        target={
+                          item.href.startsWith('http') ? '_blank' : undefined
+                        }
                         className="no-underline block font-regular text-white"
                       >
                         <div className={dropdownItemClass}>{item.name}</div>
@@ -186,7 +216,10 @@ export default function Header(props) {
               aria-label="Select language"
             >
               <GlobeAltIcon className="size-5 text-black" />
-              <ChevronDownIcon aria-hidden="true" className="size-4 flex-none text-black" />
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="size-4 flex-none text-black"
+              />
             </PopoverButton>
             <PopoverPanel
               transition
@@ -201,7 +234,9 @@ export default function Header(props) {
                   >
                     <span>{lang.flag}</span>
                     <span>{lang.label}</span>
-                    {currentLocale === lang.code && <span className="ml-auto">✓</span>}
+                    {currentLocale === lang.code && (
+                      <span className="ml-auto">✓</span>
+                    )}
                   </a>
                 ))}
               </div>
@@ -211,7 +246,11 @@ export default function Header(props) {
       </nav>
 
       {/* Mobile menu */}
-      <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
+      <Dialog
+        open={mobileMenuOpen}
+        onClose={setMobileMenuOpen}
+        className="lg:hidden"
+      >
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
@@ -229,7 +268,8 @@ export default function Header(props) {
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
                 {navItems.map((navItem) => {
-                  const isActive = navItem.urlPattern && activeSegment === navItem.urlPattern
+                  const isActive =
+                    navItem.urlPattern && activeSegment === navItem.urlPattern
                   if (navItem.href) {
                     return (
                       <a
@@ -247,7 +287,10 @@ export default function Header(props) {
                         className={`selected:no-underline no-underline border-none rounded-lg py-2 text-base/7 hover:bg-gray-50 text-black bg-transparent group flex w-full items-center justify-between pr-3.5 pl-3 ${isActive ? 'font-bold' : 'font-regular'}`}
                       >
                         {navItem.name}
-                        <ChevronDownIcon aria-hidden="true" className="size-5 flex-none group-data-open:rotate-180" />
+                        <ChevronDownIcon
+                          aria-hidden="true"
+                          className="size-5 flex-none group-data-open:rotate-180"
+                        />
                       </DisclosureButton>
                       <DisclosurePanel className="mt-2 space-y-2">
                         {navItem.children.map((item) => (
@@ -255,7 +298,11 @@ export default function Header(props) {
                             key={item.name}
                             as="a"
                             href={item.href}
-                            target={item.href.startsWith('http') ? '_blank' : undefined}
+                            target={
+                              item.href.startsWith('http')
+                                ? '_blank'
+                                : undefined
+                            }
                             className="no-underline block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-regular text-black hover:bg-gray-50"
                           >
                             {item.name}
@@ -275,7 +322,10 @@ export default function Header(props) {
                       <GlobeAltIcon className="size-5 text-black" />
                       {languages.find((l) => l.code === currentLocale)?.label}
                     </span>
-                    <ChevronDownIcon aria-hidden="true" className="size-5 flex-none group-data-open:rotate-180" />
+                    <ChevronDownIcon
+                      aria-hidden="true"
+                      className="size-5 flex-none group-data-open:rotate-180"
+                    />
                   </DisclosureButton>
                   <DisclosurePanel className="mt-2 space-y-1">
                     {languages.map((lang) => (
@@ -286,7 +336,9 @@ export default function Header(props) {
                       >
                         <span>{lang.flag}</span>
                         <span>{lang.label}</span>
-                        {currentLocale === lang.code && <span className="ml-auto text-xs">✓</span>}
+                        {currentLocale === lang.code && (
+                          <span className="ml-auto text-xs">✓</span>
+                        )}
                       </a>
                     ))}
                   </DisclosurePanel>
