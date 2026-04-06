@@ -5,7 +5,7 @@ title: Ripple State
 
 El tipo de objeto `RippleState` conecta dos cuentas en una sola moneda. Conceptualmente, un objeto `RippleState` representa dos líneas de confianza entre las cuentas, una desde cada lado. Cada cuenta puede cambiar la configuración de su lado del objeto `RippleState`, pero el saldo es un único valor compartido. Una línea de confianza que está completamente en su estado predeterminado se considera igual a una línea de confianza que no existe, por lo que `rippled` elimina objetos `RippleState` cuando sus propiedades son completamente predeterminadas.
 
-### Cuenta Alta vs. Cuenta Baja
+### Cuenta Alta vs. Cuenta Baja {#high-vs-low-account}
 
 Solo puede haber un objeto `RippleState` por moneda para cualquier par dado de cuentas. Como ninguna cuenta tiene privilegio en Xahau, un objeto `RippleState` ordena las direcciones de cuenta numéricamente para asegurar una forma canónica. Cualquier dirección que sea numéricamente menor al decodificarse se considera la "cuenta baja" y la otra es la "cuenta alta". El saldo neto de la línea de confianza se almacena desde la perspectiva de la cuenta baja.
 
