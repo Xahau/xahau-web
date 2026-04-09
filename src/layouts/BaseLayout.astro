@@ -1,17 +1,18 @@
 ---
-  import CookieConsent from '../components/CookieConsent.astro'
-  import Footer from '../components/Footer.astro'
-  import Header from '../components/Header.jsx'
+import CookieConsent from '../components/CookieConsent.astro'
+import Footer from '../components/Footer.astro'
+import Header from '../components/Header.jsx'
 
-  const _canonicalURL = new URL(Astro.url.pathname, Astro.site)
-  const _socialImageURL = new URL('/xahau-logo.png', Astro.site)
-  const _title = Astro.props.frontmatter?.title
-    ? `Xahau: ${Astro.props.frontmatter?.title}`
-    : 'Xahau'
-  const _description = Astro.props.frontmatter?.description
-    ? Astro.props.frontmatter?.description
-    : 'Xahau is a blockchain for the real world. It is a smart blockchain with account-based programmability. It is cheap and fast by design. It is built for the real world.'
+const _canonicalURL = new URL(Astro.url.pathname, Astro.site)
+const _socialImageURL = new URL('/xahau-logo.png', Astro.site)
+const _title = Astro.props.frontmatter?.title
+  ? `Xahau: ${Astro.props.frontmatter?.title}`
+  : 'Xahau'
+const _description = Astro.props.frontmatter?.description
+  ? Astro.props.frontmatter?.description
+  : 'Xahau is a blockchain for the real world. It is a smart blockchain with account-based programmability. It is cheap and fast by design. It is built for the real world.'
 ---
+
 <html lang="en">
   <head>
     <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml">
@@ -39,9 +40,9 @@
     <meta name="twitter:image" content={_socialImageURL}>
   </head>
   <body class="font-[Onest] bg-xahau-background min-h-screen flex flex-col">
-    <Header client:load url={Astro.url}/>
-    <slot/>
-    <Footer/>
-    <CookieConsent/>
+    <Header client:load url={Astro.url} />
+    <slot />
+    <Footer />
+    <CookieConsent />
   </body>
 </html>

@@ -1,13 +1,14 @@
 ---
-  import '../styles/main.css'
-  import PageSection from '../components/PageSection.astro'
-  import PageLayout from '../layouts/PageLayout.astro'
+import '../styles/main.css'
+import PageSection from '../components/PageSection.astro'
+import PageLayout from '../layouts/PageLayout.astro'
 
-  const _frontmatter = {
-    title: 'Report Fraud',
-    description: 'Have you been scammed or hacked? Here is what to do!',
-  }
+const _frontmatter = {
+  title: 'Report Fraud',
+  description: 'Have you been scammed or hacked? Here is what to do!',
+}
 ---
+
 <PageLayout frontmatter={_frontmatter} wide="true">
   <PageSection align="center">
     <p>
