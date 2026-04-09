@@ -21,7 +21,6 @@ import { useState } from 'react'
 
 import logo from '../assets/xahau-logo.svg'
 
-
 const languages = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
@@ -130,9 +129,8 @@ export default function Header(props) {
   ]
 
   const pathSegments = pathname.slice(1).split('/')
-  const activeSegment = currentLocale !== 'en'
-    ? pathSegments[1]
-    : pathSegments[0]
+  const activeSegment =
+    currentLocale !== 'en' ? pathSegments[1] : pathSegments[0]
 
   const dropdownItemClass =
     'group relative flex items-center gap-x-6 p-2 text-sm/6'
