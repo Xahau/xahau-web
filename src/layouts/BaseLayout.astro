@@ -3,8 +3,7 @@
   import Footer from '../components/Footer.astro'
   import Header from '../components/Header.jsx'
 
-  const _firstSeg = Astro.url.pathname.split('/')[1]
-  const _lang = ['es', 'ja'].includes(_firstSeg) ? _firstSeg : 'en'
+  const _lang = Astro.currentLocale ?? 'en'
   const _canonicalURL = new URL(Astro.url.pathname, Astro.site)
   const _socialImageURL = new URL('/xahau-logo.png', Astro.site)
   const _title = Astro.props.frontmatter?.title
@@ -41,7 +40,7 @@
     <meta name="twitter:image" content={_socialImageURL}>
   </head>
   <body class="font-[Onest] bg-xahau-background min-h-screen flex flex-col">
-    <Header client:load url={Astro.url}/>
+    <Header client:load url={Astro.url} locale={_lang}/>
     <slot/>
     <Footer/>
     <CookieConsent/>

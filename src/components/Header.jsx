@@ -21,7 +21,6 @@ import { useState } from 'react'
 
 import logo from '../assets/xahau-logo.svg'
 
-const LOCALES = ['es', 'ja']
 
 const languages = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -85,8 +84,7 @@ export default function Header(props) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const pathname = props.url.pathname
-  const firstSegment = pathname.split('/')[1]
-  const currentLocale = LOCALES.includes(firstSegment) ? firstSegment : 'en'
+  const currentLocale = props.locale || 'en'
   const p = currentLocale !== 'en' ? `/${currentLocale}` : ''
   const t = nav[currentLocale]
 
@@ -132,7 +130,7 @@ export default function Header(props) {
   ]
 
   const pathSegments = pathname.slice(1).split('/')
-  const activeSegment = LOCALES.includes(pathSegments[0])
+  const activeSegment = currentLocale !== 'en'
     ? pathSegments[1]
     : pathSegments[0]
 
