@@ -1,5 +1,6 @@
 'use client'
 
+import { getRelativeLocaleUrl } from 'astro:i18n'
 import {
   Dialog,
   DialogPanel,
@@ -18,7 +19,6 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid'
 import { useState } from 'react'
-
 import logo from '../assets/xahau-logo.svg'
 
 const languages = [
@@ -84,7 +84,6 @@ export default function Header(props) {
 
   const pathname = props.url.pathname
   const currentLocale = props.locale || 'en'
-  const p = currentLocale !== 'en' ? `/${currentLocale}` : ''
   const t = nav[currentLocale]
 
   function langUrl(code) {
@@ -95,20 +94,41 @@ export default function Header(props) {
   }
 
   const socials = [
-    { name: t.events, href: `${p}/connect` },
-    { name: 'Dev Contest', href: `${p}/contest` },
+    { name: t.events, href: getRelativeLocaleUrl(currentLocale, '/connect') },
+    {
+      name: 'Dev Contest',
+      href: getRelativeLocaleUrl(currentLocale, '/contest'),
+    },
     { name: 'X', href: 'https://x.com/XahauNetwork' },
     { name: 'GitHub', href: 'https://github.com/Xahau' },
     { name: t.discord, href: 'https://discord.com/invite/UzU58haAn4' },
   ]
 
   const docs = [
-    { name: t.getstarted, href: `${p}/docs` },
-    { name: t.protocol, href: `${p}/docs/protocol-reference/transactions` },
-    { name: 'Hooks', href: `${p}/docs/hooks` },
-    { name: 'Data APIs', href: `${p}/docs/data-apis` },
-    { name: t.infra, href: `${p}/docs/infrastructure/system-requirements` },
-    { name: 'Whitepaper', href: `${p}/docs/resources/whitepaper` },
+    { name: t.getstarted, href: getRelativeLocaleUrl(currentLocale, '/docs') },
+    {
+      name: t.protocol,
+      href: getRelativeLocaleUrl(
+        currentLocale,
+        '/docs/protocol-reference/transactions',
+      ),
+    },
+    { name: 'Hooks', href: getRelativeLocaleUrl(currentLocale, '/docs/hooks') },
+    {
+      name: 'Data APIs',
+      href: getRelativeLocaleUrl(currentLocale, '/docs/data-apis'),
+    },
+    {
+      name: t.infra,
+      href: getRelativeLocaleUrl(
+        currentLocale,
+        '/docs/infrastructure/system-requirements',
+      ),
+    },
+    {
+      name: 'Whitepaper',
+      href: getRelativeLocaleUrl(currentLocale, '/docs/resources/whitepaper'),
+    },
   ]
 
   const explorers = [
@@ -119,10 +139,26 @@ export default function Header(props) {
   ]
 
   const navItems = [
-    { name: t.about, href: `${p}/about`, urlPattern: 'about' },
-    { name: t.features, href: `${p}/features`, urlPattern: 'features' },
-    { name: t.ecosystem, href: `${p}/ecosystem`, urlPattern: 'ecosystem' },
-    { name: t.roadmap, href: `${p}/roadmap`, urlPattern: 'roadmap' },
+    {
+      name: t.about,
+      href: getRelativeLocaleUrl(currentLocale, '/about'),
+      urlPattern: 'about',
+    },
+    {
+      name: t.features,
+      href: getRelativeLocaleUrl(currentLocale, '/features'),
+      urlPattern: 'features',
+    },
+    {
+      name: t.ecosystem,
+      href: getRelativeLocaleUrl(currentLocale, '/ecosystem'),
+      urlPattern: 'ecosystem',
+    },
+    {
+      name: t.roadmap,
+      href: getRelativeLocaleUrl(currentLocale, '/roadmap'),
+      urlPattern: 'roadmap',
+    },
     { name: t.docs, children: docs, urlPattern: 'docs' },
     { name: t.connect, children: socials },
     { name: t.explorers, children: explorers },
@@ -142,7 +178,7 @@ export default function Header(props) {
         className="mx-auto flex max-w-7xl items-center justify-between p-6"
       >
         <div className="flex lg:flex-1">
-          <XahauLogo href={p ? p : '/'} />
+          <XahauLogo href={getRelativeLocaleUrl(currentLocale, '/')} />
         </div>
         <div className="flex lg:hidden">
           <button
@@ -249,7 +285,7 @@ export default function Header(props) {
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <XahauLogo href={p ? p : '/'} />
+            <XahauLogo href={getRelativeLocaleUrl(currentLocale, '/')} />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}

@@ -67,7 +67,7 @@
     },
   }
 
-  const t = translations[locale]
+  const t = translations[locale as 'en' | 'es' | 'ja']
 ---
 <footer
   class="bg-white text-base font-regular text-black **:text-black **:no-underline"
