@@ -1,0 +1,68 @@
+---
+title: Ajustes de Balance
+description: Cómo reclamar un Ajuste de Balance en Xahau
+---
+### Opt-in + Reclamar
+
+Optar por los Ajustes de Balance es la misma transacción que reclamar un ajuste. Debe hacerlo primero para iniciar la capacidad de reclamar más adelante.
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}
+```
+
+### Opt-out
+
+Para excluirse de los Ajustes de Balance, omita el campo Issuer y establezca Flags en 1. Al hacerlo se eliminarán sus estadísticas de balance promedio. Estas no serán restauradas. Si vuelve a optar, se restablecerán a una posición inicial.
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "NetworkID": 21337,
+    "Flags": 1
+}
+```
+
+### Detalles Técnicos
+
+Los Ajustes de Balance se implementan como una combinación de dos piezas de código:
+
+1. Enmienda BalanceRewards (código nativo)
+2. Hook de Recompensa de la Cuenta Génesis (código de hook).
+
+BalanceRewards recopila estadísticas de balance promedio sobre las cuentas en las que están activados. Estas estadísticas luego se pasan a un Hook objetivo cuando el usuario desea reclamar.
+
+Todas las interacciones con esta enmienda son mediante la transacción ClaimReward:
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}
+```
+
+Cuando una transacción ClaimReward se envía exitosamente con un código de error **tesSUCCESS**, las estadísticas de balance promedio de la cuenta se restablecen. Lo único adicional que hace la enmienda es invocar los Hooks en la cuenta del Emisor especificado.
+
+El campo _Issuer_ es la cuenta responsable de cumplir con el reclamo. Dependiendo de lo que esté instalado en la cuenta del Emisor, pueden ocurrir varias cosas:
+
+* Si no hay ningún Hook instalado en la cuenta del Emisor, entonces no se hace nada y las estadísticas de BalanceRewards simplemente se restablecen.
+* Si hay un Hook instalado en la cuenta del Emisor y el Hook realiza un rollback, entonces la transacción falla y las estadísticas _no_ se restablecen.
+* Si hay un Hook instalado en la cuenta del Emisor y el Hook realiza accept, entonces la transacción tiene éxito y las estadísticas se restablecen. En este caso, el Hook también debería emitir una transacción de vuelta a la cuenta del usuario que contenga su recompensa.
+
+En la práctica, en Xahau, el Emisor probablemente siempre será la cuenta génesis **rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh**.
+
+A menos que:
+
+* La Gobernanza de la Red resulte en que se use una cuenta diferente para BalanceAdjustments.
+* Una parte no relacionada con la Gobernanza ejecute su propio sorteo de BalanceRewards en el que el usuario quiera participar. Tenga en cuenta que los reclamos exitosos resultan en el restablecimiento de las estadísticas de balance promedio, por lo que solo se puede reclamar un tipo de recompensa por restablecimiento.
+
+Las estadísticas de balance promedio existen como una colección de tres nuevos campos en el objeto AccountRoot. Estos son:
+
+<table><thead><tr><th width="240">Campo</th><th width="95.33333333333331">Tipo</th><th>Explicación</th></tr></thead><tbody><tr><td><code>sfRewardAccumulator</code></td><td>UINT64</td><td>El área bajo la gráfica balance-tiempo de su cuenta desde la última transacción ClaimReward.</td></tr><tr><td><code>sfRewardLgrFirst</code></td><td>UINT32</td><td>El número de ledger de la última transacción ClaimReward.</td></tr><tr><td><code>sfRewardLgrLast</code></td><td>UINT32</td><td>El número de secuencia del ledger de la última transacción entrante o saliente de su cuenta.</td></tr><tr><td><code>sfRewardTime</code></td><td>UINT32</td><td>El tiempo del ledger en que se reclamó la última recompensa.</td></tr></tbody></table>

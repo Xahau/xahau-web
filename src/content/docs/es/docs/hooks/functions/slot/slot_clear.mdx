@@ -1,0 +1,76 @@
+---
+title: slot_clear
+description: Liberar un slot actualmente ocupado
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+* Libera el slot especificado, liberando cualquier objeto que estuviera almacenado en él
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_clear (
+    uint32_t slot_no
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_clear(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+slot_clear(1); // asume que hay una transacción en el slot=1
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+slot_clear(1) // asume que hay una transacción en el slot=1
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre  | Tipo     | Descripción       |
+| ------- | -------- | ----------------- |
+| slot_no | uint32_t | Número del slot   |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción       |
+| ------ | ------ | ----------------- |
+| slotno | number | Número del slot   |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                              |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p><code>1</code> o un error<br /><br />Si es negativo, error:<br /><code>DOESNT_EXIST</code><br />- el slot especificado no contiene ningún objeto o es inválido</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                                     |
+| ------------------- | --------------------------------------------------------------- |
+| ErrorCode \| number | Devuelve un código de error o el resultado de la operación      |
+</TabItem>
+</Tabs>

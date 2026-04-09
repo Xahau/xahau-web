@@ -1,0 +1,75 @@
+---
+title: float_one
+description: Devuelve el número 1 representado como un número XFL
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Devuelve uno (`1`) como un XFL en formato int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Obtiene la representación flotante del número uno.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_one();
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_one(): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t one =
+    float_one();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const one = float_one()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+Esta función no tiene parámetros.
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                         |
+| -------- | ----------------------------------- |
+| int64_t  | El número XFL (xls17)               |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                         |
+| ------------------- | ----------------------------------- |
+| ErrorCode \| bigint | El número XFL (xls17)               |
+</TabItem>
+</Tabs>

@@ -1,0 +1,195 @@
+---
+title: Juego de Gobernanza
+description: >-
+  El Juego de Gobernanza es un mecanismo de gobernanza innovador dentro del ecosistema
+  Xahau para garantizar un enfoque centrado en la comunidad en la toma de decisiones.
+---
+
+### Descripción General
+
+El Juego de Gobernanza de Xahau permite a hasta 400 partes interesadas participar democráticamente en la gestión de la red Xahau a través del Hook de Gobernanza instalado en la Cuenta Génesis.
+
+### Capa 1
+
+El juego consiste en una mesa de "Capa 1" en la que hay 20 asientos. Una cuenta Xahau (dirección r) puede ocupar cada asiento, o puede estar vacío. Cuando un asiento está ocupado, se dice que un miembro de la mesa se sienta allí.
+
+Para jugar el juego, los miembros de la mesa emiten votos. Los votos son sobre uno de tres tipos de temas:
+
+* Temas de asientos
+* Temas de hooks
+* Temas de recompensas.
+
+Los temas de asientos van de S00 a S19 y representan un voto sobre quién (si alguien) ocupa actualmente ese asiento. Un voto del 80% es suficiente para hacer un cambio. El proceso de votación es continuo, y el voto final que supera el umbral acciona el cambio.
+
+Los temas de hooks van de H0 a H9 y representan qué Hooks, incluido el propio Hook de Gobernanza, están instalados en la cuenta de la mesa. Estos temas requieren el 100% de los miembros sentados en esa mesa para estar de acuerdo antes de que se pueda hacer un cambio. Esto permite que el Juego de Gobernanza sea actualizado y que se añadan más características a la cuenta génesis con el tiempo.
+
+Los temas de recompensas son RR y RD, que significan Tasa de Recompensa y Retraso de Recompensa, respectivamente. Estos temas también requieren el 100% de los miembros en la mesa para estar de acuerdo para hacer un cambio. Estos parámetros afectan al sistema de BalanceAdjustments: cuánto puede reclamar cada usuario activo en la red y con qué frecuencia.
+
+### Capa 2
+
+Los miembros que ocupan asientos en la mesa de Capa 1 son cuentas Xahau (direcciones r). El juego de gobernanza está diseñado para ser estructuralmente recursivo, de modo que una de estas cuentas pueda ser en sí misma una mesa que consiste en otros 20 asientos. Esto se llama mesa de Capa 2, y los asientos son asientos de Capa 2.
+
+Dentro de una mesa de Capa 2, existen los mismos temas de votación de asientos y hooks, con las mismas reglas de votación que la mesa de Capa 1. Esto permite a una mesa gobernar su propia membresía y los hooks que se ejecutan allí.
+
+Además de estos temas, una mesa de Capa 2 también puede, mediante un voto del 51%, elevar un voto a la mesa de Capa 1. Este es un voto en nombre de la dirección r en la que existe la mesa de Capa 2 y cuenta como un único voto en la mesa de Capa 1.
+
+El voto de la mesa de Capa 2 puede caer por debajo del 51%, en cuyo caso el voto originalmente elevado a la mesa de Capa 1 **no** se retira. Solo un nuevo voto (diferente) que alcance el 51% puede cambiar el voto de la mesa en Capa 1.
+
+Las mesas de Capa 2 solo pueden votar sobre temas de Recompensas a través de un voto elevado a Capa 1.
+
+En resumen, los miembros de Capa 2 pueden votar por:
+
+* Asientos y Hooks para su propia mesa, y
+* Asientos, Hooks y temas de Recompensas para la mesa L1 a través del asiento de Capa 1 en el que reside su mesa de Capa 2.
+
+### Restricciones del Juego
+
+* Cualquier mesa puede tener al menos 2 miembros y como máximo 20 miembros.
+* Una sola dirección r solo puede ocupar un asiento en una mesa determinada, pero puede ocupar un asiento en cada una de muchas mesas diferentes.
+* El Juego de Gobernanza no está diseñado para recurrir más allá de dos capas. No hay ninguna imposibilidad técnica para implementar una mesa de Capa 3, pero el Hook de Gobernanza actual no la soporta.
+
+### Recompensas de Validadores
+
+Las recompensas de validadores son un incentivo para ejecutar un validador en la red. Las recompensas son generadas por la red y otorgadas a la intersección de miembros de Capa 1 y validadores UNL activos. Para calificar para las recompensas de validador dentro de un bloque dado de 256 ledgers, lo siguiente debe ser verdad:
+
+* El validador está en el UNL de Xahau.
+* El validador valida exitosamente a los ojos de otros validadores UNL.
+* Cuando la clave pública maestra del validador se convierte en una dirección r, esa cuenta se sienta en la Mesa L1.
+
+Las recompensas son ad hoc y se basan en los Ajustes de Balance de los usuarios de Xahau. Cuando un usuario realiza un Ajuste de Balance, una cantidad igual a su ajuste dividida por 20 se envía a la dirección r de cada uno de los validadores activos que cumplen los criterios anteriores.
+
+## Especificación Técnica
+
+El Hook de Gobernanza se instala en la cuenta génesis por la enmienda XahauGenesis varios ledgers después del ledger 1 en una nueva red. Esta es la mesa L1. Para crear una mesa L2, instale el Hook en una cuenta diferente, luego siente esa cuenta en la mesa L1.
+
+### Parámetros del Hook de Gobernanza
+
+Cuando se instala el Hook de Gobernanza, se instala con un conjunto de HookParameters. Estos especifican la composición inicial de la mesa.
+
+Cada HookParameter tiene un nombre de 3 bytes que consiste en 3 caracteres Ascii o 2 caracteres Ascii y un identificador como se indica a continuación. LE = Little Endian.
+
+```
+Parameter Name: {'I', 'R', 'R'}
+Parameter Value: Initial Reward Rate <8 byte XFL fraction between 0 and 1, LE>
+Parameter Name: {'I', 'R', 'D'}
+Parameter Value: Initial Reward Delay <8 byte LE XFL seconds between rewards>
+Parameter Name: {'I', 'M', 'C'}
+Parameter Value: Initial Member Count <1 byte>
+Parameter Name: {'I', 'S', 0x00}
+Parameter Value: Initial seat #0's member's 20 byte Account ID.
+Parameter Name: {'I', 'S', 0x01}
+Parameter Value: Initial seat #1's member's 20 byte Account ID.
+... etc ... up to at most Seat 19.
+
+```
+
+Para iniciar el juego, se debe enviar una transacción Invoke al Hook. Puede ser enviada por cualquier cuenta. No se requieren Blob ni HookParameters. Esta transacción Invoke activa el Hook por primera vez y le solicita que cree entradas de estado para cada asiento inicial, tasa de recompensa y retraso de recompensa.
+
+### Estado del Hook de Gobernanza
+
+El Estado del Hook del Hook de Gobernanza se almacena en el espacio de nombres cero: `0000000000000000000000000000000000000000000000000000000000000000.`
+
+Hay varios tipos de entradas de estado. El primero son lo que se denominan claves de miembro directas e inversas. Estas mapean cada número de asiento al miembro que se sienta allí y cada miembro al asiento en el que se sienta.
+
+```
+Key: 0x0000000000000000000000000000000000000000000000000000000000000005
+Val: <20 byte AccountID of the member at seat 5 or all 0's or absent.>
+
+Key: <20 byte AccountID of the member at seat 3>
+Val: 0x03
+```
+
+A continuación, hay algunas entradas de estado singleton. Conteo de Miembros, Tasa de Recompensa y Retraso de Recompensa, respectivamente:
+
+```
+Key in Ascii: MC
+Key: 0x0000000000000000000000000000000000000000000000000000000000004D43
+Val: <1 byte member count (how many seats are occupied)>
+
+Key in Ascii: RR
+Key: 0x0000000000000000000000000000000000000000000000000000000000005252
+Val: <8 byte LE XFL reward rate (between 0 and 1 (1 being 100%))>
+
+Key in Ascii: RD
+Key: 0x0000000000000000000000000000000000000000000000000000000000005244
+Val: <8 byte LE XFL reward delay in seconds>
+```
+
+Finalmente, los votos y contadores de votos también se almacenan en el estado del Hook. Cuando un voto es emitido por un asiento, se registra en el estado del Hook de la siguiente manera:
+
+```
+Vote key is 32 bytes comprising:
+    'V' (0x56) - vote
+    'H' (0x48) or 'R' (0x52) or 'S' (0x53) - topic type
+    'R' (0x52) or 'D' (0x44) or 0 (0x00) to 19 (0x13) - topic detail
+     1  (0x01) or  2  (0x02) - target layer for this vote
+    0x00 00 00 00 00 00 00 00 - 8 bytes of padding
+    20 byte Account ID - the voter
+Vote data:
+    20 byte Account ID or 8 byte XFL
+```
+
+Cuando se emite un voto, incrementa una entrada de estado contador de votos. Este contador realiza un seguimiento de cuántos votos hay actualmente para este par tema-dato y permite al Hook accionar el voto cuando la votación supera el umbral requerido. El estado contador es el siguiente:
+
+```
+Counter key is 32 bytes comprising:
+    'C' (0x43) - count
+    'H' (0x48) or 'R' (0x52) or 'S' (0x53) - topic type
+    'R' (0x52) or 'D' (0x44) or 0 (0x00) to 19 (0x13) - topic detail
+     1  (0x01) or  2  (0x02) - target layer for this vote
+     0's for padding
+     vote data or left-truncated vote data
+```
+
+### Transacciones del Hook de Gobernanza
+
+Los miembros interactúan con el Hook de Gobernanza usando transacciones ttINVOKE. Además de esto, el Hook también puede emitir sus propias transacciones ttINVOKE si es una mesa L2 elevando un voto a la mesa L1.
+
+Una transacción de voto contiene un array HookParameters en el nivel superior de la transacción:
+
+```
+{
+    Account: <member's account>,
+    TransactionType: Invoke,
+    NetworkID: 21337,
+    Destination: <table's account>,
+    HookParameters:
+    [
+        {
+            HookParameter:
+            {
+                HookParameterName: "4C",     // L - the target layer
+                HookParameterValue: "01",    // 01 for L1 table, 02 for L2 table
+                                             // note: this is the table the vote is
+                                             // intended for, not the table you're at
+                                             // i.e. for a L2 table you can vote on
+                                             // your own membership or on L1's
+            }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "54",    // T - topic type
+                 HookParameterValue: "4801", // H [0x00-0x09] or
+                                             // S [0x00-0x13] or
+                                             // RR or RD
+             }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "56",    // V - vote data
+                 HookParameterValue: <32 or 20 or 8 bytes of vote data>
+             }
+         }
+    ]
+}
+```
+
+### Borrar un Voto
+
+No hay forma de "eliminar un voto" como tal. Puede cambiar su voto para reflejar la posición actual en su lugar.
+
+Por ejemplo, si nadie se sienta en el asiento 8 y usted ha votado por la cuenta A para sentarse allí, y luego cambia de opinión, puede hacer un voto para vaciar el asiento 8 (aunque ya esté vacante) alineando así su voto con el estado actual del asiento.
+
+Para hacer esto, vota con todos ceros en los datos del voto, con la misma longitud que el tema del voto normalmente requiere. Por lo tanto, para un voto de asiento, esto son 20 bytes de ceros.

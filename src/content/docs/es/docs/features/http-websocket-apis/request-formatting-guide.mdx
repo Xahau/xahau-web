@@ -1,0 +1,63 @@
+---
+title: Guía de Formato de Solicitudes
+---
+### Servidores Públicos
+
+* wss://xahau.network o https://xahau.network (Mainnet)
+* wss://xahau-test.net o https://xahau-test.net (Testnet)
+
+### Solicitudes de Ejemplo
+
+Para enviar una solicitud de ejemplo a la API, use los siguientes comandos.
+
+### Websocket
+
+```
+{
+  "id": 3,
+  "command": "account_info",
+  "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+  "strict": true,
+  "ledger_index": "validated",
+  "api_version": 1
+}
+```
+
+### Estructura de Solicitud WebSocket
+
+Una vez que establezca una conexión WebSocket al servidor `xahaud`, puede enviar comandos como objetos JSON con estos campos:
+
+<table><thead><tr><th>Campo</th><th width="220">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>command</td><td>String</td><td>El nombre del método de la API</td></tr><tr><td>id</td><td>(Múltiple)</td><td><em>(Opcional)</em> Identificador único para la solicitud.</td></tr><tr><td>api_version</td><td>Number</td><td><em>(Opcional)</em> Especifica la versión de la API.</td></tr></tbody></table>
+
+### JSON-RPC
+
+```
+POST https://xahau.network/
+Content-Type: application/json
+
+{
+    "method": "account_info",
+    "params": [
+        {
+            "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+            "strict": true,
+            "ledger_index": "validated",
+            "api_version": 1
+        }
+    ]
+}
+```
+
+### Estructura de Solicitud JSON-RPC
+
+<table><thead><tr><th>Campo</th><th width="220">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>method</td><td>String</td><td>El nombre del método de la API</td></tr><tr><td>params</td><td>Array</td><td><em>(Opcional)</em> Un array de un elemento que contiene un objeto JSON con los parámetros del método.</td></tr></tbody></table>
+
+### Línea de Comandos
+
+```
+xahaud account_info rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y validated strict
+```
+
+### Estructura de Solicitud por Línea de Comandos
+
+<table><thead><tr><th>Campo</th><th width="220">Descripción</th></tr></thead><tbody><tr><td>xahaud</td><td>Comenzar a llamar al servicio xahaud</td></tr><tr><td>method</td><td>El nombre del método de la API</td></tr><tr><td>params</td><td>(Opcional)</td></tr></tbody></table>

@@ -1,0 +1,77 @@
+---
+title: otxn_slot
+description: Cargar la transacción origen en un slot
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+* Coloca la transacción origen en el slot especificado o en uno nuevo si no se indica ninguno
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot (
+    uint32_t slot_no
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_slot(slotno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot_no = 
+		otxn_slot(0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const otxn_slot_no = otxn_slot(0)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre  | Tipo     | Descripción                                                                 |
+| ------- | -------- | --------------------------------------------------------------------------- |
+| slot_no | uint32_t | Número de slot donde colocar la transacción, o 0 para usar el siguiente disponible |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción                              |
+| ------ | ------ | ---------------------------------------- |
+| slotno | number | Número de slot a consultar               |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>El slot en el que se colocó la transacción origen<br /><br /><code>INVALID_ARGUMENT</code><br />- el número de slot excede el máximo permitido<br /><br /><code>NO_FREE_SLOTS</code><br />- no hay slots disponibles para almacenar la transacción origen</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| ErrorCode \| ByteArray | Devuelve el valor del slot como un array de números, o un ErrorCode si falla la consulta                                |
+</TabItem>
+</Tabs>

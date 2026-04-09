@@ -1,0 +1,64 @@
+---
+title: etxn_burden
+description: Obtiene la carga (burden) de una transacción hipotéticamente emitida
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/emitted-transactions">Transacciones emitidas</LinkButton>
+
+### Comportamiento
+
+* Devuelve la carga (burden) que tendrá una transacción emitida.
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_burden (
+    void
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_burden(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t burden = etxn_burden();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const burden = etxn_burden()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+Ninguno
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="165">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>int64_t</td><td>La carga (burden) que necesitará una transacción emitida para poder pasar correctamente a <code>emit()</code></td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="165">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>number</td><td>Devuelve un ErrorCode si hay un error, o el valor actual de la carga en caso de éxito.</td></tr></tbody></table>
+</TabItem>
+</Tabs>

@@ -16,6 +16,12 @@ export default defineConfig({
     starlight({
       title: 'Xahau Docs',
       description: 'Documentation for the Xahau blockchain',
+      defaultLocale: 'root',
+      locales: {
+        root: { label: 'English', lang: 'en' },
+        es: { label: 'Español', lang: 'es' },
+        ja: { label: '日本語', lang: 'ja' },
+      },
       tableOfContents: {
         minHeadingLevel: 1,
         maxHeadingLevel: 3,
@@ -69,30 +75,48 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Get started',
+          translations: { es: 'Primeros pasos', ja: 'はじめる' },
           items: ['docs', 'docs/what-is-different'],
         },
         {
           label: 'Features',
+          translations: { es: 'Características', ja: '機能' },
           items: [
             'docs/features/public-nodes-rpc',
             'docs/features/amendments',
             {
               label: 'Transaction Signing',
+              translations: {
+                es: 'Firma de Transacciones',
+                ja: 'トランザクション署名',
+              },
               autogenerate: { directory: 'docs/features/transaction-signing' },
               collapsed: true,
             },
             {
               label: 'Developer Tooling',
+              translations: {
+                es: 'Herramientas para Desarrolladores',
+                ja: '開発者ツール',
+              },
               autogenerate: { directory: 'docs/features/developer-tooling' },
               collapsed: true,
             },
             {
               label: 'HTTP / WebSocket APIs',
+              translations: {
+                es: 'APIs HTTP / WebSocket',
+                ja: 'HTTP / WebSocket API',
+              },
               autogenerate: { directory: 'docs/features/http-websocket-apis' },
               collapsed: true,
             },
             {
               label: 'Network Features',
+              translations: {
+                es: 'Funcionalidades de Red',
+                ja: 'ネットワーク機能',
+              },
               autogenerate: { directory: 'docs/features/network-features' },
               collapsed: true,
             },
@@ -105,14 +129,23 @@ export default defineConfig({
         },
         {
           label: 'Protocol Reference',
+          translations: {
+            es: 'Referencia del Protocolo',
+            ja: 'プロトコルリファレンス',
+          },
           items: [
             {
               label: 'Transactions',
+              translations: { es: 'Transacciones', ja: 'トランザクション' },
               collapsed: true,
               items: [
                 'docs/protocol-reference/transactions',
                 {
                   label: 'Transaction Types',
+                  translations: {
+                    es: 'Tipos de Transacción',
+                    ja: 'トランザクションタイプ',
+                  },
                   autogenerate: {
                     directory:
                       'docs/protocol-reference/transactions/transaction-types',
@@ -121,6 +154,10 @@ export default defineConfig({
                 },
                 {
                   label: 'Pseudo Transaction Types',
+                  translations: {
+                    es: 'Tipos de Pseudotransacción',
+                    ja: '擬似トランザクションタイプ',
+                  },
                   autogenerate: {
                     directory:
                       'docs/protocol-reference/transactions/pseudo-transaction-types',
@@ -129,6 +166,10 @@ export default defineConfig({
                 },
                 {
                   label: 'Transaction Results',
+                  translations: {
+                    es: 'Resultados de Transacción',
+                    ja: 'トランザクション結果',
+                  },
                   autogenerate: {
                     directory:
                       'docs/protocol-reference/transactions/transaction-results',
@@ -141,11 +182,16 @@ export default defineConfig({
             },
             {
               label: 'Ledger Data',
+              translations: { es: 'Datos del Ledger', ja: 'レジャーデータ' },
               collapsed: true,
               items: [
                 'docs/protocol-reference/ledger-data',
                 {
                   label: 'Ledger Objects Types',
+                  translations: {
+                    es: 'Tipos de Objetos del Ledger',
+                    ja: 'レジャーオブジェクトタイプ',
+                  },
                   autogenerate: {
                     directory:
                       'docs/protocol-reference/ledger-data/ledger-objects-types',
@@ -158,6 +204,7 @@ export default defineConfig({
             },
             {
               label: 'Data Types',
+              translations: { es: 'Tipos de Datos', ja: 'データ型' },
               collapsed: true,
               items: [
                 'docs/protocol-reference/data-types',
@@ -174,6 +221,7 @@ export default defineConfig({
             'docs/hooks',
             {
               label: 'Concepts',
+              translations: { es: 'Conceptos', ja: 'コンセプト' },
               collapsed: true,
               items: [
                 'docs/hooks/concepts/introduction',
@@ -201,15 +249,21 @@ export default defineConfig({
             },
             {
               label: 'Functions',
+              translations: { es: 'Funciones', ja: '関数' },
               collapsed: true,
               items: [
                 {
                   label: 'Overview',
+                  translations: { es: 'Descripción General', ja: '概要' },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/overview' },
                 },
                 {
                   label: 'Developer Defined',
+                  translations: {
+                    es: 'Definidas por el Desarrollador',
+                    ja: '開発者定義',
+                  },
                   collapsed: true,
                   autogenerate: {
                     directory: 'docs/hooks/functions/developer-defined',
@@ -222,11 +276,16 @@ export default defineConfig({
                 },
                 {
                   label: 'Utilities',
+                  translations: { es: 'Utilidades', ja: 'ユーティリティ' },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/utilities' },
                 },
                 {
                   label: 'Serialization',
+                  translations: {
+                    es: 'Serialización',
+                    ja: 'シリアライゼーション',
+                  },
                   collapsed: true,
                   autogenerate: {
                     directory: 'docs/hooks/functions/serialization',
@@ -234,6 +293,10 @@ export default defineConfig({
                 },
                 {
                   label: 'Emitted Transaction',
+                  translations: {
+                    es: 'Transacción Emitida',
+                    ja: '発行トランザクション',
+                  },
                   collapsed: true,
                   autogenerate: {
                     directory: 'docs/hooks/functions/emitted-transaction',
@@ -251,6 +314,10 @@ export default defineConfig({
                 },
                 {
                   label: 'Hook Context',
+                  translations: {
+                    es: 'Contexto del Hook',
+                    ja: 'フックコンテキスト',
+                  },
                   collapsed: true,
                   autogenerate: {
                     directory: 'docs/hooks/functions/hook-context',
@@ -263,11 +330,16 @@ export default defineConfig({
                 },
                 {
                   label: 'State',
+                  translations: { es: 'Estado', ja: '状態' },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/state' },
                 },
                 {
                   label: 'Trace (Debug)',
+                  translations: {
+                    es: 'Traza (Debug)',
+                    ja: 'トレース（デバッグ）',
+                  },
                   collapsed: true,
                   autogenerate: {
                     directory: 'docs/hooks/functions/trace-debug',
@@ -275,6 +347,10 @@ export default defineConfig({
                 },
                 {
                   label: 'Originating Transaction',
+                  translations: {
+                    es: 'Transacción de Origen',
+                    ja: '発信トランザクション',
+                  },
                   collapsed: true,
                   autogenerate: {
                     directory: 'docs/hooks/functions/originating-transaction',
@@ -297,6 +373,7 @@ export default defineConfig({
         },
         {
           label: 'Compliance',
+          translations: { es: 'Cumplimiento', ja: 'コンプライアンス' },
           items: [
             'docs/compliance/security-audit',
             'docs/compliance/responsible-disclosure',
@@ -304,6 +381,7 @@ export default defineConfig({
         },
         {
           label: 'Infrastructure',
+          translations: { es: 'Infraestructura', ja: 'インフラストラクチャ' },
           items: [
             'docs/infrastructure/system-requirements',
             'docs/infrastructure/installing-xahaud',
@@ -314,6 +392,10 @@ export default defineConfig({
             'docs/infrastructure/advanced-configuration',
             {
               label: 'Build xahaud (Advanced)',
+              translations: {
+                es: 'Compilar xahaud (Avanzado)',
+                ja: 'xahaudをビルド（上級）',
+              },
               collapsed: true,
               items: [
                 'docs/infrastructure/build-xahaud',
@@ -325,14 +407,35 @@ export default defineConfig({
         },
         {
           label: 'Resources',
+          translations: { es: 'Recursos', ja: 'リソース' },
           items: ['docs/resources/whitepaper', 'docs/resources/media-kit'],
         },
         {
           label: 'Support',
+          translations: { es: 'Soporte', ja: 'サポート' },
           autogenerate: { directory: 'docs/support' },
         },
       ],
     }),
+    {
+      name: 'i18n-fallback',
+      hooks: {
+        'astro:config:setup': ({ updateConfig, config }) => {
+          // Add fallbacks for pages not in src/content/docs/
+          updateConfig({
+            i18n: {
+              ...config.i18n,
+              fallback: { es: 'en', ja: 'en' },
+              routing: {
+                // @ts-expect-error - ignore type error for config.i18n.routing
+                ...config.i18n.routing,
+                fallbackType: 'rewrite',
+              },
+            },
+          })
+        },
+      },
+    },
     mdx(),
   ],
   markdown: {

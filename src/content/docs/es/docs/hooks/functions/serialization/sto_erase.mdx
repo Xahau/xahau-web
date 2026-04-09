@@ -1,0 +1,121 @@
+---
+title: sto_erase
+description: Eliminar un campo de un STObject
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Parsea un STObject apuntado por `read_ptr`
+* Escribe un nuevo STObject en `write_ptr` pero sin el `field_id` si estaba presente en el objeto original
+</TabItem>
+
+<TabItem label="JavaScript">
+* Busca el objeto STO (datos del ledger codificados en binario) del cual se eliminará el campo
+* Busca el identificador del campo a eliminar
+* Devuelve el objeto STO actualizado en formato binario, o un código de error si falla
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_erase (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t field_id
+);
+````
+
+<Aside type="caution" title="Codificación del Field ID">
+Las APIs `sto_` aceptan un parámetro `field_id` codificado así: `(type << 16U) + field`
+Por ejemplo, tipo 1 campo 2 sería `0x10002U`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_erase(
+    sto: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t result = 
+  sto_erase(tx_out, sizeof(tx_out),
+            tx_in, tx_len, sfSigners);
+
+if (tx_len <= 0)
+rollback("Erasing failed.", 15, 1);
+
+````
+
+<Aside type="tip" title="Equivalencia con Emplace">
+`sto_erase` es equivalente a `sto_emplace` usando `0,0` como `field_ptr, field_len`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_erase(tx_in, sfSigners)
+
+if (typeof tx_out === 'number')
+    rollback("Erasing failed.", 1)
+````
+
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                      |
+| --------- | -------- | ------------------------------------------------ |
+| write_ptr | uint32_t | Buffer donde se escribirá el STObject modificado |
+| write_len | uint32_t | Longitud del buffer de salida                    |
+| read_ptr  | uint32_t | Buffer que contiene el STObject origen           |
+| read_len  | uint32_t | Longitud del objeto origen                       |
+| field_id  | uint32_t | Código `sf` (posición) del campo a eliminar      |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre   | Tipo                   | Descripción                                                                 |
+| -------- | ---------------------- | --------------------------------------------------------------------------- |
+| sto      | ByteArray \| HexString | Objeto STO (datos binarios del ledger) del que se eliminará el campo        |
+| field_id | number                 | Identificador del campo a eliminar                                          |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Número de bytes escritos en <code>write_ptr</code><br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_SMALL</code><br />- el buffer debe ser al menos tan grande como el objeto origen<br /><br /><code>TOO_BIG</code><br />- el campo a eliminar es demasiado grande<br /><br /><code>PARSE_ERROR</code><br />- el STObject es inválido o mal formado<br /><br /><code>DOESNT_EXIST</code><br />- el <code>field_id</code> no existe en el STObject</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                           |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | Objeto STO actualizado en formato binario, o un código de error si la operación falla                |
+</TabItem>
+</Tabs>

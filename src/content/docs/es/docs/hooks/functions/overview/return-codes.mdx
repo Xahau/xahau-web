@@ -1,0 +1,66 @@
+---
+title: Códigos de retorno
+---
+
+### Diseño de códigos de retorno
+
+WebAssembly permite excepciones (traps), sin embargo esta característica no se utiliza en Hooks. En su lugar, solo existe una forma de devolver valores desde cualquier API de Hook (puedes pensar que todas las APIs son `noexcept`).
+
+Para facilitar un manejo eficiente de errores:
+
+1. Todas las funciones de la API de Hooks devuelven un entero _con signo_.
+2. Todos los códigos negativos representan un error.
+3. Todos los códigos `0` o mayores representan una salida válida de la función, normalmente (aunque no siempre) el número de bytes leídos o escritos.
+
+### Códigos de error
+
+Los códigos de error son globales para todas las APIs de Hooks y se muestran en la siguiente tabla:
+
+| Nombre                          | Valor  | Descripción |
+|--------------------------------|--------|-------------|
+| SUCCESS                        | >= 0   | Los valores no negativos indican éxito y normalmente representan bytes escritos o eventos realizados |
+| OUT_OF_BOUNDS                  | -1     | Un puntero o longitud apunta fuera de la memoria permitida del Hook |
+| INTERNAL_ERROR                 | -2     | Error interno, no relacionado con entradas. Debe reportarse |
+| TOO_BIG                        | -3     | Valor o parámetro demasiado grande |
+| TOO_SMALL                      | -4     | Buffer de salida demasiado pequeño |
+| DOESNT_EXIST                   | -5     | Elemento no encontrado |
+| NO_FREE_SLOTS                  | -6     | No hay slots disponibles (máximo 255) |
+| INVALID_ARGUMENT               | -7     | Parámetro inválido |
+| ALREADY_SET                    | -8     | Parámetro ya establecido previamente |
+| PREREQUISITE_NOT_MET           | -9     | Falta requisito previo para llamar a la API |
+| FEE_TOO_LARGE                  | -10    | Fee calculado excesivamente grande |
+| EMISSION_FAILURE               | -11    | Fallo al ejecutar `emit()` |
+| TOO_MANY_NONCES                | -12    | Más de 256 llamadas a `nonce()` |
+| TOO_MANY_EMITTED_TXN           | -13    | Se emitieron más transacciones de las declaradas |
+| NOT_IMPLEMENTED                | -14    | API no implementada completamente |
+| INVALID_ACCOUNT                | -15    | Account ID inválido |
+| GUARD_VIOLATION                | -16    | Violación del límite de iteraciones en bucle |
+| INVALID_FIELD                  | -17    | Campo serializado inválido |
+| PARSE_ERROR                    | -18    | Error al parsear datos |
+| RC_ROLLBACK                    | -19    | Evento interno de rollback |
+| RC_ACCEPT                      | -20    | Evento interno de aceptación |
+| NO_SUCH_KEYLET                 | -21    | Keylet no encontrado o inválido |
+| NOT_AN_ARRAY                   | -22    | Objeto no es un array |
+| NOT_AN_OBJECT                  | -23    | Objeto no es un objeto válido |
+| INVALID_FLOAT                  | -10024 | Número flotante inválido |
+| DIVISION_BY_ZERO               | -25    | División por cero |
+| MANITSSA_OVERSIZED             | -26    | Mantisa demasiado grande |
+| MANTISSA_UNDERSIZED            | -27    | Mantisa demasiado pequeña |
+| EXPONENT_OVERSIZED             | -28    | Exponente demasiado grande |
+| EXPONENT_UNDERSIZED            | -29    | Exponente demasiado pequeño |
+| OVERFLOW                       | -30    | Overflow en operación XFL |
+| NOT_IOU_AMOUNT                 | -31    | Se esperaba IOU pero era XRP |
+| NOT_AN_AMOUNT                  | -32    | Objeto no es un STAmount |
+| CANT_RETURN_NEGATIVE           | -33    | No se puede devolver valor negativo |
+| NOT_AUTHORIZED                 | -34    | No autorizado para modificar estado |
+| PREVIOUS_FAILURE_PREVENTS_RETRY| -35    | Fallo previo impide reintento |
+| TOO_MANY_PARAMS                | -36    | Demasiados parámetros en hook |
+| INVALID_TXN                    | -37    | Transacción inválida |
+| RESERVE_INSUFFICIENT           | -38    | Reserva insuficiente |
+| COMPLEX_NOT_SUPPORTED          | -39    | Resultado complejo no soportado |
+| DOES_NOT_MATCH                 | -40    | Tipos incompatibles |
+| INVALID_KEY                    | -41    | Clave pública inválida |
+| NOT_A_STRING                   | -42    | No es una cadena válida |
+| MEM_OVERLAP                    | -43    | Buffers solapados |
+| TOO_MANY_STATE_MODIFICATIONS   | -44    | Demasiadas modificaciones de estado |
+| TOO_MANY_NAMESPACES            | -45    | Demasiados namespaces |

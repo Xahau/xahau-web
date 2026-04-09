@@ -1,5 +1,6 @@
 'use client'
 
+import { getRelativeLocaleUrl } from 'astro:i18n'
 import {
   Dialog,
   DialogPanel,
@@ -14,49 +15,65 @@ import {
 import {
   Bars3Icon,
   ChevronDownIcon,
+  GlobeAltIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid'
 import { useState } from 'react'
-
-const socials = [
-  { name: 'Events', href: '/connect' },
-  { name: 'Dev Contest', href: '/contest' },
-  { name: 'X', href: 'https://x.com/XahauNetwork' },
-  { name: 'GitHub', href: 'https://github.com/Xahau' },
-  { name: 'Community Discord', href: 'https://discord.com/invite/UzU58haAn4' },
-]
-
-const docs = [
-  { name: 'Get started', href: '/docs' },
-  { name: 'Protocol Reference', href: '/docs/protocol-reference/transactions' },
-  { name: 'Hooks', href: '/docs/hooks' },
-  { name: 'Data APIs', href: '/docs/data-apis' },
-  { name: 'Infrastructure', href: '/docs/infrastructure/system-requirements' },
-  { name: 'Whitepaper', href: '/docs/resources/whitepaper' },
-]
-
-const explorers = [
-  { name: 'XAHSCAN', href: 'https://xahscan.com/' },
-  { name: 'Bithomp Xahau Explorer', href: 'https://xahauexplorer.com/en' },
-  { name: 'XRPLWin Xahau Explorer', href: 'https://xahau.xrplwin.com/' },
-  { name: 'Technical Explorer', href: 'https://explorer.xahau.network/' },
-]
-
-// Navigation items definition shared between desktop and mobile
-const navItems = [
-  { name: 'About', href: '/about', urlPattern: 'about' },
-  { name: 'Features', href: '/features', urlPattern: 'features' },
-  { name: 'Ecosystem', href: '/ecosystem', urlPattern: 'ecosystem' },
-  { name: 'Roadmap', href: '/roadmap', urlPattern: 'roadmap' },
-  { name: 'Documentation', children: docs, urlPattern: 'docs' },
-  { name: 'Connect', children: socials },
-  { name: 'Explorers', children: explorers },
-]
-
 import logo from '../assets/xahau-logo.svg'
 
-const XahauLogo = () => (
-  <a href="/" className="-m-1.5 p-1.5">
+const languages = [
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' },
+  // { code: 'ja', label: '日本語' },
+]
+
+const nav = {
+  en: {
+    about: 'About',
+    features: 'Features',
+    ecosystem: 'Ecosystem',
+    roadmap: 'Roadmap',
+    docs: 'Documentation',
+    connect: 'Connect',
+    explorers: 'Explorers',
+    events: 'Events',
+    getstarted: 'Get started',
+    protocol: 'Protocol Reference',
+    infra: 'Infrastructure',
+    discord: 'Community Discord',
+  },
+  es: {
+    about: 'Acerca de',
+    features: 'Características',
+    ecosystem: 'Ecosistema',
+    roadmap: 'Hoja de ruta',
+    docs: 'Documentación',
+    connect: 'Conectar',
+    explorers: 'Exploradores',
+    events: 'Eventos',
+    getstarted: 'Primeros pasos',
+    protocol: 'Referencia de Protocolo',
+    infra: 'Infraestructura',
+    discord: 'Discord de la Comunidad',
+  },
+  ja: {
+    about: 'Xahauについて',
+    features: '機能',
+    ecosystem: 'エコシステム',
+    roadmap: 'ロードマップ',
+    docs: 'ドキュメント',
+    connect: 'コネクト',
+    explorers: 'エクスプローラー',
+    events: 'イベント',
+    getstarted: 'はじめる',
+    protocol: 'プロトコルリファレンス',
+    infra: 'インフラストラクチャ',
+    discord: 'コミュニティDiscord',
+  },
+}
+
+const XahauLogo = ({ href }) => (
+  <a href={href} className="-m-1.5 p-1.5">
     <span className="sr-only">Xahau</span>
     <img src={logo.src} width="222" height="40" alt="Xahau Logo" />
   </a>
@@ -65,6 +82,95 @@ const XahauLogo = () => (
 export default function Header(props) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
+  const pathname = props.url.pathname
+  const currentLocale = props.locale || 'en'
+  const t = nav[currentLocale] || nav.en
+
+  function langUrl(code) {
+    const prefix = currentLocale !== 'en' ? `/${currentLocale}` : ''
+    const basePath = prefix ? pathname.slice(prefix.length) || '/' : pathname
+    if (code === 'en') return basePath
+    return basePath === '/' ? `/${code}` : `/${code}${basePath}`
+  }
+
+  const socials = [
+    { name: t.events, href: getRelativeLocaleUrl(currentLocale, '/connect') },
+    {
+      name: 'Dev Contest',
+      href: getRelativeLocaleUrl(currentLocale, '/contest'),
+    },
+    { name: 'X', href: 'https://x.com/XahauNetwork' },
+    { name: 'GitHub', href: 'https://github.com/Xahau' },
+    { name: t.discord, href: 'https://discord.com/invite/UzU58haAn4' },
+  ]
+
+  const docs = [
+    { name: t.getstarted, href: getRelativeLocaleUrl(currentLocale, '/docs') },
+    {
+      name: t.protocol,
+      href: getRelativeLocaleUrl(
+        currentLocale,
+        '/docs/protocol-reference/transactions',
+      ),
+    },
+    { name: 'Hooks', href: getRelativeLocaleUrl(currentLocale, '/docs/hooks') },
+    {
+      name: 'Data APIs',
+      href: getRelativeLocaleUrl(currentLocale, '/docs/data-apis'),
+    },
+    {
+      name: t.infra,
+      href: getRelativeLocaleUrl(
+        currentLocale,
+        '/docs/infrastructure/system-requirements',
+      ),
+    },
+    {
+      name: 'Whitepaper',
+      href: getRelativeLocaleUrl(currentLocale, '/docs/resources/whitepaper'),
+    },
+  ]
+
+  const explorers = [
+    { name: 'XAHSCAN', href: 'https://xahscan.com/' },
+    { name: 'Bithomp Xahau Explorer', href: 'https://xahauexplorer.com/en' },
+    { name: 'XRPLWin Xahau Explorer', href: 'https://xahau.xrplwin.com/' },
+    { name: 'Technical Explorer', href: 'https://explorer.xahau.network/' },
+  ]
+
+  const navItems = [
+    {
+      name: t.about,
+      href: getRelativeLocaleUrl(currentLocale, '/about'),
+      urlPattern: 'about',
+    },
+    {
+      name: t.features,
+      href: getRelativeLocaleUrl(currentLocale, '/features'),
+      urlPattern: 'features',
+    },
+    {
+      name: t.ecosystem,
+      href: getRelativeLocaleUrl(currentLocale, '/ecosystem'),
+      urlPattern: 'ecosystem',
+    },
+    {
+      name: t.roadmap,
+      href: getRelativeLocaleUrl(currentLocale, '/roadmap'),
+      urlPattern: 'roadmap',
+    },
+    { name: t.docs, children: docs, urlPattern: 'docs' },
+    { name: t.connect, children: socials },
+    { name: t.explorers, children: explorers },
+  ]
+
+  const pathSegments = pathname.slice(1).split('/')
+  const activeSegment =
+    currentLocale !== 'en' ? pathSegments[1] : pathSegments[0]
+
+  const dropdownItemClass =
+    'group relative flex items-center gap-x-6 p-2 text-sm/6'
+
   return (
     <header className="header bg-xahau-background z-20">
       <nav
@@ -72,7 +178,7 @@ export default function Header(props) {
         className="mx-auto flex max-w-7xl items-center justify-between p-6"
       >
         <div className="flex lg:flex-1">
-          <XahauLogo />
+          <XahauLogo href={getRelativeLocaleUrl(currentLocale, '/')} />
         </div>
         <div className="flex lg:hidden">
           <button
@@ -84,13 +190,12 @@ export default function Header(props) {
             <Bars3Icon aria-hidden="true" className="size-6" />
           </button>
         </div>
+
         {/* Desktop navigation */}
-        <PopoverGroup className="hidden lg:flex lg:gap-x-12">
+        <PopoverGroup className="hidden lg:flex lg:gap-x-12 lg:items-center">
           {navItems.map((navItem) => {
             const isActive =
-              navItem.urlPattern &&
-              props.url.pathname.slice(1).split('/')[0] === navItem.urlPattern
-            // Single link item
+              navItem.urlPattern && activeSegment === navItem.urlPattern
             if (navItem.href) {
               return (
                 <a
@@ -102,7 +207,6 @@ export default function Header(props) {
                 </a>
               )
             }
-            // Dropdown item
             return (
               <Popover key={navItem.name} className="relative">
                 <PopoverButton
@@ -128,9 +232,7 @@ export default function Header(props) {
                         }
                         className="no-underline block font-regular text-white"
                       >
-                        <div className="group relative flex items-center gap-x-6 p-2 text-sm/6">
-                          {item.name}
-                        </div>
+                        <div className={dropdownItemClass}>{item.name}</div>
                       </a>
                     ))}
                   </div>
@@ -138,8 +240,43 @@ export default function Header(props) {
               </Popover>
             )
           })}
+
+          {/* Language switcher */}
+          <Popover className="relative">
+            <PopoverButton
+              className="no-underline p-0 border-none text-black flex items-center gap-x-1 bg-transparent hover:cursor-pointer"
+              aria-label="Select language"
+            >
+              <GlobeAltIcon className="size-5 text-black" />
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="size-4 flex-none text-black"
+              />
+            </PopoverButton>
+            <PopoverPanel
+              transition
+              className="absolute right-0 z-10 mt-3 w-40 overflow-hidden bg-xahau-gray shadow-lg ring-1 ring-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+            >
+              <div className="p-2">
+                {languages.map((lang) => (
+                  <a
+                    key={lang.code}
+                    href={langUrl(lang.code)}
+                    className={`no-underline flex items-center gap-x-2 px-3 py-2 text-sm text-white hover:bg-white/10 ${currentLocale === lang.code ? 'font-bold' : 'font-regular'}`}
+                  >
+                    <span>{lang.label}</span>
+                    {currentLocale === lang.code && (
+                      <span className="ml-auto">✓</span>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </PopoverPanel>
+          </Popover>
         </PopoverGroup>
       </nav>
+
+      {/* Mobile menu */}
       <Dialog
         open={mobileMenuOpen}
         onClose={setMobileMenuOpen}
@@ -148,7 +285,7 @@ export default function Header(props) {
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <XahauLogo />
+            <XahauLogo href={getRelativeLocaleUrl(currentLocale, '/')} />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
@@ -163,10 +300,7 @@ export default function Header(props) {
               <div className="space-y-2 py-6">
                 {navItems.map((navItem) => {
                   const isActive =
-                    navItem.urlPattern &&
-                    props.url.pathname.slice(1).split('/')[0] ===
-                      navItem.urlPattern
-                  // Single link item
+                    navItem.urlPattern && activeSegment === navItem.urlPattern
                   if (navItem.href) {
                     return (
                       <a
@@ -178,7 +312,6 @@ export default function Header(props) {
                       </a>
                     )
                   }
-                  // Dropdown item
                   return (
                     <Disclosure key={navItem.name} as="div" className="-mx-3">
                       <DisclosureButton
@@ -210,6 +343,36 @@ export default function Header(props) {
                     </Disclosure>
                   )
                 })}
+              </div>
+
+              {/* Mobile language selector */}
+              <div className="py-6">
+                <Disclosure as="div" className="-mx-3">
+                  <DisclosureButton className="border-none rounded-lg py-2 text-base/7 hover:bg-gray-50 text-black bg-transparent group flex w-full items-center justify-between pr-3.5 pl-3 font-regular no-underline">
+                    <span className="flex items-center gap-x-2">
+                      <GlobeAltIcon className="size-5 text-black" />
+                      {languages.find((l) => l.code === currentLocale)?.label}
+                    </span>
+                    <ChevronDownIcon
+                      aria-hidden="true"
+                      className="size-5 flex-none group-data-open:rotate-180"
+                    />
+                  </DisclosureButton>
+                  <DisclosurePanel className="mt-2 space-y-1">
+                    {languages.map((lang) => (
+                      <a
+                        key={lang.code}
+                        href={langUrl(lang.code)}
+                        className={`no-underline flex items-center gap-x-2 rounded-lg py-2 pr-3 pl-6 text-sm/7 text-black hover:bg-gray-50 ${currentLocale === lang.code ? 'font-bold' : 'font-regular'}`}
+                      >
+                        <span>{lang.label}</span>
+                        {currentLocale === lang.code && (
+                          <span className="ml-auto text-xs">✓</span>
+                        )}
+                      </a>
+                    ))}
+                  </DisclosurePanel>
+                </Disclosure>
               </div>
             </div>
           </div>

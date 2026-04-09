@@ -1,0 +1,63 @@
+---
+title: ClaimReward
+description: >-
+  Una transacción ClaimReward permite a una cuenta reclamar las recompensas
+  acumuladas. Las recompensas pueden ser reclamadas por el propietario de la
+  cuenta o por un emisor especificado. La cuenta también puede optar por
+  no recibir recompensas.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/ClaimReward.cpp)]
+
+_(Añadido por la enmienda \[BalanceRewards]\[].)_
+
+### Opt-in + Reclamación
+
+```json
+{
+    "TransactionType": "ClaimReward",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+}
+```
+
+### Opt-out
+
+```json
+{
+    "TransactionType": "ClaimReward",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 1
+}
+```
+
+### Campos
+
+| Campo     | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                          |
+| --------- | --------- | ------------------- | -------------------------------------------------------------------- |
+| `Account` | String    | AccountID           | La dirección de la cuenta que está reclamando la recompensa.         |
+| `Flags`   | Number    | UInt32              | _(Opcional)_ Puede tener el indicador 1 activado para optar por no recibir recompensas. |
+| `Issuer`  | String    | AccountID           | _(Opcional)_ La cuenta génesis.                                      |
+
+### Indicadores ClaimReward
+
+Las transacciones del tipo ClaimReward admiten valores adicionales en el campo `Flags`, de la siguiente manera:
+
+| Nombre del Indicador | Valor Hex    | Valor Decimal | Descripción                                                                                                                                                                                                           |
+| -------------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfOptOut`           | `0x00000001` | 1             | El indicador `isOptOut` en el código ClaimReward se usa para optar una cuenta por no recibir recompensas eliminando los campos relacionados con recompensas del objeto de cuenta en el ledger si el campo `sfFlags` de la transacción se establece en 1. |
+
+### Costo de Transacción Especial
+
+La transacción ClaimReward tiene un costo de transacción estándar, que es el costo mínimo de transacción requerido para todas las transacciones.
+
+### Casos de Error
+
+Además de los errores que pueden ocurrir para todas las transacciones, las transacciones ClaimReward pueden resultar en los siguientes códigos de resultado:
+
+| Código de Error   | Descripción                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`     | Ocurre si la función no está habilitada.                                                                |
+| `temINVALID_FLAG` | Ocurre si el indicador se establece en un valor distinto de 1.                                          |
+| `temMALFORMED`    | Ocurre si el emisor es el mismo que la cuenta fuente o si el indicador y el emisor no están correctamente establecidos. |
+| `tecNO_ISSUER`    | Ocurre si el emisor no existe.                                                                          |
+| `terNO_ACCOUNT`   | Ocurre si la cuenta emisora no existe.                                                                  |

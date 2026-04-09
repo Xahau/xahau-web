@@ -1,0 +1,95 @@
+---
+title: accept
+description: Acepta la transacción originaria y confirma los cambios realizados por el hook.
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/introduction">Introducción</LinkButton>
+<LinkButton href="/es/docs/hooks/concepts/execution-metadata">Metadatos de ejecución</LinkButton>
+
+### Comportamiento
+
+Finaliza la ejecución del hook con estado: éxito.
+
+* Registra una cadena de retorno y un código de retorno en los metadatos de la transacción.
+* Confirma todos los cambios de estado.
+* Envía todas las transacciones `emit()`.
+* Permite que la transacción originaria continúe.
+
+<Aside type="caution">
+Si la transacción originaria se detiene por otra razón, este accept se convierte en un rollback. Ver: orden de ejecución.
+</Aside>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t accept (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint64_t error_code
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function accept(msg: string, code: number): number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+accept("Éxito", 7, 100);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+accept('Éxito', 100)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre      | Tipo      | Descripción                                                                                                                                                                      |
+| ----------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr    | uint32_t  | <p>Puntero a una cadena de retorno que se almacenará en los metadatos de ejecución.<br />Puede ser cualquier texto definido por el desarrollador. <em>Puede ser nulo.</em></p>     |
+| read_len    | uint32_t  | Longitud de la cadena de retorno. Máximo 32. <em>Puede ser nulo.</em>                                                                                                            |
+| error_code  | uint64_t  | <p>Código de retorno específico del hook que se almacenará en los metadatos.<br /><br />Similar al código de salida de una aplicación en sistemas *nix. Por convención, éxito es 0.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción                                                                                                                                                                      |
+| ------ | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| msg    | string | <p>Cadena que se almacenará en los metadatos de ejecución.<br />Puede ser cualquier texto definido por el desarrollador. <em>Puede ser nulo.</em></p>                             |
+| code   | number | <p>Código de retorno específico del hook que se almacenará en los metadatos.<br /><br />Similar al código de salida en sistemas *nix. Por convención, éxito es 0.</p>            |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo    | Descripción                                                                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | Accept finaliza el hook, por lo que no devuelve valor al llamador. Por convención todas las APIs devuelven `int64_t`, pero aquí no se retorna nada. |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descripción                                                                                                                                          |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| number | Accept finaliza el hook, por lo que no devuelve valor al llamador. Por convención las APIs devuelven un número, pero aquí no se retorna nada.       |
+</TabItem>
+</Tabs>

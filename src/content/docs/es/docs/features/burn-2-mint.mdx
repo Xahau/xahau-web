@@ -1,0 +1,291 @@
+---
+title: Burn 2 Mint (B2M)
+description: >-
+  Burn2Mint es una primitiva de intercadena de bajo nivel y está pensada para usuarios
+  empresariales que necesitan autoabastecer su propia liquidez según sus propios propósitos.
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+Dado que la enmienda ZeroB2M ha sido aprobada en Xahau, Burn 2 Mint (B2M) ya no está disponible para acuñar nuevos activos. B2M sigue disponible, pero solo para **sincronización de claves** o para activar una cuenta (para lo cual la información y los procedimientos a continuación siguen siendo relevantes)
+
+[https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0](https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0)
+</Aside>
+
+## Manual Técnico de Burn2Mint (Xahau Testnet)
+
+<Aside type="caution">
+**Este proceso es deliberadamente no trivial y no está diseñado para usuarios finales.** Los errores resultan en que una quema no pueda convertirse en una acuñación.
+
+Esta es una advertencia que aparecerá en la versión de producción de este documento. Puede ignorarla porque está quemando XRP de testnet gratuito en este caso.
+</Aside>
+
+Burn2Mint es una primitiva de intercadena de bajo nivel pensada para usuarios empresariales que necesitan autoabastecer su liquidez según sus propósitos. Ejecutar sus propios nodos y realizar esta operación usted mismo en sus nodos significa que usted y solo usted asume la responsabilidad del resultado del procedimiento.
+
+La generación y recopilación de XPOPs depende fundamentalmente de recopilar mensajes de validación en la red overlay, que son efímeros por naturaleza. Si sus nodos no están conectados de forma confiable, o si su hardware, conexión de red o sistema operativo falla en el momento equivocado, entonces el XPOP para una Transacción de Quema podría no generarse o podría no generarse correctamente. Esto puede llevar a la pérdida de fondos ya que el XPOP de la Transacción de Quema no fue capturado a tiempo, y es posible que los mensajes de validación se pierdan para siempre, haciendo imposible una Transacción de Acuñación a pesar de una Transacción de Quema exitosa.
+
+Si no se siente cómodo asumiendo estos riesgos técnicos o no comprende lo que está haciendo, o no es un usuario empresarial, por favor obtenga su liquidez a través de otras alternativas amigables.
+
+### Configuración
+
+Para realizar B2M, el usuario debe operar _dos_ nodos del protocolo XRPL:
+
+1. **Obtener xPOP de la quema**
+
+<Tabs>
+<TabItem label="xPOP Collector & Server (más fácil)">
+Ejecute esto (por ejemplo, usando Docker Compose; vea la documentación del repositorio)\
+[**https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP**](https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP)
+
+* El servicio escucha los mensajes de validación de XRPL, los ledgers cerrados y las transacciones.
+* Almacena estos datos en un sistema de archivos organizado.
+* Es esencial para generar xPOPs, ya que los mensajes de validación de XRPL son efímeros; sin almacenarlos, una quema de transacción no puede convertirse en una acuñación.
+* **Cómo funciona**:
+  * Un observador se conecta a múltiples nodos XRPL y escucha datos específicos.
+  * Los datos capturados luego se guardan, organizan y usan para generar xPOPs
+
+Simplemente obtenga el xPOP ahora desde:\
+`http[s]://{su-host}:{su-puerto}/xpop/{tx-hash}`
+
+Puede obtener/crear fácilmente xPOPs desde un nodo usando el repositorio anterior con este paquete NPM:
+
+[**https://www.npmjs.com/package/xpop**](https://www.npmjs.com/package/xpop)
+</TabItem>
+
+<TabItem label='o: "Nodo de Quema" dedicado'>
+**Nodo de Quema**, que comprende:
+
+* Una instancia de Rippled modificada (modificada para registrar XPOPs)
+* Binario universal de linux aquí: [https://tvntezq.dlvr.cloud/rippled_with_xpop](https://tvntezq.dlvr.cloud/rippled_with_xpop)
+* [https://github.com/RichardAH/rippled/tree/proof-of-burn](https://github.com/RichardAH/rippled/tree/proof-of-burn)
+* Ejecutándose con un rippled.cfg que tiene:
+  * una estrofa **\[xpop_dir]** que especifica un directorio de salida para los XPOPs generados.
+  * una estrofa **\[network_id]** que especifica network_id: 1
+    * (en producción esto sería la red 0)
+  *   un `validators.txt` que contiene:\\
+
+      ```
+      [validator_list_sites]
+      https://vl.altnet.rippletest.net
+      [validator_list_keys]
+      ED264807102805220DA0F312E71FC2C69E1552C9C5790F6C25E3729DEB573D5860
+      ```
+</TabItem>
+</Tabs>
+
+2. **Acuñar**
+
+* En este escenario de prueba, se conectará directamente a Xahau. No necesita ejecutar su propio nodo. En el escenario de producción, necesitará ejecutar un nodo de Acuñación, que es simplemente un nodo estándar para la red de destino. Esto se debe a que los nodos públicos probablemente optarán por no aceptar transacciones Import debido al riesgo legal.
+  * Conéctese a **wss://xahau-test.net**
+  * O descargue/ejecute: [**https://github.com/Xahau/Xahau-Testnet-Docker**](https://github.com/Xahau/Xahau-Testnet-Docker)
+
+## Ejemplo (nodejs)
+
+Este ejemplo crea una cuenta de testnet, quema 10 XRP y luego los importa en Xahau Testnet, usando el xPOP obtenido con las herramientas mencionadas anteriormente.
+
+```js
+import { derive, utils, signAndSubmit } from 'xrpl-accountlib'
+import { TxData } from 'xrpl-txdata'
+import { XrplClient } from 'xrpl-client'
+import { xpop, setEndpoints as xpopEndpoints } from 'xpop'
+import fetch from 'node-fetch'
+
+// Lo anterior requiere:
+//   npm install xrpl-accountlib xrpl-txdata xrpl-client xpop node-fetch
+
+console.log('Obteniendo cuenta de XRPL Testnet (faucet)')
+const faucet = await (await fetch('https://faucet.altnet.rippletest.net/accounts', { method: 'POST' })).json()
+console.log(' -->', faucet.account.address)
+const account = derive.familySeed(faucet.account.secret)
+
+xpopEndpoints((await (await fetch('https://xrpl.ws-stats.com/xpop/list?json=true')).json()).bestguess)
+
+const nodes = {
+  testnet: [
+    new XrplClient('wss://s.altnet.rippletest.net:51233'),
+    new XrplClient('wss://testnet.xrpl-labs.com'),
+  ],
+  xahau: [
+    new XrplClient('wss://xahau-test.net'),
+  ]
+}
+
+console.log('Esperando que las conexiones de red estén listas')
+await Promise.all(Object.keys(nodes).map(k => Promise.race(nodes[k].map(n => n.ready()))))
+
+console.log('Esperando financiación de la cuenta faucet y obteniendo valores de red...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // Esperar hasta que el ledger cierre
+
+const [
+  testnetParams,
+  xahauParams,
+] = await Promise.all([
+  Promise.race(nodes.testnet.map(n => utils.accountAndLedgerSequence(n, account))),
+  Promise.race(nodes.xahau.map(n => utils.accountAndLedgerSequence(n, account))),
+])
+
+const testnetTx = {
+  ...testnetParams.txValues,
+  TransactionType: 'AccountSet',
+  Fee: String(10_000_000),
+  OperationLimit: xahauParams.txValues.NetworkID,
+  NetworkID: undefined, // Testnet tiene un NetworkID < 1024, por lo que no se debe proporcionar ninguno
+}
+
+console.log('Enviando quema...', testnetTx)
+const testnetSubmitted = await Promise.race(nodes.testnet.map(n => signAndSubmit(testnetTx, n, account)))
+console.log('Quema enviada a testnet')
+console.log(' -->', 'https://testnet.xrpl.org/transactions/' + testnetSubmitted.tx_id)
+
+console.log('Obteniendo datos de la tx de quema...')
+
+const txdata = new TxData(nodes.testnet.map(n => n.getState().server.uri), {
+  AllowNoFullHistory: true,
+  EndpointTimeoutMs: 2_000,
+  OverallTimeoutMs: 10_000,
+})
+
+const appliedtx = await txdata.getOne(testnetSubmitted.tx_id)
+console.log(' -->', 'Quema validada en el ledger', appliedtx?.result?.ledger_index)
+
+console.log('Esperando el cierre del ledger antes de obtener el xPOP...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // Esperar hasta que el ledger cierre
+
+console.log('Obteniendo xPOP...')
+
+const Blob = await xpop(testnetSubmitted.tx_id, appliedtx?.result?.ledger_index, 1)
+
+console.log(' -->', 'xPOP obtenido, longitud hex:', Blob.length)
+
+const hooksTx = {
+  ...xahauParams.txValues,
+  TransactionType: 'Import',
+  Fee: '0',
+  Blob,
+}
+
+console.log('Enviando para acuñar el xPOP...')
+
+const b2mSubmitted = await Promise.race(nodes.xahau.map(n => signAndSubmit(hooksTx, n, account)))
+
+console.log(' -->', '¡B2M enviado! TX en Xahau Testnet:')
+console.log(' -->', 'https://test.xahauexplorer.com/explorer/' + b2mSubmitted?.tx_id)
+console.log('     -->', b2mSubmitted.response.engine_result, b2mSubmitted.response.engine_result_message)
+
+// Cerrando conexiones
+Object.keys(nodes).map(k => nodes[k].map(n => n.close()))
+```
+[Fuente](https://gist.github.com/WietseWind/cd8a7a8c88f218fe7b768f59a665685d)
+
+## Resumen Técnico del procedimiento B2M
+
+#### Nuevo Tipo de Transacción: `Import`
+
+Xahau Testnet (_network_id=21338_) introduce un nuevo tipo de transacción llamado _**Import**_, que acepta un XPOP de la cadena de testnet de Ripple (_network_id=1_) y proporciona una transferencia de valor unidireccional "burn-to-mint" y sincronización de claves/cuentas.
+
+### Transacción de Quema
+
+Una _**Transacción de Quema**_ es una transacción que quema XRP en una cadena XRPL fuente, la cual se usaría como prueba (XPOP) para acuñar en una cadena XRPL de destino.
+
+Los siguientes tipos de transacciones son compatibles:
+
+* AccountSet
+* SetRegularKey
+* SignerListSet.
+
+<Aside type="caution">
+Los Tickets _**no son aceptados**_ en **ninguna** Transacción de Quema y llevarían a que una Transacción de Quema sea inválida para acuñar. Para protegerse contra el spam, las transacciones deben validarse con un número de secuencia real y natural.
+</Aside>
+
+Tenga en cuenta que otros tipos de transacciones no son actualmente compatibles y no pueden usarse para acuñar en Xahau Testnet. (Sin embargo, esto puede cambiar).
+
+Los tres tipos de transacciones pueden usarse para acuñar. Esto significa que la _**Tarifa**_ quemada por la Transacción de Quema se acuña posteriormente en Xahau Testnet después de un `Import` exitoso.
+
+Si se usa `SetRegularKey` o `SignerListSet`, entonces la sincronización de claves ocurre de acuerdo con las reglas estándar del tipo de transacción. Si se usa `AccountSet`, entonces no se produce sincronización de claves en la cadena XRPL de destino (Xahau Testnet).
+
+Un campo llamado _**OperationLimit**_ debe estar presente en la Transacción de Quema para ser el ID de red de la cadena de destino. Este campo es para prevenir ataques de repetición en otras cadenas integradas con B2M.
+
+La Transacción de Quema puede usarse para Acuñar si tiene un código de transacción **tesSUCCESS** o _cualquiera_ de los códigos de transacción **tec**. Esto significa que _si_ se quemó la tarifa, entonces la transacción puede usarse para acuñar. Sin embargo, la sincronización de claves _solo_ ocurre cuando el resultado de la Transacción de Quema fue tesSUCCESS.
+
+Ejemplo de Transacción de Quema:
+
+```json
+{
+	"TransactionType": "AccountSet",
+	"Fee": 10000000,
+	"OperationLimit": 21338
+}
+```
+
+### Recopilación de XPOP
+
+Antes de enviar la Transacción de Quema, asegúrese de que su Nodo de Quema esté sincronizado con la cadena de testnet (ID de red: `1`).
+
+Después de verificar el estado de su Nodo de Quema, envíe la Transacción de Quema firmada al Nodo de Quema.
+
+El Nodo de Quema monitorea los ledgers cerrados en busca de transacciones que contengan el campo **OperationLimit** y usa los mensajes de validación recopilados para generar un XPOP (Prueba de Quema). Estos se escriben en un archivo bajo el directorio especificado en la estrofa **\[xpop_dir]** en el `rippled.cfg` del Nodo de Quema.
+
+Espere a que el ledger cierre, luego busque en el xpop_dir el XPOP de la Transacción de Quema según su TXID. El archivo contiene un documento JSON, que es el XPOP que retransmitirá a la cadena XRPL de destino (HooksV3).
+
+Tome el contenido bruto de este archivo y codifíquelo como HEX. Esto se convertirá en el contenido del campo _Blob_ en la transacción `Import`.
+
+### Transacción de Acuñación
+
+Su codec binario estará al que le falten los campos necesarios para construir la transacción `Import` (Acuñación). Si está usando ripple-binary-codec, puede actualizar su archivo `definitions.json` de la siguiente manera:
+
+1. Cambie de directorio a `node_modules`
+2. Ejecute `find . | grep 'dist/enums/definitions.json'` para localizar el archivo relevante a actualizar
+3. Conéctese a **wss://hooks-testnet-v3.xrpl-labs.com**
+4. Solicitud: `{"command":"server_definitions"}`
+5. Vuelque el contenido de la clave `"result"` en `definitions.json` del paso 2.
+
+El tipo de transacción `Import` toma solo un campo no común _**Blob.**_. Este debe contener el XPOP codificado en HEX de la fase de Recopilación de XPOP.
+
+* Puede hacer esto con `cat xpopjsonfile | xxd -p | tr -d '\n'`
+
+El campo `Account` y el campo `SigningPubKey` (o el array Signers) deben coincidir exactamente entre la Transacción de Quema y la Transacción de Acuñación. Los usuarios solo pueden acuñar en la misma cuenta desde la que quemaron.
+
+Si el campo `Account` especifica una cuenta que aún no existe en Xahau Testnet, será creada. En este caso, use 0 para el campo `Sequence` en la Transacción de Acuñación. Si la cuenta ya existe en Xahau Testnet, use el siguiente número de Sequence disponible en la cuenta en Xahau Testnet.
+
+Ejemplo de Import:
+
+```json
+{
+	"Account": "<igual que en la Transacción de Quema>",
+	"TransactionType": "Import",
+	"Blob": "<XPOP codificado en HEX (mayúsculas)>",
+	"Sequence": 0
+}
+```
+
+IMPORTANTE: **¡La Transacción de Acuñación debe firmarse exactamente de la misma manera y por la misma cuenta que la Transacción de Quema!**
+
+Codifique y firme la transacción apropiadamente, produciendo un blob de transacción firmado (hex).
+
+Si no está ejecutando su propio nodo de Acuñación:
+
+* Conéctese a **wss://xahau-testn.et**
+* Envíe la transacción al nodo:
+
+```json
+{
+	"command": "submit",
+	"tx_blob": "<TRANSACCIÓN IMPORT CODIFICADA EN HEX>"
+}
+```
+
+O, si está ejecutando su propio nodo de Acuñación:
+
+* Asegúrese de que el Nodo de Acuñación esté ejecutándose y sincronizado con el ID de red 21338.
+* Use la llamada RPC `submit` para enviar la Transacción de Acuñación.
+  * Puede hacer esto desde la línea de comandos usando `./hooksv3d submit <hex aquí>`
+
+### Consideraciones
+
+Si la Cuenta debe crearse en Xahau Testnet pero el manejo de claves para la cuenta no está claro en el contexto de la Transacción de Quema, entonces la Cuenta se crea en modo blackholed. Puede ser reconfigurada posteriormente usando cualquier tipo de transacción de manejo de claves.
+
+Si la Transacción de Quema es un `SignerListSet` o un `SetRegularKey`, y tuvo un resultado de transacción tesSUCCESS en la cadena XRPL fuente (testnet), esa misma operación de manejo de claves se aplica ahora a esa misma cuenta en la cadena XRPL de destino (Xahau Testnet).
+
+Durante las pruebas, las Cuentas en Xahau Testnet _pueden_ eliminarse; sin embargo, en la cadena de producción con Hooks habilitados, no podrán eliminarse.
+
+Las Cuentas en Xahau Testnet tienen un campo opcional _**ImportSequence**_ en el AccountRoot. Si **Import** se ha usado alguna vez en esa cuenta en Xahau Testnet, este campo está presente y se rellena con el número de Sequence de la Transacción de Quema importada más recientemente. Esto es para prevenir ataques de repetición, pero también significa que nunca debe enviar sus Burn2Mints fuera de secuencia, de lo contrario las transacciones omitidas nunca serán aceptadas para Acuñar.

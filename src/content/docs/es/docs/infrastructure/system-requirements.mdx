@@ -1,0 +1,37 @@
+---
+title: Requisitos del sistema
+---
+
+Los requisitos de hardware para nodos personalizados según distintas tareas (por ejemplo, RPC/WS, hubs, validadores, etc.) deben ser consistentes con las especificaciones indicadas a continuación. Considera ajustar tu sistema según el caso de uso previsto.
+
+## Tipos de nodos
+
+Es posible ejecutar xahaud en diversas configuraciones según las necesidades del usuario. Del mismo modo, un servidor xahaud puede configurarse para múltiples propósitos, como un servidor de historial completo que también se utilice para llamadas RPC/WS. El propósito del servidor determina los requisitos necesarios. Algunas configuraciones posibles incluyen:
+
+1. **Servidor estándar (stock)**  
+   Este término se usa comúnmente para referirse a cualquier nodo xahaud que no esté configurado como validador. Generalmente tiene muy pocos cambios respecto a la configuración por defecto.
+
+2. **Servidores de historial completo**  
+   Son útiles para consultar datos históricos. Además de un gran espacio de almacenamiento, pueden requerir mayor rendimiento de disco (IOPS) y ancho de banda de red dependiendo del número de usuarios que consulten el servidor.
+
+3. **Servidores RPC/WebSocket**  
+   Están orientados a tareas como enviar transacciones o consultar datos actuales del ledger, como libros de órdenes o el flujo de validación. A menudo se coloca Nginx u otro software proxy delante de estos servidores para proporcionar balanceo de carga, cifrado y otros beneficios.
+
+4. **Servidor hub**  
+   El peering entre nodos es fundamental para retransmitir mensajes en la red Xahau, y un solo servidor puede configurarse para dar servicio a cientos de peers. Sin embargo, puede requerir un gran ancho de banda (10 Gbit+).
+
+5. **Servidores validadores**  
+   Los validadores se diferencian de otros nodos en que requieren una clave criptográfica adicional para firmar la secuencia de transacciones en un ledger propuesto. Dado que la disponibilidad y la seguridad son críticas, no se recomienda usar un validador para otras funciones.
+
+## Notas generales
+
+* Las compilaciones suelen probarse en Ubuntu LTS, pero Docker, binarios portables y builds personalizados permiten soporte para múltiples sistemas operativos.
+* Normalmente se necesita una dirección IPv4 y/o IPv6 por cada instancia de xahaud. No se recomienda ejecutar múltiples instancias detrás de una sola IP.
+* Los servidores que almacenan historial completo deben usar XFS o similar para evitar limitaciones de tamaño de archivo en EXT4 (máximo 16 TB). Para menor historial, EXT4 es suficiente.
+* Es posible ejecutar xahaud en máquinas que no cumplan los requisitos mínimos, pero esto puede provocar inestabilidad.
+* Estos requisitos pueden aumentar con el tiempo. Por ejemplo, el espacio necesario para historial completo crece continuamente.
+* A fecha de 1 de noviembre de 2025, **el historial completo de la red Xahau es de 10 TB**.
+
+## Especificaciones recomendadas para servidores xahaud en producción
+
+<table><thead><tr><th width="140"></th><th width="200">Mínimo</th><th width="199">Recomendado</th><th>Ideal</th></tr></thead><tbody><tr><td>CPU (2.5+ GHz x86_64)</td><td>8 núcleos</td><td>20 núcleos</td><td>40+ núcleos</td></tr><tr><td>Memoria</td><td>32GB</td><td>64GB</td><td>128GB+</td></tr><tr><td>IO de disco (sostenido)</td><td>15k RW aleatorio</td><td>20k RW aleatorio</td><td>30k RW aleatorio</td></tr><tr><td>Tamaño de disco</td><td>500GB</td><td>1TB</td><td>20TB+</td></tr><tr><td>Sistema de archivos</td><td>XFS</td><td>XFS</td><td>XFS</td></tr><tr><td>IO de red</td><td>500Mbit+</td><td>1Gbit</td><td>10Gbit</td></tr></tbody></table>

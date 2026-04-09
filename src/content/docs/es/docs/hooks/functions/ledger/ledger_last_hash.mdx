@@ -1,0 +1,86 @@
+---
+title: ledger_last_hash
+description: Obtener el SHA512H de 32 bytes (con sesgo de namespace) del último ledger cerrado
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Escribe el hash de 32 bytes en `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Obtiene el hash del último ledger.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_hash (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_hash(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash[32];
+int64_t bytes_written = 
+    ledger_last_hash(hash, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const hash = ledger_last_hash()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                                                 |
+| --------- | -------- | --------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Puntero a un buffer adecuado para almacenar la salida (mínimo 32 bytes)     |
+| write_len | uint32_t | Longitud del buffer de salida                                               |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descripción                                                                                          |
+| ------ | ---------------------------------------------------------------------------------------------------- |
+| number | Devuelve un código de error si ocurre un error, o un array que representa el hash del último ledger |
+</TabItem>
+</Tabs>

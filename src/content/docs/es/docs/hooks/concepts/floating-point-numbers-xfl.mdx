@@ -1,0 +1,98 @@
+---
+title: Números de punto flotante (XFL)
+description: Los cálculos de alta precisión son nativos en Hooks.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Contexto
+
+Los [números de punto flotante](https://en.wikipedia.org/wiki/Floating-point_arithmetic) se utilizan ampliamente en informática para realizar cálculos de precisión finita pero escala arbitraria.
+
+La mayoría de las CPUs modernas son capaces de realizar operaciones rápidas de punto flotante utilizando el [estándar IEEE de punto flotante binario](https://en.wikipedia.org/wiki/Double-precision_floating-point_format), sin embargo `xahaud` **no** utiliza este formato. En su lugar, Xahau utiliza un [estándar decimal de punto flotante personalizado](/es/docs/protocol-reference/binary-format).
+
+Este formato personalizado tiene tres propiedades básicas:
+
+1. El formato es inherentemente decimal, expresado como una `mantisa` decimal multiplicada por `10` elevado a un `exponente`.
+2. Todos los valores expresados tienen 16 cifras significativas (decimales).
+3. El rango de exponentes es de `-96` a `+80`.
+
+Cuando se serializa, la mantisa ocupa 54 bits y el exponente 8 bits, con un bit adicional de signo que lleva el tamaño total a 63 bits.
+
+### ¿Qué es XFL?
+
+[XLS-17d](https://github.com/XRPLF/XRPL-Standards/discussions/39) es una propuesta de estándar XRPL que define una forma eficiente de empaquetar y almacenar números de punto flotante en xrpld (como se describió anteriormente).
+
+Los XFL almacenan los bits del número de punto flotante dentro de un _número contenedor_. Este siempre es un `int64_t`. Los números contenedores negativos representan XFL inválidos (por ejemplo, como resultado de una división por cero).
+
+<Aside type="tip">
+  Usa la herramienta XFL <a href="https://richardah.github.io/xfl-tools/" target="_blank" rel="noopener">aquí</a> para componer y descomponer XFLs en tu navegador.
+</Aside>
+
+Algunos ejemplos de XFL:
+
+| Valor de punto flotante | Número contenedor    | Representación                |
+| ------------------------ | ------------------- | ----------------------------- |
+| -1                       | 1478180677777522688 | -1000000000000000 \* 10^(-15) |
+| 0                        | 0                   | 0 (_cero canónico_)           |
+| 1                        | 6089866696204910592 | +1000000000000000 \* 10^(-15) |
+| _PI_                     | 6092008288858500385 | +3141592653589793 \* 10^(-15) |
+| -_PI_                    | 1480322270431112481 | -3141592653589793 \* 10^(-15) |
+
+Este formato es muy conveniente para Hooks, ya que solo pueden intercambiar valores _enteros_ con xrpld. Al encapsular el número de punto flotante dentro de un entero de forma bien definida, es posible realizar cálculos complejos de punto flotante desde un Hook. Esto resulta útil, por ejemplo, para calcular tipos de cambio.
+
+### Cero canónico
+
+Los sistemas de punto flotante suelen tener múltiples formas de representar el cero, lo que puede causar problemas al comprobarlo. Por ejemplo, `0 x 10 ^ 1` es cero y `0 x 10 ^ 2` también es cero. Por esta razón, el estándar y la API de Hooks imponen un cero canónico. Este corresponde al número contenedor cero (`0`).
+
+### API de Float en Hooks
+
+Una vez que tienes un XFL, puedes usar la API de Float para realizar distintos cálculos. Cada función recibe uno o más números contenedores XFL y devuelve otro número contenedor XFL. Los valores negativos _siempre_ representan un error de cálculo (como división por cero). No existen números contenedores negativos válidos.
+
+| Hook API                                                                | Qué hace                                                          |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| [float_set](/es/docs/hooks/functions/float/float_set)           | Crear un float a partir de un exponente y una mantisa             |
+| [float_multiply](/es/docs/hooks/functions/float/float_multiply) | Multiplicar dos números XFL                                       |
+| [float_mulratio](/es/docs/hooks/functions/float/float_mulratio) | Multiplicar un XFL por un numerador y denominador no-XFL          |
+| [float_negate](/es/docs/hooks/functions/float/float_negate)     | Negar un número de punto flotante XFL                             |
+| [float_compare](/es/docs/hooks/functions/float/float_compare)   | Comparar dos números XFL                                          |
+| [float_sum](/es/docs/hooks/functions/float/float_sum)           | Sumar dos números XFL                                             |
+| [float_sto](/es/docs/hooks/functions/float/float_sto)           | Convertir un XFL en un objeto serializado                         |
+| [float_sto_set](/es/docs/hooks/functions/float/float_sto_set)   | Leer una cantidad serializada en un XFL                           |
+| [float_invert](/es/docs/hooks/functions/float/float_invert)     | Calcular el inverso de un XFL                                     |
+| [float_divide](/es/docs/hooks/functions/float/float_divide)     | Dividir un XFL entre otro XFL                                     |
+| [float_one](/es/docs/hooks/functions/float/float_one)           | Devolver el número 1 como XFL                                     |
+| [float_exponent](/es/docs/hooks/functions/float/float_exponent) | Obtener el exponente de un XFL                                    |
+| [float_mantissa](/es/docs/hooks/functions/float/float_mantissa) | Obtener la mantisa de un XFL                                      |
+| [float_sign](/es/docs/hooks/functions/float/float_sign)         | Obtener el signo de un XFL                                        |
+| float_exponent_set                                           | Establecer el exponente de un XFL                                 |
+| float_mantissa_set                                           | Establecer la mantisa de un XFL                                   |
+| float_sign_set                                               | Establecer el signo de un XFL                                     |
+| [float_int](/es/docs/hooks/functions/float/float_int)           | Convertir un XFL a entero (redondeo hacia abajo)                  |
+| [float_root](/es/docs/hooks/functions/float/float_root)         | Calcular la raíz n-ésima de un XFL                                |
+| [float_log](/es/docs/hooks/functions/float/float_log)           | Calcular el logaritmo decimal de un XFL                           |
+
+<Aside type="caution">
+  Nunca debes realizar cálculos directos o comparaciones sobre el _número contenedor_. Esto casi siempre dará resultados incorrectos.
+
+  La única excepción es comprobar el cero canónico.
+</Aside>
+
+### Ejemplo
+
+En el siguiente ejemplo se realiza una conversión de tipo de cambio seguida de una multiplicación de fracciones de alta precisión:
+
+```c
+int64_t max_vault_pusd =
+    float_multiply(vault_xrp, exchange_rate);
+
+max_vault_pusd = 
+    float_mulratio(max_vault_pusd, 0,
+        NEW_COLLATERALIZATION_NUMERATOR, NEW_COLLATERALIZATION_DENOMINATOR);
+````
+
+<Aside type="tip">
+  Si una función de la API de float devuelve un valor negativo y no lo verificas, al pasar ese valor a otra función también producirá un resultado negativo. De este modo, los errores se propagan de forma similar a `NaN` (not a number).
+
+Si obtienes un número contenedor negativo, significa que ocurrió un error en tus cálculos de punto flotante.
+
+</Aside>

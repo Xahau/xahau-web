@@ -1,0 +1,85 @@
+---
+title: Hooks
+description: 'Introduciendo Hooks: la funcionalidad de contratos inteligentes para Xahau.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="note">
+Hooks son pequeños y eficientes módulos WebAssembly diseñados específicamente para Xahau.  
+
+Los Hooks pueden escribirse en cualquier lenguaje (compilable a WebAssembly), y la mayoría de la lógica de negocio y conceptos de contratos inteligentes pueden implementarse en un hook.
+
+[**Desarrollado por XRPL Labs**](https://xrpl-labs.com/#team)
+</Aside>
+
+### ¿Qué son los Hooks?
+
+Los Hooks permiten crear lógica personalizada y automatización dentro de Xahau, haciendo las transacciones más inteligentes y convenientes. Estos módulos pequeños y eficientes añaden funcionalidad personalizada directamente en el ledger, como la creación de triggers (disparadores) para eventos específicos.  
+
+Estos triggers pueden usarse para ejecutar acciones en el ledger o responder automáticamente a eventos definidos. Actualmente, los Hooks están disponibles en la [red Xahau](https://xahau.network/).
+
+> _Para aprender más sobre los conceptos teóricos de Hooks, visita la sección de_ [_Conceptos_](/es/docs/hooks/concepts/introduction)_._
+
+> _Para aprender a programar Hooks en C y sus funciones, visita_ [_Hooks C-Functions_](/es/docs/hooks/functions/overview/hook-api-conventions/)_._
+
+> _Existe una herramienta llamada_ [_Hooks Builder_](https://builder.xahau.network/) _donde puedes desarrollar, probar, depurar y desplegar tus propios Hooks en testnet desde el navegador._
+
+> _[Hookstore](https://hookstore.xahau.network/) ofrece una plataforma para descubrir, compartir y gestionar Hooks. Usa la [Hookstore Console](https://console.hookstore.xahau.network/) para administrar tus Hooks y explorar el ecosistema._
+
+> _Está en desarrollo la posibilidad de escribir Hooks en JavaScript (JSHooks). Actualmente puede probarse en el repositorio [JSHooks](https://github.com/Xahau/jshooks-alpha)._
+
+### ¿Por qué los Hooks son importantes?
+
+En pocas palabras, los Hooks añaden una potente funcionalidad de contratos inteligentes a Xahau, permitiéndote crear y desplegar aplicaciones con lógica personalizada según tus necesidades.
+
+Los Hooks proporcionan una plataforma versátil para implementar una amplia variedad de lógica de negocio y modelos de smart contracts. Una vez configurado un hook en una cuenta, permite:
+
+* Bloquear o permitir transacciones hacia y desde la cuenta.
+* Modificar y mantener el estado interno del hook para tomar decisiones programáticas.
+* Iniciar automáticamente nuevas transacciones en nombre de la cuenta.
+
+Los Hooks pueden escribirse en C o en cualquier lenguaje compatible con WebAssembly.
+
+<figure>
+![Usando Hooks Builder puedes desarrollar, probar, depurar y desplegar Hooks en testnet.](/assets/cdn.feather-2.webp)
+<figcaption>*Con Hooks Builder puedes desarrollar, probar, depurar y desplegar tus Hooks usando ejemplos o desde cero.*</figcaption>
+</figure>
+
+Hooks Builder actúa como un entorno de desarrollo integrado que facilita la creación, prueba, depuración y despliegue de Hooks.
+
+### Ejemplos de Hooks y casos de uso
+
+Algunos ejemplos prácticos:
+
+* **Hook de ahorro automático**: Transfiere automáticamente una cantidad de XAH a una cuenta de ahorro en intervalos definidos (diario, semanal, mensual). Ideal para apps financieras o suscripciones.
+* **Hook de compensación de carbono**: Cada transacción envía automáticamente un 1% a una cuenta de compensación ambiental gestionada por una ONG.
+* **Hook firewall**: Filtra transacciones entrantes/salientes, bloquea cuentas maliciosas y memos sospechosos, y puede aplicar límites de gasto.
+
+### Diferencias con la EVM
+
+Aunque ambos permiten lógica personalizada:
+
+* **Compatibilidad**: Hooks → Xahau / EVM → Ethereum
+* **Eficiencia**: Hooks usan WebAssembly (más rápido)
+* **Tiempo de ejecución**: Hooks tienen ejecución predecible
+
+### Alternativas en XRPL
+
+Existe una sidechain EVM anunciada por Ripple y Peersyst:
+
+* Funciona como blockchain independiente (Layer 2)
+* Requiere mover XRP a la sidechain y обратно
+* No puede prevenir transacciones (solo actuar después)
+
+Hooks en cambio:
+
+* Operan directamente en Layer 1 (Xahau)
+* Pueden decidir si una transacción se ejecuta o no
+* Están más integrados con XRPL
+
+### Futuro de Hooks
+
+Los Hooks añaden capacidades nativas de contratos inteligentes a Xahau, permitiendo crear aplicaciones personalizadas y nuevas funcionalidades.
+
+A medida que Xahau crece, los Hooks serán clave para impulsar la innovación y adopción tanto por usuarios individuales como empresas.

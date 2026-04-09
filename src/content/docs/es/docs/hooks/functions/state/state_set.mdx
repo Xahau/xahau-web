@@ -1,0 +1,113 @@
+---
+title: state_set
+description: Establecer el Hook State para una clave y valor dados
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Lee una clave de Hook State de 32 bytes desde `kread_ptr`
+* Lee una cantidad arbitraria de datos desde `read_ptr` (el valor)
+* Actualiza la clave de Hook State con el valor
+</TabItem>
+
+<TabItem label="JavaScript">
+* Establece el Hook State con el valor y la clave especificados
+* Devuelve el número de bytes escritos en el Hook State (longitud de los datos), negativo en caso de error
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len  
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_set(
+    value: ByteArray | HexString | undefined | null,
+    key: ByteArray | HexString
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+if (state_set(SBUF(vault), SBUF(vault_key)) < 0)
+		rollback(SBUF("Error: no se pudo establecer el estado!"), 1);
+```
+
+<Aside type="tip">
+Para eliminar el estado usa `state_set(0, 0, SBUF(key));`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const result = state_set(vault, vault_key)
+if (result < 0)
+    rollback("Error: no se pudo establecer el estado!", 1);
+```
+
+<Aside type="tip">
+Para eliminar el estado usa `state_set(null, key);`.
+</Aside>
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre     | Tipo     | Descripción                                                                                                                                              |
+| ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr   | uint32_t | <p>Puntero a los datos (valor) a escribir en el Hook State.<br />Si es <code>0</code> (null), se elimina el dato en esa clave. <em>Puede ser null.</em></p> |
+| read_len   | uint32_t | <p>Longitud de los datos.<br />Si es <code>0</code> (null), se elimina el dato en esa clave. <em>Puede ser null.</em></p>                               |
+| kread_ptr  | uint32_t | Puntero a la clave de Hook State donde almacenar el valor                                                                                               |
+| kread_len  | uint32_t | Longitud de la clave (debe ser siempre 32)                                                                                                              |
+
+<Aside type="caution">
+Xahaud establece internamente un tamaño máximo de datos para Hooks. En el momento de escribir esto y en mainnet, está fijado en 256 bytes, aunque en el futuro será un valor votable por los validadores.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo                   | Descripción                                     |
+| ------ | ---------------------- | ----------------------------------------------- |
+| value  | ByteArray o HexString  | El valor de los datos a almacenar               |
+| key    | ByteArray o HexString  | La clave del Hook State donde guardar el valor  |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Número de bytes escritos en el Hook State (longitud de los datos)<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_BIG</code><br />- <code>kread_len</code> mayor que 32 o<br />- <code>read_len</code> mayor que el tamaño máximo permitido<br /><br /><code>TOO_SMALL</code><br />- <code>kread_len</code> es 0</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| number o ErrorCode  | Devuelve el número de bytes escritos o un error (negativo en caso de fallo)                    |
+</TabItem>
+</Tabs>

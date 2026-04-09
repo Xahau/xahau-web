@@ -1,0 +1,134 @@
+---
+title: util_verify
+description: Verificar una firma criptográfica
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+Verifica una firma criptográfica
+
+* Si la clave pública tiene el prefijo `0xED`, se usa `ED25519`
+* En caso contrario, se asume `SECP256k1`
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_verify (
+    uint32_t dread_ptr,
+    uint32_t dread_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_verify(
+    signedData: ByteArray | HexString,
+    signature: ByteArray | HexString,
+    pubkey: ByteArray | HexString
+  ): 0 | 1
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+if (!util_verify(payload_ptr,    payload_len,
+                 signature_ptr,  signature_len,
+                 publickey_ptr,  publickey_len))
+	rollback("Firma inválida", 17, 60);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (util_verify(signedData, signature, pubkey))
+    rollback("Firma inválida", 60)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+<table>
+<thead>
+<tr><th>Nombre</th><th>Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr><td>dread_ptr</td><td>uint32_t</td><td>Puntero a los datos firmados</td></tr>
+<tr><td>dread_len</td><td>uint32_t</td><td>Longitud de los datos firmados</td></tr>
+<tr><td>sread_ptr</td><td>uint32_t</td><td>Puntero a la firma</td></tr>
+<tr><td>sread_len</td><td>uint32_t</td><td>Longitud de la firma</td></tr>
+<tr><td>kread_ptr</td><td>uint32_t</td><td>Puntero a la clave pública</td></tr>
+<tr><td>kread_len</td><td>uint32_t</td><td>Longitud de la clave pública</td></tr>
+</tbody>
+</table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table>
+<thead>
+<tr><th>Nombre</th><th>Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr><td>signedData</td><td>number / string</td><td>Datos firmados a verificar, como array de números o string</td></tr>
+<tr><td>signature</td><td>number / string</td><td>Firma a verificar, como array de números o string</td></tr>
+<tr><td>pubkey</td><td>number / string</td><td>Clave pública asociada a la firma, como array de números o string</td></tr>
+</tbody>
+</table>
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+<table>
+<thead>
+<tr><th>Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>int64_t</td>
+<td>
+<code>0</code> - validación fallida, la firma es inválida.<br />
+<code>1</code> - validación correcta, la firma es válida.<br /><br />
+Si es negativo, indica error:<br />
+<code>OUT_OF_BOUNDS</code><br />
+- punteros/longitudes fuera de la memoria del hook.
+</td>
+</tr>
+</tbody>
+</table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table>
+<thead>
+<tr><th>Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>number</td>
+<td>
+<code>0</code> - validación fallida, la firma es inválida.<br />
+<code>1</code> - validación correcta, la firma es válida.
+</td>
+</tr>
+</tbody>
+</table>
+</TabItem>
+</Tabs>
