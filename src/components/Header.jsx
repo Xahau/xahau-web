@@ -22,9 +22,9 @@ import { useState } from 'react'
 import logo from '../assets/xahau-logo.svg'
 
 const languages = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' },
+  { code: 'ja', label: '日本語' },
 ]
 
 const nav = {
@@ -228,7 +228,6 @@ export default function Header(props) {
                     href={langUrl(lang.code)}
                     className={`no-underline flex items-center gap-x-2 px-3 py-2 text-sm text-white hover:bg-white/10 ${currentLocale === lang.code ? 'font-bold' : 'font-regular'}`}
                   >
-                    <span>{lang.flag}</span>
                     <span>{lang.label}</span>
                     {currentLocale === lang.code && (
                       <span className="ml-auto">✓</span>
