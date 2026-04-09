@@ -1,10 +1,10 @@
 ---
   import '../styles/main.css'
+  import { getRelativeLocaleUrl } from 'astro:i18n'
   import worldmap from '../assets/worldmap.svg'
   import type { IndexLocale } from '../i18n/indexTranslations'
   import { indexTranslations } from '../i18n/indexTranslations'
   import BaseLayout from '../layouts/BaseLayout.astro'
-  import { getRelativeLocaleUrl } from 'astro:i18n'
 
   const _frontmatter = Astro.props.frontmatter
 
@@ -95,8 +95,9 @@
         <a
           href={getRelativeLocaleUrl(locale, '/features')}
           class="self-end px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
-          >{i.feat_more}</a
         >
+          {i.feat_more}
+        </a>
       </div>
     </div>
   </div>
