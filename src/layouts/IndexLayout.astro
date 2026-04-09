@@ -1,5 +1,6 @@
 ---
   import '../styles/main.css'
+  import { getRelativeLocaleUrl } from 'astro:i18n'
   import worldmap from '../assets/worldmap.svg'
   import type { IndexLocale } from '../i18n/indexTranslations'
   import { indexTranslations } from '../i18n/indexTranslations'
@@ -7,12 +8,7 @@
 
   const _frontmatter = Astro.props.frontmatter
 
-  const LOCALES = ['es', 'ja']
-  const firstSegment = Astro.url.pathname.split('/')[1]
-  const locale = (
-    LOCALES.includes(firstSegment) ? firstSegment : 'en'
-  ) as IndexLocale
-  const p = locale !== 'en' ? `/${locale}` : ''
+  const locale = (Astro.currentLocale ?? 'en') as IndexLocale
   const i = indexTranslations[locale]
 ---
 <BaseLayout frontmatter={_frontmatter}>
@@ -42,13 +38,13 @@
         </p>
         <div class="flex gap-4">
           <a
-            href={`${p}/about`}
+            href={getRelativeLocaleUrl(locale, '/about')}
             class="px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
           >
             {i.hero_learn}
           </a>
           <a
-            href={`${p}/docs`}
+            href={getRelativeLocaleUrl(locale, '/docs')}
             class="px-10 h-12 flex items-center justify-center bg-gray-300 text-black text-base font-bold hover:bg-black hover:text-white transition"
           >
             {i.hero_docs}
@@ -97,10 +93,11 @@
           <p class="text-base font-light text-black">{i.feat5_desc}</p>
         </div>
         <a
-          href={`${p}/features`}
+          href={getRelativeLocaleUrl(locale, '/features')}
           class="self-end px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
-          >{i.feat_more}</a
         >
+          {i.feat_more}
+        </a>
       </div>
     </div>
   </div>
@@ -144,7 +141,7 @@
           <h4 class="text-4xl md:text-6xl font-extrabold">16M+</h4>
         </div>
         <a
-          href={`${p}/docs/infrastructure/system-requirements/`}
+          href={getRelativeLocaleUrl(locale, '/docs/infrastructure/system-requirements/')}
           class="col-span-6 row-start-auto md:row-start-2 px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
           >{i.stats_node_cta}</a
         >

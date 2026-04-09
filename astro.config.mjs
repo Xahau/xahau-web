@@ -16,6 +16,7 @@ export default defineConfig({
     starlight({
       title: 'Xahau Docs',
       description: 'Documentation for the Xahau blockchain',
+      defaultLocale: 'root',
       locales: {
         root: { label: 'English', lang: 'en' },
         es: { label: 'Español', lang: 'es' },
