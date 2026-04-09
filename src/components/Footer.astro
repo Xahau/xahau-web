@@ -67,7 +67,7 @@
     },
   }
 
-  const t = translations[locale as 'en' | 'es' | 'ja']
+  const t = translations[locale as 'en' | 'es' | 'ja'] || translations.en
 ---
 <footer
   class="bg-white text-base font-regular text-black **:text-black **:no-underline"
@@ -99,11 +99,11 @@
       >
         {t.break}
       </a>
-      <a href="/fraud-report">{t.fraud}</a>
+      <a href={getRelativeLocaleUrl(locale, '/fraud-report')}>{t.fraud}</a>
       <a href={getRelativeLocaleUrl(locale, '/docs/resources/media-kit')}>
         {t.media}
       </a>
-      <a href="/privacy-policy">{t.privacy}</a>
+      <a href={getRelativeLocaleUrl(locale, '/privacy-policy')}>{t.privacy}</a>
     </div>
     <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
       <p>

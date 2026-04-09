@@ -84,7 +84,7 @@ export default function Header(props) {
 
   const pathname = props.url.pathname
   const currentLocale = props.locale || 'en'
-  const t = nav[currentLocale]
+  const t = nav[currentLocale] || nav.en
 
   function langUrl(code) {
     const prefix = currentLocale !== 'en' ? `/${currentLocale}` : ''
@@ -365,7 +365,6 @@ export default function Header(props) {
                         href={langUrl(lang.code)}
                         className={`no-underline flex items-center gap-x-2 rounded-lg py-2 pr-3 pl-6 text-sm/7 text-black hover:bg-gray-50 ${currentLocale === lang.code ? 'font-bold' : 'font-regular'}`}
                       >
-                        <span>{lang.flag}</span>
                         <span>{lang.label}</span>
                         {currentLocale === lang.code && (
                           <span className="ml-auto text-xs">✓</span>
