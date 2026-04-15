@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { useState } from 'react'
 import logo from '../assets/xahau-logo.svg'
+import { getAlternateLocaleHref } from '../utils/localizedHref'
 
 const languages = [
   { code: 'en', label: 'English' },
@@ -87,10 +88,7 @@ export default function Header(props) {
   const t = nav[currentLocale] || nav.en
 
   function langUrl(code) {
-    const prefix = currentLocale !== 'en' ? `/${currentLocale}` : ''
-    const basePath = prefix ? pathname.slice(prefix.length) || '/' : pathname
-    if (code === 'en') return basePath
-    return basePath === '/' ? `/${code}` : `/${code}${basePath}`
+    return getAlternateLocaleHref(pathname, code)
   }
 
   const socials = [

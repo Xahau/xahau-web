@@ -417,25 +417,6 @@ export default defineConfig({
         },
       ],
     }),
-    {
-      name: 'i18n-fallback',
-      hooks: {
-        'astro:config:setup': ({ updateConfig, config }) => {
-          // Add fallbacks for pages not in src/content/docs/
-          updateConfig({
-            i18n: {
-              ...config.i18n,
-              fallback: { es: 'en', ja: 'en' },
-              routing: {
-                // @ts-expect-error - ignore type error for config.i18n.routing
-                ...config.i18n.routing,
-                fallbackType: 'rewrite',
-              },
-            },
-          })
-        },
-      },
-    },
     mdx(),
   ],
   markdown: {
