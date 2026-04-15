@@ -1,0 +1,413 @@
+---
+  import '../styles/main.css'
+  import type { FraudReportTranslations } from '../i18n/fraudReportTranslations'
+  import PageLayout from '../layouts/PageLayout.astro'
+  import PageSection from './PageSection.astro'
+
+  const { t } = Astro.props as { t: FraudReportTranslations }
+---
+<PageLayout frontmatter={t.frontmatter} wide="true">
+  <PageSection align="center">
+    <p>{t.intro.body}</p>
+    <div class="p-4 bg-green-50 border border-green-200 rounded-lg my-4">
+      <strong>{t.intro.warning}</strong>
+    </div>
+    <p>{t.intro.lead}</p>
+    <ul class="list-disc list-outside">
+      {t.intro.bullets.map((bullet) => <li>{bullet}</li>)}
+    </ul>
+
+    {
+      t.intro.steps.map((step) => (
+        <>
+          <h3 class="mt-4">{step.title}</h3>
+          <p>{step.body}</p>
+        </>
+      ))
+    }
+
+    <h2 class="mt-4">{t.intro.expectationTitle}</h2>
+    <ul class="list-disc list-outside">
+      {t.intro.expectations.map((expectation) => <li>{expectation}</li>)}
+    </ul>
+    <div class="p-4 bg-green-50 border border-green-200 rounded-lg my-4">
+      <strong>{t.intro.expectationWarning}</strong>
+    </div>
+  </PageSection>
+
+  <main class="page-content flex-1 container mx-auto max-w-4xl p-6">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+      <div
+        id="success-message"
+        class="mb-6 p-6 bg-green-50 border-2 border-green-500 text-green-800 rounded-lg hidden shadow-md"
+      >
+        <div class="flex items-center mb-2">
+          <svg
+            class="w-6 h-6 mr-2 text-green-500"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <p class="font-bold text-lg">{t.form.successTitle}</p>
+        </div>
+        <p class="mb-2">{t.form.successBody}</p>
+        <p class="text-sm mt-3 font-semibold">
+          {t.form.reportIdLabel}
+          <code
+            id="report-id"
+            class="bg-green-200 px-3 py-1 rounded text-green-900"
+          />
+        </p>
+      </div>
+
+      <div
+        id="error-message"
+        class="mb-6 p-6 bg-red-50 border-2 border-red-500 text-red-800 rounded-lg hidden shadow-md"
+      >
+        <div class="flex items-center mb-2">
+          <svg
+            class="w-6 h-6 mr-2 text-red-500"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <p class="font-bold text-lg">{t.form.errorTitle}</p>
+        </div>
+        <p id="error-text" class="whitespace-pre-wrap"></p>
+      </div>
+
+      <div id="form-container">
+        <form id="fraud-report-form" class="space-y-6">
+          <div>
+            <label
+              for="address"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              {t.form.addressLabel}
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              required
+              placeholder={t.form.addressPlaceholder}
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-xahau-green focus:border-transparent transition-all"
+            >
+            <p class="text-sm text-gray-500 mt-1">{t.form.addressHint}</p>
+          </div>
+
+          <div>
+            <label
+              for="description"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              {t.form.descriptionLabel}
+              <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              required
+              rows="6"
+              placeholder={t.form.descriptionPlaceholder}
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-xahau-green focus:border-transparent transition-all"
+            ></textarea>
+            <p class="text-sm text-gray-500 mt-1">{t.form.descriptionHint}</p>
+          </div>
+
+          <div>
+            <label
+              for="url"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              {t.form.urlLabel}
+              <span class="text-gray-400 text-xs">({t.form.optional})</span>
+            </label>
+            <input
+              type="url"
+              id="url"
+              name="url"
+              placeholder={t.form.urlPlaceholder}
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-xahau-green focus:border-transparent transition-all"
+            >
+            <p class="text-sm text-gray-500 mt-1">{t.form.urlHint}</p>
+          </div>
+
+          <div>
+            <label
+              for="category_suggested"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              {t.form.categoryLabel}
+              <span class="text-gray-400 text-xs">({t.form.optional})</span>
+            </label>
+            <select
+              id="category_suggested"
+              name="category_suggested"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-xahau-green focus:border-transparent transition-all bg-white"
+            >
+              <option value="">{t.form.categoryPlaceholder}</option>
+              {
+                t.form.categoryOptions.map((option) => (
+                  <option value={option.value}>{option.label}</option>
+                ))
+              }
+            </select>
+            <p class="text-sm text-gray-500 mt-1">{t.form.categoryHint}</p>
+          </div>
+
+          <div>
+            <label
+              for="reporter_contact"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              {t.form.contactLabel}
+              <span class="text-gray-400 text-xs">({t.form.optional})</span>
+            </label>
+            <input
+              type="text"
+              id="reporter_contact"
+              name="reporter_contact"
+              placeholder={t.form.contactPlaceholder}
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-xahau-green focus:border-transparent transition-all"
+            >
+            <p class="text-sm text-gray-500 mt-1">{t.form.contactHint}</p>
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <altcha-widget
+              name="altcha"
+              challengeurl="https://api.analytics.xahau.network/captcha/challenge"
+              hidefooter="false"
+              hidelogo="false"
+            ></altcha-widget>
+          </div>
+
+          <div class="flex items-center justify-between pt-4">
+            <p class="text-sm text-gray-600">
+              <span class="text-red-500">*</span>
+              {t.form.requiredFields}
+            </p>
+            <button
+              type="submit"
+              class="px-8 py-3 bg-xahau-green-dark text-white font-semibold rounded-lg hover:bg-xahau-green transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-xahau-green focus:ring-offset-2"
+            >
+              {t.form.submitLabel}
+            </button>
+          </div>
+        </form>
+
+        <div id="another-report-btn" class="mt-6 hidden">
+          <button
+            onclick="location.reload()"
+            class="inline-block px-6 py-3 bg-xahau-green-dark text-white font-semibold rounded-lg hover:bg-xahau-green transition-all no-underline"
+          >
+            {t.form.submitAnotherLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6 pt-0">
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">
+        {t.privacy.title}
+      </h3>
+      <ul class="space-y-2 text-sm text-blue-800">
+        {
+          t.privacy.bullets.map((bullet) => (
+            <li class="flex items-start">
+              <svg
+                class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span>{bullet}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="mt-6 text-center text-sm text-gray-600">
+      <p>
+        {t.attribution.prefix}
+        <a
+          href="https://inftf.org"
+          class="text-xahau-green-dark underline hover:text-black"
+        >
+          {t.attribution.label}
+        </a>
+        {t.attribution.suffix}
+      </p>
+    </div>
+  </main>
+
+  <script
+    define:vars={{
+      messages: {
+        ...t.messages,
+        reportIdFallback: t.form.reportIdFallback,
+      },
+    }}
+    is:inline
+    type="module"
+  >
+    import 'https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js'
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('fraud-report-form')
+      const altchaWidget = document.querySelector('altcha-widget')
+      const successMessage = document.getElementById('success-message')
+      const errorMessage = document.getElementById('error-message')
+      const errorText = document.getElementById('error-text')
+      const reportIdEl = document.getElementById('report-id')
+      const formContainer = document.getElementById('form-container')
+      const anotherReportBtn = document.getElementById('another-report-btn')
+
+      if (!form || !altchaWidget) {
+        return
+      }
+
+      const scrollCardIntoView = () => {
+        const card = document.querySelector('.bg-white.rounded-lg.shadow-lg')
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+
+      let isVerified = false
+
+      altchaWidget.addEventListener('statechange', (event) => {
+        isVerified = event.detail.state === 'verified'
+      })
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+
+        errorMessage.classList.add('hidden')
+        successMessage.classList.add('hidden')
+
+        if (!isVerified) {
+          errorText.textContent = messages.captchaIncomplete
+          errorMessage.classList.remove('hidden')
+          scrollCardIntoView()
+          return
+        }
+
+        let altchaSolution = null
+
+        const formData = new FormData(form)
+        altchaSolution = formData.get('altcha')
+
+        if (!altchaSolution) {
+          const hiddenInput = form.querySelector('input[name="altcha"]')
+          if (hiddenInput) {
+            altchaSolution = hiddenInput.value
+          }
+        }
+
+        if (!altchaSolution) {
+          altchaSolution = altchaWidget.dataset.payload
+        }
+
+        if (!altchaSolution) {
+          errorText.textContent = messages.captchaFailed
+          errorMessage.classList.remove('hidden')
+          scrollCardIntoView()
+          return
+        }
+
+        const requestBody = {
+          address: formData.get('address'),
+          description: formData.get('description'),
+          altcha_solution: altchaSolution,
+        }
+
+        if (formData.get('url')) requestBody.url = formData.get('url')
+        if (formData.get('category_suggested')) {
+          requestBody.category_suggested = formData.get('category_suggested')
+        }
+        if (formData.get('reporter_contact')) {
+          requestBody.reporter_contact = formData.get('reporter_contact')
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]')
+        const originalText = submitBtn.textContent
+        submitBtn.disabled = true
+        submitBtn.innerHTML = `<span class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>${messages.submitting}</span>`
+
+        try {
+          const response = await fetch(
+            'https://api.analytics.xahau.network/ufr',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            },
+          )
+
+          const result = await response.json()
+
+          if (response.ok) {
+            reportIdEl.textContent =
+              result.reportId || messages.reportIdFallback
+            successMessage.classList.remove('hidden')
+            errorMessage.classList.add('hidden')
+            formContainer.style.display = 'none'
+            anotherReportBtn.classList.remove('hidden')
+            scrollCardIntoView()
+          } else {
+            const errorMsg = Array.isArray(result.message)
+              ? result.message.join(', ')
+              : result.message || messages.submitFailed
+            errorText.textContent = errorMsg
+            errorMessage.classList.remove('hidden')
+            successMessage.classList.add('hidden')
+            submitBtn.disabled = false
+            submitBtn.innerHTML = originalText
+            scrollCardIntoView()
+          }
+        } catch (_error) {
+          errorText.textContent = messages.networkError
+          errorMessage.classList.remove('hidden')
+          successMessage.classList.add('hidden')
+          submitBtn.disabled = false
+          submitBtn.innerHTML = originalText
+          scrollCardIntoView()
+        }
+      })
+    })
+  </script>
+
+  <style>
+    altcha-widget {
+      --altcha-primary-color: #007b3d;
+      --altcha-background-color: #ffffff;
+      --altcha-border-color: #e1e5e9;
+      --altcha-text-color: #333333;
+      --altcha-border-radius: 8px;
+      --altcha-font-family:
+        'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        sans-serif;
+    }
+  </style>
+</PageLayout>

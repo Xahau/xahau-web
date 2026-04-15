@@ -1,0 +1,31 @@
+---
+title: Datos del Ledger
+---
+Cada versión del ledger en el XRP Ledger se compone de tres partes:
+
+* **Encabezado del Ledger**: Metadatos sobre esta versión del ledger en sí.
+* **Conjunto de Transacciones**: Todas las transacciones que se ejecutaron para crear esta versión del ledger.
+* **Datos de Estado**: El registro completo de objetos que representan cuentas, configuraciones y saldos a partir de esta versión del ledger. (Esto también se llama "estado de cuenta".)
+
+### Datos de Estado
+
+Los datos de estado de cada versión del ledger son un conjunto de **objetos del ledger**, a veces llamados _entradas del ledger_, que colectivamente representan todas las configuraciones, saldos y relaciones en un momento dado. Para almacenar o recuperar un objeto en los datos de estado, el protocolo usa el [**ID de Objeto del Ledger**](/es/docs/protocol-reference/ledger-data/ledger-object-ids) único de ese objeto.
+
+En el protocolo entre pares, los objetos del ledger tienen un [formato binario canónico](/es/docs/protocol-reference/binary-format). En las APIs de `xahaud`, los objetos del ledger se representan como objetos JSON.
+
+Los campos de datos de un objeto del ledger dependen del tipo de objeto; la Red Xahau admite los siguientes tipos:
+
+* [Encabezado del Ledger](/es/docs/protocol-reference/ledger-data/ledger-header)
+* [Campos Comunes de Entradas del Ledger](/es/docs/protocol-reference/ledger-data/ledger-object-ids)
+* [Tipos de Entradas del Ledger](/es/docs/protocol-reference/ledger-data/ledger-objects-types/)
+
+### Ledgers Expandidos
+
+Xahau admite ledgers expandidos, que permiten tamaños de ledger más grandes más allá de los límites tradicionales. Los ledgers expandidos permiten a la red manejar mayores volúmenes de transacciones y datos de estado más complejos mientras mantienen el rendimiento y la estabilidad del consenso.
+
+Cuando los ledgers expandidos están habilitados, el ledger puede acomodar:
+- Más transacciones por ledger
+- Conjuntos de datos de estado más grandes
+- Mayor complejidad en las ejecuciones de Hooks
+
+Los ledgers expandidos se usan automáticamente cuando la red determina que son necesarios según el volumen de transacciones y el tamaño del estado. No se requiere configuración especial para que los nodos participen en ledgers expandidos.

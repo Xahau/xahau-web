@@ -1,0 +1,57 @@
+---
+title: trace_num
+description: Escribir un número entero en el registro de trazas de Xahaud
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+* Escribe un número entero en el log de trazas junto con un mensaje (si se proporciona)
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t trace_num (
+    uint32_t mread_ptr,
+    uint32_t mread_len,
+    int64_t number 
+);
+````
+
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+trace_num(SBUF("Esto es un entero"), 10);
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre     | Tipo     | Descripción                                                                                                  |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| mread_ptr  | uint32_t | Puntero a un mensaje a mostrar antes del valor. <em>Puede ser null.</em>                                      |
+| mread_len  | uint32_t | Longitud del mensaje. <em>Puede ser null.</em>                                                                |
+| number     | int64_t  | El número entero                                                                                              |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>0</code> si tiene éxito<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook.</p> |
+</TabItem>
+</Tabs>

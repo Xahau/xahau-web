@@ -1,0 +1,153 @@
+---
+title: Whitepaper
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Aviso">
+Este whitepaper se basa en el [whitepaper](https://github.com/Xahau/Whitepaper) de la Xahau Launch Alliance, pero se actualiza continuamente para reflejar los cambios realizados por la gobernanza descentralizada desde su lanzamiento.
+
+Última actualización: **1 de julio de 2025**
+</Aside>
+
+<Aside type="caution" title="Aviso">
+Este documento técnico de criptoactivos no ha sido aprobado por ninguna autoridad competente de ningún Estado miembro de la Unión Europea. El emisor del criptoactivo es el único responsable del contenido de este documento técnico.
+</Aside>
+
+
+## 1. Resumen
+
+1. El Xahau Ledger (Xahau) es la sidechain de contratos inteligentes para el ecosistema XRPL. Es un fork del código abierto rippled del XRP Ledger (XRPL), que incorpora todas las características útiles e innovadoras del XRPL, incluida su sostenibilidad medioambiental, pero modifica y mejora el código para soportar contratos inteligentes.  
+2. Las características principales de Xahau son:
+    * **Núcleo XRPL:** Xahau conserva las funcionalidades clave que han hecho del XRPL una de las redes más duraderas y populares, incluyendo el **Protocolo de Consenso del XRP Ledger**, el **DEX**, y la lógica de protección contra spam mediante tarifas quemadas, pero sustituye los **NFTs XLS-20** por los más simples **URITokens**.  
+    * **Hooks para contratos inteligentes:** La gran novedad de Xahau son los Hooks, una implementación de contratos inteligentes en rippled. Son pequeños fragmentos de código instalados en cuentas que imponen reglas a las transacciones antes de ser finalizadas.  
+    * **Token nativo y mejor tokenómica:** Xahau está asegurado por su token nativo XAH y diseñado para recompensar validadores y soportar contratos inteligentes.  
+    * **Juego de gobernanza Genesis Hook:** La cuenta Genesis está controlada por un Hook que regula la emisión de XAH y se gobierna mediante un sistema de dos niveles con hasta 20 validadores independientes.  
+3. Estas características crean una nueva red dentro del ecosistema XRPL con contratos inteligentes rápidos, baratos y seguros.  
+4. El desarrollo ha sido impulsado por la Xahau Launch Alliance sin ICO.  
+5. Xahau se lanza totalmente funcional y descentralizado con más de 10 validadores independientes.  
+
+## 2. Xahau – Construido desde el ADN del XRPL  
+
+1. Xahaud es un fork de rippled que mantiene las características clave del XRPL desde 2012.  
+
+### Protocolo de Consenso del XRP Ledger
+
+2. Xahau utiliza el Protocolo de Consenso del XRPL (también llamado Proof of Association).  
+3. Funciona así:
+    * **Propuesta:** cada validador propone un conjunto de transacciones.  
+    * **Acuerdo:** los validadores comparan y convergen en un conjunto común.  
+    * **Finalización:** cuando ≥80% coincide, se finaliza.  
+    * **Cierre:** se genera un nuevo ledger cada 3-5 segundos.  
+4. Cada validador define una UNL (lista de confianza).  
+5. Entidades como la XRPL Foundation publican listas recomendadas.  
+6. Ventajas: escalabilidad, bajo consumo energético y resistencia a censura.  
+
+### El DEX
+
+7. Xahau mantiene un DEX descentralizado basado en libro de órdenes.  
+8. Funciona mediante:
+    * creación de órdenes  
+    * emparejamiento automático  
+    * trading entre monedas  
+    * pathfinding  
+    * ejecución automática  
+    * descentralización total  
+    * bajas comisiones  
+9. Permite trading eficiente y seguro sin intermediarios.  
+
+### Tarifas quemadas
+
+10. Xahau quema tarifas para evitar spam.  
+11. En contratos inteligentes estas tarifas pueden ser mayores y variables.  
+
+### URITokens en lugar de XLS-20
+
+12. Xahau usa URITokens en vez de XLS-20.  
+13. Son objetos únicos con dirección fija.  
+14. Ventajas:
+    * ligeros y eficientes  
+    * interoperables e inmutables  
+    * mejor experiencia de usuario  
+15. Son una solución flexible y eficiente para NFTs.  
+
+## 3. Hooks – Contratos inteligentes para XRPL
+
+1. Hooks son pequeños programas que se ejecutan antes de finalizar transacciones.  
+2. Se implementan como sidechain.  
+
+### Beneficios
+
+3. Ventajas:
+    * simplicidad y eficiencia  
+    * integración nativa  
+    * bajas comisiones  
+    * seguridad  
+    * compatibilidad  
+    * descentralización de cuentas  
+
+### Casos de uso
+
+4. Ejemplos:
+    * listas blancas  
+    * listas negras  
+    * escrow avanzado  
+    * registros automáticos  
+    * tesorerías autónomas  
+
+5. Xahau ofrece acceso temprano a contratos inteligentes eficientes.  
+
+## 4. XAH – Token nativo y tokenómica
+
+1. Características:
+    * token: XAH  
+    * unidad mínima: 1 drop  
+    * función: pagar servicios  
+    * suministro inicial: 600M  
+    * sin límite máximo  
+
+### Distribución inicial
+
+2. Distribución:
+    * validadores  
+    * GateHub  
+    * XRPL Labs  
+    * XRPL Foundation  
+
+### Ajuste mensual de saldo
+
+3. Permite recuperar tokens quemados:
+    * ~0.34% mensual  
+    * requiere actividad  
+    * incentiva uso  
+
+### Recompensas a validadores
+
+4. Validadores reciben recompensas mensuales según actividad.  
+
+## 5. Juego de Gobernanza  
+
+1. Xahau usa consenso social como XRPL.  
+2. Pero añade gobernanza del Genesis Hook.  
+3. Funciona así:
+    * 20 asientos  
+    * L1 y L2  
+    * votaciones ≥80%  
+    * recompensas por participación  
+4. Permite hasta 400 cuentas participando.  
+
+## 6. Xahau Launch Alliance  
+
+Incluye:
+* XRPL Labs  
+* GateHub  
+* Titanium OU  
+* Evernode Labs  
+* Digital Governing OU  
+
+## 7. Lanzamiento descentralizado  
+
+1. Sin control central.  
+2. Sin ICO.  
+3. Sin promesas ni roadmap centralizado.  
+4. Sistema gobernado por incentivos.  
+5. Software funcional desde el inicio.  

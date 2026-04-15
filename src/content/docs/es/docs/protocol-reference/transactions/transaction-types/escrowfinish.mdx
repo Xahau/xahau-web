@@ -1,0 +1,51 @@
+---
+title: EscrowFinish
+description: Entrega XAH o IOU de un pago retenido al destinatario.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_Añadido por la enmienda \[Escrow]\[]._
+
+### Finalizar con OfferSequence
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowFinish",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "OfferSequence": 7,
+    "Condition": "A0258020E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855810100",
+    "Fulfillment": "A0028000"
+}
+```
+
+### Finalizar con EscrowID
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowFinish",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "EscrowID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Condition": "A0258020E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855810100",
+    "Fulfillment": "A0028000"
+}
+```
+
+### Campos
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                         |
+| --------------- | --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Owner`         | String    | AccountID           | Dirección de la cuenta fuente que financió el pago retenido.                                                                                                                                        |
+| `OfferSequence` | Number    | UInt32              | _(Opcional)_ Secuencia de transacción de la \[transacción EscrowCreate]\[] que creó el pago retenido a finalizar.                                                                                   |
+| `Condition`     | String    | Blob                | _(Opcional)_ Valor hex que coincide con la [crypto-condición PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1) del pago retenido previamente proporcionada. |
+| `Fulfillment`   | String    | Blob                | _(Opcional)_ Valor hex del [cumplimiento de la crypto-condición PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1.4) que coincide con la `Condition` del pago retenido. |
+| `EscrowID`      | String    | Hash256             | _(Opcional)_ El ID del objeto ledger Escrow a finalizar, como una cadena hexadecimal de 64 caracteres.                                                                                              |
+
+Cualquier cuenta puede enviar una transacción EscrowFinish.
+
+* Si el pago retenido tiene un tiempo `FinishAfter`, no puede ejecutarse antes de ese tiempo. Específicamente, si la \[transacción EscrowCreate]\[] correspondiente especificó un tiempo `FinishAfter` posterior al tiempo de cierre del ledger cerrado más recientemente, la transacción EscrowFinish falla.
+* Si el pago retenido tiene una `Condition`, no puede ejecutarse a menos que proporcione un `Fulfillment` coincidente para la condición.
+* No puede ejecutar un pago retenido después de que haya expirado. Específicamente, si la \[transacción EscrowCreate]\[] correspondiente especificó un tiempo `CancelAfter` anterior al tiempo de cierre del ledger cerrado más recientemente, la transacción EscrowFinish falla.
+
+**Nota:** El costo mínimo de transacción para enviar una transacción EscrowFinish aumenta si contiene un cumplimiento. Si la transacción no tiene cumplimiento, el costo es el estándar de 10 drops. Si contiene un cumplimiento, el costo es 330 \[drops de XAH]\[] más 10 drops adicionales por cada 16 bytes de tamaño de la pre-imagen.

@@ -1,0 +1,33 @@
+---
+title: Introducción
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Los Hooks añaden funcionalidad de smart contracts a Xahau: código personalizado de _capa uno_ para influir en el comportamiento y flujo de las transacciones. Los Hooks son pequeñas y eficientes piezas de código definidas en una cuenta de Xahau, que permiten ejecutar lógica antes y/o después de las transacciones en Xahau.
+
+<Aside type="note">
+Ten en cuenta: estás leyendo la **documentación técnica** de Hooks. Esta documentación es altamente técnica y asume conocimientos previos de programación y de la red Xahau. Si estás buscando ejemplos sobre qué son los Hooks, qué aportan a la red Xahau y qué pueden hacer, por favor [consulta esta página](/es/docs/hooks/concepts/introduction/example-usage).
+</Aside>
+
+Xahau es conocida y valorada por su alto rendimiento en transacciones, su velocidad y sus bajas comisiones. Combinado con tipos de transacciones avanzados disponibles como multifirma, escrows, canales de pago e incluso un exchange descentralizado (todo en el ledger, listo para usar, sin necesidad de smart contracts), Xahau ofrece mucho a empresas y desarrolladores creativos.
+
+Los Hooks añaden funcionalidad de smart contracts a Xahau: código personalizado de _capa uno_ para influir en el comportamiento y flujo de las transacciones. Los Hooks son pequeñas y eficientes piezas de código definidas en una cuenta de Xahau, que permiten ejecutar lógica antes y/o después de las transacciones en Xahau. Estos Hooks pueden ser muy simples, como: “rechazar pagos < 10 XAH”, o “para todos los pagos salientes, enviar el 10% a mi cuenta de ahorros”, o más avanzados.
+
+<figure>
+![Hooks high level concept](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_sEBiInWuRskTqxB29Xgd_7359187-Hooks_High_Level2x_1.png)
+<figcaption>*Concepto general de Hooks*</figcaption>
+</figure>
+
+Al permitir que los Hooks no solo ejecuten lógica eficiente, sino también almacenen pequeños objetos de datos simples, se podría definir un Hook como: “para transacciones de pago entrantes, comprobar si la cuenta emisora está en una lista mantenida por otro Hook y, si está presente: rechazar la transacción”.
+
+Los Hooks no son deliberadamente Turing-completos. Aunque a menudo se presenta como el santo grial de los smart contracts, la completitud de Turing en realidad no es apropiada para los smart contracts. (Ver [Blog 2](https://dev.to/wietse/hooked-2-hooks-security-smart-contracts-on-the-xrp-ledger-83e).)
+
+Actualmente, los Hooks están activos en una testnet pública. Es momento de probar, programar, experimentar y romper cosas, para que una futura enmienda que añada Hooks a la red principal de Xahau pueda proponerse con confianza.
+
+### Recursos
+
+* [Xahau Testnet](https://xahau-test.net/)
+* [Xahau Testnet Explorer](https://explorer.xahau-test.net/)
+* [Ejemplos (código fuente)](https://github.com/XRPL-Labs/xrpld-hooks/tree/hooks-ssvm/hook-api-examples)
+* [Conceptos en blogs](https://dev.to/t/xrplhooks/top/infinity)

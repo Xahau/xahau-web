@@ -1,0 +1,27 @@
+---
+title: Guía de Formato de Respuestas
+---
+Las respuestas están estructuradas de manera diferente según si la solicitud se realiza a través de las interfaces WebSocket, JSON-RPC o Línea de Comandos. Las interfaces JSON-RPC y Línea de Comandos comparten el mismo formato, ya que la interfaz de Línea de Comandos usa internamente JSON-RPC.
+
+### Campos
+
+| Campo         | Tipo     | Descripción                                                                                                                                                            |
+| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| id            | (Varía)  | (Para WebSocket) El ID de la solicitud original.                                                                                                                       |
+| status        | String   | (Para WebSocket) Indica `success` cuando la solicitud fue recibida y procesada correctamente.                                                                          |
+| result.status | String   | (Para JSON-RPC y Línea de Comandos) Indica `success` cuando la solicitud fue procesada exitosamente.                                                                   |
+| type          | String   | (Para WebSocket) El valor `response` se usa para respuestas directas a solicitudes de la API. Las notificaciones asíncronas usan otros valores, como `ledgerClosed` o `transaction`. |
+| result        | Object   | Contiene el resultado de la consulta, con contenido que varía según el comando.                                                                                        |
+| warning       | String   | _(Opcional)_ Si está presente, el valor es `load`, indicando que el cliente se está acercando al umbral del límite de velocidad donde el servidor puede desconectarse. |
+| warnings      | Array    | _(Opcional)_ Una lista de **Objetos de Advertencia** con advertencias importantes del servidor. Para más detalles, consulte Advertencias de la API.                     |
+| forwarded     | Boolean  | _(Opcional)_ `true` indica que la solicitud fue reenviada desde un servidor en Modo de Reporte a un servidor P2P para cumplir con la solicitud. El valor predeterminado es `false`. |
+
+Advertencias de la API
+
+Cuando una respuesta contiene un array `warnings`, cada entrada representa una advertencia específica del servidor. Cada **Objeto de Advertencia** incluye los siguientes campos:
+
+| Campo   | Tipo   | Descripción                                                                                                                                                                            |
+| ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| id      | Number | Un código numérico único que identifica este mensaje de advertencia.                                                                                                                   |
+| message | String | Una explicación legible por humanos de la advertencia. Evite escribir código que dependa del contenido de este campo; use el `id` (y `details`, si está disponible) para interpretar la advertencia. |
+| details | Object | _(Opcional)_ Contexto adicional sobre la advertencia. El contenido varía según el tipo de advertencia.                                                                                 |

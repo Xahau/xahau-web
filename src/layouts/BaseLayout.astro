@@ -3,6 +3,7 @@
   import Footer from '../components/Footer.astro'
   import Header from '../components/Header.jsx'
 
+  const _lang = Astro.currentLocale ?? 'en'
   const _canonicalURL = new URL(Astro.url.pathname, Astro.site)
   const _socialImageURL = new URL('/xahau-logo.png', Astro.site)
   const _title = Astro.props.frontmatter?.title
@@ -12,7 +13,7 @@
     ? Astro.props.frontmatter?.description
     : 'Xahau is a blockchain for the real world. It is a smart blockchain with account-based programmability. It is cheap and fast by design. It is built for the real world.'
 ---
-<html lang="en">
+<html lang={_lang}>
   <head>
     <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml">
     <meta charset="UTF-8">
@@ -39,7 +40,7 @@
     <meta name="twitter:image" content={_socialImageURL}>
   </head>
   <body class="font-[Onest] bg-xahau-background min-h-screen flex flex-col">
-    <Header client:load url={Astro.url}/>
+    <Header client:load url={Astro.url} locale={_lang}/>
     <slot/>
     <Footer/>
     <CookieConsent/>

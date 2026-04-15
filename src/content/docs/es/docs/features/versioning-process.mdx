@@ -1,0 +1,63 @@
+---
+title: Proceso de Versionado
+description: >-
+  Este documento describe nuestro flujo de trabajo de versionado en GitHub para agilizar
+  el desarrollo, pruebas y despliegue de nuevas características y correcciones.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Este documento describe el proceso de versionado que usamos en nuestro repositorio de GitHub. Usamos un flujo de trabajo de tres ramas: `dev`, `candidate` y `release`. Este proceso garantiza que todas las nuevas características y correcciones sean probadas exhaustivamente antes del lanzamiento.
+
+### Rama Dev
+
+La rama dev es la rama principal para el desarrollo continuo. Todas las nuevas características, correcciones de errores y mejoras se fusionan en esta rama. Esta es la rama más activa, y es donde los desarrolladores deben basar su trabajo.
+
+Para contribuir a la rama dev, siga estos pasos:
+
+1. Haga un fork del repositorio en su propia cuenta de GitHub.
+2. Clone el repositorio bifurcado en su máquina local.
+3. Cree una nueva rama para su característica o corrección de errores.
+4. Realice sus cambios y haga commit en su rama.
+5. Haga push de su rama a su repositorio bifurcado en GitHub.
+6. Cree un pull request desde su rama a la rama dev en el repositorio principal.
+
+<Aside type="caution">
+Todos los merges en la rama dev deben ser squashed
+</Aside>
+
+Los mantenedores de código revisarán su pull request y proporcionarán retroalimentación. Una vez que el código sea aprobado, se fusionará en la rama dev.
+
+### Ramas Candidate
+
+Una vez que las características en la rama `dev` están listas para pruebas, se fusionan en una rama `candidate`. Esta rama sirve como área de preparación para el código que está casi listo para su lanzamiento.
+
+El código en la rama `candidate` se prueba exhaustivamente. Los errores o problemas encontrados se corrigen en la rama `dev` y luego se fusionan de vuelta en la rama `candidate`.
+
+La rama `candidate` normalmente está en esta fase de pruebas durante aproximadamente 2 semanas. Sin embargo, este período puede ser más largo o más corto, dependiendo de la urgencia de las correcciones o del tamaño de las nuevas características.
+
+1. Cree una nueva rama `candidate` desde `dev`.
+2. Cree un PR desde la rama `candidate` a la rama `release` con un nombre como "Proposed."
+3. Actualice la "Descripción General de Alto Nivel del Cambio" para incluir los Pull Requests de `candidate`. Actualice el "Contexto del Cambio" para incluir cualquier nota adicional sobre los PRs.
+
+### Rama Release
+
+Una vez que el código en la rama `candidate` ha sido probado exhaustivamente y todos los problemas han sido abordados, se fusiona en la rama `release`. Este es el paso final antes de que se lance el código.
+
+La rama `release` contiene el código que está actualmente en producción o está a punto de ser lanzado. Solo el código completamente probado y estable debe estar en esta rama.
+
+Una vez que el código está en la rama `release`, se etiqueta con un número de versión. Este número de versión se usa para rastrear el lanzamiento y también se usa al crear notas de versión.
+
+En la rama `release`, se construye y publica un binario en https://build.xahau.tech/. Este binario es el producto final que se entrega a los usuarios finales.
+
+Para lanzar el código, siga estos pasos:
+
+1. Fusione el pull request `candidate` en la rama release.
+2. Elimine la rama `candidate`.
+
+<Aside type="caution">
+Todos los merges en la rama release deben hacerse con \`git merge --ff-only candidate\`
+</Aside>
+
+### Resumen
+
+Este flujo de trabajo de tres ramas garantiza que todo el código sea probado exhaustivamente antes del lanzamiento. Nos permite detectar y corregir problemas antes de que lleguen a producción, y proporciona un camino claro para mover el código desde el desarrollo hasta el lanzamiento. El uso de una LAN personalizada para pruebas y métricas de perfilado garantiza que nuestro código no solo sea funcional sino también eficiente y con buen rendimiento.

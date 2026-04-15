@@ -1,0 +1,96 @@
+---
+title: otxn_param
+description: Obtener el valor de un parámetro nombrado de una transacción Invoke
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Busca el valor de un parámetro nombrado especificado en `read_ptr` dentro de la transacción origen.
+* Escribe el valor del parámetro en `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Busca el valor de un parámetro nombrado en la transacción origen.
+* Devuelve el valor del parámetro especificado, o un ErrorCode si falla la búsqueda.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_param (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_param(name: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t pname[] = {0xCAU, 0xFEU};
+uint8_t pvalue[32];
+int64_t value_len = 
+    otxn_param(pvalue, 32, pname, 2);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const pname = [0xCA, 0xFE]
+const pvalue = otxn_param(pname)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                                                 |
+| --------- | -------- | --------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Puntero a un buffer adecuado para almacenar la salida (mínimo 32 bytes)     |
+| write_len | uint32_t | Longitud del buffer de salida                                               |
+| read_ptr  | uint32_t | Puntero a un buffer que contiene el nombre del parámetro                    |
+| read_len  | uint32_t | Longitud del nombre del parámetro                                           |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo                   | Descripción                                                                 |
+| ------ | ---------------------- | --------------------------------------------------------------------------- |
+| name   | ByteArray \| HexString | Nombre del parámetro a buscar, como ByteArray o cadena                     |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>DOESNT_EXIST</code><br />- el parámetro no existe o es nulo<br /><br /><code>TOO_SMALL</code><br />- el nombre es nulo<br /><br /><code>TOO_BIG</code><br />- el nombre supera 32 bytes</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | Devuelve el valor del parámetro o un ErrorCode si falla                                     |
+</TabItem>
+</Tabs>

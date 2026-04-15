@@ -1,0 +1,88 @@
+---
+title: ledger_nonce
+description: Generar un nonce de 32 bytes para usar en una transacción emitida
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Escribe un valor aleatorio de 32 bytes en `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Obtiene el nonce del ledger actual.
+</TabItem>
+</Tabs>
+
+### Definición
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_nonce (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_nonce(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t n[32];
+int64_t bytes_written = 
+    ledger_nonce(n, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const nonce = ledger_nonce()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                                                 |
+| --------- | -------- | --------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Puntero a un buffer adecuado para almacenar la salida (mínimo 32 bytes)     |
+| write_len | uint32_t | Longitud del buffer de salida                                               |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | Devuelve un código de error o un array que representa el nonce del ledger actual                    |
+</TabItem>
+</Tabs>

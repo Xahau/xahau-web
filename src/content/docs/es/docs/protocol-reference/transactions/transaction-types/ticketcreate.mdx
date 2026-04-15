@@ -1,0 +1,38 @@
+---
+title: TicketCreate
+description: >-
+  Una transacción TicketCreate reserva uno o más números de secuencia como Tickets.
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/CreateTicket.cpp)
+
+_(Añadido por la enmienda \[TicketBatch]\[].)_
+
+### Ejemplo
+
+```json
+{
+    "TransactionType": "TicketCreate",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "10",
+    "Sequence": 381,
+    "TicketCount": 10
+}
+```
+
+| Campo         | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                                                                                            |
+| ------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TicketCount` | Number    | UInt32              | Cuántos Tickets crear. Debe ser un número positivo y no puede hacer que la cuenta posea más de 250 Tickets después de ejecutar esta transacción.       |
+
+Si la transacción no puede crear _todos_ los Tickets solicitados (ya sea por el límite de 250 Tickets o la reserva del propietario), falla y no crea ningún Ticket. Para ver cuántos Tickets posee actualmente una cuenta, use el \[método account_info]\[] y verifique el campo `account_data.TicketCount`.
+
+**Consejo:** Esta transacción incrementa el \[número de secuencia]\[Sequence Number] de la cuenta emisora en 1 _más_ el número de tickets creados (`TicketCount`). Esta es la única transacción que incrementa el número de secuencia de una cuenta en más de 1.
+
+### Casos de Error
+
+Además de los errores que pueden ocurrir para todas las transacciones, las transacciones TicketCreate pueden resultar en los siguientes códigos de resultado:
+
+| Código de Error           | Descripción                                                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temINVALID_COUNT`        | El campo `TicketCount` es inválido. Debe ser un entero entre 1 y 250.                                                                                       |
+| `tecDIR_FULL`             | Esta transacción haría que la cuenta posea más del límite de 250 Tickets a la vez, o más que el número máximo de objetos del ledger en general.             |
+| `tecINSUFFICIENT_RESERVE` | La cuenta emisora no tiene suficiente XAH para cumplir con la reserva del propietario de todos los Tickets solicitados.                                     |

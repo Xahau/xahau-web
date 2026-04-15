@@ -1,0 +1,96 @@
+---
+title: float_negate
+description: Niega un número de punto flotante XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Multiplica un XFL por `-1`
+* Devuelve un nuevo XFL como un int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Niega una representación flotante.
+* Devuelve un código de error o el valor negado como bigint.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_negate (
+    int64_t float1
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_negate(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t negative_one =
+    float_negate(float_one());
+```
+
+<Aside type="tip" title="Caso especial">
+La negación de Cero Canónico es Cero Canónico. A diferencia de otros estándares de punto flotante (como IEEE), no existe el "cero negativo" en XFL.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const negative_one =
+    float_negate(float_one());
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre | Tipo     | Descripción                             |
+| ------ | -------- | --------------------------------------- |
+| float1 | int64_t  | Número de punto flotante XFL            |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción              |
+| ------ | ------ | ------------------------ |
+| f1     | bigint | El número a negar        |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                   |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>El número XFL (xls17) resultante<br /><br />Si es negativo, error:<br /><code>INVALID_FLOAT</code><br />- alguno de los parámetros no es un número XFL válido</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                          |
+| ------------------- | ---------------------------------------------------- |
+| ErrorCode o bigint  | Devuelve un código de error o el número XFL resultante |
+</TabItem>
+</Tabs>

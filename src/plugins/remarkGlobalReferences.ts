@@ -82,8 +82,20 @@ export function remarkGlobalReferences() {
     }
   }
 
-  return function transformer(tree: any) {
+  const NON_ROOT_LOCALES = ['es', 'ja']
+
+  return function transformer(tree: any, vfile: any) {
     const refs = loadGlobalReferences()
+
+    // Detect locale from the file path
+    let localePrefix = ''
+    const filePath = vfile.path || vfile.history?.[0] || ''
+    for (const locale of NON_ROOT_LOCALES) {
+      if (filePath.includes(`/content/docs/${locale}/`)) {
+        localePrefix = `/${locale}`
+        break
+      }
+    }
 
     // Find all reference-style links in the format [text][]
     visit(tree, 'linkReference', (node) => {
@@ -96,7 +108,7 @@ export function remarkGlobalReferences() {
         if (label && refs[label]) {
           // Convert linkReference to a regular link
           node.type = 'link'
-          node.url = refs[label]
+          node.url = localePrefix + refs[label]
           delete node.referenceType
           delete node.identifier
           delete node.label
@@ -121,7 +133,7 @@ export function remarkGlobalReferences() {
             start: match.index,
             end: match.index + fullMatch.length,
             label,
-            url: refs[label],
+            url: localePrefix + refs[label],
           })
         }
         match = pattern.exec(node.value)

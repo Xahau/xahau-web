@@ -1,0 +1,56 @@
+---
+title: Tarifas de Transacción
+description: >-
+  Los contratos inteligentes (Hooks) de Xahau requieren tarifas específicas para la transacción y el destino.
+  Puede obtener fácilmente la tarifa requerida del comando RPC `fee`.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Aunque las bibliotecas pueden encargarse de la determinación de tarifas por usted, al construir sus propias integraciones con la Red Xahau, es posible que deba implementar la determinación dinámica de tarifas basada en la transacción, la cuenta de origen y la cuenta de destino.
+
+Dado que el remitente de una transacción tendrá que pagar las tarifas requeridas para los Hooks invocados para el tipo de transacción específico, donde los Hooks pueden existir tanto en la cuenta de origen como en la de destino, puede enviar un TX Blob (firmado con una cuenta ficticia) al comando `fee`, después del cual Xahau devolverá las tarifas específicas requeridas para la transacción específica.
+
+### Ayudante RPC de Tarifas
+
+Las tarifas de transacción en un ledger con la enmienda Hooks habilitada se vuelven no triviales para calcular para usuarios finales y/o aplicaciones de cartera. Esto se debe a que los hooks fuertes deben ser pagados por el originador de una transacción, y puede haber hasta 4 hooks fuertes en la cuenta remitente y 4 en la cuenta receptora, así como cualquier otra parte interesada transaccional fuerte involucrada (como puede ser el caso con algunos tipos de transacciones exóticas). Además, si la transacción es un SetHook, el tamaño de los parámetros, el tamaño del código y si es una operación _create_ o _install_ determinan el tamaño de la tarifa.
+
+Por lo tanto, se recomienda encarecidamente que **todas** las transacciones se ejecuten a través de la llamada RPC de tarifas actualizada antes de ser enviadas al ledger.
+
+#### Para invocar la llamada RPC:
+
+1. Abra una conexión WebSocket al nodo Hooks con el que trabajará.
+2. Componga la transacción serializada de la que desea conocer la tarifa con lo siguiente:
+
+* `Fee: 0`
+* `SigningPubKey: ""` (Es decir: VL de 0 bytes de tipo 0x73. En hex:`0x7300`.)
+* **No** firme la transacción.
+
+3. Envíela como blob hex al RPC de la siguiente manera:
+
+```json
+{"command":"fee", "tx_blob":"<hex blob>"}
+```
+
+Para HTTP POST RPC, envíela de la siguiente manera:
+
+```json
+{"method":"fee", "params": [{"tx_blob":"<hex blob>"}] }
+```
+
+La respuesta debería tener un aspecto similar a:
+
+```json
+{
+  result: {
+    drops: {
+      base_fee: '130520',
+    },
+  //...
+  },
+  type: 'response'
+}
+```
+
+Tome la tarifa base y establézcala como el campo `Fee` en la transacción. Ahora firme y envíela según el proceso normal de envío de transacciones.
+
+Si hay un valor no válido para `tx_blob` o `tx_blob` está ausente, se devolverá un resultado JSON normal con una `base_fee` de 10.

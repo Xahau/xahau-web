@@ -1,0 +1,67 @@
+---
+title: float_exponent
+description: Obtiene el exponente de un número XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Tabs>
+<TabItem label="C">
+<Aside type="caution" title="Reemplazado por macro">
+Esta función ha sido reemplazada por una macro. Por favor, usa la macro mostrada abajo en tu código.
+Para comprobar la validez del XFL, utiliza float_mantissa junto con esta macro.
+</Aside>
+</TabItem>
+</Tabs>
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Devuelve la parte del exponente de un XFL como un entero con signo
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+Debido a que los exponentes pueden ser negativos, y los valores negativos están reservados para estados de error, los exponentes no pueden devolverse desde funciones. Por ello, esta función se ha convertido en una macro como se muestra a continuación.
+
+```c
+#define float_exponent(f)\
+        (((int32_t)(((f) >> 54U) & 0xFFU)) - 97)
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t exponent =
+    float_exponent(float_one());
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre | Tipo     | Descripción                             |
+| ------ | -------- | --------------------------------------- |
+| float1 | int64_t  | Número de punto flotante XFL            |
+</TabItem>
+</Tabs>

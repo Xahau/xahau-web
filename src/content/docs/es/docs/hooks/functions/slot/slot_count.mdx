@@ -1,0 +1,77 @@
+---
+title: slot_count
+description: Contar los elementos de un objeto array en un slot
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+* Cuenta los elementos de un array en el slot especificado
+* Devuelve el número de elementos
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_count (
+    uint32_t slot_no
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_count(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+slot_count(1); // asume que hay un array en el slot=1
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+slot_count(1) // asume que hay un array en el slot=1
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre  | Tipo     | Descripción       |
+| ------- | -------- | ----------------- |
+| slot_no | uint32_t | Número del slot   |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción       |
+| ------ | ------ | ----------------- |
+| slotno | number | Número del slot   |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                              |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Número de elementos dentro del array almacenado en el slot<br /><br />Si es negativo, error:<br /><code>DOESNT_EXIST</code><br />- el slot especificado no contiene ningún objeto o es inválido<br /><br /><code>NOT_AN_ARRAY</code><br />- el slot especificado no contiene un array</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                      |
+| ------------------- | ---------------------------------------------- |
+| ErrorCode or number | Devuelve un código de error o el número de elementos |
+</TabItem>
+</Tabs>

@@ -1,0 +1,40 @@
+---
+title: Invoke
+description: >-
+  Una transacción Invoke se usa para llamar a un hook, que es un fragmento de
+  código que se ejecuta en respuesta a ciertas operaciones del ledger.
+---
+\[[Source](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/Invoke.cpp)]
+
+_(Añadido por la enmienda [Hooks][].)_
+
+### Ejemplo
+
+```json
+{
+    "TransactionType": "Invoke",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Blob": "697066733A2F2F4445414442454546",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+}
+```
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | ¿Requerido? | Descripción                                                                                        |
+| --------------- | --------- | ------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
+| `Account`       | String    | AccountID           | Sí          | La dirección de la cuenta que está invocando el hook.                                              |
+| `Blob`          | String    | Blob                | No          | Un blob de datos que se pasa al hook. (máximo 128k bytes)                                         |
+| `Destination`   | String    | AccountID           | No          | La dirección de la cuenta que es el objetivo del hook.                                             |
+
+### Costo de Transacción Especial
+
+La transacción Invoke tiene un costo de transacción estándar, más un costo adicional basado en el tamaño del campo Blob.
+
+### Casos de Error
+
+Además de los errores que pueden ocurrir para todas las transacciones, las transacciones Invoke pueden resultar en los siguientes códigos de resultado:
+
+| Código de Error | Descripción                                                              |
+| --------------- | ------------------------------------------------------------------------ |
+| `temDISABLED`   | Ocurre si la enmienda Hooks no está habilitada.                          |
+| `temMALFORMED`  | Ocurre si el campo Blob es mayor que 128k bytes.                         |
+| `terNO_ACCOUNT` | Ocurre si la cuenta emisora o la cuenta de destino no existe.            |

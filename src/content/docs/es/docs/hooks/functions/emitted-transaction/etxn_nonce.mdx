@@ -1,0 +1,86 @@
+---
+title: etxn_nonce
+description: Genera un nonce de 32 bytes para usar en una transacción emitida
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/emitted-transactions">Transacciones emitidas</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Escribe el hash de 32 bytes en `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Devuelve un ErrorCode si hay un error, o un array que contiene el valor del nonce en caso de éxito.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_nonce (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_nonce(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t n[32];
+int64_t bytes_written = 
+    etxn_nonce(n, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const nonce = etxn_nonce()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre     | Tipo      | Descripción                                                                                 |
+| ---------- | --------- | ------------------------------------------------------------------------------------------- |
+| write_ptr  | uint32_t  | Puntero a un buffer de tamaño adecuado para almacenar la salida. Debe ser al menos 32 bytes |
+| write_len  | uint32_t  | Longitud del buffer de salida                                                               |
+</TabItem>
+
+<TabItem label="JavaScript">
+Sin parámetros
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="187">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>int64_t</td><td>El número de bytes escritos<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros/longitudes fuera de la memoria del hook.</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="187">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>ErrorCode \| ByteArray</td><td>Devuelve un ErrorCode si hay un error, o un array con el valor del nonce en caso de éxito.</td></tr></tbody></table>
+</TabItem>
+</Tabs>

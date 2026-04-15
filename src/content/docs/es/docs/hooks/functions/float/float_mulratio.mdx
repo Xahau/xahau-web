@@ -1,0 +1,112 @@
+---
+title: float_mulratio
+description: Multiplica un número de punto flotante XFL por un numerador y denominador no XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Calcula la multiplicación de un número de punto flotante XFL (xls17) por el cociente de dos enteros
+* Devuelve un nuevo XFL como un int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Multiplica un número flotante por una razón definida por un numerador y un denominador.
+* Devuelve un código de error o un nuevo XFL como bigint.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mulratio (
+    int64_t float1,
+    uint32_t round_up,
+    uint32_t numerator,
+    uint32_t denominator
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mulratio(
+    f1: bigint,
+    round_up: number,
+    numerator: number,
+    denominator: number
+  ): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t max_vault_pusd =
+    float_mulratio(max_vault_pusd, 0,
+        COLLATERALIZATION_NUMERATOR, COLLATERALIZATION_DENOMINATOR);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const max_vault_pusd =
+    float_mulratio(max_vault_pusd, 0,
+        COLLATERALIZATION_NUMERATOR, COLLATERALIZATION_DENOMINATOR);
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre      | Tipo     | Descripción                                                                                   |
+| ----------- | -------- | --------------------------------------------------------------------------------------------- |
+| float1      | int64_t  | Número XFL que representa el primer operando de la multiplicación                             |
+| round_up    | uint32_t | Si es distinto de cero, todos los cálculos se redondean hacia arriba                          |
+| numerator   | uint32_t | Numerador del cociente por el cual se multiplicará el valor flotante                          |
+| denominator | uint32_t | Denominador del cociente por el cual se multiplicará el valor flotante                        |
+
+<Aside type="caution">
+Algunas multiplicaciones pueden producir overflow, lo que devuelve un error `INVALID_FLOAT`. Sin embargo, un **underflow** devuelve XFL Cero Canónico (es decir, número = 0).
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre      | Tipo   | Descripción                                                                                   |
+| ----------- | ------ | --------------------------------------------------------------------------------------------- |
+| f1          | bigint | Número XFL que representa el primer operando de la multiplicación                             |
+| round_up    | number | Si es distinto de cero, todos los cálculos se redondean hacia arriba                          |
+| numerator   | number | Numerador del cociente por el cual se multiplicará el valor flotante                          |
+| denominator | number | Denominador del cociente por el cual se multiplicará el valor flotante                        |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                      |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>El número XFL (xls17) resultante<br /><br />Si es negativo, error:<br /><code>INVALID_FLOAT</code><br />- alguno de los parámetros no es un número XFL válido<br /><br /><code>OVERFLOW</code><br />- el resultado es demasiado grande para representarse en XFL<br /><br /><code>DIVISION_BY_ZERO</code><br />- el denominador es cero.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| ErrorCode o bigint  | Devuelve un código de error o el número XFL (xls17) resultante    |
+</TabItem>
+</Tabs>

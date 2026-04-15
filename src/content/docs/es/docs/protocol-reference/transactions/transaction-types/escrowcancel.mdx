@@ -1,0 +1,42 @@
+---
+title: EscrowCancel
+description: Devuelve XAH o IOU en escrow al emisor.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_Añadido por la enmienda \[Escrow]\[]._
+
+### Cancelar Usando OfferSequence
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCancel",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "OfferSequence": 7,
+}
+```
+
+### Cancelar Usando EscrowID
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCancel",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "EscrowID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+}
+```
+
+### Campos
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                                                               |
+| --------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `Owner`         | String    | AccountID           | Dirección de la cuenta fuente que financió el pago en escrow.                                                             |
+| `OfferSequence` | Number    | UInt32              | _(Opcional)_ Secuencia de transacción (o número de Ticket) de la \[transacción EscrowCreate]\[] que creó el escrow a cancelar. |
+| `EscrowID`      | String    | Hash256             | _(Opcional)_ El ID del objeto ledger Escrow a cancelar, como una cadena hexadecimal de 64 caracteres.                    |
+
+Cualquier cuenta puede enviar una transacción EscrowCancel.
+
+* Si la \[transacción EscrowCreate]\[] correspondiente no especificó un tiempo `CancelAfter`, la transacción EscrowCancel falla.
+* De lo contrario, la transacción EscrowCancel falla si el tiempo `CancelAfter` es posterior al tiempo de cierre del ledger cerrado más recientemente.

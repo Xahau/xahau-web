@@ -1,0 +1,122 @@
+---
+title: state_foreign
+description: >-
+  Recuperar los datos apuntados, en otra cuenta, por una clave de Hook State y
+  escribirlos en un buffer de salida
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Lee un Account ID de 20 bytes desde `aread_ptr`
+* Lee una clave de Hook State de 32 bytes desde `kread_ptr`
+* Escribe los datos (valor) asociados a esa clave en ese Account ID en el buffer apuntado por `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Recupera el valor del Hook State externo perteneciente a otra cuenta para la clave especificada
+* Devuelve un código de error o el valor del Hook State para la clave
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_foreign (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t nread_ptr,
+    uint32_t nread_len,
+    uint32_t aread_ptr,
+    uint32_t aread_len  
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_foreign(
+    key: ByteArray | HexString,
+    namespace: ByteArray | HexString | undefined | null,
+    accountid: ByteArray | HexString | undefined | null
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+uint8_t ns[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int64_t lookup =
+    state_foreign(SBUF(blacklist_status), SBUF(otxn_accid), SBUF(ns), SBUF(blacklist_accid));
+if (lookup < 0)
+     rollback(SBUF("Error: no se pudo encontrar la clave en el estado externo."), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const ns = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+const blacklist_status =
+    state_foreign(otxn_accid, ns, blacklist_accid)
+if (typeof blacklist_status === 'number')
+     rollback("Error: no se pudo encontrar la clave en el estado externo.", 1);
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre     | Tipo     | Descripción                                                                 |
+| ---------- | -------- | --------------------------------------------------------------------------- |
+| write_ptr  | uint32_t | Puntero al buffer donde escribir los datos del Hook State                  |
+| write_len  | uint32_t | Longitud del buffer de escritura                                           |
+| kread_ptr  | uint32_t | Puntero a un buffer que contiene la clave del Hook State                   |
+| kread_len  | uint32_t | Longitud de la clave (debe ser 32)                                         |
+| nread_ptr  | uint32_t | Puntero al buffer que contiene el namespace de 32 bytes                    |
+| nread_len  | uint32_t | Longitud del namespace (debe ser 32)                                       |
+| aread_ptr  | uint32_t | Puntero a un buffer con el Account ID de 20 bytes                          |
+| aread_len  | uint32_t | Longitud del Account ID (debe ser 20)                                      |
+
+<Aside type="tip">
+Asegúrate de comprobar el valor de retorno. Una consulta de estado puede fallar por varias razones y el buffer contendrá lo que tuviera antes de la llamada (normalmente ceros).
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre     | Tipo                   | Descripción                                               |
+| ---------- | ---------------------- | --------------------------------------------------------- |
+| key        | ByteArray o HexString  | La clave del Hook State de la que obtener el valor        |
+| namespace  | ByteArray o HexString  | El namespace del Hook donde buscar                        |
+| accountid  | ByteArray o HexString  | El propietario del estado                                 |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>Número de bytes escritos en el buffer de salida<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>DOESNT_EXIST</code><br />- la clave de Hook State no tiene valor asociado<br /><br /><code>TOO_BIG</code><br />- la clave supera los 32 bytes<br /><br /><code>TOO_SMALL</code><br />- el buffer es demasiado pequeño<br /><br /><code>INVALID_ACCOUNT</code><br />- la cuenta especificada es inválida o no existe</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                               |
+| ---------------------- | --------------------------------------------------------- |
+| ErrorCode o ByteArray  | Devuelve un código de error o el valor del Hook State     |
+</TabItem>
+</Tabs>

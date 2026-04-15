@@ -1,0 +1,144 @@
+---
+title: sto_subarray
+description: >-
+  Indexar dentro de un array serializado de xahaud y devolver la ubicación y longitud de un índice
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Parsea un STArray apuntado por `read_ptr`
+* Encuentra el índice del array especificado por `array_id`
+* Devuelve el desplazamiento en bytes y la longitud del campo serializado dentro del STObject, si se encuentra
+
+<Aside type="caution" title="Codificación del Field ID">
+Las APIs `sto_` aceptan un parámetro `field_id` codificado así: `(type << 16U) + field`
+Por ejemplo, tipo 1 campo 2 sería `0x10002U`.
+
+En el caso de arrays, este identificador es `array_id`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Recibe el objeto STO (datos del ledger codificados en binario) del que extraer el subarray
+* Encuentra el índice del array especificado por `array_id`
+* Devuelve un subarray del objeto STO
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_subarray (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t array_id
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_subarray(
+    sto: ByteArray | HexString,
+    array_id: number
+  ): bigint | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+
+int64_t memo_lookup =
+sto_subarray(memos, memos_len, 0);
+
+if (memo_lookup < 0)
+{
+// sfMemo no fue encontrado en el STObject apuntado por memo_ptr
+}
+else
+{
+// El índice 0 del STArray fue encontrado y su ubicación es la siguiente:
+uint8_t*  memo_ptr = SUB_OFFSET(memo_lookup) + memos;
+uint32_t  memo_len = SUB_LENGTH(memo_lookup);
+}
+
+````
+
+<Aside type="tip">
+hookmacro.h ya contiene las macros `SUB_OFFSET` y `SUB_LENGTH`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const SUB_OFFSET = (x) => Number(x >> 32n)
+const SUB_LENGTH = (x) => Number(x & 0xFFFFFFFFn)
+
+const memo_lookup = sto_subarray(memos, 0)
+
+if (typeof memo_lookup === 'number')
+{
+    // sfMemo no fue encontrado en el STObject
+}
+else
+{
+    // El índice 0 del STArray fue encontrado y su ubicación es la siguiente:
+    const memo_start = SUB_OFFSET(memo_lookup)
+    const memo_len = SUB_LENGTH(memo_lookup)
+    const memo = memos.slice(memo_start, memo_len)
+}
+````
+
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre   | Tipo     | Descripción                                                                  |
+| -------- | -------- | ---------------------------------------------------------------------------- |
+| read_ptr | uint32_t | Puntero al buffer que contiene el STArray                                    |
+| read_len | uint32_t | Longitud del STArray                                                         |
+| array_id | uint32_t | Índice del elemento dentro del STArray que se desea obtener. Comienza en 0.   |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre   | Tipo                   | Descripción                                                                     |
+| -------- | ---------------------- | ------------------------------------------------------------------------------- |
+| sto      | ByteArray \| HexString | Objeto STO (datos binarios del ledger) del que se extraerá el subarray         |
+| array_id | number                 | Índice del array a extraer                                                      |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Ubicación del campo dentro del buffer especificado:<br />- Los 32 bits altos son el desplazamiento (offset)<br />- Los 32 bits bajos son la longitud<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_SMALL</code><br />- el buffer es demasiado pequeño para contener un STArray válido<br /><br /><code>DOESNT_EXIST</code><br />- el índice buscado no existe<br /><br /><code>PARSE_ERROR</code><br />- el STArray es inválido o mal formado</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo               | Descripción                                                                                                                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bigint / ErrorCode | <p>Ubicación del campo dentro del buffer:<br />- 32 bits altos = offset<br />- 32 bits bajos = longitud<br /><br />o un código de error si la extracción falla</p> |
+</TabItem>
+</Tabs>

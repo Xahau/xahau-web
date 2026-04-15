@@ -1,0 +1,274 @@
+---
+title: Servir un archivo TOML para verificación de identidad
+---
+
+***La verificación de identidad requiere dos partes. NUNCA CONFÍES únicamente en archivos TOML o en atestaciones de validadores/cuentas en la red para confirmar identidad, ya que cualquiera puede configurarlas. Un sitio web (URL) debe reclamar la propiedad del validador/cuenta, y los datos en la red deben coincidir.***
+
+Dado que la confianza es fundamental en la red Xahau, es ideal que las entidades que operan validadores xahaud asuman la autoría de sus servidores. La atestación de identidad proporciona garantías a los usuarios de que una sola entidad no está obteniendo un control desproporcionado sobre los validadores confiables (UNL por defecto) en la red.
+
+Esto se logra publicando dos atestaciones:
+
+1. Desde un servidor validador en la red Xahau  
+2. Desde un servidor web que sirva el dominio mediante TLS  
+
+De esta forma:
+
+* El validador declara su asociación con el dominio web  
+* El dominio web declara su asociación con el validador  
+
+*Sin ambas pruebas, no se puede confiar en la identidad.*
+
+---
+
+De forma similar, los titulares de cuentas pueden publicar un archivo TOML para demostrar que controlan determinadas cuentas en la red.
+
+Esto es especialmente relevante para:
+
+* Exchanges  
+* Instituciones financieras  
+
+La verificación también requiere dos partes:
+
+* Un servidor web que reclame la propiedad  
+* Una cuenta en la red que confirme esa propiedad  
+
+Esto da confianza a los usuarios al enviar fondos.
+
+---
+
+El formato es similar al usado en:
+
+* [Stellar](https://developers.stellar.org/docs/tokens/publishing-asset-info)  
+* [XRP Ledger](https://xrpl.org/docs/references/xrp-ledger-toml)  
+
+---
+
+## Configuración del servidor web y DNS
+
+1. El archivo debe estar en formato [TOML](https://github.com/toml-lang/toml)  
+2. Debe servirse desde:
+
+```
+
+https://[subdominio-opcional.tu-dominio.com]/.well-known/xahau.toml
+
+```
+
+* La ruta debe ser exactamente `/.well-known/xahau.toml`
+* Todo en minúsculas
+
+3. Debe usarse TLS válido  
+4. Se recomienda DNSSEC  
+5. Se pueden usar subdominios  
+6. Content-Type: `application/toml`  
+7. Debe incluir CORS:
+
+```
+
+Access-Control-Allow-Origin: *
+
+```
+
+8. Se pueden añadir cabeceras adicionales  
+9. Se permiten campos personalizados  
+10. Ningún campo es obligatorio  
+
+---
+
+### Configuración CORS
+
+Apache:
+```
+
+<Location "/.well-known/xahau.toml">
+Header set Access-Control-Allow-Origin "*" </Location>
+
+```
+
+Nginx:
+```
+
+location /.well-known/xahau.toml {
+add_header 'Access-Control-Allow-Origin' '*';
+}
+
+````
+
+---
+
+## Contenido del archivo TOML
+
+Secciones típicas:
+
+* METADATA  
+* ORGANIZATION  
+* PRINCIPALS  
+* VALIDATORS  
+* SERVERS  
+* ACCOUNTS  
+* CURRENCIES  
+
+---
+
+### Ejemplo
+
+```toml
+[METADATA]
+modified = 2025-08-04T14:24:34.123Z
+expired = 2025-12-31T14:24:34.123Z
+
+[ORGANIZATION]
+name = "A Company B.V."
+website = "https://example.com"
+email = "contact@example.com"
+
+[[PRINCIPALS]]
+name = "A. Person"
+email = "a_person@example.com"
+
+[[VALIDATORS]]
+public_key = "..."
+attestation = "..."
+
+[[ACCOUNTS]]
+address = "rabc..."
+desc = "Wallet de depósitos"
+
+[[CURRENCIES]]
+code = "USD"
+issuer = "rabc..."
+````
+
+---
+
+## Metadata
+
+* Fechas en UTC con milisegundos
+* Solo una sección permitida
+
+| Campo    | Tipo      | Descripción         |
+| -------- | --------- | ------------------- |
+| modified | Date-Time | Última modificación |
+| expires  | Date-Time | Fecha de expiración |
+
+---
+
+## Organización
+
+Identifica la entidad responsable.
+
+| Campo    | Descripción    |
+| -------- | -------------- |
+| name     | Nombre         |
+| email    | Email          |
+| website  | Web            |
+| social_x | Redes sociales |
+
+---
+
+## Principales (contactos)
+
+| Campo    | Descripción |
+| -------- | ----------- |
+| name     | Nombre      |
+| email    | Email       |
+| website  | Web         |
+| social_x | Redes       |
+
+---
+
+## Validadores
+
+Se recomienda incluir:
+
+* Clave pública
+* Atestación
+* País
+* ASN
+* UNL
+
+---
+
+## Servidores
+
+| Campo    | Descripción   |
+| -------- | ------------- |
+| ws       | WebSocket     |
+| json_rpc | RPC           |
+| peer     | Conexión peer |
+| network  | Red           |
+
+---
+
+## Cuentas
+
+| Campo   | Descripción      |
+| ------- | ---------------- |
+| address | Dirección (r...) |
+| network | Red              |
+| desc    | Descripción      |
+
+---
+
+## Monedas
+
+⚠️ IMPORTANTE: verificar emisor además del código
+
+| Campo            | Descripción |
+| ---------------- | ----------- |
+| code             | Código      |
+| issuer           | Emisor      |
+| symbol           | Símbolo     |
+| network          | Red         |
+| display_decimals | Decimales   |
+
+---
+
+## Verificación de dominio del validador
+
+El archivo TOML permite reclamar propiedad, pero:
+
+* El validador también debe confirmarlo
+* Es esencial para la confianza
+
+Si ya generaste claves:
+
+* Añade `attestation=""` al TOML
+* Verifica `[validation_token]` en `xahaud.cfg`
+
+Si no:
+
+```
+./validator-keys set_domain ejemplo.com
+```
+
+Ruta del archivo:
+
+```
+~/.xahaud/validator-keys.json
+```
+
+---
+
+## Verificación de dirección de wallet
+
+Requiere:
+
+1. Incluir en TOML:
+
+```
+[[ACCOUNTS]]
+address = "r..."
+```
+
+2. Enviar transacción:
+
+```
+AccountSet (con campo Domain)
+```
+
+---
+
+Esto garantiza que la dirección pertenece al dominio indicado.
+
+```

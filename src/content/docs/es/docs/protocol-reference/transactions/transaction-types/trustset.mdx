@@ -1,0 +1,63 @@
+---
+title: TrustSet
+description: Crear o modificar una línea de confianza que vincula dos cuentas.
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/SetTrust.cpp)
+
+### Ejemplo
+
+```json
+{
+    "TransactionType": "TrustSet",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 262144,
+    "LastLedgerSequence": 8007750,
+    "LimitAmount": {
+      "currency": "USD",
+      "issuer": "rsP3mgGb2tcYUrxiLFiHJiQXhsziegtwBc",
+      "value": "100"
+    },
+    "Sequence": 12
+}
+```
+
+| Campo                    | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                   |
+| ------------------------ | --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LimitAmount`            | Object    | Amount              | Objeto que define la línea de confianza a crear o modificar, en el formato de un \[Monto de Moneda]\[].                                                                                       |
+| `LimitAmount`.`currency` | String    | (Amount.currency)   | La moneda a la que aplica esta línea de confianza, como un [Código de Moneda ISO 4217](https://www.xe.com/iso4217.php) de tres letras o un valor hex de 160 bits. "XAH" es inválido. |
+| `LimitAmount`.`value`    | String    | (Amount.value)      | Representación decimal entre comillas del límite a establecer en esta línea de confianza.                                                                                                      |
+| `LimitAmount`.`issuer`   | String    | (Amount.issuer)     | La dirección de la cuenta a la que extender confianza.                                                                                                                                        |
+| `QualityIn`              | Number    | UInt32              | _(Opcional)_ Valorar los saldos entrantes en esta línea de confianza a la razón de este número por 1,000,000,000 unidades. Un valor de `0` es abreviatura para tratar los saldos a valor nominal. |
+| `QualityOut`             | Number    | UInt32              | _(Opcional)_ Valorar los saldos salientes en esta línea de confianza a la razón de este número por 1,000,000,000 unidades. Un valor de `0` es abreviatura para tratar los saldos a valor nominal. |
+
+Si la cuenta especificada en `LimitAmount.issuer` está bloqueando líneas de confianza entrantes, la transacción falla con el código de resultado `tecNO_PERMISSION`. _(Requiere la enmienda \[DisallowIncoming]\[] :not_enabled:)_
+
+### Indicadores TrustSet
+
+Las transacciones del tipo TrustSet admiten valores adicionales en el campo `Flags`, de la siguiente manera:
+
+| Nombre del Indicador  | Valor Hex    | Valor Decimal | Descripción                                                                                                                                        |
+| --------------------- | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfSetfAuth`          | `0x00010000` | 65536         | Autorizar a la otra parte a tener moneda emitida por esta cuenta. (Sin efecto a menos que se use el indicador AccountSet `asfRequireAuth`.) No puede desactivarse. |
+| `tfSetNoRipple`       | `0x00020000` | 131072        | Habilitar el indicador No Ripple, que bloquea el rippling entre dos líneas de confianza de la misma moneda si este indicador está habilitado en ambas. |
+| `tfClearNoRipple`     | `0x00040000` | 262144        | Deshabilitar el indicador No Ripple, permitiendo el rippling en esta línea de confianza.                                                           |
+| `tfSetFreeze`         | `0x00100000` | 1048576       | Congelar la línea de confianza.                                                                                                                    |
+| `tfClearFreeze`       | `0x00200000` | 2097152       | Descongelar la línea de confianza.                                                                                                                 |
+| `tfSetDeepFreeze`     | `0x00400000` | 4194304       | Congelamiento profundo de la línea de confianza. _(Requiere la enmienda \[DeepFreeze]\[])_                                                        |
+| `tfClearDeepFreeze`   | `0x00800000` | 8388608       | Eliminar el congelamiento profundo de la línea de confianza. _(Requiere la enmienda \[DeepFreeze]\[])_                                             |
+
+Si una transacción intenta habilitar No Ripple pero no puede, falla con el código de resultado `tecNO_PERMISSION`.
+
+### Reglas de Congelamiento Profundo
+
+Con la enmienda \[DeepFreeze]\[] habilitada, se aplican las siguientes reglas a las operaciones de congelamiento profundo:
+
+Una transacción TrustSet que intente establecer `tfSetDeepFreeze` tiene éxito si y solo si una de las siguientes condiciones es verdadera:
+
+* El titular ya está congelado, indicado por `lsfLowFreeze`/`lsfHighFreeze` en la línea de confianza.
+* `tfSetFreeze` también está establecido en la misma transacción TrustSet.
+
+Si la línea de confianza está profundamente congelada por el emisor (indicado por `lsfLowDeepFreeze`/`lsfHighDeepFreeze`), la transacción TrustSet falla si el emisor establece el indicador `tfClearFreeze` sin también establecer el indicador `tfClearDeepFreeze`.
+
+Consulte [Cuenta Alta vs. Baja](/es/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state#high-vs-low-account) para información sobre cómo se determinan las cuentas baja y alta.

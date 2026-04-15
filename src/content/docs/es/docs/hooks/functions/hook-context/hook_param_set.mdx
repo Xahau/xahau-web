@@ -1,0 +1,115 @@
+---
+title: hook_param_set
+description: >-
+  Establecer o eliminar un parámetro en un hook de la misma cuenta más adelante
+  en la cadena de ejecución
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Busca en la cadena de hooks de la cuenta un hash de 32 bytes indicado por `hread_ptr`
+* Si se encuentra: establece un parámetro:
+* Con el nombre indicado por `kread_ptr` y
+* El valor indicado por `read_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Establece un parámetro para el hook con la clave y valor especificados, asociado a un hash.
+* Devuelve un código de estado que indica el resultado de la operación.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_param_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t hread_ptr,
+    uint32_t hread_len  
+);
+````
+
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_param_set(
+    val: ByteArray | HexString,
+    key: ByteArray | HexString,
+    hash: ByteArray | HexString
+  ): number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t pvalue[] = "valor de parámetro";
+uint8_t pname[] = "nombre_param";
+uint8_t phash[] = { 0x19U, 0xFEU, 0x69U, 0xF1U, 0x53U, 0x66U, 0x4EU, 0x8CU, 
+                    0x97U, 0xF4U, 0x4CU, 0x5CU, 0x3CU, 0x65U, 0x63U, 0x79U, 
+                    0xC2U, 0xD0U, 0x26U, 0xE7U, 0x90U, 0xEFU, 0x38U, 0xF7U, 
+                    0xEDU, 0x73U, 0xE9U, 0xCEU, 0x9CU, 0x9DU, 0xBFU, 0x03U };
+int64_t result = 
+  	hook_param_set(pvalue, sizeof(pvalue),
+                   pname, sizeof(pname),
+                   phash, sizeof(phash));
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const pvalue = "valor de parámetro"
+const pname = "nombre_param"
+const phash = [ 0x19, 0xFE, 0x69, 0xF1, 0x53, 0x66, 0x4E, 0x8C, 
+                0x97, 0xF4, 0x4C, 0x5C, 0x3C, 0x65, 0x63, 0x79, 
+                0xC2, 0xD0, 0x26, 0xE7, 0x90, 0xEF, 0x38, 0xF7, 
+                0xED, 0x73, 0xE9, 0xCE, 0x9C, 0x9D, 0xBF, 0x03 ]
+const result = hook_param_set(str2hex(pvalue), str2hex(pname), phash)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                              |
+| --------- | -------- | ---------------------------------------- |
+| read_ptr  | uint32_t | Puntero al valor del parámetro           |
+| read_len  | uint32_t | Longitud del valor del parámetro         |
+| kread_ptr | uint32_t | Puntero al nombre del parámetro          |
+| kread_len | uint32_t | Longitud del nombre del parámetro        |
+| hread_ptr | uint32_t | Puntero al hash del hook                 |
+| hread_len | uint32_t | Longitud del hash (siempre 32)           |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo                   | Descripción                                 |
+| ------ | ---------------------- | ------------------------------------------- |
+| val    | ByteArray o HexString  | Valor del parámetro                         |
+| key    | ByteArray o HexString  | Clave asociada al parámetro                 |
+| hash   | ByteArray o HexString  | Hash asociado al parámetro                  |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="148">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>int64_t</td><td>Longitud del valor del parámetro establecido correctamente<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook.<br /><br /><code>TOO_SMALL</code><br />- el nombre del parámetro no puede ser nulo<br /><br /><code>TOO_BIG</code><br />- el nombre del parámetro supera los 32 bytes</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="148">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>number</td><td>Devuelve un código de estado que indica el resultado de la operación.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
