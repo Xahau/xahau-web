@@ -1,0 +1,29 @@
+---
+title: Trucos para Desarrolladores
+---
+## Firma Wildcard
+
+Para probar y reproducir fácilmente, use `NetworkID` con el valor `65535` (configuración: `[network_id]`) para deshabilitar la verificación de firmas.
+
+Añadido: [https://github.com/Xahau/xahaud/pull/201](https://github.com/Xahau/xahaud/pull/201)
+
+## Definiciones del Servidor
+
+Las definiciones del servidor pueden obtenerse fácilmente desde los nodos públicos. Estas definiciones incluyen información del codec binario y otros datos específicos de la red necesarios para la serialización y deserialización de transacciones.
+
+### Mainnet
+- [`https://xahau.network/server_definitions.json`](https://xahau.network/server_definitions.json)
+
+### Testnet
+- [`https://xahau-test.net/server_definitions.json`](https://xahau-test.net/server_definitions.json)
+
+### JSHooks-Testnet
+- [`https://jshooks.xahau-test.net/server_definitions.json`](https://jshooks.xahau-test.net/server_definitions.json)
+
+Estas definiciones del servidor son esenciales para:
+- Operaciones de codec binario
+- Serialización de transacciones
+- Definiciones de tipos de campos
+- Constantes específicas de la red
+
+Puede usar estas definiciones en sus aplicaciones para codificar y decodificar correctamente las transacciones para la red Xahau.

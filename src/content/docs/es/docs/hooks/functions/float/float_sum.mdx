@@ -1,0 +1,99 @@
+---
+title: float_sum
+description: Sumar dos números XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/floating-point-numbers-xfl">Números de punto flotante (XFL)</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Calcula la suma de dos números de punto flotante XFL (xls17)
+* Devuelve un nuevo XFL como un int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Suma dos representaciones flotantes.
+* Devuelve un código de error o la suma como bigint.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sum (
+    int64_t float1,
+    int64_t float2
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sum(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t two =
+    float_sum(float_one(), float_one());
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const two =
+  float_sum(float_one(), float_one());
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre | Tipo     | Descripción                                                                 |
+| ------ | -------- | --------------------------------------------------------------------------- |
+| float1 | int64_t  | Número XFL que representa el primer operando de la suma                    |
+| float2 | int64_t  | Número XFL que representa el segundo operando de la suma                   |
+
+<Aside type="tip">
+Para restar dos valores flotantes, usa `float_negate` en el segundo valor y luego `float_sum`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción                 |
+| ------ | ------ | --------------------------- |
+| f1     | bigint | Primer número a sumar       |
+| f2     | bigint | Segundo número a sumar      |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                 |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>El número XFL (xls17)<br /><br />Si es negativo, error:<br /><code>INVALID_FLOAT</code><br />- alguno de los parámetros no es válido<br /><br /><code>OVERFLOW</code><br />- la suma es demasiado grande</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                          |
+| ------------------- | ------------------------------------ |
+| ErrorCode o bigint  | Un código de error o la suma         |
+</TabItem>
+</Tabs>

@@ -1,0 +1,184 @@
+---
+title: Enmiendas
+---
+Las enmiendas representan nuevas características u otros cambios en el procesamiento de transacciones.
+
+El sistema de enmiendas utiliza el proceso de consenso para aprobar cualquier cambio que afecte al procesamiento de transacciones en Xahau. Los cambios en el procesamiento de transacciones, completamente funcionales, se introducen como enmiendas; los validadores luego votan sobre estos cambios. Si una enmienda recibe más del 80% de apoyo durante cinco días, la enmienda se aprueba y el cambio se aplica permanentemente a todas las versiones posteriores del ledger. Deshabilitar una enmienda aprobada requiere una nueva enmienda para hacerlo.
+
+**Nota:** Las correcciones de errores que cambian los procesos de transacciones también requieren enmiendas.
+
+### Proceso de Enmienda
+
+El tema Contribuir Código a Xahau describe el flujo de trabajo para desarrollar una enmienda desde una idea hasta su activación en Xahau.
+
+Una vez que el código para una enmienda se incluye en una versión del software, el proceso para habilitarla ocurre dentro de la red Xahau, que verifica el estado de las enmiendas en cada ledger _flag_ (típicamente cada 15 minutos aproximadamente).
+
+Cada 256 ledgers se denomina ledger **flag**. El ledger flag no tiene contenidos especiales, pero el proceso de enmienda ocurre alrededor de él.
+
+1. **Flag Ledger -1:** Cuando los validadores `xahaud` envían mensajes de validación, también envían sus votos de enmienda.
+2. **Flag Ledger:** Los servidores interpretan los votos de los validadores de confianza.
+3. **Flag Ledger +1:** Los servidores insertan una pseudo-transacción `EnableAmendment` y establecen una bandera según lo que creen que ocurrió:
+
+    * La bandera `tfGotMajority` significa que la enmienda tiene más del 80% de apoyo.
+    * La bandera `tfLostMajority` significa que el apoyo a la enmienda ha caído al 80% o menos.
+    * Sin bandera significa que la enmienda está habilitada.
+
+    **Nota:** Es posible que una enmienda pierda el 80% de apoyo en el mismo ledger en que alcanza el período requerido de cinco días para ser habilitada. En estos casos, se añade una pseudo-transacción `EnableAmendment` para ambos escenarios, pero la enmienda finalmente se habilita.
+4. **Flag Ledger +2:** Las enmiendas habilitadas se aplican a las transacciones de este ledger en adelante.
+
+### Votación de Enmiendas
+
+Cada versión de `xahaud` se compila con una lista de enmiendas conocidas y el código para implementarlas. Los operadores de validadores `xahaud` configuran sus servidores para votar sobre cada enmienda y pueden cambiarlo en cualquier momento. Si el operador no elige un voto, el servidor usa un voto predeterminado definido por el código fuente.
+
+**Nota:** El voto predeterminado puede cambiar entre versiones del software. \[Actualizado en: rippled 1.8.1]\[]
+
+Las enmiendas deben mantener cinco días de apoyo de más del 80% de los validadores de confianza para ser habilitadas. Si el apoyo cae por debajo del 80%, la enmienda se rechaza temporalmente y el período de dos semanas se reinicia. Las enmiendas pueden ganar y perder mayoría cualquier número de veces antes de quedar habilitadas permanentemente.
+
+Las enmiendas cuyo código fuente ha sido eliminado sin haber sido habilitadas se consideran **Vetadas** por la red.
+
+### Servidores Bloqueados por Enmienda
+
+El bloqueo por enmienda es una función de seguridad para proteger la precisión de los datos de Xahau. Cuando se habilita una enmienda, los servidores que ejecutan versiones anteriores de `xahaud` sin el código fuente de la enmienda ya no comprenden las reglas de la red. En lugar de adivinar e interpretar incorrectamente los datos del ledger, estos servidores quedan **bloqueados por enmienda** y no pueden:
+
+* Determinar la validez de un ledger.
+* Enviar o procesar transacciones.
+* Participar en el proceso de consenso.
+* Votar sobre futuras enmiendas.
+
+La configuración de votación de un servidor `xahaud` no tiene impacto en si queda bloqueado por enmienda. Un servidor `xahaud` siempre sigue las enmiendas habilitadas por el resto de la red, por lo que los bloqueos se basan únicamente en tener el código para entender los cambios de reglas. Esto significa que también puede quedar bloqueado por enmienda si conecta su servidor a una red paralela con diferentes enmiendas habilitadas. Por ejemplo, la Testnet de Xahau típicamente tiene enmiendas experimentales habilitadas. Si usa la última versión de producción, es probable que su servidor no tenga el código para esas enmiendas experimentales.
+
+Puede desbloquear servidores bloqueados por enmienda actualizando a la versión más reciente de `xahaud`.
+
+### Retirar Enmiendas
+
+Cuando las enmiendas se habilitan, el código fuente de los comportamientos previos a la enmienda permanece en `xahaud`. Si bien hay casos de uso para mantener el código antiguo, como reconstruir resultados de ledger para verificación, el seguimiento de enmiendas y el código heredado añade complejidad con el tiempo.
+
+El [XRP Ledger Standard 11d](https://github.com/XRPLF/XRPL-Standards/discussions/19) define un proceso para retirar enmiendas antiguas y el código previo a la enmienda asociado. Después de que una enmienda haya estado habilitada en Mainnet durante dos años, puede retirarse. Retirar una enmienda la convierte en parte del protocolo central de forma incondicional; ya no se rastrea ni se trata como una enmienda, y todo el código previo a la enmienda se elimina.
+
+### Enmiendas Conocidas
+
+Las siguientes enmiendas han sido implementadas o están en proceso de habilitarse en Xahau:
+
+#### Enmiendas de Características
+
+##### XahauGenesis
+
+Habilita la cuenta génesis para acuñar XAH y distribuirlo mediante [transacciones GenesisMint](/es/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn).
+
+##### MultiSign
+
+Habilita la funcionalidad de firma múltiple, permitiendo a las cuentas requerir múltiples firmas para las transacciones. Esta enmienda introduce [transacciones SignerListSet](/es/docs/protocol-reference/transactions/transaction-types/signerlistset) y [objetos de ledger SignerList](/es/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list) para soportar la firma múltiple.
+
+##### DepositAuth
+
+Habilita la funcionalidad de autorización de depósito, permitiendo a las cuentas requerir preautorización antes de recibir pagos. Esta enmienda introduce [transacciones DepositPreauth](/es/docs/protocol-reference/transactions/transaction-types/depositpreauth) y [objetos de ledger DepositPreauth](/es/docs/protocol-reference/ledger-data/ledger-objects-types/deposit-pre-auth) para gestionar las preautorizaciones.
+
+##### Hooks
+
+Enmienda principal que habilita la funcionalidad de contratos inteligentes Hook en Xahau. _(Añadida por la [enmienda Hooks][].)_
+
+##### HooksUpdate1
+
+Actualizaciones y mejoras al sistema de Hooks.
+
+##### Remit
+
+Implementa [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156). Un nuevo tipo de transacción de pago push simple pero potente de lo-que-ves-es-lo-que-obtienes. Habilita [transacciones Remit](/es/docs/protocol-reference/transactions/transaction-types/remit) que permiten pagar múltiples monedas y URITokens en la misma transacción al mismo destino. La transacción paga automáticamente para crear líneas de confianza faltantes, paga automáticamente las reservas en tokens transferidos y paga automáticamente para crear la cuenta de destino si no existe. Puede acuñar un recibo o URIToken de bonificación inline dentro de la transacción. Opcionalmente, informar a un Hook de terceros sobre la transacción. Sin pagos parciales ni rutas.
+
+##### ZeroB2M
+
+Deshabilita la ruta burn-to-mint para XRP a XAH. El comportamiento normal de la transacción Import permanece, pero el XRP quemado no se acredita. B2M sigue disponible para sincronización de claves o para activar una cuenta, pero no puede usarse para acuñar nuevos activos.
+
+##### Remarks
+
+La enmienda Remarks permite almacenar pares clave-valor (similares al estado de hooks) por los propietarios de objetos en esos objetos. Esto es análogo a dar vuelta un documento y escribir una nota a mano en él. Los Remarks pueden ser cualquier cosa y significar cosas diferentes para distintas partes. Los Remarks también pueden establecerse como inmutables. Los Remarks siguen a un objeto a través de cambios de propiedad y pueden usarse para lograr casos de uso novedosos como NFTs dinámicos y simplificar algunas operaciones de estado de hooks que de otro modo serían muy complicadas. Habilita [transacciones SetRemarks](/es/docs/protocol-reference/transactions/transaction-types/setremarks).
+
+##### Touch
+
+Esta enmienda garantiza que todas las cuentas involucradas en una transacción (todas las partes interesadas transaccionales) se vean forzadas a aparecer en sus metadatos incrementando un "contador de toque" incluso si nada más en la cuenta cambió. Lleva el nombre de la utilidad de archivos unix touch. Esto proporciona mejor consistencia de auditoría y facilidad de programación de herramientas automatizadas.
+
+##### HookCanEmit
+
+Esta enmienda añade un nuevo campo a los objetos HookSet: `HookCanEmit` es sintácticamente idéntico al campo `HookOn`, excepto que controla qué tipos de transacciones el Hook tiene permitido emitir en lugar de qué tipos de transacciones activan el hook. Tenga en cuenta que usa la misma semántica activo-bajo que `HookOn` con `SetHook` siendo activo-alto. Sin embargo, si el campo está ausente, se toma como que el Hook puede emitir cualquier transacción incluyendo `SetHook`. Añade el campo `HookCanEmit` a los objetos [HookDefinition](/es/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition).
+
+##### Clawback
+
+Habilita [transacciones Clawback](/es/docs/protocol-reference/transactions/transaction-types/clawback) que permiten a los emisores revocar tokens que fueron previamente emitidos por su cuenta. Esta es una característica portada desde XRPL. _(Introducida en 2025.7.9-release+1951)_
+
+##### DeepFreeze
+
+Habilita la funcionalidad de congelamiento profundo para líneas de confianza y activos. Esta es una característica portada desde XRPL. _(Introducida en 2025.7.9-release+1951)_
+
+##### IOUIssuerWeakTSH
+
+Convierte a los emisores de IOU en partes interesadas transaccionales (TSH) débiles en ciertos tipos de transacciones. Garantiza que los Emisores de Moneda tengan sus hooks ejecutados en transacciones de terceros que toquen o mencionen su moneda, si han optado por la ejecución débil. Consulte [Débil y Fuerte](/es/docs/hooks/concepts/weak-and-strong) para más detalles. _(Introducida en 2025.7.9-release+1951)_
+
+##### Cron
+
+Habilita la ejecución programada de Hooks mediante [transacciones CronSet](/es/docs/protocol-reference/transactions/transaction-types/cronset) y [objetos de ledger Cron](/es/docs/protocol-reference/ledger-data/ledger-objects-types/cron). Esta característica permite a los Hooks programar una serie de auto-invocaciones futuras (similar a un cronjob en sistemas Linux) que puede ayudar a los desarrolladores de Hooks a escribir estructuras de gobernanza complejas, juegos y más. El número máximo de repeticiones es 256, sin embargo emitir una transacción `CronSet` adicional puede extender esto una vez que el número de repeticiones cruce un umbral mínimo deseado. _(Introducida en 2025.10.27-release+2405)_
+
+##### ExtendedHookState
+
+Extiende las capacidades de gestión del estado de Hooks, incluyendo el campo `HookStateScale` para objetos [AccountRoot](/es/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) para controlar cuándo las entradas de estado de Hook quedan obsoletas. Esta característica expande la cantidad de datos que los Hooks pueden almacenar en su estado (sistema clave-valor para Hooks) para permitir a los Hooks un almacenamiento de datos más rico cuando lo necesiten. La escala (hasta 16) afecta tanto al tamaño máximo del valor que puede almacenar en un único estado de hook, como al número de unidades de reserva que ese par k-v consume. Una escala de 1 (predeterminada) significa que paga 1 reserva por hasta 256 bytes almacenados por estado de Hook. Una escala de 4 significa que paga 4 unidades de reserva por hasta 1024 bytes por estado de Hook. Es importante tener en cuenta que paga esta tasa (la tasa de escala) incluso si todos sus estados de Hook contienen solo un byte. Es posible aumentar la escala después de que su Hook ya tenga estado almacenado, pero no disminuirla. Disminuir la escala requiere que primero se eliminen todos los HookState. _(Introducida en 2025.10.27-release+2405)_
+
+#### Enmiendas de Corrección de Errores
+
+##### fixXahauV1
+
+Aplica un límite de 256 espacios de nombres por cuenta. Varias correcciones de errores con la lógica de URIToken. Garantiza que los STAmounts predeterminados (0) se registren en los metadatos. Garantiza que OfferID pueda usarse en lugar de OfferSequence al cancelar una oferta. Corrige un error donde ciertos hooks no pueden eliminarse. Corrige un error donde el quórum requerido para un `ttIMPORT` es accidentalmente demasiado alto. Permite que las cuentas aparezcan más de una vez en una transacción GenesisMint. Cambia el Emisor de un URIToken de TSH fuerte a débil cuando se está quemando un URIToken. Garantiza que los TSH en escrows creados por transacciones emitidas se activen correctamente. Añade la tarifa de tamaño de parámetros de hook a todas las txns (1 drop por byte). _(Introducida en 2024.9.11-release+985)_
+
+##### fixXahauV2
+
+Limpia la lógica TSH y elimina la tabla antigua redundante. Añade banderas informativas a cada miembro de `sfHookExecutions`, describiendo la ejecución débil, fuerte, etc. Añade `sfEmitNonce` a cada miembro de `sfHookEmissions`, para desambiguar mejor las txns emitidas. Verificaciones de cordura adicionales en las txns emitidas para garantizar que se coloquen en el ledger correcto.
+
+##### fixXahauV3
+
+Correcciones adicionales para los problemas de implementación del protocolo Xahau. Esta enmienda garantiza consistencia y resultados sensatos para varios casos extremos. Esta enmienda está configurada para votar: _sí_ por defecto. Si los validadores desean votar en contra de esta enmienda, deben cambiar manualmente su voto a no. _(Introducida en 2025.2.6-release+1299)_
+
+##### fixNSDelete
+
+Corrige el comportamiento de la eliminación del espacio de nombres de estado de Hook para garantizar la consistencia del ledger. Introduce un nuevo código tes: `tesPARTIAL`. `tesPARTIAL` se devuelve si la transacción fue exitosa pero debe ser reenviada por el usuario con un nuevo número de secuencia para completar el trabajo amortizado hasta que se devuelva `tesSUCCESS`.
+
+##### fix240819
+
+Enmienda de corrección de errores del 19 de agosto de 2024.
+
+##### fixPageCap
+
+Corrige problemas relacionados con los límites de capacidad de página.
+
+##### fix240911
+
+Enmienda de corrección de errores del 11 de septiembre de 2024.
+
+##### fixFloatDivide
+
+Corrige problemas con las operaciones de división de punto flotante en Hooks. Esta enmienda garantiza el manejo adecuado de la división por cero y los casos extremos en la función `float_divide`. Cambia el comportamiento de la API de hook `float_divide` para corregir un pequeño error. Esta enmienda está configurada para votar: _sí_ por defecto. Consulte [float_divide](/es/docs/hooks/functions/float/float_divide) para más detalles. _(Introducida en 2024.11.18-release+1141)_
+
+##### fixReduceImport
+
+Corrige problemas relacionados con el procesamiento de transacciones Import. Esta enmienda garantiza consistencia y resultados sensatos para varios casos extremos. Esta enmienda está configurada para votar: _sí_ por defecto. Si los validadores desean votar en contra de esta enmienda, deben cambiar manualmente su voto a no. _(Introducida en 2025.2.6-release+1299)_
+
+##### fix20250131
+
+Enmienda de corrección de errores del 31 de enero de 2025. Esta enmienda garantiza consistencia y resultados sensatos para varios casos extremos. Esta enmienda está configurada para votar: _sí_ por defecto. Si los validadores desean votar en contra de esta enmienda, deben cambiar manualmente su voto a no. _(Introducida en 2025.2.6-release+1299)_
+
+##### fixRewardClaimFlags
+
+Corrige problemas con las banderas de las transacciones de reclamación de recompensas.
+
+##### fixProvisionalDoubleThreading
+
+Corrige problemas con el doble enhebrado provisional en el procesamiento de transacciones. Garantiza que el PreviousTxnID correcto y los metadatos de la transacción se mantengan en escenarios de doble enhebrado. _(Introducida en 2025.7.9-release+1951)_
+
+##### fixInvalidTxFlags
+
+Corrige un error que actualmente permite proporcionar banderas no válidas a algunas transacciones. Si bien estas banderas no válidas actualmente no hacen nada, deberían producir un error de formato incorrecto. Después de que se aplique esta corrección, las banderas no válidas producirán un error de formato incorrecto como se esperaba. _(Introducida en 2025.10.27-release+2405)_
+
+##### fixCronStacking
+
+Corrige problemas con el comportamiento de apilamiento de transacciones Cron.
+
+### Estado de las Enmiendas
+
+Para conocer el estado más actual de las enmiendas (habilitadas, en votación o vetadas), consulte el [repositorio xahaud](https://github.com/Xahau/xahaud) o consulte a un servidor `xahaud` en ejecución usando el comando `feature`.

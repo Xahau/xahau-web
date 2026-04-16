@@ -1,0 +1,96 @@
+---
+title: etxn_details
+description: Genera un sfEmitDetails adecuado para una transacción que está a punto de ser emitida
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/emitted-transactions">Transacciones emitidas</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Genera y escribe un objeto sfEmitDetails de 105 bytes en `write_ptr` si cbak no está definido
+* Genera y escribe un objeto sfEmitDetails de 127 bytes en `write_ptr` si cbak está definido
+</TabItem>
+
+<TabItem label="JavaScript">
+* Esta función proporciona información detallada sobre la transacción.
+* Devuelve un ErrorCode si hay un error, o un array de detalles de la transacción en caso de éxito.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_details (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_details(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t emitdet[105];
+int64_t result =
+    etxn_details(emitdet, 105);
+if (result != 105)
+    rollback("Etxndetails falló.", 19, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const emitdet = etxn_details()
+if (typeof emitdet === 'string || emitdet.length != 105)
+    rollback("Etxndetails falló.", 1)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre     | Tipo      | Descripción                                                    |
+| ---------- | --------- | -------------------------------------------------------------- |
+| write_ptr  | uint32_t  | Puntero al buffer que recibirá el registro sfEmitDetails       |
+| write_len  | uint32_t  | Longitud del buffer                                            |
+</TabItem>
+
+<TabItem label="JavaScript">
+Sin parámetros en JavaScript
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos.<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros/longitudes fuera de la memoria del hook.<br /><br /><code>TOO_SMALL</code><br />- el buffer no es lo suficientemente grande<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- no se llamó previamente a <code>etxn_reserve(n)</code><br /><br /><code>FEE_TOO_LARGE</code><br />- la carga es demasiado alta para la red<br /><br /><code>INTERNAL_ERROR</code><br />- error interno al generar el campo requerido</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | Un ErrorCode si hay error, o un array de detalles de la transacción en caso de éxito.       |
+</TabItem>
+</Tabs>

@@ -1,0 +1,15 @@
+---
+title: Definiciones de Hook con conteo de referencias
+description: Evita volver a subir el mismo bytecode al ledger
+---
+
+Cuando el bytecode WebAssembly de un Hook nuevo se sube a Xahau, se impone una carga de almacenamiento significativa en la red. Esta carga se refleja en las [comisiones de Hooks](/es/docs/hooks/concepts/hook-fees) que cobra la red.
+
+Para evitar esta carga (y las altas comisiones para los usuarios), se utiliza el conteo de referencias:
+
+* La primera vez que se instala un Hook nuevo, la [transacción SetHook](/es/docs/hooks/concepts/sethook-transaction) debe pagar una comisión elevada.
+* El bytecode WebAssembly del Hook se convierte en un objeto sin propietario y con conteo de referencias en el ledger (llamado `HookDefinition`).
+* Las instalaciones posteriores, por el mismo u otros usuarios, de un Hook idéntico (es decir, con el mismo bytecode) incrementan el contador de referencias. Estas instalaciones apuntan al mismo objeto en el ledger. Estas transacciones se cobran de forma similar a la creación de una Trust Line, ya que la carga de almacenamiento ya fue cubierta por la primera transacción SetHook.
+* Mientras el contador de referencias de la Hook Definition sea mayor que cero (es decir, una o más cuentas sigan teniendo el Hook instalado), el objeto permanecerá en el ledger.
+
+![Reference Counted Hook Definitions](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)

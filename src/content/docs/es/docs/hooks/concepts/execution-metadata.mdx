@@ -1,0 +1,18 @@
+---
+title: Metadatos de ejecución
+description: Qué esperar cuando tu Hook se ejecuta.
+---
+
+Cuando los Hooks se ejecutan, dejan información sobre el estado de esa ejecución. Esta aparece en los metadatos de la Transacción Originaria como un bloque `sfHookExecutions`. Este bloque contiene los siguientes campos:
+
+| Campo                  | Descripción                                                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| sfHookResult           | <p>Los Hooks pueden terminar de tres maneras: <code>accept</code>, <code>rollback</code> y <code>error</code>.<br />¡Esto <em>no</em> es lo mismo que sfHookReturnCode!</p> |
+| sfHookHash             | El SHA512H del Hook en el momento en que fue ejecutado.                                                                                                      |
+| sfHookAccount          | La cuenta en la que se ejecutó el Hook.                                                                                                                      |
+| sfHookReturnCode       | El entero devuelto como tercer parámetro de `accept` o `rollback`.                                                                                           |
+| sfHookReturnString     | La cadena devuelta en los dos primeros parámetros de `accept` o `rollback`, si existe.                                                                       |
+| sfHookInstructionCount | El número total de instrucciones de WebAssembly ejecutadas durante la ejecución del Hook.                                                                    |
+| sfHookEmitCount        | El número total de [Transacciones emitidas](/es/docs/hooks/concepts/emitted-transactions) producidas por el Hook.                                              |
+| sfHookExecutionIndex   | El orden en el que se ejecutó el Hook (en relación con otras ejecuciones de Hooks en la misma Transacción Originaria).                                      |
+| sfHookStateChangeCount | El número de cambios de [estado del Hook](/es/docs/hooks/concepts/state-management) realizados durante la ejecución.                                            |

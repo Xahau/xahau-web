@@ -1,0 +1,121 @@
+---
+title: state_foreign_set
+description: Establecer el Hook State en otra cuenta para una clave, valor y namespace dados
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Lee una clave de Hook State de 32 bytes desde `kread_ptr`
+* Lee una cantidad arbitraria de datos desde `read_ptr` (el valor)
+* Lee un namespace de 32 bytes desde `nread_ptr`
+* Lee un Account ID de 20 bytes desde `aread_ptr`
+* Actualiza la clave de Hook State en la cuenta especificada dentro del namespace indicado con el valor dado
+* Pero solo si un [Grant](https://xrpl-hooks.readme.io/docs/grants) en esa cuenta lo permite
+* Si la cuenta del Hook se especifica en `aread_ptr`, el comportamiento será el de `state_set`, pero permitiendo aún especificar el namespace mediante `nread_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Establece el Hook State externo con el valor, clave, namespace y Account ID especificados
+* Esta operación requiere autorización y un Grant que permita esta acción
+* Devuelve el número de bytes escritos en el Hook State (la longitud de los datos), negativo en caso de error
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_foreign_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t nread_ptr,
+    uint32_t nread_len,
+    uint32_t aread_ptr,
+    uint32_t aread_len  
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_foreign_set(
+    value: ByteArray | HexString | undefined | null,
+    key: ByteArray | HexString,
+    namespace: ByteArray | HexString | undefined | null,
+    accountid: ByteArray | HexString | undefined | null
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+if (state_foreign_set(SBUF(vault), SBUF(vault_key), SBUF(namespace), SBUF(account)) < 0)
+    rollback(SBUF("Error: no se pudo establecer el estado externo!"), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (state_foreign_set(vault, vault_key, namespace, account) < 0)
+    rollback("Error: no se pudo establecer el estado externo!", 1);
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre     | Tipo     | Descripción                                                                                                                                              |
+| ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr   | uint32_t | <p>Puntero a los datos (valor) a escribir en el Hook State.<br />Si es <code>0</code> (null), se elimina el dato en esa clave. <em>Puede ser null.</em></p> |
+| read_len   | uint32_t | <p>Longitud de los datos.<br />Si es <code>0</code> (null), se elimina el dato en esa clave. <em>Puede ser null.</em></p>                               |
+| kread_ptr  | uint32_t | Puntero a la clave de Hook State donde se almacenará el valor                                                                                           |
+| kread_len  | uint32_t | Longitud de la clave (debe ser siempre 32)                                                                                                              |
+| nread_ptr  | uint32_t | Puntero al namespace al que pertenece la clave                                                                                                          |
+| nread_len  | uint32_t | Longitud del namespace (debe ser siempre 32)                                                                                                            |
+| aread_ptr  | uint32_t | Puntero al Account ID cuyo estado se desea modificar                                                                                                    |
+| aread_len  | uint32_t | Longitud del Account ID (debe ser siempre 20)                                                                                                           |
+
+<Aside type="caution">
+Xahau establece internamente un tamaño máximo de datos para Hooks. En el momento de escribir esto y en la testnet pública, está fijado en 128 bytes, aunque en el futuro será un valor votable por los validadores.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre     | Tipo                   | Descripción                                     |
+| ---------- | ---------------------- | ----------------------------------------------- |
+| value      | ByteArray o HexString  | El valor de los datos a almacenar               |
+| key        | ByteArray o HexString  | La clave del Hook State donde guardar el valor  |
+| namespace  | ByteArray o HexString  | El namespace del Hook                           |
+| accountid  | ByteArray o HexString  | El propietario del estado                       |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Número de bytes escritos en el Hook State (longitud de los datos)<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_BIG</code><br />- <code>kread_len</code> mayor que 32 o<br />- <code>read_len</code> mayor que el tamaño máximo permitido<br /><br /><code>TOO_SMALL</code><br />- <code>kread_len</code> es 0<br /><br /><code>NOT_AUTHORIZED</code><br />- no existe un HookGrant válido en la cuenta externa<br /><br /><code>PREVIOUS_FAILURE_PREVENTS_RETRY</code><br />- una llamada previa falló con NOT_AUTHORIZED y no se permite reintentar</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| number o ErrorCode  | Devuelve el número de bytes escritos o un error (negativo en caso de fallo)                    |
+</TabItem>
+</Tabs>

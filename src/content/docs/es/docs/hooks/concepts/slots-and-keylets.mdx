@@ -1,0 +1,62 @@
+---
+title: Slots y Keylets
+description: Inspecciona y manipula objetos en el ledger.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Contexto
+
+Xahau contiene numerosos tipos de objetos heterogéneos a los que un Hook tiene acceso de lectura. Por ejemplo: _transacciones_, _cuentas_, _ledgers_ y los subcomponentes de cada uno, entre otros.
+
+Es muy fácil programar de forma descuidada un sistema que realice muchas operaciones de copia innecesarias, cuando un acceso disciplinado a los mismos datos subyacentes (por ejemplo, mediante una vista) sería suficiente. La evitación deliberada de copias en programación se conoce como [Zero copy](https://en.wikipedia.org/wiki/Zero-copy).
+
+Con Hooks se aplica el mismo principio: queremos evitar copias siempre que sea posible. En particular, queremos evitar copiar objetos grandes como ledgers completos, así como serializarlos y deserializarlos innecesariamente.
+
+### ¿Qué son los slots?
+
+Los slots forman parte de la API de Hooks y proporcionan un sistema de acceso _heterogéneo_ sin copias a objetos y transacciones en el ledger.
+
+* Cada Hook tiene acceso a 255 slots durante su ejecución.
+* Cada slot puede estar vacío o contener un objeto _asignado_ (slotted).
+* La API de slots permite navegar dentro de objetos internos y asignarlos también a otros slots.
+* La API permite volcar objetos a buffers o leerlos directamente desde el Hook.
+
+Las APIs disponibles son:
+
+| Hook API                                                             | Qué hace                                                                              |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [slot](/es/docs/hooks/functions/slot/slot)                    | Serializa y devuelve un objeto asignado a un slot                                     |
+| [slot_clear](/es/docs/hooks/functions/slot/slot_clear)       | Libera un slot ocupado                                                                |
+| [slot_count](/es/docs/hooks/functions/slot/slot_count)       | Cuenta los elementos de un array en un slot                                            |
+| slot_id                                                             | Calcula el hash canónico del objeto en el slot y lo devuelve                          |
+| [slot_set](/es/docs/hooks/functions/slot/slot_set)           | Localiza un objeto mediante su keylet y lo coloca en un slot                          |
+| [slot_subarray](/es/docs/hooks/functions/slot/slot_subarray) | Indexa un array en un slot y asigna un subobjeto a otro slot                          |
+| [slot_subfield](/es/docs/hooks/functions/slot/slot_subfield) | Indexa un objeto en un slot y asigna un subobjeto a otro slot                         |
+| [slot_type](/es/docs/hooks/functions/slot/slot_type)         | Obtiene el tipo de campo de un objeto en un slot y otra información opcional          |
+| [slot_float](/es/docs/hooks/functions/slot/slot_float)       | Convierte un STI_AMOUNT en el slot a un número XFL                                    |
+| [slot_size](/es/docs/hooks/functions/slot/slot_size)         | Calcula el tamaño serializado de un objeto en un slot                                 |
+
+### ¿Qué son los keylets?
+
+Los keylets se utilizan para localizar (apuntar a) objetos en el ledger. Básicamente, son un _hash_ de la información identificativa del objeto, que actúa como identificador canónico.
+
+Los Hooks utilizan un formato serializado de 34 bytes para keylets, que puede generarse con la función [util_keylet](/es/docs/hooks/functions/utilities/util_keylet). Sin esto, localizar y asignar objetos sería prácticamente imposible.
+
+<Aside type="tip">
+  Las APIs de Hooks que aceptan keylets de 34 bytes también suelen aceptar hashes de transacción canónicos de 32 bytes.
+</Aside>
+
+### Ejemplo
+
+En el siguiente ejemplo se genera un keylet de 34 bytes para un objeto `signers` y se asigna a un slot:
+
+```c
+uint8_t keylet[34];
+if (util_keylet(SBUF(keylet), KEYLET_SIGNERS, SBUF(hook_accid), 0, 0, 0, 0) != 34)
+    rollback(SBUF("Notary: Error interno, no se pudo generar el keylet"), 10);
+
+// solicitar a XRPLD que coloque ese keylet en un slot
+int64_t slot_no = slot_set(SBUF(keylet), 0);
+if (slot_no < 0)
+   rollback(SBUF("Notary: No se pudo asignar el keylet al slot"), 10);
+````

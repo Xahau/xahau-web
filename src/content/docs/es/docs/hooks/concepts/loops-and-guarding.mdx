@@ -1,0 +1,90 @@
+---
+title: Bucles y Guards
+description: Los guards son necesarios para realizar bucles en un Hook.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### ¿Qué son los guards?
+
+Los Hooks no son deliberadamente [Turing completos](https://en.wikipedia.org/wiki/Turing_completeness). Esto significa que los bucles arbitrarios no están permitidos. En su lugar, debes _proteger_ tus bucles con un límite máximo de iteraciones.
+
+Un guard es una marca que se coloca en tu código al inicio de cada bucle. Esta marca informa a Xahau cuál será el límite superior de iteraciones _en cualquier escenario posible_. Así, si tu bucle normalmente se ejecuta dos veces pero en ocasiones puede ejecutarse _500_ veces, entonces tu guard deberá indicar 500.
+
+Los guards se utilizan para que Xahau determine el _tiempo de ejecución en el peor caso_ (en número de instrucciones) de tu Hook antes de ejecutarlo. Esto sirve de base para calcular la comisión que se cobra por la ejecución del Hook y hace que los tiempos de ejecución sean predecibles y controlables.
+
+<Aside type="tip">
+  Los desarrolladores que provienen de otras plataformas de smart contracts pueden encontrar los guards molestos al principio, pero una vez te acostumbras, no son más difíciles de usar que un bucle for normal.
+</Aside>
+
+### La función guard
+
+La función guard indica al ledger el **número máximo de iteraciones** que tendrá un bucle. Concretamente, la función recibe dos argumentos:
+
+```c
+int32_t _g (uint32_t id, uint32_t maxiter);
+````
+
+El primer argumento `id` es el identificador del guard. Es una constante única elegida por el desarrollador, normalmente se usa el número de línea del archivo fuente.
+
+El segundo argumento `maxiter` es una promesa del desarrollador al ledger de que este guard no será ejecutado más de `maxiter` veces durante la ejecución del Hook. Si el guard se ejecuta más veces, el Hook hará automáticamente rollback con un error `GUARD_VIOLATION` ([códigos de retorno de la Hook API](/es/docs/hooks/functions/overview/return-codes)). Como el guard se ejecuta *antes* de comprobar la condición del bucle, es importante sumar uno al número total esperado de iteraciones. (Nota: la macro GUARD() ya suma uno).
+
+<Aside type="caution">
+  Los guards deben definirse usando valores numéricos literales. No puedes usar variables ni valores calculados en tiempo de ejecución.
+</Aside>
+
+### Aplicación de los guards
+
+Considera el siguiente bucle for en C:
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  ...
+}
+```
+
+En C, el operador coma ejecuta cada expresión en una lista (por ejemplo `A, B, C`) y devuelve la última (`C`). Por lo tanto, la condición sigue siendo `i < 3`, pero el guard se ejecuta antes de evaluar la condición. Esta es la única forma de cumplir la *regla del guard* al usar un bucle for en C.
+
+<Aside type="tip" title="La regla del Guard">
+  Una llamada a <code>_g</code> (la función guard) debe ser la primera instrucción de salto después de una instrucción de bucle.
+</Aside>
+
+A continuación se muestra la salida en WebAssembly al compilar el ejemplo anterior. Observa cómo la función guard se llama al inicio del bucle. Las únicas instrucciones permitidas antes de esta llamada son aquellas que no implican saltos (normalmente manipulación de constantes).
+
+```
+    block  ;; label = @1
+      loop  ;; label = @2
+        i32.const 3
+        i32.const 14
+=====>  call $_g          <=====
+        drop
+        ...
+```
+
+### Bucles anidados
+
+Cuando se utilizan bucles anidados, el argumento `maxiter` debe reflejar el número total de veces que el guard será ejecutado. Esto significa que debes multiplicar los bucles entre sí.
+
+Considera el siguiente ejemplo:
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  for (int j = 0; GUARD(15), j < 5; ++j)
+  {
+    ...
+  }
+}
+```
+
+Observa que el guard del bucle interno está configurado en **15**. Esto se debe a que debes multiplicar las iteraciones de ambos bucles para calcular el máximo número de ejecuciones del guard interno.
+
+### Sin recursión
+
+Las llamadas a funciones que no pertenecen a la Hook API no están permitidas en la enmienda Hooks. Todo el código del usuario debe estar contenido dentro de las dos funciones permitidas: `cbak` y `hook`.
+
+<Aside type="caution">
+  No usar correctamente los guards provocará que una transacción <code>SetHook</code> sea rechazada.
+</Aside>

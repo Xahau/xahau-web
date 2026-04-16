@@ -1,0 +1,77 @@
+---
+title: Métodos de API Pública
+---
+Interactúe directamente con un servidor xahaud usando los métodos de API pública. Estos métodos no están necesariamente destinados al uso público en general, pero son accesibles para cualquier cliente conectado al servidor.
+
+### Métodos de Cuenta
+
+| Método              | Descripción                                                                 |
+| ------------------- | --------------------------------------------------------------------------- |
+| account_channels   | Lista los canales de pago donde la cuenta es la fuente del canal.           |
+| account_currencies | Lista las monedas que la cuenta puede enviar o recibir.                     |
+| account_info       | Recupera información básica sobre una cuenta.                               |
+| account_lines      | Accede a la información de líneas de confianza de una cuenta.               |
+| account_objects    | Recupera todos los objetos del ledger propiedad de una cuenta.              |
+| account_offers     | Ver las ofertas de intercambio de moneda de una cuenta.                     |
+| account_tx         | Recupera el historial de transacciones de una cuenta.                       |
+| gateway_balances   | Calcula los montos totales emitidos para una cuenta.                        |
+| noripple_check     | Sugiere cambios en la configuración de Default Ripple y No Ripple de una cuenta. |
+
+### Métodos de Ledger
+
+| Método          | Descripción                                             |
+| --------------- | ------------------------------------------------------- |
+| ledger          | Obtiene información sobre una versión específica del ledger. |
+| ledger_closed  | Recupera la versión del ledger cerrada más recientemente.   |
+| ledger_current | Recupera la versión actual del ledger de trabajo.           |
+| ledger_data    | Accede al contenido bruto del ledger.                       |
+| ledger_entry   | Recupera un elemento específico de una versión del ledger.  |
+
+### Métodos de Transacción
+
+| Método              | Descripción                                                        |
+| ------------------- | ------------------------------------------------------------------ |
+| submit              | Envía una transacción a la red.                                    |
+| submit_multisigned | Envía una transacción con firma múltiple.                          |
+| transaction_entry  | Recupera detalles sobre una transacción en un ledger específico.   |
+| tx                  | Recupera información de transacciones en todos los ledgers.        |
+| sign                | (Admin) Firma criptográficamente una transacción.                  |
+| sign_for           | (Admin) Contribuye a una firma múltiple.                           |
+
+### Métodos de Libro de Órdenes
+
+| Método              | Descripción                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| book_offers        | Ver ofertas para intercambiar dos monedas.                        |
+| deposit_authorized | Comprueba si una cuenta puede enviar pagos directamente a otra.   |
+
+### Métodos de Canal de Pago
+
+| Método             | Descripción                                      |
+| ------------------ | ------------------------------------------------ |
+| channel_authorize | Firma un reclamo para un canal de pago.          |
+| channel_verify    | Verifica la firma de un reclamo de canal de pago. |
+
+### Métodos de Suscripción
+
+| Método      | Descripción                              |
+| ----------- | ---------------------------------------- |
+| subscribe   | Escuchar actualizaciones sobre un tema   |
+| unsubscribe | Dejar de recibir actualizaciones         |
+
+### Métodos de Información del Servidor
+
+| Método        | Descripción                                               |
+| ------------- | --------------------------------------------------------- |
+| fee           | Recupera información sobre los costos de transacción.     |
+| server_info  | Obtiene el estado del servidor en formato legible.        |
+| server_state | Obtiene el estado del servidor en formato legible por máquina. |
+| manifest      | Recupera detalles de clave pública para un validador.     |
+
+### Métodos de Utilidad
+
+| Método | Descripción                                                                       |
+| ------ | --------------------------------------------------------------------------------- |
+| json   | Proxy para ejecutar comandos con parámetros JSON. _(Solo línea de comandos.)_    |
+| ping   | Verifica la conectividad con el servidor.                                          |
+| random | Genera números aleatorios.                                                         |

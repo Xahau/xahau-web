@@ -1,0 +1,58 @@
+---
+title: Check
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(Añadido por la enmienda \[Checks]\[].)_
+
+Un objeto `Check` describe un cheque, similar a un cheque personal en papel, que puede cobrarse por su destinatario para obtener dinero de su remitente. (El pago potencial ya fue aprobado por su remitente, pero no se mueve dinero hasta que se cobra. A diferencia de un Escrow, el dinero para un Check no se aparta, por lo que cobrar el Check podría fallar por falta de fondos.)
+
+### Ejemplo JSON
+
+```json
+{
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "Destination": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+  "DestinationNode": "0000000000000000",
+  "DestinationTag": 1,
+  "Expiration": 570113521,
+  "Flags": 0,
+  "InvoiceID": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+  "LedgerEntryType": "Check",
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "SendMax": "100000000",
+  "Sequence": 2,
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### Campos
+
+Un objeto `Check` tiene los siguientes campos:
+
+| Campo               | Tipo JSON        | \[Tipo Interno]\[] | ¿Requerido? | Descripción                                                                                                                                                                                                                                                                        |
+| ------------------- | ---------------- | ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String           | Account             | Sí          | El remitente del Check. Cobrar el Check debita el saldo de esta dirección.                                                                                                                                                                                                         |
+| `Destination`       | String           | Account             | Sí          | El destinatario previsto del Check. Solo esta dirección puede cobrar el Check, usando una \[transacción CheckCash]\[].                                                                                                                                                              |
+| `DestinationNode`   | String           | UInt64              | No          | Una pista que indica qué página del directorio del propietario del destino enlaza a este objeto, en caso de que el directorio consista de múltiples páginas.                                                                                                                       |
+| `DestinationTag`    | Number           | UInt32              | No          | Una etiqueta arbitraria para especificar más el destino de este Check, como un receptor alojado en la dirección de destino.                                                                                                                                                        |
+| `Expiration`        | Number           | UInt32              | No          | Indica el tiempo después del cual este Check se considera expirado. Consulta \[Especificando Tiempo]\[] para detalles.                                                                                                                                                             |
+| `Flags`             | Number           | UInt32              | Sí          | Un mapa de bits de indicadores booleanos habilitados para este objeto. Actualmente, el protocolo no define indicadores para objetos `Check`. El valor es siempre `0`.                                                                                                               |
+| `InvoiceID`         | String           | Hash256             | No          | Hash arbitrario de 256 bits proporcionado por el remitente como razón o identificador específico para este Check.                                                                                                                                                                  |
+| `LedgerEntryType`   | String           | UInt16              | Sí          | El valor `0x0043`, mapeado a la cadena `Check`, indica que este objeto es un objeto Check.                                                                                                                                                                                         |
+| `OwnerNode`         | String           | UInt64              | Sí          | Una pista que indica qué página del directorio del propietario del remitente enlaza a este objeto, en caso de que el directorio consista de múltiples páginas.                                                                                                                    |
+| `PreviousTxnID`     | String           | Hash256             | Sí          | El hash identificador de la transacción que modificó más recientemente este objeto.                                                                                                                                                                                                |
+| `PreviousTxnLgrSeq` | Number           | UInt32              | Sí          | El \[índice del ledger]\[Ledger Index] que contiene la transacción que modificó más recientemente este objeto.                                                                                                                                                                     |
+| `SendMax`           | String or Object | Amount              | Sí          | La cantidad máxima de moneda que este Check puede debitar al remitente. Si el Check se cobra exitosamente, el destino recibe crédito en la misma moneda por hasta este monto.                                                                                                      |
+| `Sequence`          | Number           | UInt32              | Sí          | El número de secuencia de la \[transacción CheckCreate]\[] que creó este Check.                                                                                                                                                                                                    |
+| `SourceTag`         | Number           | UInt32              | No          | Una etiqueta arbitraria para especificar más la fuente de este Check, como un receptor alojado en la dirección del remitente.                                                                                                                                                      |
+
+### Formato del ID Check
+
+El ID de un objeto `Check` es el \[SHA-512Half]\[] de los siguientes valores, concatenados en orden:
+
+* La clave de espacio Check (`0x0043`)
+* El AccountID del remitente de la \[transacción CheckCreate]\[] que creó el objeto `Check`
+* El número `Sequence` de la \[transacción CheckCreate]\[] que creó el objeto `Check`. Si la transacción CheckCreate usó un Ticket, usa el valor `TicketSequence` en su lugar.

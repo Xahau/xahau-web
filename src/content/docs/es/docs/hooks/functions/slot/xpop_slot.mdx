@@ -1,0 +1,81 @@
+---
+title: xpop_slot
+description: Serializar y devolver el blob de transacción xpop y sus metadatos
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+* Localiza el blob xpop en la transacción `Import`
+* Inserta (emplace) los objetos de transacción y metadatos en los slots especificados
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t xpop_slot (
+    uint32_t slot_no_tx,
+    uint32_t slot_no_meta
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function xpop_slot(slotno_tx: number, slotno_meta: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t bytes_written = 
+    xpop_slot(1, 2); // asume que la transacción está en el slot=1 y el meta en el slot=2
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const bytes_written = xpop_slot(1, 2)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre         | Tipo     | Descripción                                              |
+| -------------- | -------- | -------------------------------------------------------- |
+| slot_no_tx     | uint32_t | Número de slot donde insertar el blob de la transacción  |
+| slot_no_meta   | uint32_t | Número de slot donde insertar el blob de metadatos       |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre       | Tipo   | Descripción                                |
+| ------------ | ------ | ------------------------------------------ |
+| slotno_tx    | number | Número de slot de la transacción a extraer |
+| slotno_meta  | number | Número de slot de los metadatos a extraer  |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p><code>PREREQUISITE_NOT_MET</code><br /><br />- La transacción de origen no es de tipo <code>Import</code>.<br /><br /><code>NO_FREE_SLOTS</code><br /><br />- Se requiere un nuevo slot pero no hay slots disponibles.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descripción                                                     |
+| ------------------- | --------------------------------------------------------------- |
+| number o ErrorCode  | Devuelve un código de error o el resultado de la operación pop  |
+</TabItem>
+</Tabs>

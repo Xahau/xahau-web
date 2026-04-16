@@ -1,0 +1,69 @@
+---
+title: ledger_last_time
+description: Obtener la marca de tiempo del último ledger cerrado
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+* Devuelve la marca de tiempo de Xahau del último ledger cerrado.
+
+<Aside type="tip">
+Las marcas de tiempo de Xahau son idénticas a las marcas de tiempo Unix, excepto que tienen un desplazamiento de `-946684800`.
+
+La marca de tiempo Unix equivalente es: `ledger_last_time() + 946684800;`
+</Aside>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_time();
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_time(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ts =
+    ledger_last_time();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const ts = ledger_last_time()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+Esta API no recibe parámetros.
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                           |
+| -------- | ----------------------------------------------------- |
+| int64_t  | La marca de tiempo XRPL del último ledger cerrado     |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descripción                                                                                          |
+| ------ | ---------------------------------------------------------------------------------------------------- |
+| number | Devuelve un código de error si ocurre un fallo, o un número que representa la marca de tiempo del último ledger |
+</TabItem>
+</Tabs>

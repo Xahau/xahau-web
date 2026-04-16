@@ -1,0 +1,106 @@
+---
+title: ledger_keylet
+description: Buscar un keylet dentro de un rango especificado en el ledger actual
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Lee un Keylet de 34 bytes desde `lread_ptr`
+* Lee un Keylet de 34 bytes desde `hread_ptr`
+* Busca en el ledger el primer (más bajo) Keylet de este tipo dentro de ese rango
+* Si se encuentra alguno, lo escribe en `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Esta función busca en el ledger el primer (más bajo) Keylet de este tipo dentro del rango indicado.
+* Devuelve el número de bytes escritos (34 bytes) en caso de éxito, o un código de error si ocurre un fallo.
+</TabItem>
+</Tabs>
+
+### Definición
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_keylet (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t lread_ptr,
+    uint32_t lread_len,
+    uint32_t hread_ptr,
+    uint32_t hread_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_keylet(
+    low: ByteArray | HexString,
+    high: ByteArray | HexString
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+//TODO
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+ledger_keylet(low, high)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                                                                                   |
+| --------- | -------- | ------------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Puntero a un buffer donde almacenar el Keylet serializado                                                    |
+| write_len | uint32_t | Longitud del buffer de salida (debe ser 34 bytes)                                                            |
+| lread_ptr | uint32_t | Puntero al Keylet serializado de 34 bytes que representa el límite inferior del rango                       |
+| lread_len | uint32_t | Siempre 34 bytes                                                                                              |
+| hread_ptr | uint32_t | Puntero al Keylet serializado de 34 bytes que representa el límite superior del rango                       |
+| hread_len | uint32_t | Siempre 34 bytes                                                                                              |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo                   | Descripción                                                                                                   |
+| ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| low    | ByteArray \| HexString | Keylet serializado de 34 bytes que representa el límite inferior del rango                                   |
+| high   | ByteArray \| HexString | Keylet serializado de 34 bytes que representa el límite superior del rango                                   |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos (34 bytes) en caso de éxito.<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_SMALL</code> / <code>TOO_BIG</code><br />- los tamaños no son 34 bytes<br /><br /><code>INVALID_ARGUMENT</code><br />- uno o más Keylets no son válidos<br /><br /><code>DOES_NOT_MATCH</code><br />- los Keylets no son del mismo tipo<br /><br /><code>DOESNT_EXIST</code><br />- no se encontró ningún Keylet en el rango</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | Devuelve los 34 bytes del Keylet o un código de error si falla                                 |
+</TabItem>
+</Tabs>

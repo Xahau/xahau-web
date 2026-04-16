@@ -1,0 +1,67 @@
+---
+title: fee_base
+description: Obtener la tarifa base del ledger actual
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/hook-fees">Comisiones de Hooks</LinkButton>
+
+### Comportamiento
+
+* Devuelve la tarifa base del ledger actual
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee_base();
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function fee_base(): number
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee =
+    fee_base();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const fee = fee_base()
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+Esta API no recibe parámetros.
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                              |
+| -------- | ---------------------------------------- |
+| int64_t  | La tarifa base del ledger actual         |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descripción                              |
+| ------ | ---------------------------------------- |
+| number | La tarifa base del ledger actual         |
+</TabItem>
+</Tabs>

@@ -1,0 +1,16 @@
+---
+title: Consideraciones
+---
+## Marcadores
+
+Algunos métodos devuelven más datos de los que caben eficientemente en una sola respuesta. Cuando los resultados superan el límite de la respuesta, se incluye un campo `marker` en la respuesta. Este campo le permite recuperar páginas adicionales de datos mediante solicitudes posteriores. Para continuar obteniendo datos, incluya el valor `marker` de la respuesta anterior en su próxima solicitud. Si una respuesta no incluye un `marker`, significa que ha llegado al final del conjunto de datos.
+
+El formato del campo `marker` no está especificado intencionalmente. Cada servidor puede definir el `marker` según sea necesario, lo que significa que podría ser una cadena, un objeto anidado u otro tipo. El formato del `marker` puede variar entre servidores e incluso entre métodos en el mismo servidor. Cada `marker` es temporal y puede volverse inválido después de aproximadamente 10 minutos.
+
+## Límite de Velocidad
+
+El servidor `xahaud` aplica límites de velocidad a los clientes de la API que usan APIs públicas para prevenir solicitudes excesivas. El límite de velocidad se aplica en función de la dirección IP del cliente, lo que significa que múltiples clientes que comparten una [traducción de direcciones de red (NAT)](https://es.wikipedia.org/wiki/Traducci%C3%B3n_de_direcciones_de_red) compartirán el mismo límite de velocidad asociado con su IP pública.
+
+Cuando un cliente se está acercando al límite de velocidad, el servidor incluye un campo `"warning": "load"` en el nivel superior de una respuesta de la API. Esta advertencia no aparece en cada respuesta, pero puede enviarse varias veces antes de que el servidor desconecte al cliente. Los clientes conectados como administrador están exentos del límite de velocidad.
+
+Si un cliente supera el límite de velocidad, el servidor desconecta al cliente y bloquea temporalmente otras solicitudes de esa dirección IP. Las APIs WebSocket y JSON-RPC manejan las desconexiones de manera diferente, como se describe a continuación.

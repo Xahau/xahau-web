@@ -1,0 +1,21 @@
+---
+title: IDs de Objetos del Ledger
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/Indexes.cpp)
+
+Cada objeto en los datos de estado de un ledger tiene un ID único. El ID se deriva haciendo hash de los contenidos importantes del objeto, junto con un [identificador de espacio de nombres](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/LedgerFormats.h#L99). El tipo de objeto del ledger determina qué identificador de espacio de nombres usar y qué contenidos incluir en el hash. Esto asegura que cada ID sea único. Para calcular el hash, `xahaud` usa SHA-512 y luego trunca el resultado a los primeros 256 bits. Este algoritmo, informalmente llamado **SHA-512Half**, proporciona una salida con seguridad comparable a SHA-256, pero se ejecuta más rápido en procesadores de 64 bits.
+
+En general, el ID de un objeto del ledger se devuelve como el campo `index` en JSON, al mismo nivel que el contenido del objeto. En los metadatos de transacciones, el ID del objeto del ledger en JSON es `LedgerIndex`.
+
+**Consejo:** El campo `index` o `LedgerIndex` de un objeto en el ledger es el ID del objeto del ledger. Esto no es lo mismo que un \[índice de ledger]\[].
+
+### Indicadores <a href="#flags" id="flags"></a>
+
+Los indicadores son configuraciones de encendido/apagado, representadas como valores binarios que se combinan en un único número mediante operaciones OR bit a bit. Los valores de bit para los indicadores en las entradas del ledger son diferentes de los valores usados para habilitar o deshabilitar esos indicadores en una transacción. Los indicadores de estado del ledger tienen nombres que comienzan con **`lsf`**.
+
+Los posibles valores para el campo de indicadores varían según el tipo de entrada del ledger. Algunos tipos de entradas del ledger no tienen indicadores definidos. En estos casos, el campo `Flags` siempre tiene el valor `0`.
+
+### Véase También
+
+* Para más información sobre cómo Xahau crea y usa hashes, consulta Hashes.
+* Para los fundamentos del ledger, consulta Ledgers.

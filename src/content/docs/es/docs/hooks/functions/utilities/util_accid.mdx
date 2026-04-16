@@ -1,0 +1,109 @@
+---
+title: util_accid
+description: Convertir una r-address en un Account ID de 20 bytes
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Lee una r-address desde `read_ptr`
+* Escribe un Account ID de 20 bytes en `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Lee una r-address desde `raddress`
+* Devuelve un Account ID de 20 bytes o un ErrorCode
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_accid (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_accid(raddress: string): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t accid_out[20];
+uint8_t raddr_in[] = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh";
+
+int64_t bytes_written =
+util_accid(accid_out, 20, raddr_in, sizeof(raddr_in)-1);
+// Nota: si se especifica como string en C, tener en cuenta el carácter nulo
+
+````
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const accId = util_accid('rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh')
+````
+
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+<table>
+<thead>
+<tr><th>Nombre</th><th width="102">Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr><td>write_ptr</td><td>uint32_t</td><td>Puntero a un buffer adecuado para almacenar el Account ID (mínimo 20 bytes)</td></tr>
+<tr><td>write_len</td><td>uint32_t</td><td>Longitud del buffer de salida</td></tr>
+<tr><td>read_ptr</td><td>uint32_t</td><td>Puntero a la r-address</td></tr>
+<tr><td>read_len</td><td>uint32_t</td><td>Longitud de la r-address</td></tr>
+</tbody>
+</table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table>
+<thead>
+<tr><th>Nombre</th><th width="102">Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr><td>raddress</td><td>string</td><td>La r-address a convertir en Account ID en formato HEX</td></tr>
+</tbody>
+</table>
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t  | <p>Número de bytes escritos (longitud del Account ID)<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>INVALID_ARGUMENT</code><br />- `read_ptr` no apunta a una r-address válida<br /><br /><code>TOO_SMALL</code><br />- el buffer es insuficiente (debe ser 20 bytes)<br /><br /><code>TOO_BIG</code><br />- `read_len` es demasiado grande</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo            | Descripción                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------------- |
+| string / number | Devuelve error si falla, o el Account ID en HEX como array de números                                |
+</TabItem>
+</Tabs>

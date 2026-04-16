@@ -1,0 +1,45 @@
+---
+title: Resultados de Transacciones
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/TER.h)
+
+El servidor `rippled` resume los resultados de las transacciones con códigos de resultado, que aparecen en campos como `engine_result` y `meta.TransactionResult`. Estos códigos se agrupan en varias categorías con diferentes prefijos:
+
+| Categoría             | Prefijo | Descripción                                                                                                                                                                                                   |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Solo costo reclamado  | `tec`   | La transacción no logró su propósito previsto, pero el costo de la transacción fue destruido. Este resultado solo es definitivo en un ledger validado.                                                        |
+| Fallo                 | `tef`   | La transacción no puede aplicarse al ledger actual (en progreso) del servidor ni a ninguno posterior. Es posible que ya haya sido aplicada, o que las condiciones del ledger la hagan imposible en el futuro. |
+| Error local           | `tel`   | El servidor `rippled` tuvo un error por condiciones locales, como alta carga. Podría obtener una respuesta diferente si reenvía a un servidor diferente o en un momento diferente.                            |
+| Transacción malformada| `tem`   | La transacción no era válida, debido a sintaxis incorrecta, opciones en conflicto, una firma incorrecta, u otra razón.                                                                                        |
+| Reintento             | `ter`   | La transacción no pudo aplicarse, pero podría aplicarse con éxito en un ledger futuro.                                                                                                                        |
+| Éxito                 | `tes`   | (No es un error) La transacción fue exitosa. Este resultado solo es definitivo en un ledger validado.                                                                                                         |
+
+El servidor `rippled` reintenta automáticamente las transacciones fallidas. Es importante no asumir que una transacción ha fallado completamente basándose en un resultado provisional de fallo. Una transacción puede tener éxito más tarde a menos que su éxito o fallo sea definitivo.
+
+**Advertencia:** Los códigos de resultado provisionales de las transacciones pueden diferir de su resultado final. Las transacciones que provisionalmente tuvieron éxito pueden eventualmente fallar, y las que provisionalmente fallaron pueden eventualmente tener éxito. Las transacciones que provisionalmente fallaron también pueden eventualmente fallar con un código diferente. Consulte la finalidad de los resultados para saber cuándo el resultado de una transacción es definitivo.
+
+La distinción entre un error local (`tel`) y una transacción malformada (`tem`) es una cuestión de reglas a nivel de protocolo. Por ejemplo, el protocolo no establece un límite en el número máximo de rutas que pueden incluirse en una transacción. Sin embargo, un servidor puede definir un límite finito de rutas que puede procesar. Si dos servidores diferentes están configurados de manera diferente, uno de ellos puede devolver un error `tel` para una transacción con muchas rutas, mientras que el otro servidor podría procesarla con éxito. Si suficientes servidores pueden procesar la transacción de manera que sobreviva al consenso, entonces puede incluirse en un ledger validado.
+
+Por el contrario, un error `tem` implica que ningún servidor puede aplicar la transacción, independientemente de la configuración. La transacción viola las reglas del protocolo, es inaceptablemente ambigua, o es completamente incoherente. La única forma en que una transacción malformada podría volverse válida es mediante cambios en el protocolo; por ejemplo, si se adopta una nueva funcionalidad, las transacciones que la usen podrían considerarse malformadas por servidores con software anterior a esa funcionalidad.
+
+### Respuesta Inmediata
+
+La respuesta del [método submit][] contiene un resultado provisional del servidor `rippled` indicando qué ocurrió durante el procesamiento local de la transacción.
+
+La respuesta de `submit` contiene los siguientes campos:
+
+| Campo                   | Valor          | Descripción                                                                                                                                               |
+| ----------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `engine_result`         | String         | Un código que indica el resultado de la transacción, como `tecPATH_DRY`.                                                                                  |
+| `engine_result_code`    | Signed Integer | Un número que corresponde al `engine_result`. Los valores exactos están sujetos a cambios sin previo aviso.                                               |
+| `engine_result_message` | String         | Un mensaje legible por humanos que explica qué ocurrió. Este mensaje está destinado a desarrolladores para diagnosticar problemas, y está sujeto a cambios. |
+
+Si no ocurrió ningún error al enviar y aplicar la transacción localmente, la respuesta se ve así:
+
+```js
+    "engine_result": "tesSUCCESS",
+    "engine_result_code": 0,
+    "engine_result_message": "The transaction was applied. Only final in a validated ledger."
+```
+
+**Nota:** Un resultado exitoso en esta etapa no indica que la transacción haya tenido éxito completamente; solo que fue aplicada con éxito a la versión provisional del ledger mantenida por el servidor local. Los resultados fallidos en esta etapa también son provisionales y pueden cambiar. Consulte Finalidad de los Resultados para más detalles.

@@ -1,0 +1,65 @@
+---
+title: sto_from_json
+description: Formatear JSON como un objeto STO (datos del ledger codificados en binario).
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="JavaScript">
+* Toma un objeto JSON y lo convierte en un formato binario de datos del ledger.
+* Devuelve un objeto STO en formato binario de datos del ledger, o un código de error si la conversión falla.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function sto_from_json(
+    jsonobj: Record<string, any> | Transaction
+  ): ErrorCode | ByteArray
+````
+
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const stoBlob = sto_from_json(stoJson)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="JavaScript">
+
+| Nombre  | Tipo                              | Descripción                                     |
+| ------- | --------------------------------- | ----------------------------------------------- |
+| jsonobj | Record&lt;string, any&gt; | Transaction | Objeto JSON que se convertirá en un objeto STO. |
+
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="JavaScript">
+
+| Tipo                  | Descripción                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| ErrorCode | ByteArray | Objeto STO en formato binario de datos del ledger, o un código de error si la conversión falla. |
+
+</TabItem>
+</Tabs>

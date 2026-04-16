@@ -1,0 +1,415 @@
+---
+title: Instrucciones de compilación para Linux
+---
+import { Aside } from '@astrojs/starlight/components';
+
+
+Estas instrucciones están diseñadas para funcionar en distribuciones basadas en Debian (por ejemplo, Ubuntu 22.04 y 24.04) y Red Hat Enterprise Linux (9 o 10). Muchas instrucciones se solapan, aunque las diferencias entre sistemas operativos se indican a lo largo del texto. Se hacen esfuerzos por probar las compilaciones en distintos sistemas operativos; sin embargo, Ubuntu es el entorno más probado y compatible para compilar y ejecutar xahaud.
+
+Para instrucciones adicionales, consulta el archivo [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md) en el repositorio GitHub de Xahau/xahaud.
+
+<Aside type="caution">
+Crear un entorno para compilar xahaud puede causar daños permanentes en el sistema. La sección [Entornos de compilación](#entornos-de-compilación-para-principiantes) de esta página contiene técnicas para aislar tu entorno de compilación de tu sistema operativo subyacente. Realiza cambios en el sistema bajo tu propia responsabilidad.
+</Aside>
+
+## Instalar dependencias
+
+Los usuarios de Debian/Ubuntu pueden instalar las dependencias requeridas con estos comandos:
+```
+
+sudo apt install -y git curl wget python3-pip python3-venv python3-dev ca-certificates gcc g++ build-essential cmake ninja-build libc6-dev libssl-dev libsqlite3-dev
+
+```
+
+Del mismo modo, los usuarios de RHEL 9 o RHEL 10 pueden instalar las dependencias:
+```
+
+sudo dnf install epel-release && sudo dnf update -y
+sudo dnf config-manager --set-enabled crb -y
+sudo dnf groupinstall "Development Tools" -y
+sudo dnf install curl wget git ca-certificates cmake glibc-headers glibc-devel ninja-build perl-interpreter perl perl-FindBin sqlite-devel libstdc++ libstdc++-devel libstdc++-static gcc-c++ -y
+
+```
+
+## Clonar el repositorio GitHub de Xahau/xahaud
+Antes de compilar, obtén una copia local del repositorio GitHub de xahaud:
+
+`git clone https://github.com/Xahau/xahaud.git`
+
+Es posible compilar desde otros forks del repositorio; simplemente ajusta la URL anterior según sea necesario.
+
+### Seleccionar la rama del repositorio
+La rama principal usada para el desarrollo de xahaud es `dev`. Los usuarios que prefieran compilar desde una rama alternativa pueden hacerlo:
+
+`git checkout [nombre-de-rama]`
+
+### Preparar el directorio de compilación
+Crea un directorio dentro del repositorio de xahaud para almacenar los archivos generados durante el proceso de compilación:
+
+`mkdir [/ruta/al_repositorio_github_xahaud]/.build`
+
+## Instalar y configurar Conan2
+1. Asegúrate de estar en el directorio de compilación: `cd [/ruta/al_repositorio_github_xahaud]/.build`
+
+2. Crea un entorno virtual de Python3 (venv) en el directorio `env`: `python3 -m venv env`
+
+3. Activa el entorno virtual: `source ./env/bin/activate`
+
+4. Actualiza pip para que estén disponibles las últimas versiones del software: `pip install --upgrade pip`
+
+5. Instala Conan2: `pip install conan`
+
+6. Crea un nuevo perfil de Conan2 (si todavía no lo has hecho): `conan profile detect`
+
+7. Instala las recetas de Conan para las dependencias Snappy, SOCI y WasmEdge, incluidas en el repositorio GitHub "xahaud":
+```
+
+conan export external/snappy --version 1.1.10 --user xahaud --channel stable
+conan export external/soci --version 4.0.3 --user xahaud --channel stable
+conan export external/wasmedge --version 0.11.2 --user xahaud --channel stable
+
+```
+8. Revisa tu perfil de Conan2, ubicado en: `/home/[nombre-de-usuario]/.conan2/profiles/default`. Si es necesario, añade:
+```
+
+[settings]
+compiler.cppstd=20
+compiler.libcxx=libstdc++11
+
+```
+9. Puede ser necesario incluir las siguientes líneas al final de tu perfil de Conan2:
+```
+
+[conf]
+tools.build:cxxflags=['-Wno-restrict']
+
+```
+
+## Compilar xahaud
+1. Dentro del directorio `.build`, con el entorno virtual de Python3 activo, ajusta `build_type` a `"Release"` o `"Debug"` y ejecuta el siguiente comando. Es posible ejecutar el comando dos veces para generar archivos para cada `build_type`.
+```
+
+conan install .. --output-folder . --build missing --settings build_type=["Release" or "Debug"] -c tools.build:verbosity=verbose -c tools.compilation:verbosity=verbose
+
+```
+
+2. Si es necesario, pueden pasarse opciones adicionales a Conan2:
+```
+
+conan install .. --output-folder . --build missing --settings build_type=["Release" or "Debug"] -s compiler=gcc -s compiler.version=12 -s compiler.libcxx=libstdc++11 -s compiler.cppstd=20 -c tools.build:verbosity=verbose -c tools.compilation:verbosity=verbose -g VirtualBuildEnv -g VirtualRunEnv
+
+```
+
+3. Cuando Conan2 termine, ejecuta cmake. No especifiques `DCMAKE_BUILD_TYPE` si estás compilando con múltiples configuraciones (tanto `"Release"` como `"Debug"`).
+
+```
+
+cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW 
+-DCMAKE_BUILD_TYPE=["Release" or "Debug"] 
+-DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake 
+..
+
+```
+
+4. Finalmente, usa cmake para completar el proceso de compilación: `cmake --build . [añade '--config Release' o '--config Debug' si se generaron múltiples tipos de compilación]`.
+
+El archivo de salida se llama `rippled` y se encuentra en el directorio `.build`. Si se especificaron múltiples tipos de compilación (tanto `"Release"` como `"Debug"`), el producto final estará en: `.build/["Release" or "Debug"]/rippled` Renombra el archivo a `xahaud` y muévelo a su ubicación final (teniendo cuidado de no sobrescribir el repositorio GitHub de `xahaud`). Marca el archivo final como ejecutable y descarga un archivo de configuración y un archivo de validadores según sea necesario.
+
+## Probar la compilación
+Para ejecutar pruebas unitarias: `./xahaud --unittest`
+
+
+## Entornos de compilación para principiantes
+
+Mantener distintos entornos de compilación (venvs de Python3, perfiles de Conan2, etc.) es una tarea compleja, y aún más porque los sistemas operativos subyacentes a menudo dependen de versiones específicas de software o esperan determinadas versiones. Por ello, quienes son nuevos en el proceso de compilación pueden beneficiarse del uso de contenedores o de escribir scripts bash que se utilicen en máquinas virtuales que restablezcan su estado al reiniciarse.
+
+Las siguientes subsecciones cubren los conceptos básicos de configuración de entornos de compilación amnésicos y basados en contenedores.
+
+### Contenedores
+Es posible usar [Docker](https://docker.com) u otros entornos en contenedores (Podman, Kubernetes, etc.) para aislar el proceso de compilación, manteniendo así limpio el sistema subyacente. El uso de contenedores tiene además la ventaja de poder probar compilaciones fácilmente en múltiples entornos. Por ejemplo, pueden configurarse contenedores basados en RHEL, Debian y otras distribuciones para usar distintas versiones de compilador. Además, características como los Dockerfiles multietapa permiten a los usuarios compilar y luego desplegar (ejecutar) xahaud usando un único Dockerfile. Los usuarios también pueden aprovechar el plugin `buildx` de Docker, que permite compilar para múltiples plataformas de manera concurrente.
+
+#### Instalar Docker
+```
+
+# Debian/Ubuntu:
+
+sudo apt update && sudo apt install docker.io docker-compose-v2 docker-buildx
+
+# RHEL (requiere añadir el repositorio de docker.com):
+
+sudo dnf config-manager --add-repo [https://download.docker.com/linux/rhel/docker-ce.repo](https://download.docker.com/linux/rhel/docker-ce.repo)
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+```
+
+Después de instalarlo, es posible añadir tu cuenta de usuario local al grupo Docker, de forma que interactuar con Docker no requiera acceso root/sudo: `sudo usermod -aG docker $USER`. Para que los cambios surtan efecto, debes cerrar sesión y volver a iniciarla.
+
+#### Ejemplo de Dockerfile
+Para facilitar y dar consistencia, es posible usar scripts Dockerfile (por ejemplo, buildx, multietapa, docker-compose v2, etc.) para configurar el entorno de compilación y completar el proceso de build.
+
+Por ejemplo, xahaud puede compilarse dentro de un contenedor Docker de Ubuntu 24.04 usando un Dockerfile para describir el contenedor, descargar e instalar dependencias y compilar el producto final. Ten en cuenta que el siguiente código sigue los mismos pasos descritos anteriormente en esta página para el proceso general de compilación en Linux; simplemente se aplican dentro de un contenedor aislado. Es posible añadir variables adicionales o ajustar el siguiente código para personalizar el proceso de compilación.
+
+```
+
+# ~~~~ Argumentos usados para personalizar el contenedor y la compilación ~~~~
+
+ARG BASE_IMAGE=ubuntu:24.04                     # Sistema operativo para el contenedor de compilación
+ARG REPO_URL=[https://github.com/Xahau/xahaud](https://github.com/Xahau/xahaud)    # URL del repositorio con el código a compilar
+ARG REPO_BRANCH=dev                             # Rama del repositorio que se usará para la compilación
+ARG RELEASE_TYPE=Release                        # Establecer a "Release" o "Debug"
+ARG BASE_DIR=/build                             # Directorio donde compilar xahaud
+
+# ~~~~ Iniciar un contenedor ~~~~
+
+FROM --platform=$BUILDPLATFORM ${BASE_IMAGE} AS builder
+
+ARG REPO_URL
+ARG REPO_BRANCH
+ARG RELEASE_TYPE
+ARG BASE_DIR
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+
+ENV DEBIAN_FRONTEND=noninteractive 
+CONAN2_DIR=/root/.conan2
+
+# ~~~~ Instalar dependencias de compilación ~~~~
+
+RUN set -ex; 
+if [ -f /etc/os-release ]; then . /etc/os-release; fi; 
+case " $ID $ID_LIKE " in 
+*debian*|*ubuntu*) 
+apt-get update && apt-get install -y -qq 
+git curl wget python3-pip python3-venv python3-dev ca-certificates 
+gcc g++ build-essential cmake ninja-build 
+libc6-dev libssl-dev libsqlite3-dev 
+&& rm -rf /var/lib/apt/lists/* 
+;; 
+*rhel*|*fedora*|*centos*|*rocky*|*alma*) 
+dnf install -y config-manager epel-release && dnf update -y && 
+dnf config-manager --set-enabled crb -y && 
+dnf groupinstall -y "Development Tools" && 
+dnf install -y curl wget git ca-certificates cmake glibc-headers glibc-devel 
+ninja-build perl-interpreter perl perl-FindBin sqlite-devel 
+libstdc++ libstdc++-devel libstdc++-static gcc-c++ python3-pip python3-devel 
+&& dnf clean all 
+;; 
+*) echo "Unsupported OS"; exit 1 ;; 
+esac
+
+# ~~~~ Clonar el repositorio GitHub de xahaud y crear un directorio '.build' ~~~~
+
+WORKDIR ${BASE_DIR}
+RUN git clone ${REPO_URL} xahaud && 
+cd xahaud && 
+git checkout ${REPO_BRANCH} && 
+mkdir -p .build
+
+# ~~~~ Crear un entorno virtual Python3 e instalar Conan2 ~~~~
+
+RUN python3 -m venv ${BASE_DIR}/env && 
+. ${BASE_DIR}/env/bin/activate && 
+pip install --upgrade pip && 
+pip install conan
+
+# ~~~~ Configurar perfil Conan2 (lo siguiente asume que el usuario desea usar cppstd versión 20) ~~~~
+
+RUN . ${BASE_DIR}/env/bin/activate && 
+conan profile detect && 
+CONAN2_PROFILE="${CONAN2_DIR}/profiles/default" && 
+if grep -q '^compiler.cppstd=' "$CONAN2_PROFILE"; then 
+sed -i 's/^compiler.cppstd=.*/compiler.cppstd=20/' "$CONAN2_PROFILE"; 
+else 
+echo 'compiler.cppstd=20' >> "$CONAN2_PROFILE"; 
+fi && 
+if ! grep -Fqx "[conf]" "$CONAN2_PROFILE"; then 
+printf "[conf]\ntools.build:cxxflags=['-Wno-restrict']\n" >> "$CONAN2_PROFILE"; 
+fi
+
+# ~~~~ Exportar recetas Conan para snappy, soci y wasmedge ~~~~
+
+RUN . ${BASE_DIR}/env/bin/activate && 
+cd ${BASE_DIR}/xahaud && 
+conan export external/snappy --version 1.1.10 --user xahaud --channel stable && 
+conan export external/soci --version 4.0.3 --user xahaud --channel stable && 
+conan export external/wasmedge --version 0.11.2 --user xahaud --channel stable
+
+# ~~~~ Compilar xahaud ~~~~
+
+RUN . ${BASE_DIR}/env/bin/activate && 
+cd ${BASE_DIR}/xahaud/.build && 
+conan install .. --output-folder . 
+--settings build_type=${RELEASE_TYPE} 
+--options *:shared=False 
+--build missing 
+-c tools.build:verbosity=verbose 
+-c tools.compilation:verbosity=verbose 
+-g VirtualBuildEnv 
+-g VirtualRunEnv && 
+cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW 
+-DCMAKE_BUILD_TYPE=${RELEASE_TYPE} 
+-DBUILD_SHARED_LIBS=OFF 
+-DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++" 
+-DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake 
+.. && 
+cmake --build . --parallel $(nproc)
+
+# ~~~~ Copiar los archivos de configuración al BASE_DIR ~~~~
+
+RUN cp ${BASE_DIR}/xahaud/cfg/xahaud-example.cfg ${BASE_DIR}/xahaud.cfg && 
+cp ${BASE_DIR}/xahaud/cfg/validators-example.txt ${BASE_DIR}/validators-xahau.txt && 
+cp ${BASE_DIR}/xahaud/.build/rippled ${BASE_DIR}/rippled
+
+# ~~~~ Copiar los archivos xahaud.cfg y validators-xahau.txt al sistema anfitrión ~~~~
+
+FROM scratch AS export
+ARG BASE_DIR
+
+COPY --from=builder ${BASE_DIR}/rippled /xahaud
+COPY --from=builder ${BASE_DIR}/xahaud.cfg /xahaud.cfg
+COPY --from=builder ${BASE_DIR}/validators-xahau.txt /validators-xahau.txt
+
+# ~~~~ Crear una imagen Docker con xahaud y archivos de configuración ~~~~
+
+FROM ${BASE_IMAGE} AS runtime
+ARG BASE_DIR
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ~~~~ Instalar dependencias de ejecución ~~~~
+
+RUN set -ex; 
+if [ -f /etc/os-release ]; then . /etc/os-release; fi; 
+case " $ID $ID_LIKE " in 
+*debian*|*ubuntu*) 
+apt-get update && apt-get install -y -qq 
+libssl3 libsqlite3-0 ca-certificates 
+&& update-ca-certificates 
+&& rm -rf /var/lib/apt/lists/* 
+;; 
+*rhel*|*fedora*|*centos*|*rocky*|*alma*) 
+dnf install -y openssl-libs sqlite-libs ca-certificates 
+&& dnf clean all && update-ca-trust 
+;; 
+esac
+
+# ~~~~ Copiar binario compilado y configs desde builder ~~~~
+
+RUN mkdir -p /opt/xahaud/etc /opt/xahaud/bin /opt/xahaud/db /var/log/xahaud
+COPY --from=builder ${BASE_DIR}/rippled /opt/xahaud/bin/xahaud
+COPY --from=builder ${BASE_DIR}/xahaud.cfg /opt/xahaud/etc/xahaud.cfg
+COPY --from=builder ${BASE_DIR}/validators-xahau.txt /opt/xahaud/etc/validators-xahau.txt
+
+# ~~~~ Crear directorios y copiar bibliotecas compartidas requeridas desde builder ~~~~
+
+RUN --mount=type=bind,from=builder,source=/root/.conan2,target=/tmp/conan 
+find /tmp/conan -name "*.so*" -type f -exec cp {} /usr/local/lib/ ; && 
+ldconfig
+
+# ~~~~ Establecer permisos ~~~~
+
+RUN chmod -R 755 /opt/xahaud /var/log/xahaud
+
+WORKDIR /opt/xahaud
+
+# ~~~~ Exponer puertos ~~~~
+
+EXPOSE 5009 6009 50051 21337 21338
+
+# ~~~~ Ejecutar xahaud ~~~~
+
+ENTRYPOINT ["/opt/xahaud/bin/xahaud"]
+CMD ["--conf", "/opt/xahaud/etc/xahaud.cfg"]
+
+```
+
+El Dockerfile multietapa anterior puede utilizarse para compilar xahaud ejecutando:
+
+`docker buildx build -t xahaud-builder --target builder --load .`
+
+Esto crea una imagen Docker llamada `xahaud-builder` a partir del Dockerfile. La bandera `--target builder` detiene el script en el proceso de compilación y la bandera `--load` importa la imagen resultante en Docker.
+
+La imagen compilada también puede exportarse al sistema operativo anfitrión (junto con los archivos de configuración):
+
+`docker buildx build --target export --output type=local,dest=$HOME .`
+
+Para ejecutar el archivo de compilación multietapa y crear una nueva imagen Docker con xahaud y los archivos de configuración requeridos:
+
+`docker buildx build --target runtime --load -t xahaud:latest .`
+
+La imagen resultante puede verse con: `docker images` y ejecutarse con:
+
+`docker run --rm -d --name xahaud -p 5009:5009 -p 6009:6009 -p 21337:21337 -v /home/$USER/xahaud/opt:/opt/xahaud -v /home/$USER/xahaud/log:/var/log/xahaud xahaud:latest`
+
+En el comando anterior, puedes ajustar la bandera `-d` para alternar entre modo desacoplado o no, las banderas `-p xxxx:xxxx` que definen el mapeo de puertos, la bandera `--name xahaud` para cambiar el nombre del contenedor, y la bandera `-v /ruta/en/host:/ruta/en/contenedor` para cambiar dónde se almacenan los datos persistentes en el sistema operativo subyacente. Si se ejecuta en modo desacoplado, los logs pueden verse con `docker logs -f xahaud`.
+
+### Sistemas operativos amnésicos
+
+Configurar un sistema Linux para que olvide completamente todo el software instalado o modificado durante la ejecución proporciona una vía sencilla para recuperarse de errores de compilación. Normalmente, un sistema operativo amnésico se ejecuta como una máquina virtual con una gran cantidad de memoria disponible, ya que todos los cambios se escriben en memoria en vez de disco. Compilar xahaud puede requerir más de 20 GB de memoria si todas las dependencias y requisitos se instalan en un sistema de archivos overlay basado en memoria. Suele ser posible instalar la mayoría de las dependencias (usando `apt` o `dnf`) antes de hacer el sistema amnésico, reduciendo así la memoria necesaria.
+
+#### Configurar un sistema operativo amnésico usando una máquina virtual basada en Debian
+```
+
+# Instalar el paquete 'overlayroot'
+
+apt update && apt install overlayroot
+
+# Actualizar el archivo de configuración (/etc/overlayroot.conf) para habilitar un sistema de archivos overlay en memoria.
+
+sudo sed -i 's/^overlayroot=.*/overlayroot="tmpfs:swap=1,recurse=0"/' /etc/overlayroot.conf
+
+# Reconstruir initramfs
+
+update-initramfs -u
+
+# Reiniciar en el overlay
+
+reboot
+
+# Después de reiniciar, es posible volver a montar el sistema de archivos overlay con más memoria, ya que por defecto solo el 50% de la memoria disponible se dedica al overlayfs.
+
+# Al redimensionar la memoria, asegúrate de que quede memoria disponible para el sistema. Lo siguiente volverá a montar el overlayfs para usar 30G de memoria; ajusta según sea necesario.
+
+# También es posible usar un archivo systemd para habilitar cambios persistentes en el tamaño del overlayfs.
+
+sudo mount -o remount,size=30G /media/root-rw
+
+```
+
+#### Configurar un sistema operativo amnésico usando una máquina virtual basada en RHEL
+```
+
+# Asegurarse de que dracut está instalado
+
+dnf install dracut -y
+
+# Configurar dracut para soportar el overlay
+
+printf 'add_drivers+=" overlay "\n' > /etc/dracut.conf.d/overlay.conf # Usa esta línea para RHEL 9
+printf 'add_drivers+=" overlay "\nadd_dracutmodules+=" overlayfs "\n' > /etc/dracut.conf.d/overlay.conf # Usa esta línea para RHEL 10
+
+# Reconstruir
+
+dracut -f
+
+# Actualizar la imagen de arranque para usar un overlay volátil de systemd
+
+grubby --update-kernel=ALL --args="systemd.volatile=overlay"
+
+```
+
+#### Compilar xahaud
+Una vez creada una máquina virtual amnésica con memoria suficiente, es posible compilar xahaud siguiendo las instrucciones [anteriores en esta página](#_top).
+
+#### Desactivar la amnesia
+Instalar actualizaciones de software o realizar otras tareas que deban persistir requerirá que los usuarios desactiven la amnesia. Esto puede hacerse temporal o permanentemente. Algunas actualizaciones de software requieren configuración adicional tras reiniciar, por lo que se recomienda desactivar la amnesia por segunda vez al reiniciar después de una actualización.
+
+Para desactivar la amnesia en sistemas basados en Debian:
+1. Pulsa `e` para editar la entrada de arranque de Ubuntu.
+2. En la línea que comienza con `linux...`, edita o añade la opción `overlayroot=` para que quede como `overlayroot=disabled`. Esto permitirá un arranque puntual en un sistema con almacenamiento persistente.
+3. Para desactivar la amnesia permanentemente, ejecuta `sudo sed -i '/^overlayroot=/c\overlayroot="disabled"' /etc/overlayroot.conf` para cambiar `overlayroot="disabled"` en el archivo `/etc/overlayroot.conf`. Después actualiza initramfs con `sudo update-initramfs -u`.
+
+Para desactivar la amnesia en sistemas basados en RHEL 9/10:
+1. Pulsa `e` en el menú de arranque para editar las opciones.
+2. Elimina la opción `systemd.volatile=overlay`.
+3. Pulsa `F10` para arrancar.
+4. Para desactivar la amnesia permanentemente, ejecuta `grubby --update-kernel=ALL --remove-args="systemd.volatile=overlay"`

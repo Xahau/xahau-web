@@ -1,0 +1,96 @@
+---
+title: slot
+description: Serializar y devolver un objeto almacenado en un slot
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+* Serializa el objeto que ocupa actualmente el slot especificado
+* Escribe la versión serializada del objeto en el buffer de salida
+
+<Aside type="tip" title="Uso alternativo">
+Para objetos pequeños puedes evitar usar un buffer. Especifica `0, 0` en `write_ptr, write_len` para intentar devolver el objeto como datos empaquetados en big endian en el valor de retorno `int64_t`. Se pueden devolver hasta 63 bits de datos de esta forma.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Obtiene los datos asociados al slot especificado
+* Devuelve un código de error o los datos del slot
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t slot_no
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot(slotno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t txn[512];
+int64_t bytes_written = 
+    slot(txn, 512, 1); // asume que hay una transacción en el slot=1
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const txn = slot(1) // asume que hay una transacción en el slot=1
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+| Nombre    | Tipo     | Descripción                                                 |
+| --------- | -------- | ----------------------------------------------------------- |
+| write_ptr | uint32_t | Puntero a un buffer de tamaño adecuado para la salida       |
+| write_len | uint32_t | Longitud del buffer de salida                               |
+| slot_no   | uint32_t | Número del slot                                             |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nombre | Tipo   | Descripción       |
+| ------ | ------ | ----------------- |
+| slotno | number | Número del slot   |
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descripción                                                                                                                                                                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Número de bytes escritos<br /><br />Si es negativo, error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros fuera de la memoria del hook<br /><br /><code>TOO_SMALL</code><br />- el buffer no es lo suficientemente grande</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descripción                                      |
+| ---------------------- | ------------------------------------------------ |
+| ErrorCode \| ByteArray | Devuelve un código de error o los datos del slot |
+</TabItem>
+</Tabs>

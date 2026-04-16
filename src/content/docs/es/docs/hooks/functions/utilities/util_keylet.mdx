@@ -1,0 +1,151 @@
+---
+title: util_keylet
+description: Calcular un keylet serializado de un tipo dado
+---
+import { Tabs, TabItem, Aside, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/slots-and-keylets">Slots y Keylets</LinkButton>
+
+<Aside type="tip">
+No todos los tipos de Keylet están soportados por esta función. Si necesitas otro tipo, puedes generarlo manualmente usando [util_sha512h](https://xrpl-hooks.readme.io/reference/util_sha512h) y consultando los campos requeridos [aquí](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/Indexes.cpp). También puedes usar esta herramienta: [Keylet Tool](https://richardah.github.io/xrpl-keylet-tools/)
+</Aside>
+
+### Comportamiento
+
+* Calcula un keylet del tipo `keylet_type` según los parámetros `a` a `f`
+* Escribe el keylet serializado de 34 bytes en `write_ptr`
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_keylet (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t keylet_type,
+    uint32_t a,
+    uint32_t b,
+    uint32_t c,
+    uint32_t d,
+    uint32_t e,
+    uint32_t f
+);
+````
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_keylet(
+    keylet_type: number,
+    accountid: ByteArray | HexString,
+    statekey: ByteArray | HexString,
+    namespace: ByteArray | HexString
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t keylet[34];
+if (util_keylet(keylet, 34, KEYLET_LINE,
+              hook_accid, 20,
+              account_field, 20,
+              currency_code, 20) != 34)
+	rollback("Keylet Failed.", 14, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (util_keylet(
+        KEYLET_LINE, hook_accid, account_field, currency_code
+        ).length < 34) 
+    rollback("Keylet Failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+<table>
+<thead>
+<tr><th>Nombre</th><th>Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr><td>write_ptr</td><td>uint32_t</td><td>Puntero al buffer donde se escribirá el keylet</td></tr>
+<tr><td>write_len</td><td>uint32_t</td><td>Longitud del buffer (mínimo 34 bytes)</td></tr>
+<tr><td>keylet_type</td><td>uint32_t</td><td>Tipo de keylet definido en <code>hookapi.h</code></td></tr>
+<tr><td>a</td><td>uint32_t</td><td>Ver tabla inferior</td></tr>
+<tr><td>b</td><td>uint32_t</td><td>Ver tabla inferior</td></tr>
+<tr><td>c</td><td>uint32_t</td><td>Ver tabla inferior</td></tr>
+<tr><td>d</td><td>uint32_t</td><td>Ver tabla inferior</td></tr>
+<tr><td>e</td><td>uint32_t</td><td>Ver tabla inferior</td></tr>
+<tr><td>f</td><td>uint32_t</td><td>Ver tabla inferior</td></tr>
+</tbody>
+</table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table>
+<thead>
+<tr><th>Nombre</th><th>Tipo</th><th>Descripción</th></tr>
+</thead>
+<tbody>
+<tr><td>keylet_type</td><td>number</td><td>Tipo de keylet a crear</td></tr>
+<tr><td>accountid</td><td></td><td>(Opcional) Primer dato del keylet</td></tr>
+<tr><td>statekey</td><td></td><td>(Opcional) Segundo dato del keylet</td></tr>
+<tr><td>namespace</td><td></td><td>(Opcional) Tercer dato del keylet</td></tr>
+</tbody>
+</table>
+</TabItem>
+</Tabs>
+
+### Tabla de Keylets
+
+<Tabs>
+<TabItem label="C">
+| Tipo de Keylet | Parámetros |
+|---------------|-----------|
+| KEYLET_HOOK_STATE | a=AccountID, b=20, c=clave estado, d=32, e=namespace, f=32 |
+| KEYLET_AMENDMENTS / KEYLET_FEES / KEYLET_NEGATIVE_UNL / KEYLET_EMITTED_DIR | Todos 0 |
+| KEYLET_SKIP | Todos 0 o a=LedgerIndex, b=1 |
+| KEYLET_LINE | a=Account High, b=20, c=Account Low, d=20, e=Currency, f=20 |
+| KEYLET_QUALITY | a=keylet, b=34, c/d=uint64, e/f=0 |
+| KEYLET_DEPOSIT_PREAUTH | a/b=Account1, c/d=Account2 |
+| KEYLET_UNCHECKED / CHILD / EMITTED_TXN | a=clave, b=32 |
+| KEYLET_OWNER_DIR / SIGNERS / ACCOUNT / HOOK | a=AccountID, b=20 |
+| KEYLET_PAGE | a=clave, b=32, c/d=uint64 |
+| KEYLET_OFFER / CHECK / ESCROW / NFT_OFFER | a=AccountID, b=20 + secuencia o clave |
+| KEYLET_PAYCHAN | combinación de cuentas + secuencia o clave |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo    | Descripción |
+|--------|-------------|
+| int64_t | Bytes escritos (34). Error si negativo: OUT_OF_BOUNDS, INVALID_ARGUMENT, TOO_SMALL |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descripción |
+|--------|-------------|
+| number | ErrorCode o keylet como array de números |
+</TabItem>
+</Tabs>

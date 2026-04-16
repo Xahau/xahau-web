@@ -1,0 +1,45 @@
+---
+title: DepositPreauth
+description: >-
+  Una transacción DepositPreauth otorga pre-aprobación a otra cuenta para
+  entregar pagos al emisor de esta transacción.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+  Puede usar esta transacción para preautorizar ciertas contrapartes antes de habilitar la Autorización de Depósito. Esto puede ser útil para garantizar una transición sin problemas de no requerir autorización de depósito a requerirla.
+</Aside>
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_Añadido por la enmienda \[DepositPreauth]\[]._
+
+### Ejemplo
+
+```json
+{
+  "TransactionType" : "DepositPreauth",
+  "Account" : "rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
+  "Authorize" : "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Fee" : "10",
+  "Flags" : 2147483648,
+  "Sequence" : 2
+}
+```
+
+### Campos
+
+| Campo         | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                      |
+| ------------- | --------- | ------------------- | -------------------------------------------------------------------------------- |
+| `Authorize`   | String    | AccountID           | _(Opcional)_ Dirección Xahau del emisor a preautorizar.                          |
+| `Unauthorize` | String    | AccountID           | _(Opcional)_ Dirección Xahau de un emisor cuya preautorización debe revocarse.   |
+
+Debe proporcionar _`Authorize`_ o _`Unauthorize`_, pero no ambos.
+
+### Casos de Error
+
+* Una cuenta no puede preautorizarse (ni desautorizarse) a sí misma. Intentarlo falla con el resultado `temCANNOT_PREAUTH_SELF`.
+* Intentar preautorizar una cuenta que ya está preautorizada falla con el resultado `tecDUPLICATE`.
+* Intentar desautorizar una cuenta que no está preautorizada falla con el resultado `tecNO_ENTRY`.
+* Intentar preautorizar una dirección que no está financiada en el ledger falla con el resultado `tecNO_TARGET`.
+* Agregar autorización añade un objeto DepositPreauth al ledger, lo que cuenta hacia el requisito de reserva del propietario. Si el emisor de la transacción no tiene suficiente XAH para pagar la reserva aumentada, la transacción falla con el resultado `tecINSUFFICIENT_RESERVE`. Si el emisor de la cuenta ya está en el número máximo de objetos poseídos, la transacción falla con el resultado `tecDIR_FULL`.

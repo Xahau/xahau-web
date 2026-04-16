@@ -1,0 +1,52 @@
+---
+title: SignerListSet
+description: >-
+  La transacción SignerListSet crea, reemplaza o elimina una lista de firmantes
+  que puede usarse para firmar múltiplemente una transacción.
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/SetSignerList.cpp)
+
+### Ejemplo
+
+```json
+{
+    "Flags": 0,
+    "TransactionType": "SignerListSet",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "SignerQuorum": 3,
+    "SignerEntries": [
+        {
+            "SignerEntry": {
+                "Account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                "SignerWeight": 2
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "rUpy3eEg8rqjqfUoLeBnZkscbKbFsKXC3v",
+                "SignerWeight": 1
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "raKEEVSGnKSD9Zyvxu4z6Pqpm4ABH8FS6n",
+                "SignerWeight": 1
+            }
+        }
+    ]
+}
+```
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | Descripción                                                                                                                                                                                                                                                                                                                                                                     |
+| --------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SignerQuorum`  | Number    | UInt32              | Un número objetivo para los pesos de los firmantes. Una firma múltiple de esta lista es válida solo si la suma de pesos de las firmas proporcionadas es mayor o igual a este valor. Para eliminar una lista de firmantes, use el valor `0`.                                                                                                                                     |
+| `SignerEntries` | Array     | Array               | _(Omitir al eliminar)_ Array de objetos `SignerEntry`, indicando las direcciones y pesos de los firmantes en esta lista. Esta lista de firmantes debe tener al menos 1 miembro y no más de 32 miembros. Ninguna dirección puede aparecer más de una vez en la lista, ni la `Account` que envía la transacción puede aparecer en la lista. _(Actualizado por la enmienda \[ExpandedSignerList]\[].)_ |
+
+Una transacción SignerListSet exitosa reemplaza el objeto `SignerList` de la cuenta en el ledger, o agrega uno si no existía antes. Una cuenta no puede tener más de una lista de firmantes. Para eliminar una lista de firmantes, debe establecer `SignerQuorum` en `0` _y_ omitir el campo `SignerEntries`. De lo contrario, la transacción falla con el error `temMALFORMED`. Una transacción para eliminar una lista de firmantes se considera exitosa incluso si no había ninguna lista que eliminar.
+
+No puede crear una lista de firmantes de tal manera que el `SignerQuorum` nunca pueda alcanzarse. El `SignerQuorum` debe ser mayor que 0 pero menor o igual que la suma de los valores `SignerWeight` en la lista. De lo contrario, la transacción falla con el error `temMALFORMED`.
+
+Puede crear, actualizar o eliminar una lista de firmantes usando la clave maestra, la clave regular o la lista de firmantes actual, si esos métodos de firma de transacciones están disponibles.
+
+No puede eliminar el último método de firma de transacciones de una cuenta. Si la clave maestra de una cuenta está deshabilitada (la cuenta tiene el indicador `lsfDisableMaster` habilitado) y la cuenta no tiene una Clave Regular configurada, entonces no puede eliminar la lista de firmantes de la cuenta. En cambio, la transacción falla con el error `tecNO_ALTERNATIVE_KEY`.
