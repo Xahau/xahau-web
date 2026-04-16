@@ -1,0 +1,240 @@
+---
+title: WeakとStrong
+description: どのHooksがいつ実行できるか？
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip" title="Hookの設計哲学">
+  トランザクションの影響を受けるすべての関係者は、自分のHooksを実行する機会を持つべきです。
+</Aside>
+
+Transactional Stake Holders（TSH）は、何らかの形でトランザクションに関与する、またはトランザクションによって影響を受ける関係者です。彼らの特定の関与は_weak（弱い）_または_strong（強い）_である可能性があります。トランザクションとの接続の度合いによって、その関係者がHooksを実行する権利を持つかどうか、および誰がその実行費用を支払うかが決まります。
+
+例えば：
+
+* 従来の直接XAH **Payment**トランザクションでは、2つのTSHは_発信アカウント_と_宛先アカウント_です。
+* **SetSignerList**トランザクションでは、TSHは_発信アカウント_と署名者リストにアドレスが記載された各アカウント（そのようなアカウントがレジャーでアクティブな場合）です。
+* **OfferCreate**トランザクションでは、発信トランザクションによってクロスされた他のアカウントのオファーはすべてweak TSHであり、weak実行を選択できます。
+* **IOUIssuerWeakTSH** amendmentでは、通貨発行者はweak実行を選択している場合、自分の通貨に触れるまたは言及するサードパーティのトランザクションでHooksが実行されます。
+
+Xahauのトランザクションの異種性のため、TSHはあらゆる形と大きさで存在し、エキゾチックで直感的でない場合があります。これは時間の経過とともにより多くのトランザクションタイプがレジャーに追加されるにつれて、より当てはまるようになります。
+
+### WeakとStrong
+
+各TSHはトランザクションとweakまたはstrongの接続を持ちます。
+
+**Strong**接続とは：
+
+1. 発信トランザクションがTSH Hookチェーンの実行手数料を支払わなければならない
+2. TSHは実行中にHookから`rollback()`を呼び出すことでトランザクション全体をロールバックする権利を持つ
+
+**Weak**接続とは：
+
+1. 発信トランザクションはTSH Hookチェーンの実行費用を**支払わない**
+2. TSHは[Collect Call Hooks](/docs/hooks/concepts/collect-call)と呼ばれる機能を通じて自身のHookチェーンの実行費用を支払う
+3. TSHは発信トランザクションの実行前にアカウントフラグ`asfTshCollect`を設定しておかなければならない
+4. TSHは実行中にHookから`rollback()`を呼び出すことでトランザクション全体をロールバックする権利を**持たない**（ただし、自身のHookステートを変更してトランザクションを発行することはできる）
+
+### 実行前後
+
+Strong TSHは発信トランザクションがレジャーに適用される_前に_Hooksが実行されます。これはトランザクションがまだ適用されていないため、[rollback](/docs/hooks/functions/control/rollback)する能力を持つことを意味します。これにより、strong実行されるHooksはトランザクションの発生を完全にブロックする能力を持ちます。
+
+Weak TSHは発信トランザクションがレジャーに適用された_後に_Hooksが実行されます。これは[トランザクションメタデータ](/docs/hooks/functions/originating-transaction/meta_slot)にアクセスできますが、トランザクションの発生を防ぐことはできません。
+
+<Aside type="tip">
+  Strong実行されるHooksは、発信トランザクションが適用された後にweak実行として2回目の実行をリクエストするために<a href="ref:hook_again">hook_again</a>を呼び出すことができます。
+</Aside>
+
+### 実行コンテキスト
+
+`hook(uint32_t)`と`cbak(uint32_t)`の`uint32_t`パラメーターは、Hooks AmendmentからHookへの重要なコンテキスト情報を運びます。
+
+`hook`の実行中：
+
+* 0はHookが_strong_に実行されていることを意味します
+* 1はHookが_weak_に実行されていることを意味します
+* 2はHookが[hook_again](/docs/hooks/functions/hook-context/hook_again)呼び出しにより_strong_実行後に_weak_に実行されていることを意味します
+
+`cbak`の実行中：
+
+* 0はHookが発行したトランザクションがレジャーに正常に受け入れられた後にコールバックされていることを意味します
+* 1はHookが発行したトランザクションがどのレジャーにも適用できないとマークされた後にコールバックされていることを意味します（EmitFailure）。
+
+### 参照テーブル
+
+トランザクションタイプがテーブルに表示されない場合、その発信アカウント**以外**のTSHはありません。
+
+| Transaction Type	       | TSHタイプ	     | TSHとは                                                                               |
+| ----------------------- | ------------- | -------------------------------------------------------------------------------------------- |
+| AccountDelete           | Strong        | 削除後に資金が支払われる宛先アカウント                                     |
+| AccountSet              | None          | N/A                                                                                          |
+| CheckCancel             | Weak          | 宛先アカウント                                                                          |
+| CheckCash               | None          | N/A                                                                                          |
+| CheckCreate             | Strong        | 宛先アカウント                                                                          |
+| ClaimReward             | Strong        | 発行者アカウント                                                                               |
+| DepositPreauth          | Strong        | 認証されたアカウント                                                           |
+| EscrowCancel            | Weak          | 宛先アカウント                                                                          |
+| EscrowCreate            | Strong        | 宛先アカウント                                                                          |
+| EscrowFinish            | Strong        | 宛先アカウント                                                                          |
+| GenesisMint             | Weak          | GenesisMints配列の各宛先                                                   |
+| Import                  | Strong        | 発行者アカウント                                                                               |
+| Invoke                  | Strong        | 宛先アカウント                                                                          |
+| OfferCancel             | None          | N/A                                                                                          |
+| OfferCreate             | Weak          | このアクションによってクロスされたオファーのアカウント。                                           |
+| Payment                 | Strong + Weak | Strong：宛先アカウント。Weak：決済がリップル処理される非発行者。            |
+| PaymentChannelClaim     | Weak          | 宛先アカウント                                                                          |
+| PaymentChannelCreate    | Strong        | 宛先アカウント                                                                          |
+| PaymentChannelFund      | Weak          | 宛先アカウント                                                                          |
+| SetHook                 | None          | N/A                                                                                          |
+| SetRegularKey           | Strong        | アドレスがキーとして設定されているアカウント。                                           |
+| SignerListSet           | Strong        | 署名キーとしてアドレスが設定されているアカウント（存在し、Hooksが設定されている場合）。 |
+| TicketCreate            | None          | N/A                                                                                          |
+| TrustSet                | Weak          | 発行者アカウント                                                                               |
+| URITokenCancelSellOffer | None          | N/A                                                                                          |
+| URITokenCreateSellOffer | Strong        | 宛先アカウント、tfBurnableフラグが設定されている場合は発行者                                        |
+| URITokenBurn            | Strong        | tfBurnableフラグが設定されている場合は発行者                                                             |
+| URITokenBuy             | Strong        | オーナーアカウント、tfBurnableフラグが設定されている場合は発行者                                              |
+| URITokenMint            | None          | N/A                                                                                          |
+
+**AccountSet**
+
+| OTXN    | TSH     | AccountSet |
+| ------- | ------- | ---------- |
+| Account | Account | Strong     |
+
+**AccountDelete**
+
+| OTXN    | TSH         | AccountDelete |
+| ------- | ----------- | ------------- |
+| Account | Account     | None          |
+| Account | Beneficiary | Strong        |
+
+**Check**
+
+| OTXN        | TSH         | CheckCancel | CheckCreate | CheckCash |
+| ----------- | ----------- | ----------- | ----------- | --------- |
+| Account     | Account     | Strong      | Strong      | None      |
+| Account     | Destination | Weak        | Strong      | None      |
+| Destination | Destination | Strong      | None        | Strong    |
+| Destination | Account     | Weak        | None        | Weak      |
+
+**ClaimReward**
+
+| OTXN    | TSH     | ClaimReward |
+| ------- | ------- | ----------- |
+| Account | Account | Strong      |
+| Account | Issuer  | Strong      |
+
+**DepositPreauth**
+
+| OTXN    | TSH        | DepositPreauth |
+| ------- | ---------- | -------------- |
+| Account | Account    | Strong         |
+| Account | Authorized | Strong         |
+
+**Escrow**
+
+| OTXN        | TSH         | EscrowCancel | EscrowCreate | EscrowFinish |
+| ----------- | ----------- | ------------ | ------------ | ------------ |
+| Account     | Account     | Strong       | Strong       | Strong       |
+| Account     | Destination | Weak         | Strong       | Weak         |
+| Destination | Destination | Strong       | None         | Strong       |
+| Destination | Account     | Weak         | None         | Weak         |
+
+**GenesisMint**
+
+| OTXN    | TSH         | GenesisMint |
+| ------- | ----------- | ----------- |
+| Account | Account     | Strong      |
+| Account | Destination | Strong      |
+| Account | Beneficiary | Weak        |
+
+**Import**
+
+| OTXN    | TSH     | Import |
+| ------- | ------- | ------ |
+| Account | Account | Strong |
+| Account | Issuer  | Strong |
+
+**Invoke**
+
+| OTXN    | TSH         | Invoke |
+| ------- | ----------- | ------ |
+| Account | Account     | Strong |
+| Account | Destination | Weak   |
+
+**Offer**
+
+| OTXN    | TSH     | OfferCancel | OfferCreate |
+| ------- | ------- | ----------- | ----------- |
+| Account | Account | Strong      | Strong      |
+| Account | Crossed | None        | Weak        |
+
+**Payment**
+
+| OTXN    | TSH         | Payment |
+| ------- | ----------- | ------- |
+| Account | Account     | Strong  |
+| Account | Destination | Strong  |
+| Account | Crossed     | Weak    |
+
+**PaymentChannel**
+
+| OTXN        | TSH         | PaymentChannelClaim | PaymentChannelCreate | PaymentChannelFund |
+| ----------- | ----------- | ------------------- | -------------------- | ------------------ |
+| Account     | Account     | Strong              | Strong               | Strong             |
+| Account     | Destination | Weak                | Strong               | Weak               |
+| Destination | Destination | Strong              | None                 | None               |
+| Destination | Account     | Weak                | None                 | None               |
+
+**SetHook**
+
+| OTXN    | TSH     | SetHook |
+| ------- | ------- | ------- |
+| Account | Account | Strong  |
+
+**SetRegularKey**
+
+| OTXN    | TSH        | SetRegularKey |
+| ------- | ---------- | ------------- |
+| Account | Account    | Strong        |
+| Account | RegularKey | Strong        |
+
+**SignerListSet**
+
+| OTXN    | TSH     | SignerListSet |
+| ------- | ------- | ------------- |
+| Account | Account | Strong        |
+| Account | Signer  | Strong        |
+
+**Ticket**
+
+| OTXN    | TSH     | TicketCreate |
+| ------- | ------- | ------------ |
+| Account | Account | Strong       |
+
+**TrustSet**
+
+| OTXN    | TSH     | TrustSet |
+| ------- | ------- | -------- |
+| Account | Account | Strong   |
+| Account | Issuer  | Weak     |
+
+**URIToken**
+
+| OTXN   | Burnable | TSH    | Mint   | Burn   | Buy    | Sell   | Cancel |
+| ------ | -------- | ------ | ------ | ------ | ------ | ------ | ------ |
+| Owner  | False    | Owner  | None   | Strong | Strong | Strong | Strong |
+| Owner  | False    | Issuer | None   | Weak   | Weak   | Weak   | None   |
+| Owner  | False    | Buyer  | None   | None   | None   | Strong | Weak   |
+| Owner  | True     | Buyer  | None   | None   | None   | Strong | Weak   |
+| Owner  | True     | Owner  | None   | Strong | Strong | Strong | Strong |
+| Owner  | True     | Issuer | None   | Weak   | Strong | Strong | None   |
+| Issuer | False    | Owner  | None   | None   | None   | None   | None   |
+| Issuer | False    | Issuer | Strong | None   | None   | None   | None   |
+| Issuer | False    | Buyer  | Weak   | None   | None   | None   | None   |
+| Issuer | True     | Owner  | None   | Weak   | None   | None   | None   |
+| Issuer | True     | Issuer | Strong | Strong | None   | None   | None   |
+| Issuer | True     | Buyer  | Weak   | None   | None   | None   | None   |
+| Buyer  | True     | Buyer  | None   | None   | Strong | None   | None   |
+| Buyer  | True     | Owner  | None   | None   | Weak   | None   | None   |

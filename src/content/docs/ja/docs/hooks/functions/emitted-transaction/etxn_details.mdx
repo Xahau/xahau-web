@@ -1,0 +1,95 @@
+---
+title: etxn_details
+description: まもなく emit されるトランザクションに適した sfEmitDetails を生成します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* cbak が定義されていない場合、105 バイトの sfEmitDetails オブジェクトを生成して `write_ptr` に書き込みます。
+* cbak が定義されている場合、127 バイトの sfEmitDetails オブジェクトを生成して `write_ptr` に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* この関数はトランザクションに関する詳細情報を返します。
+* エラー時は ErrorCode、成功時はトランザクション詳細配列を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_details (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_details(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t emitdet[105];
+int64_t result =
+    etxn_details(emitdet, 105);
+if (result != 105)
+    rollback("Etxndetails failed.", 19, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const emitdet = etxn_details()
+if (typeof emitdet === 'number' || emitdet.length != 105)
+    rollback("Etxndetails failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                     |
+| --------- | -------- | ----------------------------------------------- |
+| write_ptr | uint32_t | sfEmitDetails レコードを受け取るバッファへのポインタです。 |
+| write_len | uint32_t | バッファ長です。                                |
+</TabItem>
+
+<TabItem label="JavaScript">
+JavaScript にはパラメーターはありません
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- レコードを受け取るにはバッファが小さすぎます。<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- Hook が先に <code>etxn_reserve(n)</code> を呼んでいません。<br /><br /><code>FEE_TOO_LARGE</code><br />- burden が高すぎてネットワークが許容しません。<br /><br /><code>INTERNAL_ERROR</code><br />- rippled が必要なフィールド生成に失敗した一般的な内部エラーです。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| ErrorCode \| ByteArray | エラー時は ErrorCode、成功時はトランザクション詳細配列を返します。 |
+</TabItem>
+</Tabs>

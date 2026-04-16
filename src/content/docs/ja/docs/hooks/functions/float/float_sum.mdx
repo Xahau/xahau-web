@@ -1,0 +1,98 @@
+---
+title: float_sum
+description: 2 つの XFL 数を加算します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 2 つの XFL (xls17) 浮動小数点数の和を計算します。
+* 新しい XFL を int64_t として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 2 つの float 表現を加算します。
+* エラーコード、または和を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sum (
+    int64_t float1,
+    int64_t float2
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sum(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t two =
+    float_sum(float_one(), float_one());
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const two =
+  float_sum(float_one(), float_one());
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type     | Description                                           |
+| ------ | -------- | ----------------------------------------------------- |
+| float1 | int64_t  | 加算の第 1 オペランドを表す XFL 浮動小数点包含数です。 |
+| float2 | int64_t  | 加算の第 2 オペランドを表す XFL 浮動小数点包含数です。 |
+
+<Aside type="tip">
+2 つの float を減算したい場合は、第 2 float に `float_negate` を適用してから `float_sum` を使用してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description            |
+| ---- | ------ | ---------------------- |
+| f1   | bigint | 加算する最初の float。 |
+| f2   | bigint | 加算する 2 番目の float。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                     |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17) 包含数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターの 1 つが有効な XFL 包含数ではありません。<br /><br /><code>OVERFLOW</code><br />- 加算結果が XFL に収まりません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                   |
+| ------------------- | ----------------------------- |
+| ErrorCode or bigint | エラーコード、または和を bigint で返します。 |
+</TabItem>
+</Tabs>

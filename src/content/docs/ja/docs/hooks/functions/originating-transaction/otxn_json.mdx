@@ -1,0 +1,48 @@
+---
+title: otxn_json
+description: 発信元トランザクションを JSON 形式で出力します。
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="JavaScript">
+* 発信元トランザクションを JSON 形式で出力します。
+* 発信元トランザクションを JSON オブジェクトまたは Transaction として返します。取得に失敗した場合は ErrorCode を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function otxn_json(): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const tx_json = otxn_json()
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+パラメーターはありません
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="JavaScript">
+| Type                                             | Description                                                     |
+| ------------------------------------------------ | --------------------------------------------------------------- |
+| ErrorCode \| Record\<string, any> \| Transaction | 発信元トランザクションを JSON オブジェクトまたは Transaction として返します。取得に失敗した場合は ErrorCode を返します。 |
+</TabItem>
+</Tabs>

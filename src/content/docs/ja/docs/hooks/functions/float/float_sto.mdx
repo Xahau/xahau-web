@@ -1,0 +1,122 @@
+---
+title: float_sto
+description: XFL をシリアライズ済みオブジェクトとして出力します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL 浮動小数点数と、必要に応じて field code と currency code を読み取ります。
+* 指定パラメーターに従ってシリアライズ済み amount を `write_ptr` に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* float 表現を指定フィールドへ格納します。
+* エラーコード、または更新後の値を数値配列で返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sto (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t cread_ptr,
+    uint32_t cread_len,  
+    uint32_t iread_ptr,
+    uint32_t iread_len,  
+    int64_t float1,
+    uint32_t field_code
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sto(
+    currency: ByteArray | HexString | undefined,
+    issuer: ByteArray | HexString | undefined,
+    f1: bigint,
+    field_code: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+uint8_t amt_out[48];
+if (float_sto(SBUF(amt_out),
+    SBUF(currency), SBUF(hook_accid), pusd_to_send, -1) < 0)
+        rollback(SBUF("Peggy: Could not dump pusd amount into sto"), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const amt_out = float_sto(currency, hook_accid, pusd_to_send, -1)
+if (typeof amt_out === 'number')
+        rollback("Peggy: Could not dump pusd amount into sto", 1)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type     | Description                                                                                                                                                                                                                                                                                                                                                           |
+| ---------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr  | uint32_t | シリアライズ済み amount field を格納するのに十分なサイズのバッファへのポインタです。推奨は少なくとも 48 バイトです。                                                                                                                                                                                                                                              |
+| write_len  | uint32_t | 出力バッファの長さです。                                                                                                                                                                                                                                                                                                                                              |
+| cread_ptr  | uint32_t | 出力へシリアライズする currency code を含むバッファへのポインタです。 _null でも構いません。_                                                                                                                                                                                                                                                                       |
+| cread_len  | uint32_t | currency code の長さです。20、3、または 0（null）でなければなりません。                                                                                                                                                                                                                                                                                              |
+| iread_ptr  | uint32_t | 出力へシリアライズする issuer の Account ID を含むバッファへのポインタです。 _null でも構いません。_                                                                                                                                                                                                                                                                |
+| iread_len  | uint32_t | issuer の Account ID の長さです。20 または 0（null）でなければなりません。                                                                                                                                                                                                                                                                                            |
+| float1     | int64_t  | シリアライズする XFL 浮動小数点包含数です。                                                                                                                                                                                                                                                                                                                           |
+| field_code | uint32_t | <p>シリアライズ済み amount の前に付与する <code>sf</code> フィールドコードです。例: <code>sfAmount</code>。<br />このフィールドが <code>0xFFFFFFFFU</code>（つまり <code>(uint32_t)(-1)</code>）の場合、出力に field code は付与されず、issuer や currency code も付与されませんが、浮動小数点 amount としてシリアライズされます。<br />このフィールドが 0 の場合も field code は付与されず、issuer や currency code も付与されませんが、amount は浮動小数点ではなく XRP native amount としてシリアライズされます。</p> |
+
+<Aside type="tip">
+`XAH` amount を出力したい場合は、出力バッファに先に field code を書いておき、新しい開始位置へ進めた出力バッファと `0` の field_code を渡してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name       | Type                                | Description                         |
+| ---------- | ----------------------------------- | ----------------------------------- |
+| currency   | ByteArray \| HexString \| undefined | 出力へ含める currency です。        |
+| issuer     | ByteArray \| HexString \| undefined | 出力へ含める issuer です。          |
+| f1         | bigint                              | シリアライズする float です。       |
+| field_code | number                              | amount の前に付与する field code です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>出力バッファへ書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定 float が有効な XFL 包含数ではありません。<br /><br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>XRP</code> として、または <code>field code</code> なしで出力するよう指示した場合、write 以外のポインタと長さはすべて 0（null）でなければなりません。<br /><br /><code>TOO_SMALL</code><br />- シリアライズ済みオブジェクトを受け取るには出力バッファが小さすぎます。<br /><br /><code>XFL_OVERFLOW</code><br />- 出力表現の正規化時に overflow が発生しました。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| ErrorCode \| ByteArray | エラーコード、または更新後の値を数値配列として返します。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,81 @@
+---
+title: 'XRPL/Xahau: 何が違うのか？'
+description: XRP LedgerとXahauの主な違いのリスト。
+---
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+#### IOUトークンエスクロー & ペイチャンネル
+
+XahauはIOUトークンエスクローとペイチャンネルをユニークな機能として導入し、トランザクションの柔軟性とセキュリティを強化します。これらは事前定義された条件下でのIOUトークンの一時的な保持（エスクロー）と、効率的なオフレジャートランザクションのための決済チャンネルの確立を促進します。
+
+<LinkCard title="ペイメント" href="/docs/features/network-features/payments" />
+
+#### URITokens（NFTokensではない）
+
+XRPLのNFTokensの代わりに、XahauはURITokensを採用しています。URITokensはユニークな識別子とメタデータを持つ非代替性デジタル資産の一形式で、ブロックチェーン上での資産表現に新しいアプローチを提供します。
+
+<LinkCard title="URIToken" href="/docs/features/network-features/uritoken" />
+
+#### 異なるリポジトリ
+
+XahauとXRPLは異なるリポジトリから運営されており、それぞれが独自の開発軌跡とドキュメントを持つ別個のプロトコルであることを意味します。この違いにより、XahauはXRPLには見られないユニークな機能と最適化を提供する可能性があります。
+
+[https://github.com/Xahau/xahaud](https://github.com/Xahau/xahaud)
+
+#### 異なるビルドプロセス（WASM & LLVM）
+
+XahauのビルドプロセスにはWebAssembly（WASM）とLow-Level Virtual Machine（LLVM）が組み込まれており、これはXRPLのビルドプロセスには記載されていません。Xahauはこれらの技術を活用して、スマートコントラクト機能の強化とコードベースのパフォーマンス及びクロスプラットフォーム互換性の向上を図っています。
+
+<LinkCard title="Xahauをビルドする" href="/docs/infrastructure/build-xahaud" />
+
+#### 異なるAmendment期間（5日間）
+
+Xahauのamendmentプロセスには5日間という特定の期間が設けられており、XRPLのタイムラインとは異なります。Amendmentはプロトコルの変更であり、5日間はバリデーターがコンセンサスに達してこれらの変更を実装するための期間を指します。
+
+<LinkCard title="Amendments" href="/docs/features/amendments" />
+
+#### 異なる開始シーケンス
+
+Xahauはアカウントに対してXRPLとは異なる開始シーケンスを採用しています。アカウントの初期シーケンスは、アカウントがXahauに作成/インポートされた時のrippleエポック時間です。
+
+#### インポート / バーン2ミント
+
+XRPLからXahauへのインポートにより、ユーザーは2 XAHトークンを取得できます。これはXRPLからXahauへの資産移行またはブリッジングを促進するインセンティブメカニズムであり、ネットワークの採用と流動性の向上を目的としています。
+
+<LinkCard title="バーン2ミント（B2M）" href="/docs/features/burn-2-mint" />
+
+#### バランスリワード（XAH使用に対する報酬）
+
+XahauはXAHの利用に対するバランスリワードを提供しており、XRPLにはない機能です。これはXahauのネイティブトークンであるXAHの保有または使用に対する報酬システムであり、ネットワークのエンゲージメントと安定性を促進します。
+
+<LinkCard title="バランスリワード" href="/docs/features/network-features/balance-rewards" />
+
+#### Hooks
+
+XahauのHooksはXRPLには存在しない機能で、アカウントに付加できるプログラム可能なスクリプトまたはスマートコントラクトのような関数です。ネットワーク操作にプログラム可能性と自動化のレイヤーを追加します。
+
+<LinkCard title="Hooks" href="/docs/hooks/" />
+
+#### ガバナンス構造
+
+Xahauのガバナンス構造はXRPLとは異なります。Xahauは独自の意思決定アプローチ、提案システム、またはバリデーターの役割を持ち、これがネットワークの進化に影響を与える可能性があります。
+
+<LinkCard title="ガバナンスゲーム" href="/docs/features/governance-game" />
+
+#### ノード要件
+
+Xahauノードの実行には、XRPLノードとは異なる要件があります。これらの違いは、Xahauのユニークな機能とネットワーク需要をサポートするために必要な技術的仕様に関連しています。
+
+<LinkCard title="システム要件" href="/docs/infrastructure/system-requirements" />
+
+#### ネイティブトークン
+
+XahauのネイティブトークンはXAHであり、XRPLのXRPとは異なります。Xahauネットワーク内の主要通貨として、XAHはネットワークの経済フレームワークの中心として、主要な交換媒体および価値の保存手段として機能します。
+
+<LinkCard title="通貨フォーマット" href="/docs/protocol-reference/data-types/currency-formats" />
+
+#### バージョニング（日付を使用）
+
+Xahauは日付ベースのバージョニングシステムを採用しており、XRPLのバージョニングアプローチとは異なります。この方法により、ネットワークの更新と歴史的な開発をより直感的に追跡できます。
+
+<LinkCard title="バージョニングプロセス" href="/docs/features/versioning-process" />

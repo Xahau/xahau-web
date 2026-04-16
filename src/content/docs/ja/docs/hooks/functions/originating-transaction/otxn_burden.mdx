@@ -1,0 +1,73 @@
+---
+title: otxn_burden
+description: 発信元トランザクションの burden を取得します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 発信元トランザクションの burden を返します。burden フィールドが存在しない場合は `1` を返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 発信元トランザクションの burden を取得します。
+* burden を数値として返します。取得に失敗した場合は ErrorCode を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_burden (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_burden(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t burden = 
+  otxn_burden();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const burden = otxn_burden()
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+なし
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                         |
+| ------- | ------------------------------------------------------------------- |
+| int64_t | 発信元トランザクションの burden です。burden が存在しない場合は `1` を返します。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| number or ErrorCode | burden を数値として返します。取得に失敗した場合は ErrorCode を返します。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,140 @@
+---
+title: sto_subarray
+description: xahaud のシリアライズ済み配列にインデックスし、対象インデックスの位置と長さを返します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` が指す STArray を解析します。
+* `array_id` で指定された配列インデックスを探します。
+* 見つかった場合、STObject 内におけるそのシリアライズ済みフィールドのバイトオフセットと長さを返します。
+
+<Aside type="caution" title="Field ID encoding">
+`sto_` API は、以下の形式でエンコードされた `field_id` パラメーターを受け取ります: `(type << 16U) + field`
+したがって、type 1 field 2 は `0x10002U` です。
+
+この場合、配列フィールド ID は `array_id` です。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* subarray を抽出する対象の STO オブジェクト（バイナリ ledger data）を受け取ります。
+* `array_id` で指定された配列インデックスを探します。
+* STO オブジェクトから subarray を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_subarray (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t array_id
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_subarray(
+    sto: ByteArray | HexString,
+    array_id: number
+  ): bigint | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+
+  int64_t memo_lookup =
+    sto_subarray(memos, memos_len, 0);
+
+if (memo_lookup < 0)
+{
+    // sfMemo was not found in the STObject pointed at by memo_ptr
+}
+else
+{
+    // 0th index of the STArray was found and its location is as follows:
+    uint8_t*  memo_ptr = SUB_OFFSET(memo_lookup) + memos;
+    uint32_t  memo_len = SUB_LENGTH(memo_lookup);
+}
+```
+
+<Aside type="tip">
+hookmacro.h にはすでに `SUB_OFFSET` と `SUB_LENGTH` マクロが含まれています。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const SUB_OFFSET = (x) => Number(x >> 32n)
+const SUB_LENGTH = (x) => Number(x & 0xFFFFFFFFn)
+
+const memo_lookup = sto_subarray(memos, 0)
+
+if (typeof memo_lookup === 'number')
+{
+    // sfMemo was not found in the STObject pointed at
+}
+else
+{
+    // 0th index of the STArray was found and its location is as follows:
+    const memo_start = SUB_OFFSET(memo_lookup)
+    const memo_len = SUB_LENGTH(memo_lookup)
+    const memo = memos.slice(memo_start, memo_start + memo_len)
+}
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type     | Description                                                  |
+| -------- | -------- | ------------------------------------------------------------ |
+| read_ptr | uint32_t | STArray を含むバッファへのポインタです。                    |
+| read_len | uint32_t | STArray の長さです。                                         |
+| array_id | uint32_t | 探したい STArray 内エントリのインデックスです。0 から始まります。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name     | Type                   | Description                                                      |
+| -------- | ---------------------- | ---------------------------------------------------------------- |
+| sto      | ByteArray \| HexString | subarray を抽出する対象の STO オブジェクト（バイナリ ledger data）です。 |
+| array_id | number                 | 抽出する配列の ID です。                                        |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                                            |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>指定バッファ内におけるフィールドの位置です:<br />- 上位 32 ビットはオフセット位置です。<br />- 下位 32 ビットは長さです。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- 入力バッファが、有効な STArray を含むには小さすぎます。<br /><br /><code>DOESNT_EXIST</code><br />- 探しているインデックスが指定 STArray 内に存在しません。<br /><br /><code>PARSE_ERROR</code><br />- 指定した STArray が不正、または STArray ではありません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type               | Description                                                                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| bigint / ErrorCode | <p>指定バッファ内におけるフィールドの位置です:<br />- 上位 32 ビットはオフセット位置です。<br />- 下位 32 ビットは長さです。<br /><br />抽出に失敗した場合はエラーコードを返します。</p> |
+</TabItem>
+</Tabs>

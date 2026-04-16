@@ -1,0 +1,94 @@
+---
+title: Hooksのコンパイル
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 制約
+
+すべてのHooksはXahauアカウントに設定される前に、1つの[webassemblyモジュール](https://webassembly.github.io/spec/core/syntax/modules.html)にコンパイルされる必要があります。
+
+Hookは常に以下の1つまたは両方の関数を実装してエクスポートします：
+
+`int64_t hook(uint32_t ctx) { ... }` _必須_
+
+* Hookが設定されているアカウントに/からトランザクションが来る度に実行される（`ctx = 0`）、または
+* [弱いトランザクション利害関係者](/docs/hooks/concepts/weak-and-strong)として実行される時（`ctx > 0`）。
+
+`int64_t cbak(uint32_t ctx) { ... }` _オプション_
+
+* Emittedトランザクションがレジャーに正常に受け入れられた時に実行される（`ctx = 0`）、または
+* Emittedトランザクションがいずれのレジャーにも受け入れられない時に実行される（`ctx = 1`）。
+
+Hooksは他の関数を指定することは許可されていません。その代わり、これら2つの関数内のすべての計算を行うためにマクロを巧みに使用する必要があります。これはHooksの実行時間を予測可能に保つための計算制限の一部です。
+
+さらに、Hooksは_ヒープ_メモリを使用できません。必要なすべてのメモリはスタック上に確保して使用する必要があります。
+
+### 例
+
+以下はCで書かれたHookの例です。このHookは発信トランザクションを受け入れる前に、トレースログに0...3を出力します。
+
+```c
+#include <stdint.h>
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+extern int32_t _g (uint32_t id, uint32_t maxiter);
+extern int64_t accept (uint32_t read_ptr, uint32_t read_len, int64_t error_code);
+extern int64_t trace_num (uint32_t read_ptr, uint32_t read_len, int64_t number);
+
+int64_t hook(uint32_t ctx)
+{
+    for (int i = 0; GUARD(3), i < 3; ++i)
+    {
+        trace_num("test", 4, i);
+    }
+    accept (0,0,0); 
+    return 0;
+}
+```
+
+<Aside type="tip">
+教育的な目的のために、上記の例は意図的に（開発者が通常使用する）`hookapi.h`を含んでいません。
+</Aside>
+
+### コンパイル
+
+[様々なコンパイラ](https://www.google.com/search?q=webassembly+compiler+C)がCソースファイルから有効なwebassemblyを生成します。コンパイル後、Hookはバイナリの`.wasm`ファイルとして存在します。これにはwebassemblyモジュールが含まれています。`wasmcc`を使用してコンパイルし、`wasm2wat`ツールを使用して人間が読めるwebassemblyに変換すると、このバイナリ形式を人間が読める形式にレンダリングできます。以下に上記の例のコンパイル結果が表示されます。
+
+```
+(module
+  (type (;0;) (func (param i32 i32) (result i32)))
+  (type (;1;) (func (param i32 i32 i64) (result i64)))
+  (type (;2;) (func))
+  (type (;3;) (func (param i32) (result i64)))
+  (import "env" "_g" (func $_g (type 0)))
+  (import "env" "trace_num" (func $trace_num (type 1)))
+  (import "env" "accept" (func $accept (type 1)))
+  ...
+  (export "cbak" (func $cbak))
+  (export "hook" (func $hook))
+  (data (;0;) (i32.const 1024) "test\00"))
+```
+
+平均的なHook開発者がwebassemblyを直接調べる必要はありません。ただし、サンプルHookの内容をレビューすることは有益な概念的演習です。
+
+上記から次のことがわかります：
+
+* 3つの関数がHooks APIからインポートされている（`_g`、`accept`、`trace_num`）
+* 2つの関数がHookによって定義されている（`cbak`、`hook`）
+* 2つの関数がHookによってエクスポートされている（再び：`cbak`、`hook`）
+* 一部の静的（定数）データがHookに記録されている（下部の`data`を参照）
+
+Hookは_Hooks APIから利用可能な_関数のみをインポートし、`cbak`と`hook`関数のみをエクスポートする_必要がある_ことに注意することが非常に重要です。さらに、すべてのHooksはHooks APIから`_g`（`guard`関数）をインポートする必要があります。
+
+<Aside type="tip">
+Webassemblyはプラットフォームに依存しない汎用計算`bytecode`言語です。人間が読める同等のものと一対一のマッピングがあります。これらは互換的に使用されます。
+</Aside>
+
+### 不要なエクスポート
+
+ほとんどのwebassemblyコンパイラ（上記のコンパイラを含む）は、独自のリンク目的で追加のエクスポートを生成します。多くの場合、これらの生成を無効にすることは困難または不可能です。
+
+不要なエクスポートは、それ以外では有効なHookが拒否される原因になります。したがって、コンパイル後、開発者は[Hook Cleanerユーティリティ](https://github.com/XRPLF/hook-cleaner-c)を使用してこれらを取り除くべきです。そうしないとHookが拒否されます。
+
+<Aside type="caution">
+[Hook Cleanerユーティリティ](https://github.com/XRPLF/hook-cleaner-c)を使用することを忘れないでください。そうしないとHooksが拒否されます。
+</Aside>

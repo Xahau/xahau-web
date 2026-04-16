@@ -1,0 +1,26 @@
+---
+title: チェック
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Xahauネットワークのチェック機能は、レジャー内でのチェックの作成、キャンセル、換金を可能にする繰延支払いシステムです。この機能は、当事者間の安全で効率的なトランザクションを促進するように設計されています。
+
+### トランザクションタイプ
+
+#### CheckCreate
+
+`CheckCreate`トランザクションは、レジャーにCheckオブジェクトを作成するために使用されます。これは、意図された宛先によって換金できる繰延支払いを表します。
+
+<LinkCard title="CheckCreate" href="/docs/protocol-reference/transactions/transaction-types/checkcreate" />
+
+#### CheckCancel
+
+`CheckCancel`トランザクションは、作成されたがまだ換金されていないチェックをキャンセルするために使用されます。これにより、送信者は必要に応じて支払いの処理を停止できます。
+
+<LinkCard title="CheckCancel" href="/docs/protocol-reference/transactions/transaction-types/checkcancel" />
+
+#### CheckCash
+
+`CheckCash`トランザクションは、作成されたチェックを換金するために使用されます。これにより、受信者は繰り延べられた資金を受け取ることができます。
+
+<LinkCard title="CheckCash" href="/docs/protocol-reference/transactions/transaction-types/checkcash" />

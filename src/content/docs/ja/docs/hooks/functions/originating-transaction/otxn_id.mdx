@@ -1,0 +1,91 @@
+---
+title: otxn_id
+description: 発信元トランザクションの canonical hash を出力します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 発信元トランザクションの canonical hash を出力バッファへ書き込みます。
+* flags = 1 かつトランザクションが EMIT_FAILURE の場合、emit を発生させた発信元トランザクションの canonical hash を書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 発信元トランザクションの canonical hash を出力します。
+* トランザクションハッシュを数値配列として返します。取得に失敗した場合は ErrorCode を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_id (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t flags
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_id(flag: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t txn_id[32];
+int64_t bytes_written = 
+    otxn_id(txn_id, 32, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_id = otxn_id(0)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                                                                                                                      |
+| --------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | ハッシュを格納するバッファへのポインタです。                                                                                                                     |
+| write_len | uint32_t | 出力バッファの長さです。少なくとも 32 バイト必要です。                                                                                                          |
+| flags     | uint32_t | <p><code>0</code> の場合:<br />発信元トランザクションの canonical hash を書き込みます。<br /><br /><code>1</code> かつ発信元トランザクションが EMIT_FAILURE の場合:<br />emit を行ったトランザクションの canonical hash を書き込みます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name  | Type   | Description                                                                                                                                                      |
+| ----- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| flags | number | <p><code>0</code> の場合:<br />発信元トランザクションの canonical hash を書き込みます。<br /><br /><code>1</code> かつ発信元トランザクションが EMIT_FAILURE の場合:<br />emit を行ったトランザクションの canonical hash を書き込みます。</p> |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                               |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- シリアライズ済みオブジェクトを格納するには出力バッファが小さすぎます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                              |
+| ---------------------- | -------------------------------------------------------- |
+| ErrorCode \| ByteArray | トランザクションハッシュを数値配列として返します。取得に失敗した場合は ErrorCode を返します。 |
+</TabItem>
+</Tabs>

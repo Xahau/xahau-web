@@ -1,0 +1,44 @@
+---
+title: アカウント管理
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Xahauネットワークのアカウント管理機能は、ユーザーがアカウントを効果的に管理するための重要なコンポーネントです。
+
+これには、ユーザーがアカウントに対してさまざまな操作を実行できるいくつかのトランザクションタイプが含まれます。
+
+### トランザクションタイプ
+
+#### AccountSet
+
+`AccountSet`トランザクションタイプでは、ユーザーがアカウントのプロパティを変更できます。これには、転送レート、アカウントフラグなどの設定が含まれます。
+
+<LinkCard title="AccountSet" href="/docs/protocol-reference/transactions/transaction-types/accountset" />
+
+#### AccountDelete
+
+`AccountDelete`トランザクションタイプでは、ユーザーがXahauネットワークからアカウントを削除できます。この操作は元に戻せないため、注意して使用してください。
+
+<LinkCard title="AccountDelete" href="/docs/protocol-reference/transactions/transaction-types/accountdelete" />
+
+#### SetRegularKey
+
+`SetRegularKey`トランザクションタイプでは、ユーザーがアカウントにレギュラーキーペアを設定できます。このキーペアは、トランザクションの署名にマスターキーペアの代替として使用できます。
+
+<LinkCard title="SetRegularKey" href="/docs/protocol-reference/transactions/transaction-types/setregularkey" />
+
+#### SignerListSet
+
+`SignerListSet`トランザクションタイプでは、ユーザーがアカウントの署名者リストを設定できます。これは、複数の当事者がトランザクションを承認する必要があるマルチシグネチャアカウントに特に役立ちます。
+
+<LinkCard title="SignerListSet" href="/docs/protocol-reference/transactions/transaction-types/signerlistset" />
+
+#### Import
+
+`Import`トランザクションタイプは、他のネットワークからトランザクションをインポートするために使用されます。この機能は、資産保有者のためにトランザクションをインポートする必要がある発行者にとって特に役立ちます。トランザクションのインポートを試みる前に、まずアカウントにキーを設定することをお勧めします。
+
+発行者のインポートプロセスには特定のトランザクションタイプが含まれ、慎重な設定が必要なことに注意してください。Hooksが正しく設定されており、トランザクションが意図した操作に有効であることを常に確認してください。
+
+<LinkCard title="Import" href="/docs/protocol-reference/transactions/transaction-types/import" />
+
+これらのトランザクションタイプは、Xahauネットワーク上でアカウントを管理するための包括的なツールセットをユーザーに提供します。すべての操作と同様に、使用前に各トランザクションタイプの影響を理解していることを確認してください。

@@ -1,0 +1,179 @@
+---
+title: アイデンティティ検証用の TOML ファイルを公開する
+---
+***アイデンティティ検証には 2 つの要素が必要です。TOML ファイルやネットワーク上のバリデーター／アカウント証明だけを見て身元を信用してはいけません。誰でも設定できるためです。Web サイト（URL）側がそのバリデーター／アカウントの所有を主張し、ネットワーク上のデータと一致している必要があります。***
+
+信頼は Xahau Network の基盤であるため、`xahaud` バリデーターを運用する主体は、自身のサーバーに責任を持って名乗り出るのが望ましいです。アイデンティティ証明により、1 つの主体がネットワーク上の信頼済み（デフォルト UNL）バリデーターに対して過剰な支配力を持っていないことを利用者に示せます。これは 2 つの証明を公開することで行います。1 つは Xahau Network 上の検証サーバーから、もう 1 つは識別用ドメインを TLS で配信する Web サーバーからの証明です。つまり、バリデーターは Web ドメインとの関連を主張し、Web ドメインはバリデーターとの関連を主張します。*この両方が揃わない限り、アイデンティティ証明を信頼することはできません。*
+
+同様に、個別の Xahau アカウント保有者も、ネットワーク上の特定アカウントが自分の管理下にあることを示す TOML ファイルを公開したい場合があります。アカウント所有証明は、取引所や金融機関のような事業者に特に重要です。バリデーターと同様、これらの証明も 2 要素で成り立ちます。すなわち、Xahau Network アドレスの所有を主張する Web サーバーと、同じドメインに所有されていると主張するオンネットワークのアカウントアドレスです。アカウント証明により、利用者は入金先アドレスが正しいと確認しやすくなります。
+
+このファイルの内容と構造は、[Stellar](https://developers.stellar.org/docs/tokens/publishing-asset-info) や [XRP Ledger](https://xrpl.org/docs/references/xrp-ledger-toml) で使われているものに似ています。このファイルにはカスタムフィールドも含められるため、TOML を解析するツールを作る際には柔軟性を持たせることが重要です。
+
+## Web サーバーと DNS の設定
+1. ファイル内容は [TOML 形式](https://github.com/toml-lang/toml)である必要があります。
+2. TOML ファイルは次の場所で配信する必要があります: `https://[optional-subdomain.your-domain.com]/.well-known/xahau.toml`
+    * `/.well-known/xahau.toml` のパスは変更できません。すべて小文字である必要があります。
+    * [RFC 5785](https://datatracker.ietf.org/doc/html/rfc5785) に `/.well-known/` パスの詳細があります。
+3. TOML ファイルを配信する接続は、信頼された認証局に連なる TLS 証明書で暗号化する必要があります。
+4. ドメインには DNS Sec の使用が推奨されます。
+5. サブドメインを使ってファイルを配信できます。また、同一内容のファイルを複数サブドメインでホストしても構いません。
+6. ファイルの Content-Type は `application/toml` です。
+7. TOML ファイルは CORS ヘッダー `Access-Control-Allow-Origin: *` を付けて配信する必要があります。
+8. 必要に応じて追加ヘッダーを付与しても構いません。
+9. 個々の利用者の要件に応じて、カスタムまたは非標準フィールドを追加できます。
+10. TOML ファイルに必須フィールドはありません。
+
+### CORS 設定
+Apache:
+```
+<Location "/.well-known/xahau.toml">
+    Header set Access-Control-Allow-Origin "*"
+</Location>
+```
+Nginx:
+```
+location /.well-known/xahau.toml {
+    add_header 'Access-Control-Allow-Origin' '*';
+}
+```
+
+### TOML ファイルの内容
+TOML ファイルは通常、TOML 自体の説明（メタデータ）、主体（責任者）、そして主張する資産（バリデーター、非バリデート型 `xahaud` サーバー、アカウント、発行通貨）などのセクションに分けられます。
+
+#### TOML の例
+以下の例は、Xahau Network の TOML ファイルで一般的に使われるセクションをまとめて示すためのものです。すべての利用者がこれらを全部持つわけではなく、同じ種類のセクションを複数含める必要があるケースもあります。たとえば 1 つの取引所が複数の通貨を発行するなら、発行する IOU ごとに `[[CURRENCIES]]` セクションを 1 つずつ追加します。
+```
+[METADATA]
+modified = 2025-08-04T14:24:34.123Z
+expired = 2025-12-31T14:24:34.123Z
+
+[ORGANIZATION]
+name = "A Company B.V."
+website = "https://example.com"
+email = "contact@example.com"
+
+[[PRINCIPALS]]
+name = "A. Person"
+email = "a_person@example.com"
+social_1 = "https://www.linkedin.com/company/incfintech"
+x = "@IncFinTech"
+
+[[VALIDATORS]]
+public_key = "nHBixLw8q7XUP5AKceK2aZriN67PPjQW7JJ7hLkJgxvkTTs5go6k"
+attestation = "07FA61020CA5E0605BE29D213DCC33F934B631EB6215F52D3E99D8AEA841272E300758B5C03CD2332190307324B4869838B77BAD275B31CF59D13E8FA6A8780B"
+owner_country = "US"
+server_country = "CA"
+network_asn = "398726"
+network = "21337"
+unl = "https://vl.xahau.org"
+
+[[SERVERS]]
+ws = "wss://"
+json_rpc = "https://"
+peer = "https://"
+network = "21337"
+
+[[ACCOUNTS]]
+address = "rabc..."
+network = "21337"
+desc = "This wallet is used for client deposits."
+
+[[CURRENCIES]]
+code = "USD"
+issuer = "rabc..."
+symbol = "$"
+network = "21337"
+display_decimals = 2
+
+[[CURRENCIES]]
+code = "EUR"
+issuer = "rabc..."
+symbol = "€"
+network = "21337"
+display_decimals = 2
+```
+
+#### メタデータ
+TOML ファイル内の日付・時刻は UTC で、ミリ秒精度を含めて指定するべきです。例: `2025-08-04T14:24:34.123Z`。メタデータセクションは 1 つの TOML ファイルに 1 つだけ含められます。
+<table>
+<thead><tr><td>フィールド</td><td>データ型</td><td>説明</td></tr></thead>
+<tr><td>`modified`</td><td>Date-Time</td><td>TOML が最後に更新された日時。</td></tr>
+<tr><td>`expires`</td><td>Date-Time</td><td>この日時を過ぎると、TOML ファイルは期限切れとなり無効と見なされます。</td></tr>
+</table>
+
+#### Organization
+個人ではなく組織が TOML ファイルの責任主体である場合、このセクションで自身を識別します。1 つの TOML ファイルに複数の `[ORGANIZATION]` セクションがあるのは通常ではなく、おそらく誤りです。複数必要な場合は、追加の角括弧を付けて `[[ORGANIZATION]]` を使用してください。
+<table>
+<thead><tr><td>フィールド</td><td>データ型</td><td>説明</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>TOML ファイルをホストする組織名。</td></tr>
+<tr><td>`email`</td><td>String</td><td>組織のメールアドレス。</td></tr>
+<tr><td>`website`</td><td>String</td><td>組織の Web サイト（通常は TOML をホストしている URL と同じです）。</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>ソーシャルメディアプロフィールへのリンク。このフィールドは現時点で標準化されていません。そのため、`x = "@IncFinTech` と `social_1 = https://x.com/IncFinTech` はどちらも有効です。</td></tr>
+</table>
+
+#### Principals
+このセクションは、Xahau Network のインフラやアカウントに対する個別の連絡先を識別するために使われます。
+<table>
+<thead><tr><td>フィールド</td><td>データ型</td><td>説明</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>組織の Xahau Network 運用を監督する個人の名前。</td></tr>
+<tr><td>`email`</td><td>String</td><td>担当者のメールアドレス。</td></tr>
+<tr><td>`website`</td><td>String</td><td>担当者の Web サイト。</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>ソーシャルメディアプロフィールへのリンク。このフィールドは現時点で標準化されていません。そのため、`x = "@IncFinTech` と `social_1 = https://x.com/IncFinTech` はどちらも有効です。</td></tr>
+</table>
+
+#### Validators
+バリデーター運用者には、所有証明として attestation の公開が強く推奨されます。地理情報や ISP 情報を示すことは重要で、信頼済み（dUNL）リスト発行者がネットワーク上の信頼バリデーターの地理的多様性を評価できるようになります。信頼されたバリデーターが特定地域や特定 ASN に集中しすぎると、ネットワーク全体のリスクになります。
+<table>
+<thead><tr><td>フィールド</td><td>データ型</td><td>説明</td></tr></thead>
+<tr><td>`public_key`</td><td>String</td><td>検証に使うマスター公開鍵。</td></tr>
+<tr><td>`attestation`</td><td>String</td><td>validator-keys ツールが生成するドメイン証明。</td></tr>
+<tr><td>`owner_country`</td><td>String</td><td>サーバーを管理する個人または組織の [ISO-3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) 国コード。</td></tr>
+<tr><td>`server_country`</td><td>String</td><td>サーバーの物理設置場所を示す ISO-3166-2 国コード。</td></tr>
+<tr><td>`network_asn`</td><td>String</td><td>サーバーへインターネット接続を提供する ISP の Autonomous System Number（ASN）。</td></tr>
+<tr><td>`network`</td><td>String</td><td>そのサーバーが参加しているネットワーク（Mainnet、Testnet など）を識別します。</td></tr>
+<tr><td>`unl`</td><td>String</td><td>そのバリデーターが購読している信頼済みバリデーター一覧を公開している URL。</td></tr>
+</table>
+
+#### Servers
+WebSocket や RPC を通じて公開ピアリングや API アクセスを提供する参加者は、各サーバーへの接続情報を公開できます。
+<table>
+<thead><tr><td>フィールド</td><td>データ型</td><td>説明</td></tr></thead>
+<tr><td>`ws`</td><td>String</td><td>公開 WebSocket アクセス用の URL。`ws://` または `wss://` で始まります。</td></tr>
+<tr><td>`json_rpc`</td><td>String</td><td>公開 RPC アクセス用の URL。`http://` または `https://` で始まります。</td></tr>
+<tr><td>`peer`</td><td>String</td><td>TOML に記載されたサーバーへ他サーバーがピア接続するための URL。</td></tr>
+<tr><td>`network`</td><td>String</td><td>そのサーバーが参加しているネットワーク（Mainnet、Testnet など）を識別します。</td></tr>
+</table>
+
+#### Accounts
+アカウント検証が必要な主体は、このセクションで特定の Xahau Network ウォレットの所有を主張できます。
+<table>
+<thead><tr><td>フィールド</td><td>データ型</td><td>説明</td></tr></thead>
+<tr><td>`address`</td><td>String</td><td>Xahau Network ウォレットを識別する、`r` で始まるエンコード済み公開鍵。</td></tr>
+<tr><td>`network`</td><td>String</td><td>そのウォレットが利用されているネットワーク（Mainnet、Testnet など）を識別します。</td></tr>
+<tr><td>`desc`</td><td>String</td><td>そのウォレットの用途を説明する人間向けの文。</td></tr>
+</table>
+
+#### Currencies
+複数のウォレットが同じ通貨コードの通貨を発行することは可能です。***そのため、利用者は通貨コードだけでなく発行ウォレットも必ず確認する必要があります。***
+<table>
+<thead><tr><td>フィールド</td><td>データ型</td><td>説明</td></tr></thead>
+<tr><td>`code`</td><td>String</td><td>トークンのティッカー記号。3 桁または 40 文字の 16 進数で指定します。このフィールドは大文字小文字を区別します。</td></tr>
+<tr><td>`issuer`</td><td>String</td><td>通貨を発行した、`r` で始まるウォレットアドレス。参照されるウォレットは TOML ファイルの `[[ACCOUNTS]]` セクションに含まれているべきです。</td></tr>
+<tr><td>`symbol`</td><td>String</td><td>通貨を表す記号（例: `$`）。</td></tr>
+<tr><td>`network`</td><td>String</td><td>その通貨が発行されているネットワーク（Mainnet、Testnet など）を識別します。</td></tr>
+<tr><td>`display_decimals`</td><td>Integer</td><td>クライアントがその通貨量を表示する際、小数点以下に表示すべき桁数。</td></tr>
+</table>
+
+## バリデータードメイン検証
+`xahau.toml` ファイルを公開すると、ドメイン所有者はバリデーターの所有を主張できます。ただし、第三者がネットワーク運営者を信頼できるようにするには、バリデーター側でもその所有関係を認めることが重要です。バリデーターは Xahau Network の前進を支える中核なので、運用者は秘密バリデーション鍵を適切に保護する必要があります。
+
+Validator Keys Tool に不慣れな場合は、[xahaud でバリデーションを有効にする](/docs/infrastructure/enabling-validation) を参照してください。
+
+[Enabling Validation] ページの手順をすでに完了している場合、再実行する必要はありません。`attestation = ""` フィールドを TOML ファイルへ貼り付け、正しい `[validator_token]` が `xahaud.cfg` に設定されていることを確認してください。
+
+初回のバリデーショントークン生成時にドメインを設定しなかった場合は、`./validator-keys set_domain [example.com]` を実行して後から設定できます。実行前に、マスターバリデーション鍵 JSON ファイルが正しい場所 `/home/[username]/[.ripple or .xahaud]/validator-keys.json` に置かれていることを確認してください。
+
+## ウォレットアドレス検証
+バリデータードメイン検証と同様に、Xahau Network 上のウォレットアドレス所有を検証するには 2 要素が必要です。1 つは所有を主張するドメインから、TLS で適切に配信された TOML ファイル、もう 1 つはその所有主張を確認するウォレットアドレスからのトランザクションです。ウォレットアドレスの所有を主張するには:
+1. TOML ファイルの `[[accounts]]` セクションへそのアドレスを含めます。
+2. `Domain` フィールドを指定した [AccountSet transaction](/docs/protocol-reference/transactions/transaction-types/accountset) を送信します。

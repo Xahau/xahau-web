@@ -1,0 +1,290 @@
+---
+title: バーン2ミント (B2M)
+description: >-
+  Burn2Mintはローレベルのチェーン間プリミティブであり、エンタープライズユーザーが自分の目的に応じて流動性を自己供給することを意図しています。
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+XahauでZeroB2M amendmentが承認されたため、バーン2ミント（B2M）は新しい資産のミントには使用できなくなりました。B2Mは引き続き使用できますが、**キー同期**またはアカウントの有効化のみが対象です（以下の情報と手順は引き続き有効です）。
+
+[https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0](https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0)
+</Aside>
+
+## Burn2Mintテクニカルマニュアル（Xahauテストネット）
+
+<Aside type="caution">
+**このプロセスは意図的に非自明で、エンドユーザー向けには設計されていません。** ミスによりバーンをミントに変換できなくなる可能性があります。
+
+これは本番バージョンのドキュメントに表示される警告です。このインスタンスでは無料のテストネットXRPをバーンしているため、無視して構いません。
+</Aside>
+
+Burn2Mintは、エンタープライズユーザーが自分の目的に応じて流動性を自己供給することを意図したローレベルのチェーン間プリミティブです。自分のノードを実行し、自分のノードでこの操作を自分で実行することは、手順の結果について自分だけが責任を負うことを意味します。
+
+XPOPの生成と収集は基本的にオーバーレイネットワーク上での検証メッセージの収集に依存しており、これらは本質的に一時的なものです。ノードが確実に接続されていない場合、またはハードウェア、ネットワーク接続、オペレーティングシステムが誤ったタイミングで障害を起こした場合、バーントランザクションのXPOPが生成されないか、正しく生成されない可能性があります。これにより、バーントランザクションのXPOPが間に合わずにキャプチャされなかった場合、資金の損失につながる可能性があり、検証メッセージが永遠に失われる可能性があり、バーントランザクションが成功したにもかかわらずミントトランザクションが不可能になる可能性があります。
+
+これらの技術的リスクに対処する準備ができていない場合、または何をしているかを理解していない場合、またはエンタープライズユーザーでない場合は、他の使いやすい代替手段を通じて流動性を調達してください。
+
+### セットアップ
+
+B2Mを実行するために、ユーザーは_2つの_XRPLプロトコルノードを運用する必要があります：
+
+1. **バーンからxPOPを取得する**
+
+<Tabs>
+<TabItem label="xPOPコレクター & サーバー（簡単）">
+これを実行します（例：Docker Composeを使用；リポジトリのドキュメントを参照）\
+[**https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP**](https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP)
+
+* このサービスはXRPLの検証メッセージ、クローズされたレジャー、トランザクションをリッスンします。
+* このデータを整理されたファイルシステムに保存します。
+* XRPL検証メッセージは一時的であるため、xPOPの生成に不可欠です；保存しないと、トランザクションバーンをミントに変換できません。
+* **動作の仕組み**：
+  * ウォッチャーが複数のXRPLノードに接続し、特定のデータをリッスンします。
+  * キャプチャされたデータは保存、整理され、xPOPの生成に使用されます。
+
+次のURLからxPOPを取得します：\
+`http[s]://{your-host}:{your-port}/xpop/{tx-hash}`
+
+上記のリポジトリを使用してノードからxPOPを簡単に取得/作成できます：
+
+[**https://www.npmjs.com/package/xpop**](https://www.npmjs.com/package/xpop)
+</TabItem>
+
+<TabItem label='または：専用の「バーニングノード」'>
+**バーンノード**、以下を含む：
+
+* 修正されたRippledインスタンス（XPOPを記録するように修正）
+* ユニバーサルLinuxバイナリ：[https://tvntezq.dlvr.cloud/rippled_with_xpop](https://tvntezq.dlvr.cloud/rippled_with_xpop)
+* [https://github.com/RichardAH/rippled/tree/proof-of-burn](https://github.com/RichardAH/rippled/tree/proof-of-burn)
+* 以下を含むrippled.cfgで実行：
+  * 生成されたXPOPの出力ディレクトリを指定する**\[xpop_dir]**スタンザ
+  * network_id: 1を指定する**\[network_id]**スタンザ
+    * （本番環境ではネットワーク0になります）
+  * 以下を含む`validators.txt`：
+
+      ```
+      [validator_list_sites]
+      https://vl.altnet.rippletest.net
+      [validator_list_keys]
+      ED264807102805220DA0F312E71FC2C69E1552C9C5790F6C25E3729DEB573D5860
+      ```
+</TabItem>
+</Tabs>
+
+2. **ミント**
+
+* このテストシナリオでは、Xahauに直接接続します。自分のノードを実行する必要はありません。本番シナリオでは、ターゲットネットワーク用の標準ノードであるミントノードを実行する必要があります。これは、公開ノードが法的リスクからImportトランザクションの受け入れをオプトアウトする可能性が高いためです。
+  * **wss://xahau-test.net**に接続します
+  * またはダウンロード/実行：[**https://github.com/Xahau/Xahau-Testnet-Docker**](https://github.com/Xahau/Xahau-Testnet-Docker)
+
+## サンプル（nodejs）
+
+この例では、テストネットアカウントを作成し、10 XRPをバーンして、上記のツールを使用して取得したxPOPを使用してXahauテストネットでインポートします。
+
+```js
+import { derive, utils, signAndSubmit } from 'xrpl-accountlib'
+import { TxData } from 'xrpl-txdata'
+import { XrplClient } from 'xrpl-client'
+import { xpop, setEndpoints as xpopEndpoints } from 'xpop'
+import fetch from 'node-fetch'
+
+// 上記には以下が必要です：
+//   npm install xrpl-accountlib xrpl-txdata xrpl-client xpop node-fetch 
+
+console.log('XRPLテストネットアカウントの取得（ファウセット）')
+const faucet = await (await fetch('https://faucet.altnet.rippletest.net/accounts', { method: 'POST' })).json()
+console.log(' -->', faucet.account.address)
+const account = derive.familySeed(faucet.account.secret)
+
+xpopEndpoints((await (await fetch('https://xrpl.ws-stats.com/xpop/list?json=true')).json()).bestguess)
+
+const nodes = {
+  testnet: [
+    new XrplClient('wss://s.altnet.rippletest.net:51233'),
+    new XrplClient('wss://testnet.xrpl-labs.com'),
+  ],
+  xahau: [
+    new XrplClient('wss://xahau-test.net'),
+  ]
+}
+
+console.log('ネットワーク接続の準備が整うのを待っています')
+await Promise.all(Object.keys(nodes).map(k => Promise.race(nodes[k].map(n => n.ready()))))
+
+console.log('ファウセットアカウントへの資金提供を待ち、ネットワーク値を取得中...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // レジャーが閉じるまで待機
+
+const [
+  testnetParams,
+  xahauParams,
+] = await Promise.all([
+  Promise.race(nodes.testnet.map(n => utils.accountAndLedgerSequence(n, account))),
+  Promise.race(nodes.xahau.map(n => utils.accountAndLedgerSequence(n, account))),
+])
+
+const testnetTx = {
+  ...testnetParams.txValues,
+  TransactionType: 'AccountSet',
+  Fee: String(10_000_000),
+  OperationLimit: xahauParams.txValues.NetworkID,
+  NetworkID: undefined, // テストネットのNetworkIDは1024未満なので指定不要
+}
+
+console.log('バーンを送信中...', testnetTx)
+const testnetSubmitted = await Promise.race(nodes.testnet.map(n => signAndSubmit(testnetTx, n, account)))
+console.log('テストネットへのバーンを送信しました')
+console.log(' -->', 'https://testnet.xrpl.org/transactions/' + testnetSubmitted.tx_id)
+
+console.log('バーンTxデータを取得中...')
+
+const txdata = new TxData(nodes.testnet.map(n => n.getState().server.uri), {
+  AllowNoFullHistory: true,
+  EndpointTimeoutMs: 2_000,
+  OverallTimeoutMs: 10_000,
+})
+
+const appliedtx = await txdata.getOne(testnetSubmitted.tx_id)
+console.log(' -->', 'レジャーでバーンが検証されました', appliedtx?.result?.ledger_index)
+
+console.log('xPOPを取得する前にクローズレジャーを待っています...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // レジャーが閉じるまで待機
+
+console.log('xPOPを取得中...')
+
+const Blob = await xpop(testnetSubmitted.tx_id, appliedtx?.result?.ledger_index, 1)
+
+console.log(' -->', 'xPOPを取得しました。hex文字列長：', Blob.length)
+
+const hooksTx = {
+  ...xahauParams.txValues,
+  TransactionType: 'Import',
+  Fee: '0',
+  Blob,
+}
+
+console.log('xPOPのミントを送信中...')
+
+const b2mSubmitted = await Promise.race(nodes.xahau.map(n => signAndSubmit(hooksTx, n, account)))
+
+console.log(' -->', 'B2Mを送信しました！XahauテストネットのTX：')
+console.log(' -->', 'https://test.xahauexplorer.com/explorer/' + b2mSubmitted?.tx_id)
+console.log('     -->', b2mSubmitted.response.engine_result, b2mSubmitted.response.engine_result_message)
+
+// 接続を閉じる
+Object.keys(nodes).map(k => nodes[k].map(n => n.close()))
+```
+[ソース](https://gist.github.com/WietseWind/cd8a7a8c88f218fe7b768f59a665685d)
+
+## B2M手順の技術的概要
+
+#### 新しいトランザクションタイプ：`Import`
+
+Xahauテストネット（_network_id=21338_）は、Rippleテストネットチェーン（_network_id=1_）からXPOPを受け入れ、「バーン・トゥ・ミント」の単方向バリュートランスファーとキー/アカウント同期を提供する_**Import**_と呼ばれる新しいトランザクションタイプを導入します。
+
+### バーントランザクション
+
+_**バーントランザクション**_は、ソースXRPLチェーン上でXRPをバーンするトランザクションであり、デスティネーションXRPLチェーン上でミントするための証明（XPOP）として使用されます。
+
+以下のトランザクションタイプがサポートされています：
+
+* AccountSet
+* SetRegularKey
+* SignerListSet
+
+<Aside type="caution">
+チケットは**すべての**バーントランザクションで**受け付けられず**、バーントランザクションをミントに無効にします。スパム対策のため、トランザクションは本物の自然なシーケンス番号で検証される必要があります。
+</Aside>
+
+他のトランザクションタイプは現在サポートされておらず、Xahauテストネットでのミントに使用できません。（ただし、これは変更される可能性があります）
+
+3つのトランザクションタイプすべてがミントに使用できます。これは、バーントランザクションによってバーンされた_**Fee**_が、`Import`が成功した後にXahauテストネットでミントされることを意味します。
+
+`SetRegularKey`または`SignerListSet`が使用される場合、ソースXRPLチェーン（テストネット）でtesSUCCESSのトランザクション結果があった場合、キー同期がトランザクションタイプの標準ルールに従って行われます。`AccountSet`が使用される場合、デスティネーションXRPLチェーン（Xahauテストネット）ではキー同期は行われません。
+
+_**OperationLimit**_と呼ばれるフィールドがバーントランザクションに存在し、デスティネーションチェーンのネットワークIDである必要があります。このフィールドは他のB2M統合チェーンへのリプレイ攻撃を防ぐためのものです。
+
+バーントランザクションは、**tesSUCCESS**のトランザクションコードまたは_任意の_**tec**トランザクションコードがある場合にミントに使用できます。つまり、_手数料がバーンされた場合_、そのトランザクションはミントに使用できます。ただし、キー同期はバーントランザクションの結果がtesSUCCESSの場合_のみ_行われます。
+
+バーントランザクションの例：
+
+```json
+{
+	"TransactionType": "AccountSet",
+	"Fee": 10000000,
+	"OperationLimit": 21338
+}
+```
+
+### XPOPの収集
+
+バーントランザクションを送信する前に、バーンノードがテストネットチェーン（ネットワークID：`1`）と同期していることを確認してください。
+
+バーンノードの状態を確認した後、署名済みバーントランザクションをバーンノードに送信します。
+
+バーンノードは**OperationLimit**フィールドを含むトランザクションのクローズされたレジャーを監視し、収集した検証メッセージを使用してXPOP（バーンの証明）を生成します。これらは、バーンノードの`rippled.cfg`の**\[xpop_dir]**スタンザで指定されたディレクトリの下のファイルに書き込まれます。
+
+レジャーが閉じるまで待ち、バーントランザクションのXPOPをそのTXIDに従ってxpop_dirで参照します。ファイルにはJSONドキュメントが含まれており、これはデスティネーションXRPLチェーン（HooksV3）にリレーするXPOPです。
+
+このファイルの生のコンテンツを取得してHEXとしてエンコードします。これが`Import`トランザクションの_**Blob**_フィールドの内容になります。
+
+### ミントトランザクション
+
+バイナリコーデックには`Import`（ミント）トランザクションを構築するために必要なフィールドがありません。ripple-binary-codecを使用している場合、次の方法でその`definitions.json`ファイルを更新できます：
+
+1. `node_modules`ディレクトリに移動します
+2. `find . | grep 'dist/enums/definitions.json'`を実行して更新する関連ファイルを見つけます
+3. **wss://hooks-testnet-v3.xrpl-labs.com**に接続します
+4. リクエスト：`{"command":"server_definitions"}`
+5. `"result"`キーの内容をステップ2の`definitions.json`にダンプします
+
+`Import`トランザクションタイプには、共通フィールド以外に1つのフィールド_**Blob**_のみがあります。これにはXPOP収集フェーズのHEXエンコードされたXPOPが含まれている必要があります。
+
+* これを行うには：`cat xpopjsonfile | xxd -p | tr -d '\n'`
+
+`Account`フィールドと`SigningPubKey`フィールド（またはSignersアレイ）はバーントランザクションとミントトランザクション間で完全に一致する必要があります。ユーザーはバーンしたのと同じアカウントにのみミントできます。
+
+`Account`フィールドがXahauテストネットにまだ存在しないアカウントを指定している場合、作成されます。この場合、ミントトランザクションの`Sequence`フィールドには0を使用します。アカウントがXahauテストネットに既に存在する場合は、Xahauテストネットのアカウントの次の利用可能なシーケンス番号を使用します。
+
+Importの例：
+
+```json
+{
+	"Account": "<バーントランザクションと同じ>",
+	"TransactionType": "Import",
+	"Blob": "<HEXエンコード（大文字）されたXPOP>",
+	"Sequence": 0
+} 
+```
+
+重要：**ミントトランザクションはバーントランザクションとまったく同じ方法で同じアカウントによって署名される必要があります！**
+
+適切にトランザクションをエンコードして署名し、署名済みトランザクションブロブ（hex）を生成します。
+
+自分のミントノードを実行していない場合：
+
+* **wss://xahau-testn.et**に接続します
+* ノードにトランザクションを送信します：
+
+```json
+{
+	"command": "submit",
+	"tx_blob": "<HEXエンコードされたIMPORT TXN>"
+}
+```
+
+または、自分のミントノードを実行している場合：
+
+* ミントノードが実行中でネットワークID 21338に同期していることを確認します。
+* `submit` RPCコールを使用してミントトランザクションを送信します。
+  * コマンドラインから`./hooksv3d submit <hex here>`を使用して行えます。
+
+### 注意事項
+
+アカウントをXahauテストネットで作成する必要があるが、バーントランザクションのコンテキストからアカウントのキーイングが不明な場合、アカウントはブラックホールモードで作成されます。後でいずれかのキーイングトランザクションタイプを使用して再キーイングできます。
+
+バーントランザクションが`SignerListSet`または`SetRegularKey`トランザクションである場合、ソースXRPLチェーン（テストネット）でtesSUCCESSのトランザクション結果があれば、同じキーイング操作がデスティネーションXRPLチェーン（Xahauテストネット）の同じアカウントに適用されます。
+
+テスト中、Xahauテストネットのアカウントは削除_できます_が、本番のHooks有効チェーンでは削除できません。
+
+Xahauテストネットのアカウントは、AccountRootにオプションの_**ImportSequence**_フィールドがあります。そのアカウントでXahauテストネットで`Import`が使用されたことがある場合、このフィールドが存在し、最近インポートされたバーントランザクションのシーケンス番号が入力されます。これはリプレイ攻撃を防ぐためですが、スキップされたトランザクションがミントに受け入れられなくなるため、Burn2Mintsを順番どおりに送信する必要があることも意味します。

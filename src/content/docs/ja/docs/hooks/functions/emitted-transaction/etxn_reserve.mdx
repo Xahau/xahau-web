@@ -1,0 +1,79 @@
+---
+title: etxn_reserve
+description: トランザクションを正常に emit するために必要な予約数を見積もります
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+
+### 動作
+
+* この Hook が実行中に emit する可能性があるトランザクション数を指定します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_reserve (
+    uint32_t count
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_reserve(count: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+etxn_reserve(2);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+etxn_reserve(2)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name  | Type     | Description                                                |
+| ----- | -------- | ---------------------------------------------------------- |
+| count | uint32_t | この Hook が 1 回の実行中に emit する可能性がある最大トランザクション数です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name  | Type   | Description                                        |
+| ----- | ------ | -------------------------------------------------- |
+| count | number | この Hook が emit を許可される最大トランザクション数です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>この Hook が emit できる最大トランザクション数です。これは常に <code>count</code> パラメーターと同じ値、または下記エラーになります。<br /><br />負の場合はエラーです。<br /><code>ALREADY_SET</code><br />- Hook はこの関数をすでに前に呼んでいます。<br /><br /><code>TOO_BIG</code><br />- 指定した emit トランザクション数が大きすぎます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                   |
+| ------ | --------------------------------------------- |
+| number | エラー時は ErrorCode、成功時は設定されたトランザクション数を返します。 |
+</TabItem>
+</Tabs>

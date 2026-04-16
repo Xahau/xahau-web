@@ -1,0 +1,24 @@
+---
+title: Base 58 エンコーディング
+---
+Xahau API では、アカウントアドレスや暗号鍵関連のその他の値を表すために、チェックサム付きの「base58」エンコーディング（Base58Check と呼ばれることもあります）をよく使います。このエンコーディングは [Bitcoin address に使われる方式](https://en.bitcoin.it/wiki/Base58Check_encoding) と同じですが、Xahau では次の辞書を使用します: `rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz`。
+
+Xahau は、異なる種類の値を区別するため、エンコード前にそれぞれ特定の 8 ビット数値をプレフィックスとして付加します。Xahau の base58 辞書における文字配置により、異なる型のエンコード値は型ごとに特定の文字で始まるようになります。
+
+次の表は、Xahau が使うすべてのエンコーディングを示しています。
+
+| Data Type                                | Starts With | Type Prefix | Content size¹ | Maximum characters |
+| ---------------------------------------- | ----------- | ----------- | ------------- | ------------------ |
+| Account address                          | r           | `0x00`      | 20 bytes      | 35                 |
+| Account public key                       | a           | `0x23`      | 33 bytes      | 53                 |
+| Seed value (for secret keys)             | s           | `0x21`      | 16 bytes      | 29                 |
+| Validation public key or node public key | n           | `0x1C`      | 33 bytes      | 53                 |
+
+¹ Content size には 1 バイトの type prefix は含まれません。
+
+### 関連項目
+
+* Address Encoding - アドレスエンコーディングの詳細情報
+* Cryptographic Keys - Xahau における暗号鍵の種類と用途
+* \[wallet_propose Reference]\[wallet_propose method] - アカウント鍵を生成する API メソッド
+* \[validation_create Reference]\[validation_create method] - バリデーター鍵を生成する API メソッド

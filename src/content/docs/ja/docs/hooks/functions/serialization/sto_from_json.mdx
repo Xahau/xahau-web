@@ -1,0 +1,60 @@
+---
+title: sto_from_json
+description: JSON を STO オブジェクト（バイナリ ledger data）として整形します。
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="JavaScript">
+* JSON オブジェクトを受け取り、バイナリ ledger data 形式へ変換します。
+* STO Object をバイナリ ledger data 形式で返します。変換に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function sto_from_json(
+    jsonobj: Record<string, any> | Transaction
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const stoBlob = sto_from_json(stoJson)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="JavaScript">
+| Name    | Type                                | Description                           |
+| ------- | ----------------------------------- | ------------------------------------- |
+| jsonobj | Record\<string, any> \| Transaction | STO オブジェクトへ変換する JSON オブジェクトです。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="JavaScript">
+| Type                   | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | STO Object をバイナリ ledger data 形式で返します。変換に失敗した場合はエラーコードを返します。 |
+</TabItem>
+</Tabs>

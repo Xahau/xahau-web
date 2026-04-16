@@ -1,0 +1,80 @@
+---
+title: rollback
+---
+import { Aside, Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/introduction/">Introduction</LinkButton>
+<LinkButton href="/docs/hooks/concepts/execution-metadata">Execution Metadata</LinkButton>
+
+### 動作
+
+Hook の実行を拒否状態で終了します。
+
+* 戻り文字列と戻りコードをトランザクションメタデータに記録します。
+* すべての状態変更を破棄します。
+* すべての `emit()` トランザクションを破棄します。
+* 発信元トランザクションの続行を許可しません。
+
+<Aside type="caution">
+  発信元トランザクションは <code>tecHOOK_REJECTED</code> で失敗し、手数料が請求されます。参照: Execution Order。
+</Aside>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t rollback (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint64_t error_code
+);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function rollback(error_msg: string, error_code: number): number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+rollback("Rejected!", 9, 100);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+rollback('Rejected!', 100)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+
+<table><thead><tr><th>Name</th><th>Type</th><th width="202">Description</th></tr></thead><tbody><tr><td>read_ptr</td><td>uint32_t</td><td>実行メタデータに保存する戻り文字列へのポインタです。<br />rollback 時に Hook 開発者が返したい任意の文字列を指定できます。 <em>null でも構いません。</em></td></tr><tr><td>read_len</td><td>uint32_t</td><td>戻り文字列の長さです。最大 32。 <em>null でも構いません。</em></td></tr><tr><td>error_code</td><td>uint64_t</td><td>この Hook 固有の戻りコードで、実行メタデータに保存されます。<br /><br />*nix システム上のアプリケーションの終了コードに似ています。慣例上、失敗は 0 以外です。</td></tr></tbody></table>
+</TabItem>
+<TabItem label="JavaScript">
+
+<table><thead><tr><th>Name</th><th>Type</th><th width="202">Description</th></tr></thead><tbody><tr><td>error_msg</td><td>string</td><td>実行メタデータに保存する文字列です。<br />rollback 時に Hook 開発者が返したい任意の文字列を指定できます。 <em>null でも構いません。</em></td></tr><tr><td>error_code</td><td>number</td><td>この Hook 固有の戻りコードで、実行メタデータに保存されます。<br /><br />*nix システム上のアプリケーションの終了コードに似ています。慣例上、失敗は 0 以外です。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="123">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>Rollback は Hook を終了するため、呼び出し元には値を返しません。慣例としてすべての Hook API は <code>int64_t</code> を返しますが、この場合は何も返しません。</td></tr></tbody></table>
+</TabItem>
+<TabItem label="JavaScript">
+<table><thead><tr><th width="123">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td>Rollback は Hook を終了するため、呼び出し元には値を返しません。慣例としてすべての Hook API は <code>number</code> を返しますが、この場合は何も返しません。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

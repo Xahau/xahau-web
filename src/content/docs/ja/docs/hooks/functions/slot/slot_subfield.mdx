@@ -1,0 +1,98 @@
+---
+title: slot_subfield
+description: スロット済みオブジェクトにインデックスし、サブオブジェクトを別スロットへ割り当てます
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `parent_slot` のオブジェクトを参照します。
+* `field_id` にある sub-object を取得します。
+* その sub-object を `new_slot`、または `new_slot` が 0 の場合は次の利用可能スロットへ配置します。
+* 新しいスロット番号を返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した親スロット内に subfield を作成します。
+* エラーコード、または subfield 作成結果を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_subfield (
+    uint32_t parent_slot,
+    uint32_t field_id,
+    uint32_t new_slot
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_subfield(
+    parent_slotno: number,
+    field_id: number,
+    new_slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t amt_slot = 
+  	slot_subfield(oslot, sfAmount, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const amt_slot = slot_subfield(oslot, sfAmount, 0)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name        | Type     | Description                                                                                                                                                                                                                                                                 |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| parent_slot | uint32_t | 親オブジェクトが配置されているスロットです。                                                                                                                                                                                                                                |
+| field_id    | uint32_t | <p>探したいフィールドの <code>sf</code> コードです。<br /><br />手動で計算するには、シリアライズされた <code>type</code> を uint32_t の上位 16 ビットへシフトし、<code>field</code> を下位 16 ビットに配置します。<br /><br />例:<br /><code>sfEmitNonce</code> は <code>type</code> が 5、<code>field</code> が 11 なので値は <code>0x050BU</code> になります。</p> |
+| new_slot    | uint32_t | 選択したフィールドのオブジェクトを配置する新しいスロット番号です。null の場合は次に利用可能なスロットを選びます。 _null でも構いません。_                                                                                                                             |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name          | Type   | Description                         |
+| ------------- | ------ | ----------------------------------- |
+| parent_slotno | number | 親スロット番号です。                |
+| field_id      | number | subfield を作成する対象フィールドの ID です。 |
+| new_slotno    | number | subfield 用の新しいスロット番号です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>新しく割り当てられたオブジェクトのスロット番号です。<br /><br />負の場合はエラーです。<br /><br /><code>DOESNT_EXIST</code><br />- 探しているフィールドが親スロット内に存在しないか、親スロットが空です。<br /><br /><code>NO_FREE_SLOTS</code><br />- 新しいスロットの割り当てが必要ですが、Hook がすでに最大スロット数に達しています。<br /><br /><code>INVALID_FIELD</code><br />- 指定したフィールドが有効な <code>sf</code> フィールドではありません。<br /><br /><code>NOT_AN_OBJECT</code><br />- スロット済みオブジェクトが有効な STObject ではありません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                             |
+| ------------------- | --------------------------------------- |
+| number or ErrorCode | エラーコード、または subfield 作成結果を返します。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,96 @@
+---
+title: otxn_field
+description: 発信元トランザクションのフィールドをシリアライズして出力します
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 発信元トランザクション内から指定した `sf` フィールドを検索します。
+* フィールドのシリアライズ済み表現を出力バッファに書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 発信元トランザクション内の特定フィールドの値を取得します。
+* 指定したフィールドの値を数値配列として返します。取得に失敗した場合は ErrorCode を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_field (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t field_id
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_field(field_id: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t account_field_len = 
+    otxn_field(account_field, 20, sfAccount);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const account_field = otxn_field(sfAccount)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type     | Description                                                                                                                                                                                                                                                                                                  |
+| -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| write_ptr | uint32_t | 出力を格納するのに十分なサイズのバッファへのポインタです。                                                                                                                                                                                                                                                   |
+| write_len | uint32_t | 出力バッファの長さです。                                                                                                                                                                                                                                                                                     |
+| field_id | uint32_t | <p>検索対象フィールドの <code>sf</code> コードです。<br /><br />手動で計算するには、シリアライズされた <code>type</code> を uint32_t の上位 16 ビットへシフトし、<code>field</code> を下位 16 ビットに配置します。<br /><br />例:<br /><code>sfEmitNonce</code> は <code>type</code> が 5、<code>field</code> が 11 なので値は <code>0x050BU</code> になります。</p> |
+
+<Aside type="caution" title="Important">
+フィールドコード自体は出力バッファに書き込まれず、フィールドの _payload_ のみが書き込まれます。
+
+執筆時点の Hooks Public Testnet では、`sfAccount` のような `STI_ACCOUNT` フィールドは先頭の variable length byte を _含まずに_ 返されます。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name     | Type   | Description                                                                 |
+| -------- | ------ | --------------------------------------------------------------------------- |
+| field_id | number | 指定したフィールドの値を数値配列として返します。取得に失敗した場合は ErrorCode を返します。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                              |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- シリアライズ済みフィールドを格納するには出力バッファが小さすぎます。<br /><br /><code>INVALID_FIELD</code><br />- <code>sf</code> field_id が無効です。<br /><br /><code>DOESNT_EXIST</code><br />- 発信元トランザクション内にフィールドが見つかりませんでした。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------- |
+| ByteArray or ErrorCode | 指定したフィールドの値を数値配列として返します。取得に失敗した場合は ErrorCode を返します。 |
+</TabItem>
+</Tabs>

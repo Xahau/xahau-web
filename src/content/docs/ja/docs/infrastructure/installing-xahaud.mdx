@@ -1,0 +1,214 @@
+---
+title: xahaud をインストールする
+description: >-
+  Xahau の基盤ソフトウェアはオープンソースであり、誰でもローカルでノードを動かせます。Docker コンテナ、ローカルインスタンス、またはバイナリファイルとして実行できます。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+ノードを実行する際は、テストネットワーク用かメインネットワーク用かに応じて設定を変える必要があります。1 台のノードを片方のネットワークからもう片方へ切り替える場合、サーバーの識別情報を含む `wallet.db` を除き、データベースファイルは削除する必要があります。
+
+`xahaud` をインストールする最も一般的な方法は、`systemd` を使ったローカルインストールか、Docker のようなコンテナ内での実行です。
+
+<Aside type="tip">
+このページのインストールドキュメントは、[xahaud GitHub リポジトリ](https://github.com/xahau/xahaud/blob/dev/docs/build/install.md)の説明を補足するものです。
+</Aside>
+
+## Linux インストール手順
+`xahaud` のインストール方法（Docker かシステム全体へのローカル導入か）にかかわらず、Linux 上での大まかな流れは似ています。
+以下の [Docker Container](#docker-container-install-script) と [Local Install](#local-install-script) では bash スクリプトを使い、次の工程を自動化しています。
+
+1. `xahaud` バイナリを取得する:
+    - [https://build.xahau.tech](https://build.xahau.tech) からコンパイル済みバイナリをダウンロードする
+    - [ソースからビルドする](/docs/infrastructure/build-xahaud/)
+2. 設定ファイルを取得する:
+    - [xahaud.cfg](https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/xahaud-example.cfg)
+    - [validators-xahau.txt](https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/validators-example.txt)
+3. 必要なら、バイナリや関連ファイルの所有者となる `xahaud` ユーザーとグループを作成する:
+    - `sudo groupadd --system xahaud`
+    - `sudo useradd --system --gid xahaud --no-create-home xahaud`
+4. 次を保存するディレクトリ構成を決めて作成する:
+    - `xahaud` バイナリ。通常の既定値は `/opt/xahaud/bin/xahaud`
+    - `xahaud.cfg` と `validators-xahau.txt` の 2 つの設定ファイル。既定では `/etc/xahaud/` がよく使われますが、`/opt/xahaud/etc/` を使うこともあります。これら 2 つの場所はシンボリックリンクで結べます。
+    - `xahaud` のデータベース。一般的な既定値は `/opt/xahaud/db/`
+    - ログファイルの保存先。例: `/var/log/xahaud/default.log`
+5. `xahaud` バイナリと設定ファイルを、決めたディレクトリ構成へ配置する。
+6. `xahaud.cfg` を編集し、設定ファイル内のパスがディレクトリ構成と一致するようにする。
+7. 必要に応じて所有権と権限を変更する。`xahaud` をバリデーターとして動かす場合、バリデーショントークンを含む `xahaud.cfg` の保護が重要です。
+    - `chown -R xahaud:xahaud /opt/xahaud /var/log/xahaud`
+    - `chmod -R 750 /opt/xahaud /var/log/xahaud`
+8. 下の[例](#example-systemd-service-file)のような `systemd` サービスファイルを作成し、`xahaud` をデーモンとして実行する。
+    - ファイルの場所: `/etc/systemd/system/xahaud.service`
+    - 作成または編集後に実行: `systemctl daemon-reload`
+    - 起動時に自動実行するには: `systemctl enable --now xahaud`
+    - `systemd` を使わずに起動することもできます: `/path/to/xahaud --conf=/path/to/xahaud.cfg`
+9. 毎回フルパスを指定せずに `xahaud` コマンドを実行できるラッパーを作成する。
+    - 通常は `/usr/local/bin/xahaud` に配置します
+	- 内容例: `exec ${XAHAUD_DIR}xahaud --conf=${CONF_DIR}xahaud.cfg "$@"`
+
+### systemd サービスファイルの例
+以下のサービスファイルは、選択したディレクトリ構成と所有権設定に応じて調整してください。
+```
+[Unit]
+Description=Xahaud Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/path/to/xahaud --silent --conf=/path/to/xahaud.cfg
+Restart=on-failure
+User=xahaud
+Group=xahaud
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Linux インストールスクリプトの例
+`xahaud` のインストールに使う基本的な bash スクリプトです。このスクリプトは、このセクション前半で説明した流れに沿っています。
+```
+### VARIABLES ###
+
+#### Directory structure ####
+XAHAUD_DIR="/opt/xahaud/bin/"	# Path where xahaud binary will be stored
+CONF_DIR="/opt/xahaud/etc/"		# Path where the xahaud.cfg and validators-xahau.txt will be stored
+DB_DIR="/opt/xahaud/db/"		# Path where xahaud will store databases
+LOG_DIR="/var/log/xahaud/"		# Path where logfile(s) will be stored.
+
+#### Ownership ####
+XAHAUD_USER="xahaud"			# User that owns the xahaud process.
+
+#### Download links ####
+BINARY_URL="https://build.xahau.tech/2025.9.8-HEAD%2B2194"											# URL to the xahaud binary that will be downloaded.
+CFG_URL="https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/xahaud-example.cfg"		# This will be renamed to 'xahaud.cfg'
+VAL_URL="https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/validators-example.txt"	# This will be renamed to 'validators-xahau.txt'
+
+
+
+########## SCRIPT BEGINS HERE. DO NOT ADJUST VARIABLES BELOW THIS LINE ##########
+
+### CREATE DIRECTORIES ####
+echo "Checking directory structure."
+sudo mkdir -p ${XAHAUD_DIR} ${CONF_DIR} ${DB_DIR} ${LOG_DIR}
+
+### CREATE xahaud GROUP AND USER ###
+echo "Checking for user and group."
+if ! getent group ${XAHAUD_USER} > /dev/null; then
+	sudo groupadd --system ${XAHAUD_USER}
+fi
+
+if ! getent passwd ${XAHAUD_USER} > /dev/null; then
+	sudo useradd --system --gid ${XAHAUD_USER} --no-create-home ${XAHAUD_USER}
+fi
+
+### DOWNLOAD CONFIGURATION FILES ###
+echo "Downloading files."
+if [[ ! -f "${CONF_DIR}xahaud.cfg" ]]; then
+	curl -fsSL ${CFG_URL} -o ${CONF_DIR}xahaud.cfg
+fi
+if [[ ! -f "${CONF_DIR}validators-xahau.txt" ]]; then
+	curl -fsSL ${VAL_URL} -o ${CONF_DIR}validators-xahau.txt
+fi
+
+### DOWNLOAD xahaud ###
+if [[ ! -f "${XAHAUD_DIR}xahaud" ]]; then
+	curl -fsSL ${BINARY_URL} -o ${XAHAUD_DIR}xahaud
+elif [[ -f "${XAHAUD_DIR}xahaud" ]]; then
+	echo "Existing xahaud binary found. It will be renamed to 'xahaud.old'."
+	mv ${XAHAUD_DIR}xahaud ${XAHAUD_DIR}xahaud.old
+	curl -fsSL ${BINARY_URL} -o ${XAHAUD_DIR}xahaud
+fi
+
+### CHANGE OWNERSHIP AND PERMISSIONS ###
+echo "Checking ownership and permissions."
+sudo chown -R ${XAHAUD_USER}:${XAHAUD_USER} ${XAHAUD_DIR} ${CONF_DIR} ${DB_DIR} ${LOG_DIR}
+sudo chmod -R 0750 ${XAHAUD_DIR} ${CONF_DIR} ${DB_DIR} ${LOG_DIR}
+
+### Install systemd SERVICE FILE ###
+if [[ ! -f "/etc/systemd/system/xahaud.service" ]]; then
+echo "Installing system service file."
+sudo cat > /etc/systemd/system/xahaud.service <<EOF
+[Unit]
+Description=Xahaud Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=${XAHAUD_DIR}xahaud --silent --conf=${CONF_DIR}xahaud.cfg
+Restart=on-failure
+User=${XAHAUD_USER}
+Group=${XAHAUD_USER}
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+fi
+
+### RUN COMMANDS AS 'xahaud' WITHOUT SPECIFYING FULL PATHS ###
+if [[ ! -f "/usr/local/bin/xahaud" ]]; then
+echo "Creating xahaud wrapper."
+sudo cat > /usr/local/bin/xahaud <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec ${XAHAUD_DIR}xahaud --conf=${CONF_DIR}xahaud.cfg "\$@"
+EOF
+fi
+
+sudo chmod 0755 /usr/local/bin/xahaud
+
+### ENABLE AND START xahaud ###
+sudo systemctl daemon-reload
+sudo systemctl stop xahaud
+sudo systemctl enable --now xahaud
+sudo systemctl status xahaud
+echo "The install script completed successfully."
+```
+
+## Docker コンテナ用インストールスクリプト
+
+Docker コンテナで `xahaud` を実行するには:
+
+1. 下の表にある URL を使って、適切な Xahau Docker GitHub リポジトリ（Mainnet または Testnet）をクローンします: <code>git clone [repository-url]</code>
+2. リポジトリディレクトリへ移動します: <code>cd [repository-name]</code>
+3. 実行します: <code>./build</code>
+4. 実行します: <code>./up</code>
+5. コマンドや追加情報は Docker リポジトリ内の `README.md` を参照してください。設定ファイルとデータベースは Docker ディレクトリ内の `store` に保存されます。
+
+## ローカルインストールスクリプト
+Xahau の Docker リポジトリ（Mainnet / Testnet）には、Docker 外で `xahaud` を動かせるようローカルインストールを自動化するスクリプトも含まれています。これらは [Linux インストール手順](#linux-install-process) と似ており、`systemd` ファイル、`xahaud` ユーザー、既定の設定ファイルを作成します。スクリプト URL はこのページ下部の表にあります。ローカルインストールの手順は次の通りです。
+
+1. インストールスクリプトをダウンロードして実行します: <code>curl -sL [https://link-to-script] | bash</code>
+2. 設定ファイルを編集します: <code>/opt/xahahud/etc/xahaud.cfg</code>
+3. 信頼済みバリデーター一覧ファイルの内容を確認し、必要なら編集します: <code>/opt/xahaud/etc/validators-xahau.txt</code>
+4. `xahaud` を自動起動するよう有効化して開始します: <code>systemctl enable --now xahaud</code>
+5. `xahaud` が動作していることを確認します: <code>/opt/xahaud/bin/xahaud server_info</code>
+
+## リソース、ピアリング、設定
+以下のピアリング情報は Docker コンテナとローカルインストールの両方に関係します。
+
+<table style="width: 100%; table-layout: fixed;">
+<thead><tr><th>リソース</th><th>メインネットワーク</th><th>テストネットワーク</th></tr></thead>
+<tbody>
+<tr><td>Documentation and Resources</td><td><a href="https://xahau.network/">https://xahau.network/</a></td><td>Same as Mainnet</td></tr>
+<tr><td>Hooks Smart Contract Documentation</td><td><a href="https://xahau.network/docs/hooks/">https://xahau.network/docs/hooks/</a></td><td>Same as Mainnet</td></tr>
+<tr><td>Explorer</td><td><a href="https://explorer.xahau.network/">https://explorer.xahau.network/</a></td><td><a href="https://explorer.xahau-test.net/">https://explorer.xahau-test.net</a></td></tr>
+<tr><td>Public WebSocket URL</td><td><a href="wss://xahau.network">wss://xahau.network</a></td><td><a href="wss://xahau-test.net">wss://xahau-test.net</a></td></tr>
+<tr><td>Network ID and Peer Listening Port</td><td>21337 <a href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=21337">IANA assigned port</a></td><td>21338</td></tr>
+<tr>
+<td>Peering and Bootstrap Servers</td>
+<td>bacab.alloy.ee 21337<br></br>hubs.xahau.as16089.net 21337</td>
+<td>79.110.60.122 21338<br></br>79.110.60.124 21338<br></br>79.110.60.125 21338<br></br>79.110.60.121 21338<br></br><br></br>2a0c:3bc0::1c74 21338<br></br>2a0c:3bc0::169d 21338<br></br>2a0c:3bc0::1aaf 21338<br></br>2a0c:3bc0::1d78 21338</td>
+</tr>
+<tr><td>Docker Container</td><td><a href="https://github.com/Xahau/mainnet-docker">https://github.com/Xahau/mainnet-docker</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker">https://github.com/Xahau/Xahau-Testnet-Docker</a></td></tr>
+<tr><td>Local Install Scripts</td><td><a href="https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh">https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh</a></td></tr>
+<tr><td>Binary Releases</td><td><a href="https://build.xahau.tech">https://build.xahau.tech</a></td><td>Same as Mainnet</td></tr>
+<tr><td>Sample Configuration File</td><td><a href="https://github.com/Xahau/xahaud/blob/dev/cfg/xahaud-example.cfg">https://github.com/Xahau/xahaud/blob/dev/cfg/xahaud-example.cfg</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg</a></td></tr>
+<tr><td>Sample Trusted Validators (UNL) File</td><td><a href="https://github.com/Xahau/xahaud/blob/dev/cfg/validators-example.txt">https://github.com/Xahau/xahaud/blob/dev/cfg/validators-example.txt</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt</a></td></tr>
+<tr><td>Documented Configuration Files</td><td><a href="https://github.com/Xahau/xahaud/tree/dev/cfg">https://github.com/Xahau/xahaud/tree/dev/cfg</a></td><td>Same as Mainnet</td></tr>
+<tr><td>Github Build Actions (release numbers)</td><td style="word-break: break-all;"><a href="https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker">https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker</a></td><td>Same as Mainnet</td></tr>
+</tbody>
+</table>

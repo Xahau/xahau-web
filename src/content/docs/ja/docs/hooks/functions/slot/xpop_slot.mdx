@@ -1,0 +1,80 @@
+---
+title: xpop_slot
+description: xpop トランザクション blob と metadata をシリアライズして出力します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* `Import` トランザクション上の xpop blob を特定します。
+* 見つかった tx オブジェクトと meta オブジェクトを指定したスロットへ配置します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t xpop_slot (
+    uint32_t slot_no_tx,
+    uint32_t slot_no_meta
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function xpop_slot(slotno_tx: number, slotno_meta: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t bytes_written = 
+    xpop_slot(1, 2); // assumes a txn is slotted into slot=1 meta is slotted into slot=2
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const bytes_written = xpop_slot(1, 2)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name         | Type     | Description                         |
+| ------------ | -------- | ----------------------------------- |
+| slot_no_tx   | uint32_t | tx blob を配置するスロット番号です。   |
+| slot_no_meta | uint32_t | meta blob を配置するスロット番号です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name        | Type   | Description                     |
+| ----------- | ------ | ------------------------------- |
+| slotno_tx   | number | transaction を pop するスロット番号です。 |
+| slotno_meta | number | metadata を pop するスロット番号です。    |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                          |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>PREREQUISITE_NOT_MET</code><br /><br />- 発信元 tx type が <code>Import</code> ではありません。<br /><br /><code>NO_FREE_SLOTS</code><br /><br />- 新しいスロットの割り当てが必要ですが、Hook がすでに最大スロット数に達しています。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                     |
+| ------------------- | ------------------------------- |
+| number or ErrorCode | エラーコード、または pop 操作の結果を返します。 |
+</TabItem>
+</Tabs>

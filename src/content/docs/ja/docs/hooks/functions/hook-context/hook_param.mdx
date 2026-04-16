@@ -1,0 +1,95 @@
+---
+title: hook_param
+description: 指定した Hook parameter 名の値を取得します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` で指定された名前の parameter 値を検索します。
+* parameter の値を `write_ptr` に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定したキーに関連付けられた parameter の値を取得します。
+* キーに関連付けられた値を返します。取得に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_param (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function hook_param(key: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t pname[] = {0xCAU, 0xFEU};
+uint8_t pvalue[32];
+int64_t value_len = 
+    hook_param(pvalue, 32, pname, 2);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const pname = [0xCA, 0xFE]
+const pvalue = hook_param(pname)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                    |
+| --------- | -------- | -------------------------------------------------------------- |
+| write_ptr | uint32_t | 出力を格納するのに十分なサイズのバッファへのポインタです。少なくとも 32 バイト必要です。 |
+| write_len | uint32_t | 出力バッファの長さです。                                       |
+| read_ptr  | uint32_t | parameter 名を含むバッファへのポインタです。                   |
+| read_len  | uint32_t | parameter 名の長さです。                                       |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type                   | Description                             |
+| ---- | ---------------------- | --------------------------------------- |
+| key  | ByteArray or HexString | parameter 値を取得する対象のキーです。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>書き込まれたバイト数を返します。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>DOESNT_EXIST</code><br />- 指定した parameter が存在しないか null です。<br /><br /><code>TOO_SMALL</code><br />- parameter 名を null にできません。<br /><br /><code>TOO_BIG</code><br />- parameter 名が 32 バイトを超えています。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                               |
+| ---------------------- | --------------------------------------------------------- |
+| ByteArray or ErrorCode | キーに関連付けられた値を返します。取得に失敗した場合はエラーコードを返します。 |
+</TabItem>
+</Tabs>

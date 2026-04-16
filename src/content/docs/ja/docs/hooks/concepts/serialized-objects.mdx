@@ -1,0 +1,54 @@
+---
+title: シリアライズされたオブジェクト
+description: 生のシリアライズされたxahaudオブジェクトを操作する！
+---
+### シリアライズされたオブジェクトとは？
+
+Xahauはコンセンサスの対象となるすべてのオブジェクトの標準的な[シリアライズ](/docs/protocol-reference/binary-format)形式を持っています。Hookを書く際には、シリアライズされたオブジェクトに遭遇することは避けられません。これらは開発者には不透明なバイナリブロブのように見えるバッファとして現れます。実際には、[XRPL-Binary-Visualiser](https://richardah.github.io/xrpl-binary-visualizer/)でこれらを読むことができます。
+
+例えば、`sfAmount`フィールドは`61D50F26109A32B7EC`のようなバイトのコレクションにシリアライズされます。
+
+### シリアライズされたオブジェクトAPI
+
+シリアライズされたオブジェクトを扱うHook開発者を支援するために、Hooks APIの中に`sto`名前空間が作成されました。これらの関数はHookが提供するバッファ内のポインタを操作します。以下の表を参照してください。
+
+| Hook API                                                                    | 機能                                                                            |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [sto_subfield](/docs/hooks/functions/serialization/sto_subfield) | xrpldシリアライズオブジェクトにインデックスし、サブフィールドの位置と長さを返す |
+| [sto_subarray](/docs/hooks/functions/serialization/sto_subarray) | xrpldシリアライズ配列にインデックスし、インデックスの位置と長さを返す    |
+| [sto_emplace](/docs/hooks/functions/serialization/sto_emplace)   | 既存のSTObjectに正規の配置でフィールドを埋め込む                  |
+| [sto_erase](/docs/hooks/functions/serialization/sto_erase)       | STObjectからフィールドを削除する                                                       |
+| [sto_validate](/docs/hooks/functions/serialization/sto_validate) | STObjectを検証する                                                                  |
+
+該当する場合、これらのAPIは単一のint64_tにエンコードされた_オフセット_と_長さ_を返します。詳細は個別のドキュメントを参照してください。
+
+### 例
+
+STO APIを使用する典型的なシナリオは、発信トランザクションのメモを処理する場合です。通常はメモ全体へのアクセスが必要になるため、メモのセットを効率的に処理する方法は、`sfMemos`フィールド全体をバッファにダンプしてからその中でインデックスを使用することです。スロットAPIを使用して発信トランザクションをスロットすることでも同様のことができますが、追加のコードと追加のコピーが必要になります。
+
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+
+uint8_t memos[2048];
+int64_t memos_len = otxn_field(SBUF(memos), sfMemos);
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+    int64_t memo_lookup = sto_subarray(memos, memos_len, i);
+    if (memo_lookup < 0)
+        rollback(SBUF("Memo lookup error"), 1);
+    uint8_t*  memo_ptr = SUB_OFFSET(memo_lookup) + memos;
+    uint32_t  memo_len = SUB_LENGTH(memo_lookup);
+    // 上記はメモを指しています... ここで何かを行う
+}
+```
+
+### スロットとの重複
+
+スロットAPIとSTO APIの間には一部重複があることに気づくかもしれません。ここでの主な違いは、基礎となるデータを誰が_所有_しているかです：
+
+* _スロット_を使用している場合、xrpldが操作しているオブジェクトを所有しています。
+* _STO API_を使用している場合、**Hook**が操作しているバッファを所有しています。
+
+どちらの関数セットも、不必要なコピーなしにシリアライズされたオブジェクトにインデックスします。

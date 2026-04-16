@@ -1,0 +1,184 @@
+---
+title: Amendments
+---
+Amendmentsはトランザクション処理の新機能またはその他の変更を表します。
+
+Amendmentシステムは、コンセンサスプロセスを使用して、Xahauのトランザクション処理に影響を与えるすべての変更を承認します。完全に機能するトランザクション処理の変更はAmendmentとして導入され、バリデーターがこれらの変更に投票します。Amendmentが5日間で80%以上の支持を得ると、Amendmentは可決され、以降のすべてのレジャーバージョンに永続的に適用されます。可決されたAmendmentを無効にするには、新たなAmendmentが必要です。
+
+**注意：** トランザクションプロセスを変更するバグ修正にもAmendmentが必要です。
+
+### Amendmentプロセス
+
+Xahauへのコード貢献のトピックでは、アイデアからXahauでの有効化まで、Amendmentを開発するためのワークフローについて説明します。
+
+Amendmentのコードがソフトウェアリリースに組み込まれると、それを有効化するプロセスはXahauネットワーク内で発生し、すべての_フラグ_レジャー（通常約15分間隔）でAmendmentの状態をチェックします。
+
+256番目ごとのレジャーは**フラグ**レジャーと呼ばれます。フラグレジャー自体に特別な内容はありませんが、Amendmentプロセスはその周辺で発生します。
+
+1. **フラグレジャー -1:** `xahaud`バリデーターが検証メッセージを送信する際、Amendment投票も一緒に提出します。
+2. **フラグレジャー:** サーバーは信頼できるバリデーターからの投票を解釈します。
+3.  **フラグレジャー +1:** サーバーは発生したと判断した内容に基づいて、`EnableAmendment`擬似トランザクションとフラグを挿入します：
+
+    * `tfGotMajority`フラグは、Amendmentが80%以上の支持を得ていることを意味します。
+    * `tfLostMajority`フラグは、Amendmentへの支持が80%以下に低下したことを意味します。
+    * フラグなしはAmendmentが有効化されたことを意味します。
+
+    **注意：** Amendmentが必要な5日間の期間に達した同じレジャーで80%の支持を失う可能性があります。この場合、両方のシナリオに対して`EnableAmendment`擬似トランザクションが追加されますが、最終的にAmendmentは有効化されます。
+4. **フラグレジャー +2:** 有効化されたAmendmentはこのレジャー以降のトランザクションに適用されます。
+
+### Amendment投票
+
+各バージョンの`xahaud`は、既知のAmendmentのリストとそれらを実装するコードとともにコンパイルされます。`xahaud`バリデーターのオペレーターは、各Amendmentへの投票についてサーバーを設定し、いつでも変更できます。オペレーターが投票を選択しない場合、サーバーはソースコードで定義されたデフォルト投票を使用します。
+
+**注意：** デフォルト投票はソフトウェアリリース間で変更される可能性があります。\[rippled 1.8.1で更新]\[]
+
+Amendmentが有効化されるには、信頼できるバリデーターの80%以上からの支持が5日間継続する必要があります。支持が80%を下回った場合、Amendmentは一時的に否決され、2週間の期間が再始動します。Amendmentは永続的に有効化される前に、何度でも過半数を獲得・喪失することができます。
+
+有効化されずにソースコードが削除されたAmendmentは、ネットワークによって**拒否権行使済み**とみなされます。
+
+### Amendmentでブロックされたサーバー
+
+Amendmentブロッキングは、Xahauのデータの正確性を保護するセキュリティ機能です。Amendmentが有効化されると、Amendmentのソースコードなしに古いバージョンの`xahaud`を実行しているサーバーはネットワークのルールを理解できなくなります。これらのサーバーはレジャーデータを推測したり誤解釈したりする代わりに、**Amendmentブロック**状態になり、以下のことができなくなります：
+
+* レジャーの有効性の判断
+* トランザクションの送信または処理
+* コンセンサスプロセスへの参加
+* 将来のAmendmentへの投票
+
+`xahaud`サーバーの投票設定は、Amendmentブロックになるかどうかには影響しません。`xahaud`サーバーは常にネットワークの残りの部分で有効化されたAmendmentに従うため、ブロックはルール変更を理解するコードの有無のみに基づきます。つまり、異なるAmendmentが有効化された並行ネットワークにサーバーを接続した場合でもAmendmentブロックになる可能性があります。たとえば、Xahauテストネットには通常、実験的なAmendmentが有効化されています。最新の本番リリースを使用している場合、これらの実験的なAmendmentのコードがない可能性が高いです。
+
+Amendmentブロックされたサーバーのブロックを解除するには、最新バージョンの`xahaud`にアップグレードしてください。
+
+### Amendmentの廃止
+
+Amendmentが有効化されると、Amendment前の動作のソースコードは`xahaud`に残ります。検証のためにレジャーの結果を再構築するなど、古いコードを保持するユースケースがありますが、Amendmentと旧来のコードを追跡することは時間とともに複雑さを増します。
+
+[XRP Ledger Standard 11d](https://github.com/XRPLF/XRPL-Standards/discussions/19)は、古いAmendmentと関連するAmendment前コードを廃止するプロセスを定義しています。メインネットでAmendmentが有効化されてから2年後に廃止できます。Amendmentを廃止すると、それは無条件にコアプロトコルの一部となります；もはやAmendmentとして追跡・扱われず、すべてのAmendment前コードが削除されます。
+
+### 既知のAmendment
+
+以下のAmendmentはXahauで実装済み、または有効化プロセス中です：
+
+#### 機能Amendment
+
+##### XahauGenesis
+
+ジェネシスアカウントがXAHをミントし、[GenesisMintトランザクション](/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn)経由で配布できるようにします。
+
+##### MultiSign
+
+マルチシグネチャ機能を有効化し、アカウントがトランザクションに複数の署名を必要とすることができます。このAmendmentはマルチ署名をサポートするための[SignerListSetトランザクション](/docs/protocol-reference/transactions/transaction-types/signerlistset)と[SignerListレジャーオブジェクト](/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list)を導入します。
+
+##### DepositAuth
+
+デポジット認可機能を有効化し、アカウントが支払いを受け取る前に事前認可を要求できます。このAmendmentは事前認可を管理するための[DepositPreAuthトランザクション](/docs/protocol-reference/transactions/transaction-types/depositpreauth)と[DepositPreAuthレジャーオブジェクト](/docs/protocol-reference/ledger-data/ledger-objects-types/deposit-pre-auth)を導入します。
+
+##### Hooks
+
+Xahau上でHookスマートコントラクト機能を有効化するコアAmendment。_（[Hooks amendment][]により追加。）_
+
+##### HooksUpdate1
+
+Hooksシステムの更新と改善。
+
+##### Remit
+
+[XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156)を実装します。シンプルかつ強力なWYSIWYGプッシュペイメントトランザクションタイプです。同一トランザクションで同一宛先に複数の通貨とURITokenを支払える[Remitトランザクション](/docs/protocol-reference/transactions/transaction-types/remit)を有効化します。このトランザクションは、不足しているトラストラインの作成、転送されたトークンの準備金支払い、宛先アカウントが存在しない場合の作成を自動的に行います。トランザクション内でレシートまたはボーナスURITokenをインラインでミントできます。オプションでサードパーティのHookにトランザクションについて通知できます。部分支払いとパス指定はありません。
+
+##### ZeroB2M
+
+XRPからXAHへのバーン・トゥ・ミントパスを無効化します。Importトランザクションの通常の動作は維持されますが、バーンされたXRPはクレジットされません。B2Mはキー同期またはアカウント有効化には引き続き使用できますが、新しい資産のミントには使用できません。
+
+##### Remarks
+
+Remarks amendmentにより、オブジェクトのオーナーがそれらのオブジェクトにキーバリューペア（Hookステートに類似）を保存できます。これはドキュメントの裏にメモを手書きするようなものです。Remarksは何でもよく、異なる当事者に異なる意味を持ちます。Remarksを不変に設定することもできます。Remarksはオーナーシップの変更を通じてオブジェクトとともに移動し、動的NFTのような新規ユースケースの実現や、一部の複雑なHookステート操作の簡素化に使用できます。[SetRemarksトランザクション](/docs/protocol-reference/transactions/transaction-types/setremarks)を有効化します。
+
+##### Touch
+
+このAmendmentは、アカウント上で他に何も変更がなくても「タッチカウンター」をインクリメントすることで、トランザクションに関与するすべてのアカウント（すべてのトランザクション利害関係者）がメタデータに強制的に表示されるようにします。これはUnixのファイルユーティリティtouchにちなんで命名されています。これにより、監査の一貫性と自動化ツールのプログラミングの容易さが向上します。
+
+##### HookCanEmit
+
+このAmendmentはHookSetオブジェクトに新しいフィールドを追加します：`HookCanEmit`は`HookOn`フィールドと構文的に同一ですが、どのトランザクションタイプがHookをトリガーするかではなく、HookがEmitを許可されているトランザクションタイプを制御します。`HookOn`と同じアクティブロー・セマンティクスを使用しますが（`SetHook`はアクティブハイ）、フィールドが存在しない場合は`SetHook`を含む任意のトランザクションをEmitできます。[HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition)オブジェクトに`HookCanEmit`フィールドを追加します。
+
+##### Clawback
+
+以前にアカウントから発行されたトークンを発行者が取り消せる[Clawbackトランザクション](/docs/protocol-reference/transactions/transaction-types/clawback)を有効化します。これはXRPLから移植された機能です。_（2025.7.9-release+1951で導入）_
+
+##### DeepFreeze
+
+トラストラインと資産のディープフリーズ機能を有効化します。これはXRPLから移植された機能です。_（2025.7.9-release+1951で導入）_
+
+##### IOUIssuerWeakTSH
+
+特定のトランザクションタイプでIOU発行者をウィーク・トランザクショナル・ステークホルダー（TSH）にします。通貨発行者が弱い実行にオプトインしている場合、彼らの通貨に触れるまたは言及するサードパーティトランザクションで彼らのHookが実行されるようにします。詳細は[弱いと強い](/docs/hooks/concepts/weak-and-strong)を参照してください。_（2025.7.9-release+1951で導入）_
+
+##### Cron
+
+[CronSetトランザクション](/docs/protocol-reference/transactions/transaction-types/cronset)と[Cronレジャーオブジェクト](/docs/protocol-reference/ledger-data/ledger-objects-types/cron)を介したスケジュールされたHook実行を有効化します。この機能により、HooksはLinuxシステムのcronjobに似た一連の将来の自己呼び出しをスケジュールでき、複雑なガバナンス構造やゲームなどの作成をHook開発者が支援できます。最大繰り返し回数は256ですが、繰り返し回数が望ましい最小しきい値を超えた後に`CronSet`トランザクションを再発行することで延長できます。_（2025.10.27-release+2405で導入）_
+
+##### ExtendedHookState
+
+Hookステート管理機能を拡張します。Hookステートエントリがいつ古くなるかを制御するための[AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot)オブジェクトの`HookStateScale`フィールドを含みます。この機能は、必要に応じてHookがHookステート（Hooksのキー値システム）に保存できるデータ量を拡張し、より豊かなデータストレージを可能にします。スケール（最大16）は、1つのHookステートに保存できる値の最大サイズと、そのキー値ペアが消費する準備金ユニット数の両方に影響します。スケール1（デフォルト）はHookStateあたり最大256バイトの保存に対して1準備金を支払います。スケール4はHookStateあたり最大1024バイトに対して4準備金ユニットを支払います。すべてのHookStateに1バイトしか格納されていなくても、このレート（スケールレート）を支払うことに注意してください。Hookがすでにステートを保存した後でスケールを増加させることは可能ですが、減少させることはできません。スケールを減少させるには、まずすべてのHookStateを削除する必要があります。_（2025.10.27-release+2405で導入）_
+
+#### バグ修正Amendment
+
+##### fixXahauV1
+
+アカウントごとの名前空間上限を256に強制します。URITokenロジックのさまざまなバグ修正。デフォルト（0）のSTAmountがメタデータに記録されるようにします。オファーをキャンセルする際にOfferSequenceの代わりにOfferIDを使用できるようにします。特定のHookが削除できないバグを修正します。`ttIMPORT`に必要なクォーラムが誤って高すぎるバグを修正します。GenesisMintトランザクションでアカウントが複数回現れることを許可します。URITokenが燃焼される際のURITokenの発行者をstrongからweak TSHに変更します。Emitされたトランザクションによって作成されたエスクローのTSHが正しくトリガーされるようにします。すべてのトランザクションにHookパラメーターサイズ料金を追加します（バイトあたり1ドロップ）。_（2024.9.11-release+985で導入）_
+
+##### fixXahauV2
+
+TSHロジックをクリーンアップし、古い冗長テーブルを削除します。`sfHookExecutions`の各メンバーに、weak、strongなどの実行を説明する情報フラグを追加します。EmitされたTxnをより明確に区別するために、`sfHookEmissions`の各メンバーに`sfEmitNonce`を追加します。EmitされたTxnが正しいレジャーに配置されるようにするための追加の健全性チェック。
+
+##### fixXahauV3
+
+Xahauプロトコル実装の問題のさらなる修正。このAmendmentはさまざまなエッジケースの一貫性と合理的な結果を保証します。このAmendmentはデフォルト投票：_yes_に設定されています。バリデーターがこのAmendmentに反対票を投じたい場合は、手動で投票をnoに変更する必要があります。_（2025.2.6-release+1299で導入）_
+
+##### fixNSDelete
+
+レジャーの一貫性を確保するためにHookStateの名前空間削除の動作を修正します。新しいtesコードを導入します：`tesPARTIAL`。`tesPARTIAL`はトランザクションが成功したが、`tesSUCCESS`が返されるまで償却された作業を完了するために、ユーザーが新しいシーケンス番号で再送信する必要があることを示します。
+
+##### fix240819
+
+2024年8月19日のバグ修正Amendment。
+
+##### fixPageCap
+
+ページ容量制限に関連する問題を修正します。
+
+##### fix240911
+
+2024年9月11日のバグ修正Amendment。
+
+##### fixFloatDivide
+
+HooksのFloat点除算演算に関する問題を修正します。このAmendmentは`float_divide`関数のゼロ除算とエッジケースの適切な処理を保証します。小さなエラーを修正するためにhook APIの`float_divide`の動作を変更します。このAmendmentはデフォルト投票：_yes_に設定されています。詳細は[float_divide](/docs/hooks/functions/float/float_divide)を参照してください。_（2024.11.18-release+1141で導入）_
+
+##### fixReduceImport
+
+Importトランザクション処理に関連する問題を修正します。このAmendmentはさまざまなエッジケースの一貫性と合理的な結果を保証します。このAmendmentはデフォルト投票：_yes_に設定されています。バリデーターがこのAmendmentに反対票を投じたい場合は、手動で投票をnoに変更する必要があります。_（2025.2.6-release+1299で導入）_
+
+##### fix20250131
+
+2025年1月31日のバグ修正Amendment。このAmendmentはさまざまなエッジケースの一貫性と合理的な結果を保証します。このAmendmentはデフォルト投票：_yes_に設定されています。バリデーターがこのAmendmentに反対票を投じたい場合は、手動で投票をnoに変更する必要があります。_（2025.2.6-release+1299で導入）_
+
+##### fixRewardClaimFlags
+
+報酬請求トランザクションフラグの問題を修正します。
+
+##### fixProvisionalDoubleThreading
+
+トランザクション処理における暫定的なダブルスレッディングの問題を修正します。ダブルスレッディングシナリオで正しいPreviousTxnIDとトランザクションメタデータが維持されるようにします。_（2025.7.9-release+1951で導入）_
+
+##### fixInvalidTxFlags
+
+現在一部のトランザクションに無効なフラグを指定できるバグを修正します。これらの無効なフラグは現在何もしませんが、実際にはMalformedエラーを生成するべきです。この修正が適用された後、無効なフラグは予期通りにMalformedエラーを生成します。_（2025.10.27-release+2405で導入）_
+
+##### fixCronStacking
+
+Cronトランザクションのスタッキング動作に関する問題を修正します。
+
+### Amendmentステータス
+
+最新のAmendmentステータス（有効化、投票中、または拒否権行使済み）については、[xahaudリポジトリ](https://github.com/Xahau/xahaud)を確認するか、実行中の`xahaud`サーバーで`feature`コマンドを使用してクエリしてください。

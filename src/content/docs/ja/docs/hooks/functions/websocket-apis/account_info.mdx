@@ -1,0 +1,44 @@
+---
+title: account_info
+---
+### 新機能
+
+`account_info` API は、通常の動作に加えて次の情報も返すようになりました。
+
+* 少なくとも 1 つの Hook State Object で現在使用されている namespace の一覧
+* アカウントが保持する全 Hook State Object の総数
+
+クエリ例:
+
+JSON
+
+```json
+{
+  "command": "account_info",
+  "account": "raaFre81618XegCrzTzVotAmarBcqNSAvK"
+}
+```
+
+例:
+
+JSON
+
+```json
+{
+  "result": {
+    "account_data": {
+      "Account": "raaFre81618XegCrzTzVotAmarBcqNSAvK",
+      ...,
+      "HookNamespaces": [
+        "01EAF09326B4911554384121FF56FA8FECC215FDDE2EC35D9E59F2C53EC665A0"
+      ],
+      "HookStateCount": 49,
+      ...
+    },
+    "ledger_current_index": 5555046,
+    "validated": false
+  },
+  "status": "success",
+  "type": "response"
+}
+```

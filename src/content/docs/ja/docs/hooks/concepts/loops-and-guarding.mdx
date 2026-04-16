@@ -1,0 +1,90 @@
+---
+title: ループとガーディング
+description: Hookでループを実行するにはGuardが必要です。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Guardとは何か？
+
+Hooksは意図的に[チューリング完全](https://en.wikipedia.org/wiki/Turing_completeness)ではありません。これは任意のループが禁止されることを意味します。代わりに、ループを厳格な「最大反復」の境界に対して_ガード_する必要があります。
+
+Guardはコード内の各ループの先頭に配置されたマーカーです。マーカーはXahauに、_すべての可能なシナリオで_ループの上限がどうなるかを伝えます。したがって、ループが通常2回実行されるが時々_500回_実行される場合、Guardは500を指定します。
+
+GuardはXahauが実行前にHookの_最悪ケースの実行時間_（命令で）を決定するために使用されます。これはXahauがHookの実行に課金する手数料の基礎であり、実行時間を予測可能で制御可能にします。
+
+<Aside type="tip">
+  他のスマートコントラクトプラットフォームから移行する既存の開発者は最初はGuardを煩わしく感じるかもしれませんが、慣れると通常のfor-loopと同じくらい簡単に使えます。
+</Aside>
+
+### Guard関数
+
+Guard関数はレジャーにループが行う**最大反復回数**を伝えます。具体的に関数は2つの引数を取ります：
+
+```c
+int32_t _g (uint32_t id, uint32_t maxiter);
+```
+
+最初の引数`id`はこのGuardの識別子です。これは開発者が選択する一意の定数で、通常はソースファイルの行番号が使用されます。
+
+2番目の引数`maxiter`は、このGuardがHookの実行中に`maxiter`回以上_ヒット_されないという開発者のレジャーへの約束です。Guard呼び出しがこの回数より多く実行された場合、Hookは`GUARD_VIOLATION`（[Hook APIリターンコード](/docs/hooks/functions/overview/return-codes)）で自動的にロールバックします。Guardはループ条件が確認される_前に_ヒットされるため、期待される反復回数の合計に1を加えることが重要です。（注：GUARD()マクロはすでに1を追加します）。
+
+<Aside type="caution">
+  Guardは数値リテラルを使用して設定する必要があります。Guardで変数またはランタイム値を使用することはできません。
+</Aside>
+
+### Guard適用
+
+Cでの以下のfor-loopを考えてみましょう：
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  ...
+}
+```
+
+Cではカンマ演算子は式のリスト（例：`A, B, C`）の各式を実行し、最後の式（例：`C`）を返します。したがって、上記の条件は`i < 3`ですが、条件が確認される前にGuardが呼び出されます。これはCでfor-loopを使用する際に_Guardルール_を満たす唯一の方法です。
+
+<Aside type="tip" title="Guardルール">
+  <code>_g</code>（Guard関数）への呼び出しは、ループ命令の後の最初の分岐命令でなければなりません。
+</Aside>
+
+以下は上記がコンパイルされた時のwebassembly出力です。ループの先頭でGuard関数が呼び出されていることに注意してください。この呼び出し前に許可される命令は非分岐命令のみです（通常、定数を操作します）。
+
+```
+    block  ;; label = @1
+      loop  ;; label = @2
+        i32.const 3
+        i32.const 14
+=====>  call $_g          <=====
+        drop
+        ...
+```
+
+### ネストされたループ
+
+ネストされたループを使用する場合、`maxiter`引数はGuardが_ヒット_される総回数を反映する必要があります。つまり、ネストを掛け合わせる必要があります。
+
+以下の例を考えてみましょう：
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  for (int j = 0; GUARD(15), j < 5; ++j)
+  {
+    ...
+  }
+}
+```
+
+内側のループのGuardが**15**に設定されていることに注目してください。Hook実行中に内側のGuardがヒットされる最大回数を計算するには、ループを掛け合わせる必要があります。
+
+### 再帰なし
+
+非Hook API関数への呼び出しはHooks amendmentでは禁止されています。すべてのユーザーコードは許可された2つのHook関数`cbak`と`hook`の中に収める必要があります。
+
+<Aside type="caution">
+  Guardを正しく使用しないと、<code>SetHook</code>トランザクションの試みが拒否されます。
+</Aside>

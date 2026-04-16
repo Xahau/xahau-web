@@ -1,0 +1,87 @@
+---
+title: ledger_nonce
+description: emit されたトランザクションで使用する 32 バイトの nonce を生成します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 32 バイトのランダム値を `write_ptr` に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 現在のレジャーの nonce を取得します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_nonce (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_nonce(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t n[32];
+int64_t bytes_written = 
+    ledger_nonce(n, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const nonce = ledger_nonce()
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                    |
+| --------- | -------- | -------------------------------------------------------------- |
+| write_ptr | uint32_t | 出力を格納するのに十分なサイズのバッファへのポインタです。少なくとも 32 バイト必要です。 |
+| write_len | uint32_t | 出力バッファの長さです。                                       |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type                   | Description                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | エラー時はエラーコード、成功時は現在のレジャーの nonce を表す配列を返します。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type    | Description                                                                                                                                  |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数を返します。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。</p> |
+</TabItem>
+</Tabs>

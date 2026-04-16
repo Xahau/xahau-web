@@ -1,0 +1,119 @@
+---
+title: sto_erase
+description: STObject からフィールドを削除します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` が指す STObject を解析します。
+* 新しい STObject を `write_ptr` に書き込みますが、元オブジェクトに `field_id` が存在した場合はそのフィールドを除外します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* フィールドを削除する対象の STO オブジェクト（バイナリ ledger data）を受け取ります。
+* 削除するフィールドの ID を受け取ります。
+* 更新後の STO オブジェクトをバイナリ ledger data 形式で返します。操作に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_erase (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t field_id
+);
+```
+
+<Aside type="caution" title="Field ID encoding">
+`sto_` API は、以下の形式でエンコードされた `field_id` パラメーターを受け取ります: `(type << 16U) + field`
+したがって、type 1 field 2 は `0x10002U` です。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_erase(
+    sto: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t result = 
+  sto_erase(tx_out, sizeof(tx_out),
+            tx_in, tx_len, sfSigners);
+
+if (tx_len <= 0)
+    rollback("Erasing failed.", 15, 1);
+```
+
+<Aside type="tip" title="Emplace equivalence">
+`sto_erase` は、`field_ptr, field_len` パラメーターに `0,0` を指定した `sto_emplace` と同じです。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_erase(tx_in, sfSigners)
+
+if (typeof tx_out === 'number')
+    rollback("Erasing failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                |
+| --------- | -------- | ------------------------------------------ |
+| write_ptr | uint32_t | 変更後の STObject の書き込み先バッファです。 |
+| write_len | uint32_t | 出力バッファの長さです。                   |
+| read_ptr  | uint32_t | 元の STObject を読み取るバッファです。     |
+| read_len  | uint32_t | 元オブジェクトの長さです。                 |
+| field_id  | uint32_t | 削除する `sf` コードです。                 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name     | Type                   | Description                                                            |
+| -------- | ---------------------- | ---------------------------------------------------------------------- |
+| sto      | ByteArray \| HexString | フィールドを削除する対象の STO オブジェクト（バイナリ ledger data）です。 |
+| field_id | number                 | 削除するフィールドの ID です。                                         |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                                               |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>write_ptr</code> に書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- 出力バッファは少なくとも元オブジェクトと同じ大きさが必要です。<br /><br /><code>TOO_BIG</code><br />- 削除対象のフィールドが大きすぎます。<br /><br /><code>PARSE_ERROR</code><br />- 指定した STObject が不正、または STObject ではありません。<br /><br /><code>DOESNT_EXIST</code><br />- 指定した <code>field_id</code> が STObject 内に存在しません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                                         |
+| ---------------------- | ------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | 更新後の STO オブジェクトをバイナリ ledger data 形式で返します。操作に失敗した場合はエラーコードを返します。 |
+</TabItem>
+</Tabs>

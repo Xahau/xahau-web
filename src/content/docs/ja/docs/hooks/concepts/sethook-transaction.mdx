@@ -1,0 +1,314 @@
+---
+title: SetHookトランザクション
+---
+### SetHookトランザクション
+
+HookのWebアセンブリバイトコードは、`SetHook`トランザクションを使用してXahauアカウントにインストールされます。
+
+以下に例を示します：
+
+```js
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                CreateCode: fs.readFileSync('accept.wasm').toString('hex').toUpperCase(),
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                HookApiVersion: 0
+            }
+        }
+    ]
+}
+```
+
+このトランザクションは一見シンプルに見えますが、以下で説明する重要な複雑さを隠しています。
+
+### Hooks配列
+
+SetHookトランザクションの主要な部分はHooks配列です：
+
+```js
+{
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Hooks:                         // これがHooks配列
+    [            
+          {  Hook: { ... }  },     // HookSetオブジェクト（位置0）
+          {  Hook: { ... }  },  
+          {  Hook: { ... }  },  
+          {  Hook: { ... }  }.     // HookSetオブジェクト（位置3）
+    ]
+}
+```
+
+この配列はアカウントにインストールされた[Hookチェーン](/docs/hooks/concepts/chaining)を_ミラー_します：
+
+* 配列の位置0はHookチェーンの位置0に_対応_します。
+* 配列の位置3はHookチェーンの位置3に_対応_します。など。
+
+### HookSetオブジェクトと対応するHook
+
+Hooks配列（SetHookトランザクション内）の各エントリは_HookSetオブジェクト_と呼ばれ、アカウントのHookチェーン内の対応するHookは_対応するHook_と呼ばれます。
+
+<figure>
+![例：ユーザーがSetHookトランザクションでHookチェーンの各Hookに操作を実行する。](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_NbV5W3McCRKkL4eJeF6v_cdf692e-sethook.png)
+<figcaption>*例：ユーザーがSetHookトランザクションでHookチェーンの各Hookに操作を実行する。*</figcaption>
+</figure>
+
+### HookDefinition
+
+各対応するHookは`HookDefinition`オブジェクトへの_参照_（ポインタ）を含むオブジェクトです。
+
+HookDefinitionオブジェクトは、同一のWebアセンブリバイトコードの重複排除を提供する所有者なし参照カウントされたレジャーオブジェクトです。同一のHookを使用する2人のユーザーは、同じHookDefinitionを指します。
+
+<figure>
+![例：XahauのHook定義](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)
+<figcaption>*例：XahauのHook定義*</figcaption>
+</figure>
+
+詳細については：[参照カウント](/docs/hooks/concepts/reference-counted-hook-definitions)を参照してください。
+
+### Hookデフォルト
+
+`HookDefinition`が作成されると、ユーザーが提供した初期の[パラメーター](/docs/hooks/concepts/parameters)、[名前空間](/docs/hooks/concepts/namespaces)、および[グラント](/docs/hooks/concepts/grants)が含まれます。これらがHookデフォルトになります。このHook定義を参照するHookは、その参照を作成するSetHookトランザクションがデフォルトを明示的に上書きするか、後続のUpdate操作が上書きしない限り、これらのデフォルトを使用します。
+
+### HookSet操作
+
+6つの可能な操作があります：No Operation、Create、Update、Delete、Install、およびNamespace Delete。
+
+各操作は、特定のHookSetオブジェクトフィールドの包含または省略によって指定されます。最初は混乱するかもしれませんが、いくつかの例を通して読者は直感的に理解できるはずです。本質的に、HookSet操作は特定のHookの_デフォルト_、_既存_、および新たに指定されたフィールド間の**差分**の一種です。
+
+各タイプの操作の達成方法は、以下のサブセクションで説明します。
+
+### No Operation
+
+**発生条件**：
+
+* HookSetオブジェクトが空の場合
+
+**動作**：
+
+* いかなる種類の変更も行われません。
+
+**例**：
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {}
+        }
+    ]
+}
+```
+
+### Create操作
+
+**発生条件**：
+
+_すべての_以下の条件が満たされる場合：
+
+* 対応するHookが存在しない_または_`FLAG_OVERRIDE`が指定されている。
+* `CreateCode`フィールドが指定されており、空白でなく、有効なHookの有効なWebアセンブリバイトコードが含まれている。
+* 同じWebアセンブリバイトコードのインスタンスがXahauに既に存在しない。（存在し、他のすべての要件が満たされている場合は、Install操作として解釈されます — 以下を参照。）
+
+**動作**：
+
+* HookSetオブジェクトのフィールドを含む参照カウントされた`HookDefinition`オブジェクトがXahauに作成され、指定されたすべてのフィールド（Namespace、Parameters、HookOn）がデフォルト（ただしGrantsを除く）になります。
+* `Hooks`配列が存在しない場合、実行アカウントに作成されます。（これは対応するHooksを含む構造です。）
+* 対応するHook位置にまだ存在しない場合、`Hook`オブジェクトが作成されます。
+* `Hook`オブジェクトは`HookDefinition`を指します。
+* `Hook`オブジェクトには、作成された`HookDefinition`を指す`HookHash`のみが含まれています。
+* `hsfNSDELETE`フラグが指定されている場合、宛先名前空間のHookStateエントリが現在存在する場合は削除されます。
+
+**例**：
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                CreateCode: fs.readFileSync('accept.wasm').toString('hex').toUpperCase(),
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                HookApiVersion: 0
+            }
+        }
+    ]
+}
+```
+
+### Install操作
+
+**発生条件**：
+
+_すべての_以下の条件が満たされる場合：
+
+* 対応するHookが存在しない_または_`FLAG_OVERRIDE`が指定されている。
+* `HookHash`フィールドが指定されており、空白でなく、レジャーに`HookDefinition`として既に存在するHookのハッシュが含まれている_または_`CreateCode`フィールドが指定されており、空白でなく、`HookDefinition`としてレジャーに既に存在する有効なHookの有効なWebアセンブリバイトコードが含まれている。
+
+**動作**：
+
+* `HookDefinition`オブジェクトの参照カウントがインクリメントされます。
+* `Hooks`配列が存在しない場合、実行アカウントに作成されます。（これは対応するHooksを含む構造です。）
+* 対応するHook位置にまだ存在しない場合、`Hook`オブジェクトが作成されます。
+* `Hook`オブジェクトは`HookDefinition`を指します。
+* `Hook`オブジェクトには、HookSetオブジェクトのすべてのフィールドが含まれますが、以下を除きます：
+* `HookDefinition`に設定されたHookデフォルトと同一のフィールドまたはフィールド内のキーペアは、デフォルトのため省略されます。
+* `hsfNSDELETE`フラグが指定されている場合、宛先名前空間のHookStateエントリが現在存在する場合は削除されます。
+
+**例**：
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                HookHash: "A5663784D04ED1B4408C6B97193464D27C9C3334AAF8BBB4FA5EB8E557FC4A2C",
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+            }
+        }
+    ]
+}
+```
+
+### Update操作
+
+**発生条件**：
+
+_すべての_以下の条件が満たされる場合：
+
+* 対応するHookが存在する。
+* `HookHash`が不在。
+* `CreateCode`が不在。
+* `HookNamespace`、`HookParameters`、または`HookGrants`の1つ以上が存在する。
+
+**一般的な動作**：
+
+* 対応するHookが、望ましい変更が対応するHookに反映されるように更新されます。
+
+**具体的な動作**：
+
+`HookNamespace`が指定され、対応するHookの名前空間と異なる場合：
+
+* 対応するHookの`HookNamespace`が更新され、
+* `hsfNSDELETE`フラグが指定されている場合、古い名前空間のすべてのHookStateエントリが削除されます。
+
+`HookParameters`が指定されている場合、各エントリについて：
+
+* `HookParameterName`が存在するが`HookParameterValue`が不在で、対応するHookのパラメーター（特定またはデフォルト経由）にこの`HookParameterName`が含まれている場合、パラメーターは対応するHookで削除済みとしてマークされます。
+* `HookParameterName`が存在し`HookParameterValue`も存在する場合、対応するHookのパラメーターは新しいまたは更新されたパラメーターを含むように変更されます。
+
+`HookGrants`が指定されている場合：
+
+* 対応するHookの`HookGrants`配列が配列で置き換えられます。
+
+**例**：
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+                HookNamespace: addr.codec.sha256('new_accept').toString('hex').toUpperCase(),
+            }
+        }
+    ]
+}
+```
+
+### Delete操作
+
+**発生条件**：
+
+_すべての_以下の条件が満たされる場合：
+
+* 対応するHookが存在する。
+* `hsfOVERRIDE`が指定されている。
+* オプションで`hsfNSDELETE`も指定されている。
+* `HookHash`が不在。
+* `CreateCode`が存在するが空。
+
+**動作**：
+
+* `HookDefinition`オブジェクトの参照カウントがデクリメントされます。
+* 参照カウントがゼロになった場合、`HookDefinition`はレジャーから削除されます。
+* 対応するHook位置の`Hook`オブジェクトが削除され、空の位置が残ります。
+* `hsfNSDELETE`が指定されている場合、名前空間とすべてのHookStateエントリも削除されます。
+
+**例**：
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+                CreateCode: "",
+                Flags: 1,
+            }
+        }
+    ]
+}
+```
+
+### 名前空間リセット
+
+**発生条件**：
+
+_すべての_以下の条件が満たされる場合：
+
+* `flags`が存在し`hsfNSDELETE`が設定されている。この位置のHookを削除する場合、オプションで`hsfOVERRIDE`も指定できます。
+* `HookNamespace`が指定されている。
+* `CreateCode`が不在。
+* `HookHash`が不在。
+* `HookGrants`、`HookParameters`、`HookOn`、および`HookApiVersion`が不在。
+
+**動作**：
+
+* 対応するHookが存在する場合、そのまま残り、何も起きません。
+* 指定された名前空間のHookStateオブジェクトのサブセットとHookStateディレクトリが、定義された512の上限までレジャーから削除されます。すべての関連レコードが削除されるまで、削除プロセスを続けるために追加のトランザクションが必要です。
+
+**例**：
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+              	HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                Flags: 3,
+            }
+        }
+    ]
+}
+```

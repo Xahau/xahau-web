@@ -1,0 +1,99 @@
+---
+title: state
+description: Hook State key が指すデータを取得し、出力バッファに書き込みます
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `kread_ptr` から 32 バイトの Hook State key を読み取ります。
+* その key にあるデータ（value）を `write_ptr` が指すバッファに書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した key に関連付けられた Hook State value を取得します。
+* エラーコード、またはその key に対応する Hook State value を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state(key: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+if (state(SBUF(vault), SBUF(vault_key)) != 16)
+    rollback(SBUF("Error: could not read state!"), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const value = state(vault_key)
+if (typeof value === 'number' || value.length != 16)
+    rollback("Error: could not read state!", 1);
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                      |
+| --------- | -------- | ------------------------------------------------ |
+| write_ptr | uint32_t | Hook State 内のデータを書き込む先バッファへのポインタです。 |
+| write_len | uint32_t | 書き込みバッファの長さです。                     |
+| kread_ptr | uint32_t | Hook State key を含むバッファへのポインタです。  |
+| kread_len | uint32_t | Hook State key の長さです。（32 である必要があります。） |
+
+<Aside type="tip">
+戻り値は必ず確認してください。state の参照はさまざまな理由で失敗する可能性があり、その場合バッファには呼び出し前の内容（通常はすべて 0）がそのまま残ります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type                   | Description                               |
+| ---- | ---------------------- | ----------------------------------------- |
+| key  | ByteArray or HexString | 値を取得したい Hook State の key です。   |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                                   |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>write バッファへ書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>DOESNT_EXIST</code><br />- 呼び出し時点で、指定した Hook State key に対応する値がレジャー上にありません。<br /><br /><code>TOO_BIG</code><br />- <code>kread_ptr</code> と <code>kread_len</code> で指定した key が 32 バイトを超えています。<br /><br /><code>TOO_SMALL</code><br />- Hook State データを格納するには出力バッファが小さすぎます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                        |
+| ---------------------- | -------------------------------------------------- |
+| ByteArray or ErrorCode | エラーコード、またはその key に対応する Hook State value を返します。 |
+</TabItem>
+</Tabs>

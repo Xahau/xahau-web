@@ -1,0 +1,66 @@
+---
+title: float_exponent
+description: XFL 包含数の exponent を取得します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Tabs>
+<TabItem label="C">
+<Aside type="caution" title="Replaced by macro">
+この関数はマクロに置き換えられました。コードでは以下のマクロを使用してください。
+XFL の妥当性を確認するには、このマクロと併せて `float_mantissa` を使用してください。
+</Aside>
+</TabItem>
+</Tabs>
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL の exponent 部分を符号付き整数として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+exponent は負になり得ますが、負数はエラー状態に予約されているため、関数から exponent を返すことはできません。したがって、この関数は以下のマクロになりました。
+
+```c
+#define float_exponent(f)\
+        (((int32_t)(((f) >> 54U) & 0xFFU)) - 97)
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t exponent =
+    float_exponent(float_one());
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type    | Description                  |
+| ------ | ------- | ---------------------------- |
+| float1 | int64_t | XFL 浮動小数点包含数です。   |
+</TabItem>
+</Tabs>

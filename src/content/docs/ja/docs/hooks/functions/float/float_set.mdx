@@ -1,0 +1,101 @@
+---
+title: float_set
+description: exponent と mantissa から float を作成します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定した exponent と mantissa から XFL (xls17) 浮動小数点数を計算します。
+* その XFL を int64_t として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* float 表現の exponent と mantissa を設定します。
+* エラーコード、または新しい XFL を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_set (
+    int32_t exponent,
+    int64_t mantissa
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_set(exponent: number, mantissa: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t small_amount =
+  float_set(-81, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const small_amount = float_set(-81, 1);
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type    | Description                                              |
+| -------- | ------- | -------------------------------------------------------- |
+| exponent | int32_t | `-96` から `80` の範囲の exponent です。                 |
+| mantissa | int64_t | mantissa です。負であれば float の符号も負になります。   |
+
+<Aside type="caution">
+16 桁より多い、または少ない mantissa を設定すると、mantissa がちょうど 16 桁になるよう exponent が調整されます。この調整により状況によっては `INVALID_FLOAT` になることがあります。
+</Aside>
+
+<Aside type="tip" title="Special case">
+XFL canonical 0 は包含数でも 0 です。したがって `float_set(0,0);` を呼ぶ必要はありません。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name     | Type   | Description                                              |
+| -------- | ------ | -------------------------------------------------------- |
+| exponent | number | `-96` から `80` の範囲の exponent です。                 |
+| mantissa | number | mantissa です。負であれば float の符号も負になります。   |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                    |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17) 包含数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- mantissa を 16 桁へ調整した結果、underflow または overflow が発生しました。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                         |
+| ------------------- | ----------------------------------- |
+| ErrorCode \| bigint | エラーコード、または XFL (xls17) 包含数を返します。 |
+</TabItem>
+</Tabs>

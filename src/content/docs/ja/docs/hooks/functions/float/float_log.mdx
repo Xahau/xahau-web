@@ -1,0 +1,99 @@
+---
+title: float_log
+description: XFL の常用対数を計算します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL 数の常用対数を計算します。
+* 新しい XFL を返します。
+
+<Aside type="caution">
+速度上の制約から、`float_log` は引数を IEEE の 2 進倍精度浮動小数点へ変換した後で base 10 log を適用します。そのため返される結果は期待より精度が低いことがあります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* float 表現の対数を計算します。
+* エラーコード、または対数を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_log (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_log(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t zero =
+    float_log(float_one());
+```
+
+<Aside type="caution">
+負の数を渡すと、複素数になるため `COMPLEX_NOT_SUPPORTED` が返されます。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const zero =
+    float_log(float_one())
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type    | Description                   |
+| ------ | ------- | ----------------------------- |
+| float1 | int64_t | 対数を求める対象の XFL 浮動小数点包含数です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description         |
+| ---- | ------ | ------------------- |
+| f1   | bigint | 対数を計算する float。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>計算された対数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターが有効な XFL 包含数ではありません。<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- 指定パラメーターが負で、複素数の戻り値が必要になります。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                     |
+| ------------------- | ------------------------------- |
+| bigint or ErrorCode | エラーコード、または対数を bigint で返します。 |
+</TabItem>
+</Tabs>

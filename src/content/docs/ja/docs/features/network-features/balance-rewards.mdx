@@ -1,0 +1,20 @@
+---
+title: バランスリワード
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+バランスリワード機能はXahauネットワークのユニークな側面であり、ユーザーがアカウント残高に基づいて報酬を積み立てて請求できます。この機能は、ネイティブコード（BalanceRewards Amendment）とHookコード（ジェネシスアカウントのReward Hook）の組み合わせで実装されています。
+
+### トランザクションタイプ
+
+#### ClaimReward
+
+`ClaimReward`トランザクションでは、アカウントが積み立てた報酬を請求できます。報酬はアカウントオーナーまたは指定された発行者が請求できます。アカウントはFlagsフィールドを1に設定することで報酬からオプトアウトすることもできます。
+
+<LinkCard title="ClaimReward" href="/docs/protocol-reference/transactions/transaction-types/claimreward" />
+
+#### GenesisMint
+
+`GenesisMint`トランザクションタイプもバランスリワード機能に関連しています。これはユーザーがバランスリワードを請求するたびにReward Hookを通じて実行されるEmittedトランザクションです。
+
+<LinkCard title="GenesisMint - (Emitted Txn)" href="/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn" />

@@ -1,0 +1,96 @@
+---
+title: hook_skip
+description: hook account 上の Hook チェーンで後続に現れる Hook をスキップします
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` にある Hook hash で識別される Hook をチェーン内から検索します。
+* このチェーン実行では無効化済みとしてマークします。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した hash と flag に基づいて Hook の実行をスキップします。
+* 操作結果を示すステータスコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_skip (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t flags
+);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_skip(
+    hash: ByteArray | HexString,
+    flag: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t phash[] = { 0x19U, 0xFEU, 0x69U, 0xF1U, 0x53U, 0x66U, 0x4EU, 0x8CU, 
+                    0x97U, 0xF4U, 0x4CU, 0x5CU, 0x3CU, 0x65U, 0x63U, 0x79U, 
+                    0xC2U, 0xD0U, 0x26U, 0xE7U, 0x90U, 0xEFU, 0x38U, 0xF7U, 
+                    0xEDU, 0x73U, 0xE9U, 0xCEU, 0x9CU, 0x9DU, 0xBFU, 0x03U };
+int64_t result = 
+  	hook_skip(phash, 32, 0);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const phash = [ 0x19, 0xFE, 0x69, 0xF1, 0x53, 0x66, 0x4E, 0x8C, 
+                0x97, 0xF4, 0x4C, 0x5C, 0x3C, 0x65, 0x63, 0x79, 
+                0xC2, 0xD0, 0x26, 0xE7, 0x90, 0xEF, 0x38, 0xF7, 
+                0xED, 0x73, 0xE9, 0xCE, 0x9C, 0x9D, 0xBF, 0x03 ]
+const result = hook_skip(phash, 0);
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type     | Description                                                                                   |
+| -------- | -------- | --------------------------------------------------------------------------------------------- |
+| read_ptr | uint32_t | Hook hash を含むバッファへのポインタです。                                                   |
+| read_len | uint32_t | Hook hash の長さです（常に 32）。                                                            |
+| flags    | uint32_t | <p>0 の場合:<br />- hash を Hook skip list に追加します。<br /><br />1 の場合<br />- hash を Hook skip list から削除します。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type                   | Description                        |
+| ---- | ---------------------- | ---------------------------------- |
+| hash | ByteArray or HexString | スキップ対象の Hook の hash です。 |
+| flag | number                 | Hook をスキップする理由を示す flag です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="163">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>成功時は <code>1</code><br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>DOESNT_EXIST</code><br />- 指定した Hook が存在しません。<br /><br /><code>INVALID_ARGUMENT</code><br />- Hash が 32 バイトではありません。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="163">Type</th><th>Description</th></tr></thead><tbody><tr><td>number or ErrorCode</td><td>操作結果を示すステータスコードを返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

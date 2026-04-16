@@ -1,0 +1,90 @@
+---
+title: trace
+description: バッファの内容を Xahaud の trace ログに書き込みます
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* Hook 内のバッファを、必要であればメッセージとともに trace ログへ書き込みます。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t trace (
+    uint32_t mread_ptr,
+    uint32_t mread_len,
+    uint32_t dread_ptr,
+    uint32_t dread_len,
+    uint32_t as_hex
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function trace(
+    message: string | null,
+    data: any,
+    hex: boolean | 0 | 1
+  ): ErrorCode
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+trace(SBUF("Buffer conatained"), SBUF(some_buffer), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+trace("Buffer conatained", some_buffer, 1);
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                                               |
+| --------- | -------- | ----------------------------------------------------------------------------------------- |
+| mread_ptr | uint32_t | バッファの前に出力するメッセージへのポインタです。 _null でも構いません。_               |
+| mread_len | uint32_t | メッセージの長さです。 _null でも構いません。_                                            |
+| dread_ptr | uint32_t | 出力するバッファへのポインタです。                                                        |
+| dread_len | uint32_t | 出力するバッファの長さです。                                                              |
+| as_hex    | uint32_t | <p><code>1</code> の場合、バッファを 16 進数として出力します。<br /><code>0</code> の場合、utf-8 として出力します。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name    | Type    | Description                                          |
+| ------- | ------- | ---------------------------------------------------- |
+| message | string  | バッファの前に出力する「logging key」メッセージです（null 可） |
+| data    | any     | ログに出力するデータです                              |
+| hex     | boolean | <p>HEX 形式でログ出力するか。<br /><br />0 - NO<br />1 - YES</p> |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                  |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>成功時は <code>0</code><br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type      | Description                                                                    |
+| --------- | ------------------------------------------------------------------------------ |
+| ErrorCode | <p>int64_t で、成功時の値は 0 です。</p><p></p><p>負の場合はエラーです: OUT_OF_BOUNDS</p> |
+</TabItem>
+</Tabs>

@@ -1,0 +1,29 @@
+---
+title: 開発者テクニック
+---
+## ワイルドカード署名
+
+テストとリプレイを簡単に行うには、署名検証を無効にするために`NetworkID`に`65535`（設定：`[network_id]`）を使用します。
+
+追加先：[https://github.com/Xahau/xahaud/pull/201](https://github.com/Xahau/xahaud/pull/201)
+
+## サーバー定義
+
+サーバー定義は公開ノードから簡単に取得できます。これらの定義には、トランザクションのシリアライゼーションとデシリアライゼーションに必要なバイナリコーデック情報やその他のネットワーク固有のデータが含まれています。
+
+### メインネット
+- [`https://xahau.network/server_definitions.json`](https://xahau.network/server_definitions.json)
+
+### テストネット
+- [`https://xahau-test.net/server_definitions.json`](https://xahau-test.net/server_definitions.json)
+
+### JSHooks-テストネット
+- [`https://jshooks.xahau-test.net/server_definitions.json`](https://jshooks.xahau-test.net/server_definitions.json)
+
+これらのサーバー定義は以下に不可欠です：
+- バイナリコーデック操作
+- トランザクションのシリアライゼーション
+- フィールドタイプの定義
+- ネットワーク固有の定数
+
+アプリケーションでこれらの定義を使用して、Xahauネットワーク向けにトランザクションを適切にエンコード・デコードできます。

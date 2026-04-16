@@ -1,0 +1,65 @@
+---
+title: ステート管理
+description: HooksはレジャーにあるデータをSmall片を読み書きできます
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Hookステートとは何か？
+
+コンピュータサイエンスにおける[ステート](https://en.wikipedia.org/wiki/State_\(computer_science\))は、実行間でシステムが保持する情報（入出力とは異なる）を表します。例えば、ブラウザを閉じて再度開いてもウェブサイトにログインしたままでいられます。ログインクッキーはブラウザの_ステート_に保持されています。
+
+**Hookステート**は、Xahau上の各アカウントについて、現在キーが存在するかどうかに関わらず論理的に存在するキーと値のマッピングを指します。キーは常に32バイト（符号なし256ビット整数）で、値は可変長で、執筆時点ではバリデーター投票によって決定される最大サイズは256バイトです。
+
+ステート管理は以下を使用して行われます：
+
+* [state](/docs/hooks/functions/state/state)
+* [state_set](/docs/hooks/functions/state/state_set)
+* [state_foreign](/docs/hooks/functions/state/state_foreign)
+
+### 保存と取得
+
+以下の例では、[state_set](/docs/hooks/functions/state/state_set) Hook APIを使用して、HookアカウントのHookステートのキー`0x0..000001`（uint256 = 1）に値`0xC001CAFE`を割り当てます。
+
+```c
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+uint8_t value[4] = { 0xC0U, 0x01U, 0xCAU, 0xFEU };
+if (state_set(value, 4, key, 32) == 4)
+{
+    // ... ステートが正常に保存された
+}
+```
+
+後続のHook実行では、同じキーを使用してこの値を取得できます：
+
+```c
+uint8_t value[4];
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+if (state(value, 4, key, 32) < 0)
+{
+    // ... ステートの取得に失敗した
+}
+```
+
+上記のコードが実行された後、`value`バッファにはキーで見つかった値が格納されます。
+
+<Aside type="tip">
+  <code>state()</code>が読み込む先のバッファ（<code>writeptr</code>）は、そのキーで現在保持されている値を格納するのに十分な大きさである必要があります。十分でない場合、Hook APIは<code>TOO_SMALL</code>エラーで返ります。
+</Aside>
+
+### 外部ステート
+
+あるアカウントで動作している1つのHookが、別のアカウントで動作している別のHookのHookステートを読み取ることが有利な場合があります。[state_foreign](/docs/hooks/functions/state/state_foreign) Hook APIはまさにこれを行います。レジャーは公開されているため、プライバシーへの合理的な期待はありません。したがって、どのHookも他のHookのHookステートを_読み取る_（ただし書き込みはできない）ことができます。
+
+### 名前空間とクエリ
+
+[名前空間](/docs/hooks/concepts/namespaces)を参照してください。

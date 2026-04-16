@@ -1,0 +1,120 @@
+---
+title: state_foreign_set
+description: 別アカウント上の指定した key・value・namespace に対して Hook State を設定します
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `kread_ptr` から 32 バイトの Hook State key を読み取ります。
+* `read_ptr` から任意サイズのデータ（value）を読み取ります。
+* `nread_ptr` から 32 バイトの Namespace を読み取ります。
+* `aread_ptr` から 20 バイトの Account ID を読み取ります。
+* 指定アカウントの指定 namespace 内にある Hook State key を、その value で更新します。
+* ただし、そのアカウント上の [Grant](https://xrpl-hooks.readme.io/docs/grants) がこの操作を許可している場合に限ります。
+* `aread_ptr` に Hook Account 自身を指定した場合、動作は state_set と同等ですが、`nread_ptr` による namespace 指定は引き続き有効です。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した value、key、namespace、account ID を使って Foreign Hook State を設定します。
+* この操作には認可と、それを許可する Grant が必要です。
+* Hook State に書き込まれたバイト数（データ長）を返します。エラー時は負値です。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_foreign_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t nread_ptr,
+    uint32_t nread_len,
+    uint32_t aread_ptr,
+    uint32_t aread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_foreign_set(
+    value: ByteArray | HexString | undefined | null,
+    key: ByteArray | HexString,
+    namespace: ByteArray | HexString | undefined | null,
+    accountid: ByteArray | HexString | undefined | null
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+if (state_foreign_set(SBUF(vault), SBUF(vault_key), SBUF(namespace), SBUF(account)) < 0)
+    rollback(SBUF("Error: could not set foreign state!"), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (state_foreign_set(vault, vault_key, namespace, account) < 0)
+    rollback("Error: could not set foreign state!", 1);
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                                                                                                  |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr  | uint32_t | <p>Hook State に書き込むデータ（value）へのポインタです。<br />これが <code>0</code>（null）の場合、この key にあるデータを削除します。 <em>null でも構いません。</em></p> |
+| read_len  | uint32_t | <p>データ長です。<br />これが <code>0</code>（null）の場合、この key にあるデータを削除します。 <em>null でも構いません。</em></p> |
+| kread_ptr | uint32_t | 値を保存する Hook State key へのポインタです。                                                                                               |
+| kread_len | uint32_t | key の長さです。（常に 32 である必要があります。）                                                                                            |
+| nread_ptr | uint32_t | key が属する namespace へのポインタです。                                                                                                    |
+| nread_len | uint32_t | namespace の長さです。（常に 32 である必要があります。）                                                                                     |
+| aread_ptr | uint32_t | 変更対象となる state を持つ Account ID へのポインタです。                                                                                    |
+| aread_len | uint32_t | Account ID の長さです。（常に 20 である必要があります。）                                                                                    |
+
+<Aside type="caution">
+Xahau は内部的に Hook データサイズの上限を設定しています。執筆時点では public testnet で 128 バイトにハードコードされていますが、将来的には validator の投票で決まる値になる予定です。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name      | Type                   | Description                             |
+| --------- | ---------------------- | --------------------------------------- |
+| value     | ByteArray or HexString | 永続化するデータの値です。              |
+| key       | ByteArray or HexString | 値を設定する Hook State の key です。   |
+| namespace | ByteArray or HexString | 参照対象の Hook namespace です。        |
+| accountid | ByteArray or HexString | state の所有者です。                    |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>Hook State に書き込まれたバイト数（データ長）です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_BIG</code><br />- <code>kread_len</code> が 32 を超えている、または<br />- <code>read_len</code> が Hook データサイズ上限を超えています。<br /><br /><code>TOO_SMALL</code><br />- <code>kread_len</code> が 0 です。<br /><br /><code>NOT_AUTHORIZED</code><br />- foreign account 上に、この state 変更を許可する適切な HookGrant が存在しません。<br /><br /><code>PREVIOUS_FAILURE_PREVENTS_RETRY</code><br />- この実行中に以前の <code>state_foreign_set</code> が NOT_AUTHORIZED で失敗しており、その結果この API は以後呼び出せません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| number or ErrorCode | Hook State に書き込まれたバイト数（データ長）を返します。エラー時は負値です。 |
+</TabItem>
+</Tabs>

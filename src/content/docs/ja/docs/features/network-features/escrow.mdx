@@ -1,0 +1,28 @@
+---
+title: エスクロー
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+エスクロー機能はXahauネットワークの重要な部分です。当事者間のトランザクションに安全でトラストレスな方法を提供します。エスクロー機能は、トランザクションのすべての条件が満たされるまで、トランザクションに関わる資産が安全に保持されることを保証します。
+
+### トランザクションタイプ
+
+エスクロー機能には3種類のトランザクションが含まれます：
+
+#### EscrowCreate
+
+`EscrowCreate`トランザクションは、新しいエスクロー契約を作成するために使用されます。このトランザクションは、関係する当事者、エスクローに保持される資産、資産がリリースされる条件など、エスクローの条件を指定します。
+
+<LinkCard title="EscrowCreate" href="/docs/protocol-reference/transactions/transaction-types/escrowcreate" />
+
+#### EscrowFinish
+
+`EscrowFinish`トランザクションは、エスクロー契約を完了するために使用されます。このトランザクションは、エスクローのすべての条件が満たされたときに実行されます。実行時に、エスクローに保持されている資産が適切な当事者にリリースされます。
+
+<LinkCard title="EscrowFinish" href="/docs/protocol-reference/transactions/transaction-types/escrowfinish" />
+
+#### EscrowCancel
+
+`EscrowCancel`トランザクションは、エスクロー契約をキャンセルするために使用されます。このトランザクションは、指定された期間内にエスクローの条件が満たされない場合に実行できます。キャンセル時に、エスクローに保持されている資産はエスクローを開始した当事者に返されます。
+
+<LinkCard title="EscrowCancel" href="/docs/protocol-reference/transactions/transaction-types/escrowcancel" />

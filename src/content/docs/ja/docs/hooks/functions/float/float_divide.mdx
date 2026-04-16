@@ -1,0 +1,94 @@
+---
+title: float_divide
+description: XFL を別の XFL 浮動小数点数で割ります
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL を別の XFL で除算します。
+* 新しい XFL を int64_t として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 1 つの float 表現を別の float 表現で割ります。
+* エラーコード、または商を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_divide (
+    int64_t float1,
+    int64_t float2
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_divide(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t still_one =
+    float_divide(float_one(), float_one());
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const still_one =
+    float_divide(float_one(), float_one())
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type     | Description                                |
+| ------ | -------- | ------------------------------------------ |
+| float1 | int64_t  | 分子となる XFL 浮動小数点包含数です。      |
+| float2 | int64_t  | 分母となる XFL 浮動小数点包含数です。      |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description       |
+| ---- | ------ | ----------------- |
+| f1   | bigint | 被除数の float。  |
+| f2   | bigint | 除数の float。    |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                              |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17) 包含数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターが有効な XFL 包含数ではない、または除算結果が表現不能な XFL になりました。<br /><br /><code>DIVISION_BY_ZERO</code><br />- 指定パラメーターが 0 です。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                   |
+| ------------------- | ----------------------------- |
+| bigint or ErrorCode | エラーコード、または商を bigint で返します。 |
+</TabItem>
+</Tabs>

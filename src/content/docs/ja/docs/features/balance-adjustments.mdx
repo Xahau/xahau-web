@@ -1,0 +1,68 @@
+---
+title: バランス調整
+description: Xahauでバランス調整を請求する方法
+---
+### オプトイン + 請求
+
+バランス調整へのオプトインは、調整を請求するトランザクションと同じです。後で請求できる機能を開始するには、まずこれを行う必要があります。
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}    
+```
+
+### オプトアウト
+
+バランス調整からオプトアウトするには、Issuerフィールドを省略してFlagsを1に設定します。これにより、平均残高統計が削除されます。これらは復元されません。再度オプトインすると、開始位置にリセットされます。
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "NetworkID": 21337,
+    "Flags": 1
+} 
+```
+
+### 技術的詳細
+
+バランス調整は2つのコードの組み合わせとして実装されています：
+
+1. BalanceRewards Amendment（ネイティブコード）
+2. ジェネシスアカウントのReward Hook（Hookコード）
+
+BalanceRewardsは、有効化されているアカウントの平均残高統計を収集します。これらの統計は、ユーザーが請求したい際にターゲットHookに渡されます。
+
+このAmendmentとのすべてのやり取りは、ClaimRewardトランザクションを介して行われます：
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}    
+```
+
+ClaimRewardトランザクションが**tesSUCCESS**エラーコードで正常に送信されると、アカウントの平均残高統計がリセットされます。Amendmentが行うその他のことは、指定された発行者のアカウントのHookを呼び出すことだけです。
+
+_Issuer_フィールドは、請求を履行する責任を持つアカウントです。Issuerアカウントにインストールされているものによって、いくつかのことが起こる可能性があります：
+
+* 発行者のアカウントにHookがインストールされていない場合、何も行われず、BalanceRewards統計が単純にリセットされます。
+* 発行者のアカウントにHookがインストールされており、HookがRollbackを実行する場合、トランザクションは失敗し、統計はリセット_されません_。
+* 発行者のアカウントにHookがインストールされており、HookがAcceptを実行する場合、トランザクションは成功し、統計がリセットされます。この場合、Hookはユーザーのアカウントに報酬を含むトランザクションをEmitする必要があります。
+
+実際には、Xahauでは、発行者は常にジェネシスアカウント **rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh** である可能性が高いです。
+
+ただし以下の場合を除きます：
+
+* ネットワークガバナンスにより、BalanceAdjustmentsに別のアカウントが使用される場合。
+* 非ガバナンス関係者がユーザーが参加したい独自のBalanceRewards配布を実行する場合。成功した請求は平均残高統計のリセットをもたらすため、リセットごとに1種類の報酬のみ請求できることに注意してください。
+
+平均残高統計は、AccountRootオブジェクトの3つの新しいフィールドのコレクションとして存在します：
+
+<table><thead><tr><th width="240">フィールド</th><th width="95.33333333333331">型</th><th>説明</th></tr></thead><tbody><tr><td><code>sfRewardAccumulator</code></td><td>UINT64</td><td>最後のClaimRewardトランザクション以降のアカウントの残高-時間グラフの面積。</td></tr><tr><td><code>sfRewardLgrFirst</code></td><td>UINT32</td><td>最後のClaimRewardトランザクションのレジャー番号。</td></tr><tr><td><code>sfRewardLgrLast</code></td><td>UINT32</td><td>アカウントの最後のトランザクション（入金または出金）のレジャーシーケンス番号。</td></tr><tr><td><code>sfRewardTime</code></td><td>UINT32</td><td>最後の報酬が請求されたレジャー時間。</td></tr></tbody></table>

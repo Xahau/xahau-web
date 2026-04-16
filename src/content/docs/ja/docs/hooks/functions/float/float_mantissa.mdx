@@ -1,0 +1,94 @@
+---
+title: float_mantissa
+description: XFL 包含数の mantissa を取得します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL の mantissa 部分を符号なし整数として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* float 表現の mantissa を取得します。
+* エラーコード、または mantissa を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mantissa (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mantissa(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t mantissa =
+    float_mantissa(float_one());
+```
+
+<Aside type="tip">
+負の XFL の mantissa は常に正です。数値の符号を判定するには `float_sign` を使用してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const mantissa =
+    float_mantissa(float_one());
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type    | Description                |
+| ------ | ------- | -------------------------- |
+| float1 | int64_t | XFL 浮動小数点包含数です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description          |
+| ---- | ------ | -------------------- |
+| f1   | bigint | mantissa を取得する float。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                 |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL の mantissa です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターが有効な XFL 包含数ではありません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                       |
+| ------------------- | --------------------------------- |
+| bigint or ErrorCode | エラーコード、または mantissa を bigint で返します。 |
+</TabItem>
+</Tabs>

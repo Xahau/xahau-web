@@ -1,0 +1,62 @@
+---
+title: sto_to_json
+description: STO オブジェクト（バイナリ ledger data）を JSON 形式に整形します。
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="JavaScript">
+* STO オブジェクト（バイナリ ledger data）を JSON 形式へ整形します。
+
+  この関数は、シリアライズ済みトランザクション `blob` を受け取り、人間が読みやすい JSON 形式に変換します。
+* STO オブジェクトをデコードした JSON 表現を返します。変換に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function sto_to_json(
+    blob: ByteArray | HexString
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const jsonSto = sto_to_json(stoBlob)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="JavaScript">
+| Name | Type                   | Description                                   |
+| ---- | ---------------------- | --------------------------------------------- |
+| blob | ByteArray \| HexString | 変換対象の blob（例: シリアライズ済みトランザクション）です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="JavaScript">
+| Type                                             | Description                                                        |
+| ------------------------------------------------ | ------------------------------------------------------------------ |
+| ErrorCode \| Record\<string, any> \| Transaction | STO オブジェクトをデコードした JSON 表現を返します。変換に失敗した場合はエラーコードを返します。 |
+</TabItem>
+</Tabs>

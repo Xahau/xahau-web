@@ -1,0 +1,83 @@
+---
+title: util_verify
+description: 暗号署名を検証します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+暗号署名を検証します。
+
+* 公開鍵が `0xED` で始まる場合は `ED25519` を使用します。
+* それ以外は `SECP256k1` とみなします。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_verify (
+    uint32_t dread_ptr,
+    uint32_t dread_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_verify(
+    signedData: ByteArray | HexString,
+    signature: ByteArray | HexString,
+    pubkey: ByteArray | HexString
+  ): 0 | 1
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+if (!util_verify(payload_ptr,    payload_len,
+                 signature_ptr,  signature_len,
+                 publickey_ptr,  publickey_len))
+	rollback("Invalid Signature", 17, 60);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (util_verify(signedData,signature,pubkey))
+    rollback("Invalid Signature", 60)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Name</th><th width="117">Type</th><th>Description</th></tr></thead><tbody><tr><td>dread_ptr</td><td>uint32_t</td><td>署名対象データへのポインタです。</td></tr><tr><td>dread_len</td><td>uint32_t</td><td>署名対象データの長さです。</td></tr><tr><td>sread_ptr</td><td>uint32_t</td><td>署名へのポインタです。</td></tr><tr><td>sread_len</td><td>uint32_t</td><td>署名の長さです。</td></tr><tr><td>kread_ptr</td><td>uint32_t</td><td>公開鍵へのポインタです。</td></tr><tr><td>kread_len</td><td>uint32_t</td><td>公開鍵の長さです。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="117">Type</th><th>Description</th></tr></thead><tbody><tr><td>signedData</td><td>number / string</td><td>検証対象の署名済みデータです。数値配列または文字列で指定できます。</td></tr><tr><td>signature</td><td>number / string</td><td>検証対象の署名です。数値配列または文字列で指定できます。</td></tr><tr><td>pubkey</td><td>number / string</td><td>署名の生成元となる公開鍵です。数値配列または文字列で指定できます。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="126">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td><code>0</code> - 検証失敗。署名は無効です。<br /><code>1</code> - 検証成功。署名は有効です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="126">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td><code>0</code> - 検証失敗。署名は無効です。<br /><code>1</code> - 検証成功。署名は有効です。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

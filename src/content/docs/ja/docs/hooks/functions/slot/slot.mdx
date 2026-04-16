@@ -1,0 +1,95 @@
+---
+title: slot
+description: スロット済みオブジェクトをシリアライズして出力します
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定したスロットを現在占有しているオブジェクトをシリアライズします。
+* オブジェクトのシリアライズ済み表現を出力バッファへ書き込みます。
+
+<Aside type="tip" title="Alternative use">
+小さなオブジェクトであればバッファを使わないこともできます。`write_ptr, write_len` に `0, 0` を指定すると、スロット済みオブジェクトを big endian packed data として `int64_t` の戻りコードで返そうとします。この方法では最大 63 ビットまで返せます。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定したスロットに関連付けられたデータを取得します。
+* エラーコード、またはスロットのデータを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot(slotno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t txn[512];
+int64_t bytes_written = 
+    slot(txn, 512, 1); // assumes a transaction is slotted into slot=1
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const txn = slot(1) // assumes a transaction is slotted into slot=1
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                |
+| --------- | -------- | ------------------------------------------ |
+| write_ptr | uint32_t | 出力を格納するのに十分なサイズのバッファへのポインタです。 |
+| write_len | uint32_t | 出力バッファの長さです。                   |
+| slot_no   | uint32_t | スロット番号です。                         |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description   |
+| ------ | ------ | ------------- |
+| slotno | number | スロット番号です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                               |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- シリアライズ済みオブジェクトを格納するには出力バッファが小さすぎます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                       |
+| ---------------------- | --------------------------------- |
+| ErrorCode \| ByteArray | エラーコード、またはスロットのデータを返します。 |
+</TabItem>
+</Tabs>

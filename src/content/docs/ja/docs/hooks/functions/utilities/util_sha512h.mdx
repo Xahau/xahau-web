@@ -1,0 +1,83 @@
+---
+title: util_sha512h
+description: データに対して sha512-half を計算します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` が指すデータに対して `SHA512` ハッシュを計算します。
+* ハッシュの前半を `write_ptr` に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* `data` が指すデータに対して `SHA512` ハッシュを計算します。
+* ハッシュの前半を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_sha512h (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_sha512h(data: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash_out[32];
+if (util_sha512h(hash_out, 32, data_in_ptr, data_in_len) < 0)
+	rollback("Could not generate Hash", 23, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (util_sha512h(data) < 0)
+    rollback("Could not generate Hash", 1)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Name</th><th width="114">Type</th><th>Description</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>ハッシュの書き込み先バッファへのポインタです。</td></tr><tr><td>write_len</td><td>uint32_t</td><td>出力バッファの長さです。少なくとも 32 必要です。</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>ハッシュ計算対象データを読み取るバッファへのポインタです。</td></tr><tr><td>read_len</td><td>uint32_t</td><td>入力データの長さです。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="114">Type</th><th>Description</th></tr></thead><tbody><tr><td>data</td><td>ByteArray or HexString</td><td>ハッシュ計算対象のデータです。数値配列または文字列で指定できます。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="137">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>書き込まれたバイト数です。常に 32 であるはずです。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- 出力バッファが十分な大きさではありません。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="137">Type</th><th>Description</th></tr></thead><tbody><tr><td>ByteArray</td><td>計算エラー時は ErrorCode、それ以外は SHA512-half ハッシュを数値配列として返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

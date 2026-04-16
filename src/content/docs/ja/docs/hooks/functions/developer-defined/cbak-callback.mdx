@@ -1,0 +1,86 @@
+---
+title: cbak / Callback
+description: Hook のコールバック関数
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/compiling-hooks">Compiling Hooks</LinkButton>
+
+### 動作
+
+* `cbak` は、以前に emit されたトランザクションの状態を Hook に通知するために `xahaud` から呼び出されるユーザー定義関数です。
+* state の変更や追加の emit 呼び出しは cbak から行えますが、トランザクションを `rollback` することはできません。
+* cbak の実行時には、このコールバックが対応する emit 済みトランザクションが現在の発信元トランザクションになります。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t cbak (
+    uint32_t what
+)
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+type Callback = (reserved: number) => number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t cbak(uint32_t reserved)
+{
+    return 0;
+}
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const Callback = (reserved: number) => {
+  return 0
+}
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type     | Description                                                                                                                                                                                                 |
+| -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| reserved | uint32_t | <p><code>0</code> の場合:<br />- このコールバックに対応する emit 済みトランザクションは、レジャーに正常に受け入れられました。<br /><br /><code>1</code> の場合<br />- 対応する emit 済みトランザクションは、有効期限切れまでにレジャーへ正常に受け入れられませんでした。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name     | Type   | Description                                                                                                                                                                                                  |
+| -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| reserved | number | <p><code>0</code> の場合:<br />- このコールバックに対応する emit 済みトランザクションは、レジャーに正常に受け入れられました。<br /><br /><code>1</code> の場合<br />- 対応する emit 済みトランザクションは、有効期限切れまでにレジャーへ正常に受け入れられませんでした。</p> |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                         |
+| ------- | --------------------------------------------------------------------------------------------------- |
+| int64_t | Hook から返したい任意の戻りコードです。これは発信元トランザクションのメタデータ内に記録されます。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                                                                         |
+| ------ | --------------------------------------------------------------------------------------------------- |
+| number | Hook から返したい任意の戻りコードです。これは発信元トランザクションのメタデータ内に記録されます。 |
+</TabItem>
+</Tabs>

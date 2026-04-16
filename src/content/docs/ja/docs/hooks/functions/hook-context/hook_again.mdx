@@ -1,0 +1,56 @@
+---
+title: hook_again
+description: 現在実行中の Hook を再度 Weak Execution するよう予約します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* Hook が strong 実行中であれば、チェーン内のこの Hook を [Again As Weak Execution](/docs/hooks/concepts/weak-and-strong) 用にマークします。
+* 発信元トランザクションが正常に適用された場合、この Hook は 2 回目の Weak Execution で再度呼び出されます。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_again(void);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_again(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t result = 
+  	hook_again();
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const result = hook_again()
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+この API にパラメーターはありません
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="176">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td><code>1</code> の場合、Again As Weak へのマークに成功しています。<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- 呼び出し時点でこの Hook はすでに weak 実行中です。<br /><br /><code>ALREADY_SET</code><br />- この実行中にこの関数はすでに呼び出されています。</td></tr></tbody></table>
+</TabItem>
+<TabItem label="JavaScript">
+<table><thead><tr><th width="176">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td>操作結果を示すステータスコードを返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

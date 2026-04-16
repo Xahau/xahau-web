@@ -1,0 +1,67 @@
+---
+title: Hook API Conventions
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 命名規則
+
+すべての Hook API は標準的な命名規則に従います。
+
+|           |                 |              |                 |
+| --------- | --------------- | ------------ | --------------- |
+| namespace | \[ _ noun #1 ] | \[ _ verb ] | \[ _ noun #2 ] |
+
+最初は分かりにくく見えるかもしれませんが、実際にはとても単純です。
+
+* 最初の noun が省略されている場合、それは暗黙的に namespace と同じです。
+* verb が省略されている場合、それは暗黙的に `get` です。
+
+したがって:
+
+* `state()` は Hook の state を取得することを意味します。
+* `state_set()` は Hook を設定することを意味します。
+* `state_foreign()` は外部 Hook の state を取得することを意味します。
+
+### メモリモデル
+
+各 Hook は単一のスタックフレームとして実行されます。作業用メモリはすべてこのスタックフレーム内に存在しなければなりません。ヒープも動的メモリもありません。
+
+Hooks が `xahaud` と通信するときに渡せるのは _整数_ 値だけです。通常、これらの整数は Hook のメモリ内のポインタです。Hook は xahaud 内で実行されるため、xahaud はそれらの位置を解決し、必要に応じて書き込みまたは読み出しを行って Hook API 関数を実行できます。
+
+### 許可される関数
+
+Hook 内で許可される関数は `hook()` と `cbak()` の 2 つだけです。詳細は[こちら](/docs/hooks/concepts/compiling-hooks)を参照してください。
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+Hook API に渡されるすべてのパラメーターは、`uint32_t, int32_t, uint64_t, int64_t` のいずれかでなければなりません。通常は Hook のスタックフレーム内にあるバッファのポインタと長さです。場合によっては [Integer Encoded Floating Point Numbers (XFL)](/docs/hooks/concepts/floating-point-numbers-xfl) やその他のデータであることもあります。
+
+Hook API のパラメーター順序は常に次のとおりです。
+
+1. 書き込みポインタ（存在する場合）
+2. 書き込み長（存在する場合）
+3. 読み取りポインタ（存在する場合）
+4. 読み取り長（存在する場合）
+5. 個別指定 / その他のフィールド（存在する場合）
+
+一部の Hook API はメモリへの書き込みのみ、または読み取りのみを行います。また、どちらも行わず、戻りコードのみで値を返すものもあります。
+</TabItem>
+
+<TabItem label="JavaScript">
+Hook API に渡されるすべてのパラメーターは、`string, number[], bigint(xfl), object(json)` のいずれかでなければなりません。通常は Hook のスタックフレーム内にあるバッファのポインタと長さです。場合によっては [Integer Encoded Floating Point Numbers (XFL)](/docs/hooks/concepts/floating-point-numbers-xfl) やその他のデータであることもあります。
+
+Hook API のパラメーター順序は常に次のとおりです。
+
+1. 書き込み変数（存在する場合）
+2. 読み取り変数（存在する場合）
+3. 個別指定 / その他のフィールド（存在する場合）
+
+一部の Hook API はメモリへの書き込みのみ、または読み取りのみを行います。また、どちらも行わず、戻りコードのみで値を返すものもあります。
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+すべての Hook API は _符号付き整数_ を返します。戻りコードの詳細は[こちら](/docs/hooks/functions/overview/return-codes)を参照してください。

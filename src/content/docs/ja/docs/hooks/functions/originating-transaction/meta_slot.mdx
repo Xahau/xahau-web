@@ -1,0 +1,76 @@
+---
+title: meta_slot
+description: 発信元トランザクションのメタデータをスロットに読み込みます
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* Hook が [Weakly Executed](/docs/hooks/concepts/weak-and-strong) されている場合、発信元トランザクションのメタデータを指定したスロットへ、またはスロット未指定なら新しいスロットへ配置します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t meta_slot (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function meta_slot(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t meta_slot_no = 
+		meta_slot(0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const meta_slot_no = meta_slot(0)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name    | Type     | Description                                                 |
+| ------- | -------- | ----------------------------------------------------------- |
+| slot_no | uint32_t | 配置先のスロット番号です。0 を指定すると次に利用可能なスロットが選ばれます。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description                   |
+| ------ | ------ | ----------------------------- |
+| slotno | number | メタデータを取得するスロット番号です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                        |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>otxn が配置されたスロット番号です。<br /><br /><code>INVALID_ARGUMENT</code><br />- 指定したスロット番号が許可される最大スロット番号を超えています。<br /><br /><code>NO_FREE_SLOTS</code><br />- 発信元トランザクションを配置できる空きスロットがなく、要求を処理できませんでした。<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- Hook は <a href="/docs/hooks/concepts/weak-and-strong">Strongly Executed</a> 中であり、トランザクションメタデータは利用できません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                             |
+| ------------------- | --------------------------------------- |
+| ErrorCode \| number | エラーコード、またはスロットのメタデータを返します。 |
+</TabItem>
+</Tabs>

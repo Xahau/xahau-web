@@ -1,0 +1,85 @@
+---
+title: slot_float
+description: 指定したスロット内の STI_AMOUNT を解析し、XFL 包含数として返します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定したスロット内の STI_AMOUNT を解析し、XFL 包含数として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定したスロットに関連付けられた bigint 値を取得します。
+* エラーコード、または bigint 値を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_float (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_float(slotno: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t xfl =
+  	slot_float(amt_slot);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const xfl = slot_float(amt_slot)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name    | Type     | Description   |
+| ------- | -------- | ------------- |
+| slot_no | uint32_t | スロット番号です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description                         |
+| ------ | ------ | ----------------------------------- |
+| slotno | number | bigint 値を取得するスロット番号です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL 包含数です。<br /><br />負の場合はエラーです。<br /><code>DOESNT_EXIST</code><br />- 指定したスロットにオブジェクトが存在しない、または無効なスロットです。<br /><br /><code>NOT_AN_AMOUNT</code><br />- 指定したスロットに <code>STI_AMOUNT</code> オブジェクトが入っていません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                   |
+| ------------------- | ----------------------------- |
+| bigint or ErrorCode | エラーコード、または bigint 値を返します。 |
+</TabItem>
+</Tabs>

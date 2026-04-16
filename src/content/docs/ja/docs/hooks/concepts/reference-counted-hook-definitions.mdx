@@ -1,0 +1,14 @@
+---
+title: 参照カウントされたHook定義
+description: 同じバイトコードをレジャーに再アップロードすることを避ける
+---
+新しいHookのwebassemblyバイトコードがXahauにアップロードされると、ネットワークに大きなストレージ負担が課せられます。このストレージ負担はネットワークが課金する[Hook手数料](/docs/hooks/concepts/hook-fees)に反映されます。
+
+この負担（とエンドユーザーの高い手数料）を避けるために、参照カウントが使用されます：
+
+* 新しいHookが初めてインストールされる時、[SetHookトランザクション](/docs/hooks/concepts/sethook-transaction)は相当な手数料を提供する必要があります。
+* Hookのwebassemblyバイトコードはレジャーの所有者なし参照カウントされたオブジェクト（`HookDefinition`と呼ばれる）になります。
+* 同じまたは他のユーザーによる同一Hook（つまり同一のバイトコード）の後続インストールは参照カウントをインクリメントします。これらのインストールはレジャーの同じオブジェクトを指します。これらのトランザクションは、Hookのストレージ負担が元のSetHookトランザクションですでに支払われているため、トラストラインの設定と同様の方法で請求されます。
+* Hook Definitionの参照カウントがゼロより大きい間（1つ以上のアカウントがHookをまだインストールしている）、オブジェクトはレジャーに残ります。
+
+![参照カウントされたHook定義](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)

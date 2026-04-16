@@ -1,0 +1,46 @@
+---
+title: ペイメント
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Xahauネットワークのペイメント機能は、ネットワーク内での資産と資金の移動を可能にする重要なコンポーネントです。この機能は、シームレスなトランザクションを促進し、ネットワークのスムーズで効率的な運営を確保するように設計されています。
+
+### トランザクションタイプ
+
+ペイメント機能は、ネットワーク内でそれぞれ独自の目的を果たすいくつかのトランザクションタイプで構成されています。各トランザクションタイプの概要は次のとおりです：
+
+**DepositPreauth**
+
+このトランザクションタイプでは、アカウントが指定されたソースからの着信トランザクションを事前認可できます。アカウントをホワイトリストに登録し、認可されたトランザクションのみが処理されるようにする方法です。
+
+<LinkCard title="DepositPreauth" href="/docs/protocol-reference/transactions/transaction-types/depositpreauth" />
+
+**TrustSet**
+
+このトランザクションタイプでは、ユーザーが別のアカウントとのトラストラインを作成できます。2つのアカウント間で信頼を確立し、互いにトランザクションできるようにする方法です。
+
+<LinkCard title="TrustSet" href="/docs/protocol-reference/transactions/transaction-types/trustset" />
+
+**Payment**
+
+これはアカウント間で資産を移動できる基本的なトランザクションタイプです。ネットワーク上のあらゆる支払い操作の基本となるトランザクションタイプです。
+
+<LinkCard title="Payment" href="/docs/protocol-reference/transactions/transaction-types/payment" />
+
+**PaymentChannelCreate**
+
+このトランザクションタイプでは、2つのアカウント間でペイメントチャンネルを作成できます。ペイメントチャンネルは、2者間で高頻度かつ低コストのトランザクションを可能にするオフレジャーのスケーラビリティソリューションです。
+
+<LinkCard title="PaymentChannelCreate" href="/docs/protocol-reference/transactions/transaction-types/paymentchannelcreate" />
+
+**PaymentChannelFund**
+
+このトランザクションタイプでは、アカウントが既存のペイメントチャンネルに資金を提供できます。ペイメントチャンネルにさらに多くの資産を追加し、より多くのトランザクションを実行できるようにする方法です。
+
+<LinkCard title="PaymentChannelFund" href="/docs/protocol-reference/transactions/transaction-types/paymentchannelfund" />
+
+**PaymentChannelClaim**
+
+このトランザクションタイプでは、アカウントがペイメントチャンネルから資金を請求できます。ペイメントチャンネルを閉じて残りの資産を回収する方法です。
+
+<LinkCard title="PaymentChannelClaim" href="/docs/protocol-reference/transactions/transaction-types/paymentchannelclaim" />

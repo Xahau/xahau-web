@@ -1,0 +1,109 @@
+---
+title: float_compare
+description: 2 つの XFL 浮動小数点数を比較します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 2 つの XFL 浮動小数点数の比較を評価します。
+* 比較結果を int64_t にエンコードされた boolean として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 2 つの XFL 浮動小数点数の比較を評価します。
+* エラーコード、または比較結果を数値として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_compare (
+    int64_t float1,
+    int64_t float2,
+    uint32_t mode
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_compare(
+    f1: bigint,
+    f2: bigint,
+    mode: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+if (float_compare(pusd_to_send, 0, COMPARE_LESS) == 1)
+{
+  // pusd_to_send is less than 0
+}
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (float_compare(pusd_to_send, 0n, COMPARE_LESS) == 1)
+{
+  // pusd_to_send is less than 0
+}
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type     | Description                                                                                                                                                                                                                                                                          |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| float1 | int64_t  | 比較の第 1 オペランドを表す XFL 浮動小数点包含数です。                                                                                                                                                                                                                              |
+| float2 | int64_t  | 比較の第 2 オペランドを表す XFL 浮動小数点包含数です。                                                                                                                                                                                                                              |
+| mode   | uint32_t | 比較フラグのビットフィールドです。<br /><code>COMPARE_EQUAL</code> `1`<br /><code>COMPARE_LESS</code> `2`<br /><code>COMPARE_GREATER</code> `4`<br /><br />有効な組み合わせ:<br /><code>COMPARE_LESS</code> \| <code>COMPARE_GREATER</code><br />- not equal<br /><br /><code>COMPARE_LESS</code> \| <code>COMPARE_EQUAL</code><br />- less than or equal<br /><br /><code>COMPARE_GREATER</code> \| <code>COMPARE_EQUAL</code><br />- greater than or equal |
+
+<Aside type="caution">
+負のエラーコードも `non-zero` とみなされてしまうので、関数が `non-zero` ではなく `1` を返したことを必ず確認してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description                         |
+| ---- | ------ | ----------------------------------- |
+| f1   | bigint | 比較する最初の float です。         |
+| f2   | bigint | 比較する 2 番目の float です。      |
+| mode | number | 比較モードです（less/equal/greater）。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                   |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <code>0</code> は比較結果が false の場合です。<br /><code>1</code> は比較結果が true の場合です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターのいずれかが有効な XFL 包含数ではありません。<br /><br /><code>INVALID_ARGUMENT</code><br />- 指定された比較フラグの組み合わせが無効です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                         |
+| ------------------- | ----------------------------------- |
+| ErrorCode or number | エラーコード、または比較結果を数値で返します。 |
+</TabItem>
+</Tabs>

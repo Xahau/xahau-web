@@ -1,0 +1,74 @@
+---
+title: float_one
+description: 数値 1 を XFL 包含数として返します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 1 (`1`) を XFL int64_t として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 数値の float 表現を取得します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_one();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_one(): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t one =
+    float_one();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const one = float_one()
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+この関数にパラメーターはありません。
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description            |
+| ------- | ---------------------- |
+| int64_t | XFL (xls17) 包含数です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description            |
+| ------------------- | ---------------------- |
+| ErrorCode \| bigint | XFL (xls17) 包含数です。 |
+</TabItem>
+</Tabs>

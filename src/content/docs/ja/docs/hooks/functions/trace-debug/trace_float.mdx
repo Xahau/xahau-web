@@ -1,0 +1,56 @@
+---
+title: trace_float
+description: XFL 浮動小数点数を Xahaud の trace ログに書き込みます
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* 必要であればメッセージとともに、XFL 浮動小数点数を trace ログへ書き込みます。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t trace_float (
+    uint32_t mread_ptr,
+    uint32_t mread_len,
+    int64_t float1 
+);
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+trace_float(SBUF("This is a float"), float_one());
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                                                                  |
+| --------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| mread_ptr | uint32_t | 浮動小数点数の前に出力するメッセージへのポインタです。 _null でも構いません。_ |
+| mread_len | uint32_t | メッセージの長さです。 _null でも構いません。_                                                                |
+| float1    | int64_t  | XFL を内包する整数です。                                                                                      |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                  |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>成功時は <code>0</code><br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。</p> |
+</TabItem>
+</Tabs>

@@ -1,0 +1,60 @@
+---
+title: prepare
+description: JSON トランザクションを emission 用に準備します。
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/protocol-reference/transactions/">Transactions</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="JavaScript">
+* transaction JSON オブジェクトを受け取り、emission 用に準備します。
+* トランザクションは `Account` フィールドを除いて完成している必要があります。`Account` は常に Hook account でなければなりません。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function prepare(
+    txJson: Record<string, any> | Transaction
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const prepared_txn = prepare({
+                TransactionType: "Payment",
+                Destination: util_raddr(p1address_ns),
+                Amount: parseFloat(drops_sent)*2
+            })
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="124">Type</th><th>Description</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>transaction JSON です。`Account` を除いて完全なトランザクションである必要があります（常に Hook account）。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="JavaScript">
+<table><thead><tr><th width="231">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | Record&#x3C;string, any> | Transaction</td><td>エラー時は ErrorCode、成功時は準備済み transaction JSON または Transaction オブジェクトを返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

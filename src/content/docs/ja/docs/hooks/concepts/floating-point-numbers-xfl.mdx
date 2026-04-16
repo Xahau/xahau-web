@@ -1,0 +1,97 @@
+---
+title: 浮動小数点数（XFL）
+description: 高精度計算はHooksにネイティブです。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 背景
+
+[浮動小数点数](https://en.wikipedia.org/wiki/Floating-point_arithmetic)はコンピュータサイエンスで、有限精度だが任意スケールの数値の計算に広く使用されています。
+
+最新のほとんどのCPUは[IEEE binary浮動小数点標準](https://en.wikipedia.org/wiki/Double-precision_floating-point_format)を使用して高速な浮動小数点演算を実行できますが、`xahaud`はこの形式を使用**しません**。代わりに、Xahauは[独自の10進浮動小数点標準](/docs/protocol-reference/binary-format)を使用します。
+
+このカスタム形式には3つの基本的な特性があります：
+
+1. この形式は本質的に10進数で、`指数`の`10`乗を掛けた10進数の`仮数`として表現されます。
+2. 表現されるすべての値は16桁の有効（10進数）桁数を持ちます。
+3. 指数の範囲は`-96`から`+80`です。
+
+シリアライズされると、仮数は54ビット、指数は8ビットで、最終的なサインビットにより、シリアライズされた浮動小数点数の合計サイズは63ビットになります。
+
+### XFLとは？
+
+[XLS-17d](https://github.com/XRPLF/XRPL-Standards/discussions/39)は、xrpldの浮動小数点数（上述）を効率的にパックして保存する方法を定義するXRPL標準の提案です。
+
+XFLは_囲み数値_の中に浮動小数点数のビットを格納します。これは常に`int64_t`です。負の囲み数値は無効なXFLを表します（例：ゼロ除算の結果）。
+
+<Aside type="tip">
+  <a href="https://richardah.github.io/xfl-tools/" target="_blank" rel="noopener">こちら</a>のXFLツールを使用して、ブラウザでXFLを作成・分解してください！
+</Aside>
+
+XFLの例：
+
+| 浮動小数点値     | 囲み数値            | 表現                          |
+| ------------------- | ------------------- | ----------------------------- |
+| -1                  | 1478180677777522688 | -1000000000000000 \* 10^(-15) |
+| 0                   | 0                   | 0 (_正規ゼロ_)                |
+| 1                   | 6089866696204910592 | +1000000000000000 \* 10^(-15) |
+| _PI_                | 6092008288858500385 | +3141592653589793 \* 10^(-15) |
+| -_PI_               | 1480322270431112481 | -3141592653589793 \* 10^(-15) |
+
+この形式はHooksに非常に便利です。HooksはxahaudとInteger値のみをやりとりできるためです。よく定義された方法で浮動小数点数を整数の中に格納することで、HookからFの複雑な浮動小数点計算が可能になります。これは為替レートの計算に役立ちます。
+
+### 正規ゼロ
+
+浮動小数点の規則では、ゼロを表現するいくつかの異なる方法が一般的にあり、ゼロのテストに問題が生じる可能性があります。例えば`0 x 10 ^ 1`はゼロであり、`0 x 10 ^ 2`もゼロです。このため、標準とHook APIによって強制される正規ゼロがあります。正規ゼロは囲み数値ゼロ（`0`）でもあります。
+
+### Hook Float API
+
+XFLを持つと、Float APIを使用してさまざまな計算を行うことができます。Float APIを以下の表に示します。各APIは1つ以上のXFL囲み数値を受け取り、XFL囲み数値を返します。負の戻り値は_常に_計算エラー（ゼロ除算など）を表します。有効な負の囲み数値はありません。
+
+| Hook API                                                                | 機能                                                          |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [float_set](/docs/hooks/functions/float/float_set)           | 指数と仮数からFloatを作成する                                    |
+| [float_multiply](/docs/hooks/functions/float/float_multiply) | 2つのXFL数値を掛け合わせる                                        |
+| [float_mulratio](/docs/hooks/functions/float/float_mulratio) | XFL浮動小数点数に非XFLの分子と分母を掛ける                        |
+| [float_negate](/docs/hooks/functions/float/float_negate)     | XFL浮動小数点数を否定する                                        |
+| [float_compare](/docs/hooks/functions/float/float_compare)   | 2つのXFL浮動小数点数を比較する                                   |
+| [float_sum](/docs/hooks/functions/float/float_sum)           | 2つのXFL数値を足し合わせる                                       |
+| [float_sto](/docs/hooks/functions/float/float_sto)           | XFLをシリアライズされたオブジェクトとして出力する                  |
+| [float_sto_set](/docs/hooks/functions/float/float_sto_set)  | シリアライズされた量をXFLに読み込む                               |
+| [float_invert](/docs/hooks/functions/float/float_invert)     | XFL浮動小数点数で1を割る                                         |
+| [float_divide](/docs/hooks/functions/float/float_divide)     | XFLを別のXFL浮動小数点数で割る                                   |
+| [float_one](/docs/hooks/functions/float/float_one)           | XFL囲み数値として表現された数値1を返す                           |
+| [float_exponent](/docs/hooks/functions/float/float_exponent) | XFL囲み数値の指数を取得する                                      |
+| [float_mantissa](/docs/hooks/functions/float/float_mantissa) | XFL囲み数値の仮数を取得する                                      |
+| [float_sign](/docs/hooks/functions/float/float_sign)         | XFL囲み数値の符号を取得する                                      |
+| float_exponent_set                                                    | XFL囲み数値の指数を設定する                                      |
+| float_mantissa_set                                                    | XFL囲み数値の仮数を設定する                                      |
+| float_sign_set                                                        | XFL囲み数値の符号を設定する                                      |
+| [float_int](/docs/hooks/functions/float/float_int)           | XFL浮動小数点数を整数の床（floor）に変換する                     |
+| [float_root](/docs/hooks/functions/float/float_root)         | XFLのn乗根を計算する                                             |
+| [float_log](/docs/hooks/functions/float/float_log)           | XFLの10進対数を計算する                                          |
+
+<Aside type="caution">
+  _囲み数値_に対して直接の数学や比較を行うべきではありません。これはほとんどの場合、誤った計算をもたらします。
+
+  _唯一の例外_は正規ゼロの確認です。
+</Aside>
+
+### 例
+
+以下の例では、為替レートの変換に続いて高精度の分数乗算が実行されます。
+
+```c
+int64_t max_vault_pusd =
+    float_multiply(vault_xrp, exchange_rate);
+
+max_vault_pusd = 
+    float_mulratio(max_vault_pusd, 0,
+        NEW_COLLATERALIZATION_NUMERATOR, NEW_COLLATERALIZATION_DENOMINATOR);
+```
+
+<Aside type="tip">
+  Float APIが負の値を返し、負の値を確認しない場合、その負の値を別のFloat APIに渡すと負の値も生成されます。このようにして、エラーは他の言語での`NaN`（数値ではない）の伝播と同様に伝播します。
+
+  負の囲み数値になった場合、浮動小数点計算のどこかでエラーが発生しています。
+</Aside>

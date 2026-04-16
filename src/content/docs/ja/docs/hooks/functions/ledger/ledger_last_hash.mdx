@@ -1,0 +1,85 @@
+---
+title: ledger_last_hash
+description: 最後にクローズされたレジャーの 32 バイトの namespace biased SHA512H を取得します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 32 バイトのハッシュを `write_ptr` に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 直前のレジャーのハッシュを取得します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_hash (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_hash(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash[32];
+int64_t bytes_written = 
+    ledger_last_hash(hash, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const hash = ledger_last_hash()
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                    |
+| --------- | -------- | -------------------------------------------------------------- |
+| write_ptr | uint32_t | 出力を格納するのに十分なサイズのバッファへのポインタです。少なくとも 32 バイト必要です。 |
+| write_len | uint32_t | 出力バッファの長さです。                                       |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                  |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数を返します。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                                                     |
+| ------ | ------------------------------------------------------------------------------- |
+| number | エラー時はエラーコード、成功時は最後のレジャーのハッシュを表す配列を返します。 |
+</TabItem>
+</Tabs>

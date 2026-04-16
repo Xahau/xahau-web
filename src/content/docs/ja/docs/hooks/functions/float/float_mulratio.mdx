@@ -1,0 +1,111 @@
+---
+title: float_mulratio
+description: XFL 浮動小数点数に、非 XFL の分子と分母の比を掛けます
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL (xls17) 浮動小数点数と 2 つの整数の商の積を計算します。
+* 新しい XFL を int64_t として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 分子と分母で定義された比を float に掛けます。
+* エラーコード、または新しい XFL を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mulratio (
+    int64_t float1,
+    uint32_t round_up,
+    uint32_t numerator,
+    uint32_t denominator
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mulratio(
+    f1: bigint,
+    round_up: number,
+    numerator: number,
+    denominator: number
+  ): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t max_vault_pusd =
+    float_mulratio(max_vault_pusd, 0,
+        COLLATERALIZATION_NUMERATOR, COLLATERALIZATION_DENOMINATOR);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const max_vault_pusd =
+    float_mulratio(max_vault_pusd, 0,
+        COLLATERALIZATION_NUMERATOR, COLLATERALIZATION_DENOMINATOR);
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name        | Type     | Description                                                |
+| ----------- | -------- | ---------------------------------------------------------- |
+| float1      | int64_t  | 乗算の第 1 オペランドを表す XFL 浮動小数点包含数です。     |
+| round_up    | uint32_t | 0 以外の場合、すべての計算を切り上げます。                 |
+| numerator   | uint32_t | float に掛ける商の分子です。                               |
+| denominator | uint32_t | float に掛ける商の分母です。                               |
+
+<Aside type="caution">
+一部の乗算はオーバーフローし、`INVALID_FLOAT` エラーになります。ただし **underflow** は XFL Canonical Zero（包含数 = 0）として返ります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name        | Type   | Description                                                |
+| ----------- | ------ | ---------------------------------------------------------- |
+| f1          | bigint | 乗算の第 1 オペランドを表す XFL 浮動小数点包含数です。     |
+| round_up    | number | 0 以外の場合、すべての計算を切り上げます。                 |
+| numerator   | number | float に掛ける商の分子です。                               |
+| denominator | number | float に掛ける商の分母です。                               |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                 |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17) 包含数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターの 1 つが有効な XFL 包含数ではありません。<br /><br /><code>OVERFLOW</code><br />- 乗算結果が XFL に収まりません。<br /><br /><code>DIVISION_BY_ZERO</code><br />- 指定された denominator が 0 です。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                  |
+| ------------------- | -------------------------------------------- |
+| ErrorCode or bigint | エラーコード、または XFL (xls17) 包含数を返します。 |
+</TabItem>
+</Tabs>

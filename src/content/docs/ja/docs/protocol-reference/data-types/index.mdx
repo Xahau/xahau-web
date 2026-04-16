@@ -1,0 +1,105 @@
+---
+title: データ型
+---
+異なる種類のオブジェクトは、それぞれ異なる方法で一意に識別されます。
+
+アカウントは Address で識別されます。たとえば `"r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59"` のような形式です。Address は常に `r` で始まります。多くの `rippled` メソッドは 16 進表現も受け付けます。
+
+トランザクションは、そのバイナリ形式の Hash によって識別されます。また、送信元アカウントと Sequence Number によって識別することもできます。
+
+各クローズ済み Ledger には Ledger Index と Hash 値があります。[Specifying Ledgers]\[] では、そのどちらも使用できます。
+
+### Addresses
+
+### Hashes
+
+#### Hash Prefixes
+
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/HashPrefix.h)
+
+多くの場合、Xahau はオブジェクトのハッシュを計算する前に、そのバイナリデータ先頭へ 4 バイトのコードを付加します。これにより、バイナリ形式が同じでも型の異なるオブジェクトは異なるハッシュになります。既存の 4 バイトコードは、ASCII でエンコードされた 3 つの英字と、それに続く 1 バイトのゼロで構成されています。
+
+一部の種類のハッシュは API のリクエストやレスポンスに現れます。別のものは、特定種類のデータへ署名したり、より上位のハッシュを計算したりする最初のステップとしてのみ計算されます。以下の表は、Xahau が使用するすべての 4 バイトハッシュプレフィックスを示します。
+
+| Object Type                           | API Fields                       | Hash Prefix (Hex) | Hash Prefix (Text) |
+| ------------------------------------- | -------------------------------- | ----------------- | ------------------ |
+| Consensus proposal                    | N/A                              | `0x50525000`      | `PRP\0`            |
+| Ledger Version                        | `ledger_hash`                    | `0x4C575200`      | `LWR\0`            |
+| Ledger state data                     | `account_state` in ledger header | `0x4D4C4E00`      | `MLN\0`            |
+| Ledger data inner node                | N/A                              | `0x4D494E00`      | `MIN\0`            |
+| Ledger data inner node (SHAMapv2)     | N/A                              | `0x494E5200`      | `INR\0`            |
+| Payment Channel Claim                 | N/A                              | `0x434C4D00`      | `CLM\0`            |
+| Signed Transaction                    | `hash` of transactions           | `0x54584E00`      | `TXN\0`            |
+| Transaction with metadata             | N/A                              | `0x534E4400`      | `SND\0`            |
+| Unsigned Transaction (Single-signing) | N/A                              | `0x53545800`      | `STX\0`            |
+| Unsigned Transaction (Multi-signing)  | N/A                              | `0x534D5400`      | `SMT\0`            |
+| Validation vote                       | N/A                              | `0x56414C00`      | `VAL\0`            |
+| Validator manifest                    | N/A                              | `0x4D414E00`      | `MAN\0`            |
+
+Ledger object ID は似た方法で計算されますが、ここで説明した形式のプレフィックスではなく、`space key` と呼ばれる 2 バイトの接頭辞を使用します。
+
+### Account Sequence
+
+### Ledger Index
+
+#### レジャーの指定方法
+
+多くの API メソッドでは、どの ledger インスタンスを対象にするかを指定する必要があります。取得されたデータは、その共有レジャーの特定バージョン時点の状態として扱われます。ledger バージョンを受け付けるコマンドはすべて同じ方法で動作します。使用する ledger は、次の 3 つの方法で指定できます。
+
+1. `ledger_index` パラメーターに Ledger Index を指定する。各クローズ済み ledger の index は、直前の ledger より 1 大きくなります。（最初の ledger の index は 1 でした。）
+
+    ```
+     "ledger_index": 61546724
+    ```
+2. `ledger_hash` パラメーターに Hash 値を指定する。
+
+    ```
+     "ledger_hash": "8BB204CE37CFA7A021A16B5F6143400831C4D1779E6FE538D9AC561ABBF4A929"
+    ```
+3. `ledger_index` パラメーターに、以下のショートカットのいずれかを指定する:
+   *   コンセンサスで検証された最新 ledger を意味する `validated`
+
+       ```
+         "ledger_index": "validated"
+       ```
+   * 変更受付が終了し、検証提案済みの最新 ledger を意味する `closed`
+   * サーバーが現在作業中の ledger バージョンを意味する `current`
+
+また、上記 3 形式のいずれも受け付ける、非推奨の `ledger` パラメーターもあります。このパラメーターは使わないでください。予告なく削除される可能性があります。
+
+ledger を指定しない場合、サーバーがどの ledger を使ってリクエストを処理するかを決定します。デフォルトでは、サーバーは `current`（進行中）の ledger を選びます。Reporting Mode では代わりに最新の validated ledger が使われます。ledger 指定フィールドは複数同時に与えないでください。
+
+**注:** ledger 指定に関するデフォルト動作へ依存しないでください。これは将来変更される可能性があります。可能であれば、必ずリクエスト内で ledger バージョンを明示してください。
+
+Reporting Mode は、ledger が検証されるまで ledger データを記録しません。Reporting Mode サーバーに対して `current` または `closed` ledger を要求すると、そのリクエストは P2P Mode サーバーへ転送されます。未検証の ledger index または hash を要求した場合、Reporting Mode サーバーは `lgrNotFound` エラーを返します。
+
+### 通貨額の指定
+
+Xahau には 2 種類の通貨があります。XAH と tokens です。これら 2 種類は、精度や丸め動作も含め、異なる形式で指定されます。
+
+宛先 `Amount` のように、[Payment transaction]\[] の一部フィールドはどちらの型も取り得ます。一方で、`Fee` フィールド（トランザクションコスト）のように XAH のみを受け付けるフィールドもあります。
+
+XAH は、XAH の `drops` 単位による整数値を含む文字列として指定します。100 万 drop が 1 XAH に相当します。一方、token は 10 進量、通貨コード、issuer を持つオブジェクトとして指定します。たとえば:
+
+*   **XAH** - `Amount` フィールドに 13.1 XAH を指定する場合:
+
+    ```
+      "Amount": "13100000"
+    ```
+*   **Token** - `rf1B...` によって発行された、または `rf1B...` 宛の 13.1 FOO を `Amount` フィールドに指定する場合:
+
+    ```
+      "Amount": {
+          "value": "13.1",
+          "currency": "FOO",
+          "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+      }
+    ```
+
+詳細は Currency Formats を参照してください。
+
+### 時刻の指定
+
+`xahaud` サーバーとその API は、時刻を符号なし整数として表現します。この数値は、2000 年 1 月 1 日 00:00 UTC の「Ripple Epoch」からの経過秒数です。これは [Unix epoch](http://en.wikipedia.org/wiki/Unix_time) と似ていますが、Ripple Epoch は Unix Epoch より 946684800 秒後です。
+
+Ripple Epoch の時刻を 32 ビット変数で UNIX Epoch 時刻へ変換しないでください。整数オーバーフローの原因になる可能性があります。

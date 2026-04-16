@@ -1,0 +1,76 @@
+---
+title: slot_count
+description: スロット内の配列オブジェクトの要素数を数えます
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* 指定したスロット内の配列要素数を数えます。
+* その件数を返します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_count (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_count(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+slot_count(1); // assumes an array is slotted into slot=1
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+slot_count(1) // assumes an array is slotted into slot=1
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name    | Type     | Description   |
+| ------- | -------- | ------------- |
+| slot_no | uint32_t | スロット番号です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description   |
+| ------ | ------ | ------------- |
+| slotno | number | スロット番号です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                       |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>スロット済み配列内の要素数です。<br /><br />負の場合はエラーです。<br /><code>DOESNT_EXIST</code><br />- 指定したスロットにオブジェクトが存在しない、または無効なスロットです。<br /><br /><code>NOT_AN_ARRAY</code><br />- 指定したスロットに配列オブジェクトが入っていません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                     |
+| ------------------- | ------------------------------- |
+| ErrorCode or number | エラーコード、またはエントリ数を返します。 |
+</TabItem>
+</Tabs>

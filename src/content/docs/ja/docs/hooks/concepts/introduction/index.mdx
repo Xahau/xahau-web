@@ -1,0 +1,33 @@
+---
+title: 紹介
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+HooksはXahauにスマートコントラクト機能を追加します：トランザクションの動作とフローに影響を与える_レイヤー1_のカスタムコードです。HooksはXahauアカウントで定義された小さく効率的なコードであり、Xahauトランザクションの前後にロジックを実行できます。
+
+<Aside type="note">
+注意：あなたは今Hooksの**技術ドキュメント**を読んでいます。このドキュメントは高度に技術的で、プログラミングとXahauネットワークの事前知識を前提としています。Hooksとは何か、Xahauネットワークに何をもたらし、何ができるかの例をお探しの場合は、[このページをご確認ください](/docs/hooks/concepts/introduction/example-usage)。
+</Aside>
+
+Xahauはそのトランザクションスループット、スピード、低手数料で知られ、高く評価されています。マルチサイン、エスクロー、ペイメントチャンネル、さらには分散型取引所（すべてオンレジャー、スマートコントラクトを必要とせずそのまま使用可能）などの高度なトランザクションタイプと組み合わせることで、Xahauはビジネスと創造的な開発者に多くを提供します。
+
+HooksはXahauにスマートコントラクト機能を追加します：トランザクションの動作とフローに影響を与える_レイヤー1_のカスタムコードです。HooksはXahauアカウントで定義された小さく効率的なコードであり、Xahauトランザクションの前後にロジックを実行できます。これらのHooksは「10 XAH未満の支払いを拒否する」または「すべての発信支払いに対して、10%を貯蓄アカウントに送る」などのシンプルなものから、より高度なものまで可能です。
+
+<figure>
+![Hooksの高レベルコンセプト](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_sEBiInWuRskTqxB29Xgd_7359187-Hooks_High_Level2x_1.png)
+<figcaption>*Hooksの高レベルコンセプト*</figcaption>
+</figure>
+
+Hooksが効率的なロジックを実行するだけでなく、小さくシンプルなデータオブジェクトを保存できるようにすることで、「受信支払いトランザクションに対して、送信アカウントが別のHookによって維持されるリストにあるかどうかを確認し、存在する場合はトランザクションを拒否する」などのHookを定義できます。
+
+Hooksは意図的にチューリング完全ではありません。スマートコントラクトの究極の目標として称賛されることが多いですが、チューリング完全性はスマートコントラクトには実際には不適切です。（[ブログ2](https://dev.to/wietse/hooked-2-hooks-security-smart-contracts-on-the-xrp-ledger-83e)を参照してください。）
+
+Hooksは現在公開テストネットで稼働しています。テスト、コーディング、楽しみ、そして壊すための時期であり、HooksをXahauライブネットに追加する将来のAmendmentを確信を持って草稿できるようになります。
+
+### リソース
+
+* [Xahauテストネット](https://xahau-test.net/)
+* [Xahauテストネットエクスプローラー](https://explorer.xahau-test.net/)
+* [サンプル（ソースコード）](https://github.com/XRPL-Labs/xrpld-hooks/tree/hooks-ssvm/hook-api-examples)
+* [ブログコンセプト](https://dev.to/t/xrplhooks/top/infinity)

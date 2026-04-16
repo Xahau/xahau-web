@@ -1,0 +1,121 @@
+---
+title: sto_emplace
+description: 既存の STObject に、正規位置でフィールドを埋め込みます
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `sread_ptr` が指す STObject `S`（source object）を解析します。
+* `fread_ptr` が指す STObject `F`（inject/emplace 対象）を解析します。
+* 新しい STObject を `write_ptr` に書き込み、`field_id` の正規位置に `F` を `S` へ配置します。
+
+<Aside type="caution" title="Field ID encoding">
+`sto_` API は、以下の形式でエンコードされた `field_id` パラメーターを受け取ります: `(type << 16U) + field`\
+したがって、type 1 field 2 は `0x10002U` です。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* `sto` パラメーターから STO オブジェクトを受け取ります。
+* `field_bytes` パラメーターから追加するフィールドを表すバイト列を受け取ります。
+* `field_id` パラメーターから追加するフィールドの ID を受け取ります。
+* 更新後の STO オブジェクトをバイナリ ledger data 形式で返します。操作に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_emplace (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t fread_ptr,
+    uint32_t fread_len,
+    uint32_t field_id
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_emplace(
+    sto: ByteArray | HexString,
+    field_bytes: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t tx_out[1024];
+
+int64_t tx_len =
+    sto_emplace(tx_out, sizeof(tx_out),
+                tx_in, tx_len,
+                sequence_field, 5, sfSequence);
+
+if (tx_len <= 0)
+    rollback("Emplacing failed.", 17, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_emplace(tx_in, sequence_field, sfSequence)
+if (typeof tx_out === 'number')
+    rollback("Emplacing failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                                                             |
+| --------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | 変更後の STObject の書き込み先バッファです。                                                           |
+| write_len | uint32_t | 出力バッファの長さです。                                                                                |
+| sread_ptr | uint32_t | 元の STObject を読み取るバッファです。                                                                  |
+| sread_len | uint32_t | 元オブジェクトの長さです。                                                                              |
+| fread_ptr | uint32_t | 埋め込み/注入するフィールドを読み取るバッファです。                                                    |
+| fread_len | uint32_t | 埋め込み/注入するフィールドの長さです。                                                                 |
+| field_id  | uint32_t | 埋め込み位置を表す `sf` コードです。元オブジェクト内にすでに存在する場合は上書きし、存在しない場合は挿入します。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name        | Type                   | Description                                                         |
+| ----------- | ---------------------- | ------------------------------------------------------------------- |
+| sto         | ByteArray \| HexString | フィールドを追加する対象の STO オブジェクト（バイナリ ledger data）です。 |
+| field_bytes | ByteArray \| HexString | 追加するフィールドを表すバイト列です。                              |
+| field_id    | number                 | 追加するフィールドの ID です。                                      |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td><code>write_ptr</code> に書き込まれたバイト数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_SMALL</code><br />- フィールドを上書きするだけの場合でも、出力バッファは元オブジェクト + 注入フィールドと同等以上の大きさが必要です。<br /><br /><code>TOO_BIG</code><br />- 埋め込み対象のフィールドが大きすぎます。<br /><br /><code>PARSE_ERROR</code><br />- 指定した STObject が不正、または STObject ではありません。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>更新後の STO オブジェクトをバイナリ ledger data 形式で返します。操作に失敗した場合はエラーコードを返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

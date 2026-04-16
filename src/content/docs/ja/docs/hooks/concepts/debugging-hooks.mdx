@@ -1,0 +1,70 @@
+---
+title: Hooksのデバッグ
+description: HookからHello Worldを出力する方法！
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Hookをデバッグする方法は？
+
+Hook APIは`trace`名前空間の関数セットを提供しており、xrpldが_trace_ログレベルで設定されている時に`xrpld`ログファイルに出力を書き込みます。これらの関数は、一般的に変数、バッファの値を確認したり、Hookの実行と状態を実行時にトレースしたりすることを可能にします。
+
+<Aside type="tip">
+執筆時点では対話型のHookデバッガーは存在しません。trace関数を使用する必要があります。
+</Aside>
+
+### Trace API
+
+以下の`trace`関数がHooks APIで利用できます：
+
+| Hook API                                                                | 機能                                                                              |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [trace](/docs/hooks/functions/trace-debug/trace)              | UTF-8メッセージを出力し、その後にユーザー指定のバッファを出力します（最後はオプションとして16進数）。 |
+| [trace_num](/docs/hooks/functions/trace-debug/trace_num)     | UTF-8メッセージを出力し、その後に整数を出力します。                                            |
+| [trace_float](/docs/hooks/functions/trace-debug/trace_float) | UTF-8メッセージを出力し、その後にXFL浮動小数点数を出力します。                                   |
+
+### 例
+
+以下のコードは1つのトレース行を出力し、その後発信トランザクションを受け入れます。
+
+```c
+#include "../hookapi.h"
+int64_t hook(int64_t reserved)
+{
+  trace_num(SBUF("A number"), 10);
+  accept(0,0,0);
+  return 0;
+}
+```
+
+Hookアカウントへ/からの支払いが送信された時に`xahaud`が生成するログ行の例：
+
+```
+2021-Apr-13 13:59:11.083700726 UTC View:TRC
+    HookTrace[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh-rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:
+        A number 10
+```
+
+上記はログに1行として表示されますが、見やすさのためにここでは分割しています。
+
+<Aside type="tip" title="テストネットを使用する">
+[Xahauテストネット](https://xahau-test.net/)はHooksをテストするのに最適な場所です。
+</Aside>
+
+### ログフォーマット
+
+ログフォーマットの詳細を以下の表に示します：
+
+| 部分                                           | 説明                                                                                                                                                                              | # |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - |
+| 2021-Apr-13 13:59:11.083700726 UTC View:TRC | `xahaud`のログ行へのプレフィックス                                                                                                                                                    | 1 |
+| HookTrace                                   | これはHook自体によって開始されたトレースで、Hookに関する他の情報ではありません。他の情報は`HookError`、`HookEmit`、`HookInfo`タグで利用できます。 | 2 |
+| \[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh        | 角括弧内の最初のアカウントはHookアカウントです。                                                                                                                                         | 3 |
+| -rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:       | 角括弧内の2番目のアカウントは発信アカウントです。                                                                                                                                         | 4 |
+| A number                                    | これはトレースペイロードの前にHookが配信するように指示されたメッセージです                                                                                                                      | 5 |
+| 10                                          | これはトレースペイロードです                                                                                                                                                              | 6 |
+
+<Aside type="tip">
+`Xahaud`は多くの出力を生成します。したがって、一般的には関心のあるアカウントのログをgrepすることが推奨されます。
+
+例：`tail -f log | grep HookTrace | grep <account>`
+</Aside>

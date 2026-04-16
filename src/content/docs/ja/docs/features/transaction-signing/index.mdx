@@ -1,0 +1,64 @@
+---
+title: トランザクション署名
+description: >-
+  Hooks対応ネットワークは特定のトランザクションフィールドを必要とし、より多くのトランザクションタイプを提供するため、
+  すべてのクライアントがすぐに動作するわけではありません。`xrpl-accountlib`
+---
+## 主な違い
+
+1. Hooks対応ネットワークでは、ネットワーク定義を動的に取得できます。利用可能なトランザクションタイプ、レジャーオブジェクト、プロパティ、値の型をクライアントが適応できます。正しく実装されていれば、ネットワークがトランザクション/オブジェクトのタイプ/プロパティを追加しても、署名・エンコードライブラリを更新する必要はありません。<mark style="color:blue;">**以下のライブラリはこれを実装しており、自動的に処理します。**</mark>
+2. Hooks対応ネットワークでは、別のチェーンでのトランザクションリプレイを防ぐために、すべてのトランザクションに**NetworkID**が必要です。**NetworkID**は`server_info` RPCコマンドの`network_id`フィールドにも返されます（例：Hooks V3テストネットでは**`21338`**）
+3. Hooks対応ネットワーク上のトランザクションは、送信アカウントから実行されるHookと宛先アカウントで受信するHookに基づいて、別のアカウントへのトランザクション配信に高い手数料が必要になる場合があります。Hooks実行を満たすための適切な手数料は、`tx_blob`としてトランザクションを提供しながら`fee`コマンドを発行することで、ノードから動的に取得できます。<mark style="color:blue;">**以下のライブラリはこれを実装しており、自動的に処理します。**</mark>
+
+## JavaScript/TypeScript
+
+[**npmパッケージ`xrpl-accountlib`**](https://www.npmjs.com/package/xrpl-accountlib)はHooks対応ネットワーク向けにトランザクションに署名できます。実行時にネットワーク定義を取得する完全な動的ネットワーク機能サポートを提供しているためです。
+
+[**npmパッケージ`xrpl-client`**](https://www.npmjs.com/package/xrpl-client)は`xrpl-accountlib`と連携し（依存関係として含まれます）、上記のネットワーク定義とアカウント値を動的に取得し、トランザクションの送信を支援します。
+
+### コードサンプル
+
+```javascript
+import {
+  derive,
+  utils,
+  signAndSubmit,
+} from "xrpl-accountlib"
+
+const wss = 'wss://xahau-test.net'
+const account = derive.familySeed("s...")
+
+const networkInfo = await utils.txNetworkAndAccountValues(wss, account)
+
+const tx = {
+  TransactionType: "SetHook",
+  Hooks: [ { Hook: {
+    CreateCode: "0061736D01000000011C0460057F7F7F7F7F017E60037F7F7E017E60027F7F017F60017F017E02230303656E76057472616365000003656E7606616363657074000103656E76025F670002030201030503010002062B077F0141B088040B7F004180080B7F0041A6080B7F004180080B7F0041B088040B7F0041000B7F0041010B07080104686F6F6B00030AC4800001C0800001017F230041106B220124002001200036020C41920841134180084112410010001A410022002000420010011A41012200200010021A200141106A240042000B0B2C01004180080B254163636570742E633A2043616C6C65642E00224163636570742E633A2043616C6C65642E22",
+    Flags: 1,
+    HookApiVersion: 0,
+    HookNamespace: "F".repeat(64),
+    HookOn: "F".repeat(58) + "BFFFFE",
+  }
+  }],
+  ...networkInfo.txValues,
+  // ^^ これにより自動的に取得された値が追加されます：
+  // Sequence, Account, LastLedgerSequence,
+  // Fee (Hooks有効：自動検出（レジャーから））
+}
+
+/**
+ * 注意：上記のコードと`signAndSubmit`により、自動的に
+ * 手数料が取得・設定されます。min/max等の手数料を
+ * 確認したい場合は、以下で独自の手数料（ドロップ単位の文字列）を取得します：
+ *    utils.networkTxFee(wss, tx)
+ * 
+ * 例：
+ *    const Fee = await utils.networkTxFee(wss, tx)
+ *    assert(Number(Fee) < 50_000, "自動手数料が50kドロップ超、中断")
+ *    Object.assign(tx, { Fee, })
+ */
+
+const submitted = await signAndSubmit(tx, wss, account)
+
+console.log(submitted)
+```

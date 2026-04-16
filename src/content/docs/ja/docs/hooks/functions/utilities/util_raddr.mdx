@@ -1,0 +1,97 @@
+---
+title: util_raddr
+description: 20 バイトの Account ID を r-address に変換します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` から 20 バイトの Account ID を読み取ります。
+* その Account ID に対応する r-address を `write_ptr` に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* `accountid` から 20 バイトの Account ID を読み取ります。
+* その Account ID に対応する r-address を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_raddr (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_raddr(accountid: ByteArray | HexString): ErrorCode | string
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t raddr_out[40];
+uint8_t acc_id[20] =
+{
+    0x2dU, 0xd8U, 0xaaU, 0xdbU, 0x4eU, 0x15U,               
+    0xebU, 0xeaU,  0xeU, 0xfdU, 0x78U, 0xd1U, 0xb0U,
+    0x35U, 0x91U,  0x4U, 0x7bU, 0xfaU, 0x1eU,  0xeU
+};
+int64_t bytes_written = 
+    util_raddr(raddr_out, sizeof(raddr_out), acc_id, 20);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const raddr = util_raddr('8D329C03074A98EF0488AB6ABBF5883F68CCFD4E')
+// or
+const raddr = util_raddr([
+    0x8D, 0x32, 0x9C, 0x03, 0x07, 0x4A, 0x98, 0xEF, 0x04, 0x88,
+    0xAB, 0x6A, 0xBB, 0xF5, 0x88, 0x3F, 0x68, 0xCC, 0xFD, 0x4E
+])
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Name</th><th width="82">Type</th><th>Description</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>出力 r-address を格納するのに十分なサイズのバッファへのポインタです。推奨は少なくとも 35 バイトです。</td></tr><tr><td>write_len</td><td>uint32_t</td><td>出力バッファの長さです。</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Account ID へのポインタです。</td></tr><tr><td>read_len</td><td>uint32_t</td><td>入力長です。常に 20 です。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="82">Type</th><th>Description</th></tr></thead><tbody><tr><td>accountid</td><td>number[]/string</td><td>r-address に変換する HEX account ID です。数値配列または文字列で指定できます。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                      |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数です（出力 r-address の長さ）。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_len</code> が 20 ではありません。<br /><br /><code>TOO_SMALL</code><br />- 生成された r-address を格納するには <code>write_len</code> が不足しています。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type          | Description                                                     |
+| ------------- | --------------------------------------------------------------- |
+| string/number | 整形エラー時は ErrorCode、それ以外は r-address を文字列として返します。 |
+</TabItem>
+</Tabs>

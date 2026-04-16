@@ -1,0 +1,95 @@
+---
+title: float_negate
+description: XFL 浮動小数点数の符号を反転します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL に `-1` を掛けます。
+* 新しい XFL を int64_t として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* float 表現の符号を反転します。
+* エラーコード、または反転後の float を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_negate (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_negate(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t negative_one =
+    float_negate(float_one());
+```
+
+<Aside type="tip" title="Special case">
+Canonical Zero の符号反転結果は Canonical Zero です。IEEE など一部の浮動小数点規格とは異なり、XFL に「negative zero」はありません。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const negative_one =
+    float_negate(float_one());
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type    | Description                |
+| ------ | ------- | -------------------------- |
+| float1 | int64_t | XFL 浮動小数点包含数です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description       |
+| ---- | ------ | ----------------- |
+| f1   | bigint | 反転対象の float。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                 |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17) 包含数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターの 1 つが有効な XFL 包含数ではありません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                  |
+| ------------------- | -------------------------------------------- |
+| ErrorCode or bigint | エラーコード、または XFL (xls17) 包含数を返します。 |
+</TabItem>
+</Tabs>

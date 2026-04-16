@@ -1,0 +1,76 @@
+---
+title: otxn_slot
+description: 発信元トランザクションをスロットに読み込みます
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* 発信元トランザクションを指定したスロットへ、またはスロット未指定なら新しいスロットへ配置します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_slot(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot_no = 
+		otxn_slot(0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const otxn_slot_no = otxn_slot(0)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name    | Type     | Description                                                 |
+| ------- | -------- | ----------------------------------------------------------- |
+| slot_no | uint32_t | 配置先のスロット番号です。0 を指定すると次に利用可能なスロットが選ばれます。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description       |
+| ------ | ------ | ----------------- |
+| slotno | number | 参照対象のスロット番号です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                               |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>otxn が配置されたスロット番号です。<br /><br /><code>INVALID_ARGUMENT</code><br />- 指定したスロット番号が許可される最大スロット番号を超えています。<br /><br /><code>NO_FREE_SLOTS</code><br />- 発信元トランザクションを配置できる空きスロットがなく、要求を処理できませんでした。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                          |
+| ---------------------- | ---------------------------------------------------- |
+| ErrorCode \| number | 指定したスロット番号に関連付けられた値を返します。取得に失敗した場合は ErrorCode を返します。 |
+</TabItem>
+</Tabs>

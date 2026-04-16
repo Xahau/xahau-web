@@ -1,0 +1,106 @@
+---
+title: float_int
+description: XFL 浮動小数点数を整数に変換します（floor）
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定した小数桁数だけ XFL を左シフト（10 倍）します。
+* 結果の XFL を整数に変換し、余りを切り捨てます。
+* その整数を返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した小数桁数を考慮して float 表現を整数へ変換します。
+* エラーコード、または結果の整数を数値として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_int (
+    int64_t float1,
+    uint32_t decimal_places,
+    uint32_t absolute
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_int(
+    f1: bigint,
+    decimal_places: number,
+    abs: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t drops =
+    float_int(xahbalance, 6, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const drops =
+    float_int(xahbalance, 6, 0);
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name           | Type     | Description                                             |
+| -------------- | -------- | ------------------------------------------------------- |
+| float1         | int64_t  | 加算の第 1 オペランドを表す XFL 浮動小数点包含数です。 |
+| decimal_places | uint32_t | floor を計算する前に小数点を右へずらす桁数です。       |
+| absolute       | uint32_t | `1` の場合、返す前に絶対値も取ります。                  |
+
+<Aside type="tip">
+負の戻り値はエラーコード用に予約されています。そのため負の XFL に対してこの関数を実行したい場合は `absolute = 1` を使ってください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name           | Type   | Description               |
+| -------------- | ------ | ------------------------- |
+| f1             | bigint | 変換対象の float です。   |
+| decimal_places | number | 考慮する小数桁数です。    |
+| abs            | number | 絶対値を取るかどうかです。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                          |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>計算された正の整数です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターの 1 つが有効な XFL 包含数ではありません。<br /><br /><code>INVALID_ARGUMENT</code><br />- 16 桁を超える decimal places を指定しようとしました。<br /><br /><code>CANT_RETURN_NEGATIVE</code><br />- 負の整数を返そうとしましたが許可されていません。<code>absolute = 1</code> を使用してください。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                         |
+| ------------------- | ----------------------------------- |
+| number or ErrorCode | エラーコード、または結果の整数を数値で返します。 |
+</TabItem>
+</Tabs>

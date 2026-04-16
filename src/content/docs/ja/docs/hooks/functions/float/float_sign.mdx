@@ -1,0 +1,93 @@
+---
+title: float_sign
+description: XFL 包含数の符号を取得します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL が負なら `1` を、そうでなければ `0` を返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* XFL が負なら `1` を、そうでなければ `0` を返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sign (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sign(f1: bigint): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sign =
+    float_sign(float_one());
+```
+
+<Aside type="tip">
+XFL 内部の sign bit は、XFL が負のとき `0` ですが、この関数は通常の計算機慣習に従って負なら `1` を返します。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const sign =
+   float_sign(float_one());
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type    | Description                |
+| ------ | ------- | -------------------------- |
+| float1 | int64_t | XFL 浮動小数点包含数です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description           |
+| ---- | ------ | --------------------- |
+| f1   | bigint | 符号を取得する float。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL の符号です。<br /><code>0</code> は正、<code>1</code> は負です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターが有効な XFL 包含数ではありません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                   |
+| ------------------- | ----------------------------- |
+| number or ErrorCode | エラーコード、または符号を数値で返します。 |
+</TabItem>
+</Tabs>

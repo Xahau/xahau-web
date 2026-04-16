@@ -1,0 +1,82 @@
+---
+title: hook
+description: Hook のメイン関数
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/compiling-hooks">Compiling Hooks</LinkButton>
+
+### 動作
+
+* `hook` は、Hook を発火させるために `xahaud` から呼び出されるユーザー定義関数です。
+* `hook` 関数は、発信元トランザクションを通過させるか拒否するために `accept` または `rollback` を呼び出します。
+* 実行が関数の末尾まで到達した場合、それは暗黙的に `accept` になります。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook (
+    uint32_t reserved
+)
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+type Hook = (reserved: number) => number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook(uint32_t reserved)
+{
+  return 0;
+}
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const Hook = (reserved: number) => {
+    return 0
+}
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="183">Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>reserved</td><td>uint32_t</td><td>将来の利用のために予約されています。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="183">Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>reserved</td><td>number</td><td>将来の利用のために予約されています。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                              |
+| ------- | -------------------------------------------------------------------------------------------------------- |
+| int64_t | Hook から返したい任意の戻りコードです。これは発信元トランザクションのメタデータ内に記録されます。      |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                                                                              |
+| ------ | -------------------------------------------------------------------------------------------------------- |
+| number | Hook から返したい任意の戻りコードです。これは発信元トランザクションのメタデータ内に記録されます。      |
+</TabItem>
+</Tabs>

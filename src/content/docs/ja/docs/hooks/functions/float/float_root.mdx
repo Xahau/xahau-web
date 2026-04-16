@@ -1,0 +1,102 @@
+---
+title: float_root
+description: XFL の n 乗根を計算します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL 数の `n` 乗根を計算します。
+* 新しい XFL を返します。
+
+<Aside type="caution">
+速度上の制約から、`float_root` は引数を IEEE の 2 進倍精度浮動小数点へ変換した後で n 乗根を適用します。そのため返される結果は期待より精度が低いことがあります。より高精度が必要な場合は、XFL を高位と低位の積に分解し、それぞれ平方根を取ってから結果を掛け合わせる方法を検討してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* float 表現の n 乗根を計算します。
+* エラーコード、または結果の root を bigint として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_root (
+    int64_t float1,
+    uint32_t n
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_root(f1: bigint, n: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t three =
+    float_root(nine, 2);
+```
+
+<Aside type="caution">
+負の数を渡し、root が偶数根の場合は `COMPLEX_NOT_SUPPORTED` が返されます。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const three =
+  float_root(nine, 2)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type     | Description                           |
+| ------ | -------- | ------------------------------------- |
+| float1 | int64_t  | root を求める対象の XFL 浮動小数点包含数です。 |
+| n      | uint32_t | 計算する root です。たとえば `2` は平方根です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description               |
+| ---- | ------ | ------------------------- |
+| f1   | bigint | root を計算する float。   |
+| n    | number | 計算する root の次数です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                           |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>計算された n 乗根です。<br /><br />負の場合はエラーです。<br /><code>INVALID_FLOAT</code><br />- 指定パラメーターが有効な XFL 包含数ではありません。<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- 指定パラメーターが負で、複素数の root が必要になります。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                             |
+| ------------------- | --------------------------------------- |
+| bigint or ErrorCode | エラーコード、または結果の root を bigint で返します。 |
+</TabItem>
+</Tabs>

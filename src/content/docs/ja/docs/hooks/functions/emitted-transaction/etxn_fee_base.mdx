@@ -1,0 +1,80 @@
+---
+title: etxn_fee_base
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+Hooks 有効レジャー上の手数料は単純ではありません。詳細は [Hook Fees](/docs/hooks/concepts/hook-fees) を参照してください。
+</Aside>
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+
+### 動作
+
+* emit 予定のトランザクションに推奨される手数料額（drops）を返します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_fee_base (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_fee_base(txblob: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee_to_pay =
+    etxn_fee_base(tx_blob, tx_blob_len);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const fee_to_pay = etxn_fee_base(tx_blob)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Name</th><th width="118">Type</th><th>Description</th></tr></thead><tbody><tr><td>read_ptr</td><td>uint32_t</td><td>emit 予定のシリアライズ済みトランザクションを含むバッファへのポインタです。Fee フィールドは必須ですが無視されます（0 でも構いません）。この関数の出力を使って Fee を正しく埋めてください。</td></tr><tr><td>read_len</td><td>uint32_t</td><td>tx blob の長さです。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="118">Type</th><th>Description</th></tr></thead><tbody><tr><td>txblob</td><td>ByteArray | HexString</td><td>トランザクション blob です。数値配列または文字列を指定できます。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                                      |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>emit される txn が受理されるのに必要な最小 drops 数です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- 指定バッファが Hook メモリ内に正しく存在しません。<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- 先に <code>etxn_reserve</code> が呼ばれていません。<br /><br /><code>INVALID_TXN</code><br />- 指定バッファに有効なシリアライズ済みトランザクションが含まれていませんでした。（デシリアライズ失敗、または必須フィールド欠落。）</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                 |
+| ------ | ------------------------------------------- |
+| number | エラー時は ErrorCode、成功時は計算された base fee を返します。 |
+</TabItem>
+</Tabs>

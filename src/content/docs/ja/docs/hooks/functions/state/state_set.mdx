@@ -1,0 +1,112 @@
+---
+title: state_set
+description: 指定した key と value に対して Hook State を設定します
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `kread_ptr` から 32 バイトの Hook State key を読み取ります。
+* `read_ptr` から任意サイズのデータ（value）を読み取ります。
+* その value で Hook State key を更新します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した value と key で Hook State を設定します。
+* Hook State に書き込まれたバイト数（データ長）を返します。エラー時は負値です。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_set(
+    value: ByteArray | HexString | undefined | null,
+    key: ByteArray | HexString
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+if (state_set(SBUF(vault), SBUF(vault_key)) < 0)
+		rollback(SBUF("Error: could not set state!"), 1);
+```
+
+<Aside type="tip">
+state を削除するには `state_set(0, 0, SBUF(key));` を使用します。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const result = state_set(vault, vault_key)
+if (result < 0)
+    rollback("Error: could not set state!", 1);
+```
+
+<Aside type="tip">
+state を削除するには `state_set(null, key);` を使用します。
+</Aside>
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                                                                                                  |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr  | uint32_t | <p>Hook State に書き込むデータ（value）へのポインタです。<br />これが <code>0</code>（null）の場合、この key にあるデータを削除します。 <em>null でも構いません。</em></p> |
+| read_len  | uint32_t | <p>データ長です。<br />これが <code>0</code>（null）の場合、この key にあるデータを削除します。 <em>null でも構いません。</em></p> |
+| kread_ptr | uint32_t | 値を保存する Hook State key へのポインタです。                                                                                               |
+| kread_len | uint32_t | key の長さです。（常に 32 である必要があります。）                                                                                            |
+
+<Aside type="caution">
+Xahaud は内部的に Hook データサイズの上限を設定しています。執筆時点では mainnet で 256 バイトにハードコードされていますが、将来的には validator の投票で決まる値になる予定です。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name  | Type                   | Description                           |
+| ----- | ---------------------- | ------------------------------------- |
+| value | ByteArray or HexString | 永続化するデータの値です。            |
+| key   | ByteArray or HexString | 値を設定する Hook State の key です。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description                                                                                                                                                                                                                                                                                                                                            |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>Hook State に書き込まれたバイト数（データ長）です。<br /><br />負の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />- ポインタまたは長さが Hook メモリ外を指しています。<br /><br /><code>TOO_BIG</code><br />- <code>kread_len</code> が 32 を超えている、または<br />- <code>read_len</code> が Hook データサイズ上限を超えています。<br /><br /><code>TOO_SMALL</code><br />- <code>kread_len</code> が 0 です。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| number or ErrorCode | Hook State に書き込まれたバイト数（データ長）を返します。エラー時は負値です。 |
+</TabItem>
+</Tabs>
