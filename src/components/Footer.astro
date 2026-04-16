@@ -1,74 +1,75 @@
 ---
-  import { Image } from 'astro:assets'
-  import { getRelativeLocaleUrl } from 'astro:i18n'
-  import logo from '../assets/xahau-logo.svg'
+import { Image } from 'astro:assets'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import logo from '../assets/xahau-logo.svg'
 
-  const locale = Astro.currentLocale ?? 'en'
+const locale = Astro.currentLocale ?? 'en'
 
-  const translations = {
-    en: {
-      tagline: 'This website is open source and open for contributions',
-      on: 'on',
-      about: 'About',
-      features: 'Features',
-      ecosystem: 'Ecosystem',
-      roadmap: 'Roadmap',
-      break: 'Break Xahau',
-      fraud: 'Report Fraud',
-      media: 'Media kit',
-      privacy: 'Privacy Policy',
-      docs: 'Documentation',
-      getstarted: 'Get started',
-      protocol: 'Protocol Reference',
-      infra: 'Infrastructure',
-      connect: 'Connect',
-      events: 'Events',
-      discord: 'Community Discord',
-    },
-    es: {
-      tagline:
-        'Este sitio web es de código abierto y está abierto a contribuciones',
-      on: 'en',
-      about: 'Acerca de',
-      features: 'Características',
-      ecosystem: 'Ecosistema',
-      roadmap: 'Hoja de ruta',
-      break: 'Break Xahau',
-      fraud: 'Reportar Fraude',
-      media: 'Kit de Prensa',
-      privacy: 'Política de Privacidad',
-      docs: 'Documentación',
-      getstarted: 'Primeros pasos',
-      protocol: 'Referencia de Protocolo',
-      infra: 'Infraestructura',
-      connect: 'Conectar',
-      events: 'Eventos',
-      discord: 'Discord de la Comunidad',
-    },
-    ja: {
-      tagline:
-        'このウェブサイトはオープンソースで、コントリビューションを受け付けています',
-      on: 'にて',
-      about: 'Xahauについて',
-      features: '機能',
-      ecosystem: 'エコシステム',
-      roadmap: 'ロードマップ',
-      break: 'Break Xahau',
-      fraud: '不正を報告',
-      media: 'メディアキット',
-      privacy: 'プライバシーポリシー',
-      docs: 'ドキュメント',
-      getstarted: 'はじめる',
-      protocol: 'プロトコルリファレンス',
-      infra: 'インフラストラクチャ',
-      connect: 'コネクト',
-      events: 'イベント',
-      discord: 'コミュニティDiscord',
-    },
-  }
+const translations = {
+  en: {
+    tagline: 'This website is open source and open for contributions',
+    on: 'on',
+    about: 'About',
+    features: 'Features',
+    ecosystem: 'Ecosystem',
+    roadmap: 'Roadmap',
+    break: 'Break Xahau',
+    fraud: 'Report Fraud',
+    media: 'Media kit',
+    privacy: 'Privacy Policy',
+    docs: 'Documentation',
+    getstarted: 'Get started',
+    protocol: 'Protocol Reference',
+    infra: 'Infrastructure',
+    connect: 'Connect',
+    events: 'Events',
+    discord: 'Community Discord',
+  },
+  es: {
+    tagline:
+      'Este sitio web es de código abierto y está abierto a contribuciones',
+    on: 'en',
+    about: 'Acerca de',
+    features: 'Características',
+    ecosystem: 'Ecosistema',
+    roadmap: 'Hoja de ruta',
+    break: 'Break Xahau',
+    fraud: 'Reportar Fraude',
+    media: 'Kit de Prensa',
+    privacy: 'Política de Privacidad',
+    docs: 'Documentación',
+    getstarted: 'Primeros pasos',
+    protocol: 'Referencia de Protocolo',
+    infra: 'Infraestructura',
+    connect: 'Conectar',
+    events: 'Eventos',
+    discord: 'Discord de la Comunidad',
+  },
+  ja: {
+    tagline:
+      'このウェブサイトはオープンソースで、コントリビューションを受け付けています',
+    on: 'にて',
+    about: 'Xahauについて',
+    features: '機能',
+    ecosystem: 'エコシステム',
+    roadmap: 'ロードマップ',
+    break: 'Break Xahau',
+    fraud: '不正を報告',
+    media: 'メディアキット',
+    privacy: 'プライバシーポリシー',
+    docs: 'ドキュメント',
+    getstarted: 'はじめる',
+    protocol: 'プロトコルリファレンス',
+    infra: 'インフラストラクチャ',
+    connect: 'コネクト',
+    events: 'イベント',
+    discord: 'コミュニティDiscord',
+  },
+}
 
-  const t = translations[locale as 'en' | 'es' | 'ja'] || translations.en
+const t = translations[locale as 'en' | 'es' | 'ja'] || translations.en
 ---
+
 <footer
   class="bg-white text-base font-regular text-black **:text-black **:no-underline"
 >
@@ -77,7 +78,7 @@
   >
     <div class="col-span-1 md:col-span-3 flex flex-col gap-3">
       <a href={getRelativeLocaleUrl(locale, '/')}>
-        <Image src={logo} class="w-1/2" alt="Xahau"/>
+        <Image src={logo} class="w-1/2" alt="Xahau" />
       </a>
       <p>
         {t.tagline}
@@ -87,9 +88,7 @@
       </p>
     </div>
     <div class="col-span-1 md:col-span-2 md:col-start-5 flex flex-col gap-3">
-      <p>
-        <strong>Xahau</strong>
-      </p>
+      <p><strong>Xahau</strong></p>
       <a href={getRelativeLocaleUrl(locale, '/about')}>{t.about}</a>
       <a href={getRelativeLocaleUrl(locale, '/features')}>{t.features}</a>
       <a href={getRelativeLocaleUrl(locale, '/ecosystem')}>{t.ecosystem}</a>
@@ -106,9 +105,7 @@
       <a href={getRelativeLocaleUrl(locale, '/privacy-policy')}>{t.privacy}</a>
     </div>
     <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
-      <p>
-        <strong>{t.docs}</strong>
-      </p>
+      <p><strong>{t.docs}</strong></p>
       <a href={getRelativeLocaleUrl(locale, '/docs')}>{t.getstarted}</a>
       <a
         href={getRelativeLocaleUrl(locale, '/docs/protocol-reference/transactions')}
@@ -127,9 +124,7 @@
       </a>
     </div>
     <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
-      <p>
-        <strong>{t.connect}</strong>
-      </p>
+      <p><strong>{t.connect}</strong></p>
       <a href={getRelativeLocaleUrl(locale, '/connect')}>{t.events}</a>
       <a href={getRelativeLocaleUrl(locale, '/contest')}>Dev Contest</a>
       <a href="https://x.com/XahauNetwork" target="_blank">X</a>

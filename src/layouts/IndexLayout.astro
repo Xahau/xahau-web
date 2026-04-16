@@ -1,16 +1,17 @@
 ---
-  import '../styles/main.css'
-  import { getRelativeLocaleUrl } from 'astro:i18n'
-  import worldmap from '../assets/worldmap.svg'
-  import type { IndexLocale } from '../i18n/indexTranslations'
-  import { indexTranslations } from '../i18n/indexTranslations'
-  import BaseLayout from '../layouts/BaseLayout.astro'
+import '../styles/main.css'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import worldmap from '../assets/worldmap.svg'
+import type { IndexLocale } from '../i18n/indexTranslations'
+import { indexTranslations } from '../i18n/indexTranslations'
+import BaseLayout from '../layouts/BaseLayout.astro'
 
-  const _frontmatter = Astro.props.frontmatter
+const _frontmatter = Astro.props.frontmatter
 
-  const locale = (Astro.currentLocale ?? 'en') as IndexLocale
-  const i = indexTranslations[locale]
+const locale = (Astro.currentLocale ?? 'en') as IndexLocale
+const i = indexTranslations[locale]
 ---
+
 <BaseLayout frontmatter={_frontmatter}>
   <div
     class="relative flex flex-col items-center justify-center min-h-[80vh] py-40"
@@ -148,5 +149,5 @@
       </div>
     </div>
   </div>
-  <slot/>
+  <slot />
 </BaseLayout>

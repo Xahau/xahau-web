@@ -1,11 +1,12 @@
 ---
-  import '../styles/main.css'
-  import type { FraudReportTranslations } from '../i18n/fraudReportTranslations'
-  import PageLayout from '../layouts/PageLayout.astro'
-  import PageSection from './PageSection.astro'
+import '../styles/main.css'
+import type { FraudReportTranslations } from '../i18n/fraudReportTranslations'
+import PageLayout from '../layouts/PageLayout.astro'
+import PageSection from './PageSection.astro'
 
-  const { t } = Astro.props as { t: FraudReportTranslations }
+const { t } = Astro.props as { t: FraudReportTranslations }
 ---
+
 <PageLayout frontmatter={t.frontmatter} wide="true">
   <PageSection align="center">
     <p>{t.intro.body}</p>
@@ -17,14 +18,12 @@
       {t.intro.bullets.map((bullet) => <li>{bullet}</li>)}
     </ul>
 
-    {
-      t.intro.steps.map((step) => (
+    {t.intro.steps.map((step) => (
         <>
           <h3 class="mt-4">{step.title}</h3>
           <p>{step.body}</p>
         </>
-      ))
-    }
+      ))}
 
     <h2 class="mt-4">{t.intro.expectationTitle}</h2>
     <ul class="list-disc list-outside">
@@ -158,11 +157,9 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-xahau-green focus:border-transparent transition-all bg-white"
             >
               <option value="">{t.form.categoryPlaceholder}</option>
-              {
-                t.form.categoryOptions.map((option) => (
+              {t.form.categoryOptions.map((option) => (
                   <option value={option.value}>{option.label}</option>
-                ))
-              }
+                ))}
             </select>
             <p class="text-sm text-gray-500 mt-1">{t.form.categoryHint}</p>
           </div>
@@ -224,8 +221,7 @@
         {t.privacy.title}
       </h3>
       <ul class="space-y-2 text-sm text-blue-800">
-        {
-          t.privacy.bullets.map((bullet) => (
+        {t.privacy.bullets.map((bullet) => (
             <li class="flex items-start">
               <svg
                 class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0"
@@ -240,8 +236,7 @@
               </svg>
               <span>{bullet}</span>
             </li>
-          ))
-        }
+          ))}
       </ul>
     </div>
 
