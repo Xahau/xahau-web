@@ -1,0 +1,56 @@
+---
+title: URITokenMint
+description: URITokenMint 交易会铸造一个新的 URIToken，并将所有权分配给指定账户。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(由 [URIToken amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "TransactionType": "URITokenMint",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 1,
+    "URI": "697066733A2F2F4445414442454546",
+    "Digest": "697066733A2F2F4445414442454546697066733A2F2F44454144424545467878",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "Amount": {
+      "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+      "currency": "USD",
+      "value": "100"
+    }
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 将拥有已铸造 URIToken 的账户地址。 |
+| `URI` | String | String | 已铸造 URIToken 关联的 URI。（最大 256 字节） |
+| `Digest` | String | Hash256 | _(可选)_ URIToken 的 digest。 |
+| `Destination` | String | AccountID | _(可选)_ 可购买已铸造 URIToken 的账户地址。 |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | _(可选)_ 账户希望用该 URIToken 交换得到的货币金额。 |
+
+### URITokenMint Flags
+
+URITokenMint 类型交易支持以下附加 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfBurnable` | `0x00000001` | 1 | 允许发行方（或其授权实体）销毁已铸造的 `URIToken`。（`URIToken` 的所有者始终也可以这样做。） |
+
+### 特殊交易费用
+
+URITokenMint 交易具有标准交易费用，也就是所有交易都需要满足的最低交易成本。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，URITokenMint 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `tecDUPLICATE` | 同一发行方下已存在相同 URI 的 URIToken。 |
+| `tecDIR_FULL` | 所有者目录已满，无法容纳新的 URIToken。 |
+| `temINVALID_FLAG` | 用户指定了错误的 `Flag`。 |
+| `terNO_ACCOUNT` | 发送账户不存在。 |

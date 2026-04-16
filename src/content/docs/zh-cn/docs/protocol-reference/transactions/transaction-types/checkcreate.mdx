@@ -1,0 +1,41 @@
+---
+title: CheckCreate
+description: 创建一个 Check 对象，它是一种延迟支付，可由指定目标稍后兑现。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(由 [Checks amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+  "TransactionType": "CheckCreate",
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "Destination": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+  "SendMax": "100000000",
+  "Expiration": 570113521,
+  "InvoiceID": "6F1DFD1D0FE8A32E40E1F2C05CF1C15545BAB56B617F9C6C2D63A6B704BEF59B",
+  "DestinationTag": 1,
+  "Fee": "12"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Destination` | String | AccountID | 可以兑现该 Check 的账户的唯一地址。 |
+| `SendMax` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 该 Check 允许从发送方扣除的源货币最大金额，包括非 XAH 货币的转账费。该 Check 只能用相同货币为目标账户入账（若为非 XAH，还必须来自同一 issuer）。对于非 XAH 金额，嵌套字段名必须使用小写。 |
+| `DestinationTag` | Number | UInt32 | _(可选)_ 任意标签，用于标识该 Check 的用途，或标识托管收款人。 |
+| `Expiration` | Number | UInt32 | _(可选)_ 该 Check 失效的时间，以 [seconds since the Ripple Epoch][] 表示。 |
+| `InvoiceID` | String | Hash256 | _(可选)_ 任意 256 位哈希，可表示此 Check 的特定原因或标识符。 |
+
+### 错误场景
+
+* 如果 `Destination` 账户阻止传入 Checks，则交易以结果码 `tecNO_PERMISSION` 失败。
+* 如果 `Destination` 就是交易发送方，则交易以结果码 `temREDUNDANT` 失败。
+* 如果 `Destination` 账户在账本中不存在，则交易以结果码 `tecNO_DST` 失败。
+* 如果 `Destination` 账户启用了 `RequireDest` 标志，但交易未包含 `DestinationTag` 字段，则交易以结果码 `tecDST_TAG_NEEDED` 失败。
+* 如果 `SendMax` 指定的是被冻结的代币，则交易以结果 `tecFROZEN` 失败。
+* 如果交易的 `Expiration` 已经过期，则交易以结果 `tecEXPIRED` 失败。
+* 如果发送方在添加该 Check 后没有足够的 XAH 满足 owner reserve，则交易以结果 `tecINSUFFICIENT_RESERVE` 失败。
+* 如果 Check 的发送方或接收方任一方都无法再拥有更多账本对象，则交易以结果 `tecDIR_FULL` 失败。

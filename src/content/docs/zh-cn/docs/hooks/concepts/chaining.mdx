@@ -1,0 +1,49 @@
+---
+title: Chaining
+description: 把多个 hooks 串起来，以完成更有用的任务
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip" title="Hook Design Philosophy">
+_每个 Hook 都应该只做一件事，并且把它做好。_
+</Aside>
+
+### 历史
+
+在 Hooks 的早期，一个账户上只能安装一个 Hook。这意味着如果用户想同时做不止一件事，例如既做 carbon offset 又做 firewall，就不得不编写一个“大而全”的 omnibus Hook。
+
+这与 Hook Design Philosophy 相违背，因此后来引入了 Hook Chaining。
+
+### Chaining
+
+Hook Chain 是安装在某个 Xahau 账户上的、最多由 **10** 个 Hooks 组成的序列。
+
+* 当链中的每个 Hook 都被逐个执行，并最终调用 [accept](/docs/hooks/functions/control/accept) 时，这条 Hook Chain 才算执行成功。
+* 每条链的执行都会从链位置 0 开始，到位置 9 结束。如果某个位置为空（从未填入，或者之前安装的 hook 已被移除），则该位置会被跳过并视为成功。
+* 要让一笔交易成功，交易两端（发送侧与接收侧）都必须执行成功。这意味着如果交易两侧都安装了 Hook Chain，那么两条 Hook Chains 都必须成功执行，交易才能成功。
+
+Hooks 通过 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 被安装到链中。安装时，安装者还可以指定安装期 [Parameters](/docs/hooks/concepts/parameters)，从而改变被安装 Hook 的行为。
+
+<figure>
+![Example: Execution flow for a transaction passing through two Hook Chains](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_0OucxySTRinbe13SITJT_5561b32-sethook-Page-3.png)
+<figcaption>*示例：一笔交易穿过两条 Hook Chains 时的执行流程*</figcaption>
+</figure>
+
+### 链的运行时控制
+
+除了 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 提供的安装期操作之外，Hooks 在运行时也能对链执行进行一定程度的控制：
+
+* Hook 可以通过调用 [hook_hash](/docs/hooks/functions/hook-context/hook_hash) 获取自己的 `HookHash`
+* Hook 可以通过 [hook_pos](/docs/hooks/functions/hook-context/hook_pos) 获取自己在 Hook Chain 中的位置
+* Hook 可以通过 [hook_skip](/docs/hooks/functions/hook-context/hook_skip) 跳过（或重新启用）链中后方的其他 Hook
+* Hook 可以通过 [hook_param_set](/docs/hooks/functions/hook-context/hook_param_set) 修改同一账户上链中后方某个 Hook 的 [Parameters](/docs/hooks/concepts/parameters)
+
+### Weak Executions
+
+Hook Chains 本身是以 [Strongly Executed](/docs/hooks/concepts/weak-and-strong) 方式执行的。不过，链中的任何 Hook 都可以通过调用 [hook_again](/docs/hooks/functions/hook-context/hook_again) 要求在之后再做一次 weak execution。
+
+如果所有 Hook Chains 都执行成功，则原始交易会被应用。原始交易应用之后，Weak Executions 会按以下顺序发生：
+
+1. 如果该交易是 Emitted Transaction，则先执行 `cbak`
+2. 那些允许 [Collect Call](/docs/hooks/concepts/collect-call) 的弱 Transactional Stake Holders。执行顺序按触发该 TSH 被标记的事件先后顺序决定
+3. 所有 _Again as Weak_（AAW）Hooks。AAW 的执行顺序按 Account ID 数值顺序优先，再按 Hook 在链中的位置数值顺序

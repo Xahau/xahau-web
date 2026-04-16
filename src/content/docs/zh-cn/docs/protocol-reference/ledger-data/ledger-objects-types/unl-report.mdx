@@ -1,0 +1,63 @@
+---
+title: UNL Report
+---
+_(由 [Hooks amendment][] 引入。)_
+
+`UNLReport` 对象描述一份 Unique Node List（UNL）报告。UNL 是网络信任用于验证交易的验证者节点列表。
+
+### JSON 示例
+
+```json
+{
+  "LedgerEntryType": "UNLReport",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "ImportVLKeys": [
+    {
+      "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+      "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo"
+    }
+  ],
+  "ActiveValidators": [
+    {
+      "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+      "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo"
+    }
+  ],
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### 字段
+
+`UNLReport` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0073`，映射为字符串 `UNLReport`，表示这是一个 UNLReport 对象。 |
+| `PreviousTxnID` | String | Hash256 | 是 | 最近一次修改此对象的交易识别哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | 是 | 包含最近一次修改此对象之交易的账本索引。 |
+| `ImportVLKeys` | Array | Array | 否 | 一个对象数组，每个对象表示一个已导入的验证者密钥。每个对象都有 `PublicKey` 字段和可选的 `Account` 字段。 |
+| `ActiveValidators` | Array | Array | 否 | 一个对象数组，每个对象表示一个活动验证者。每个对象都有 `PublicKey` 字段和可选的 `Account` 字段。 |
+
+### ImportVLKey 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `PublicKey` | String | VL | 是 | 已导入验证者的公钥。 |
+| `Account` | String | Account | 否 | 与该已导入验证者密钥关联的账户。此字段可选。 |
+
+### ActiveValidator 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `PublicKey` | String | VL | 是 | 活动验证者的公钥。 |
+| `Account` | String | Account | 否 | 与该活动验证者关联的账户。此字段可选。 |
+
+### UNLReport ID 格式
+
+`UNLReport` 对象的 ID 仅由 `UNLReport` 空间键（`0x0052`）的哈希构成。这意味着账本中的 `UNLReport` 对象 ID 始终为：
+
+```
+61E32E7A24A238F1C619D5F9DDCC41A94B33B66C0163F7EFCC8A19C9FD6F28DC
+```

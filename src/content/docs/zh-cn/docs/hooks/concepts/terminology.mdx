@@ -1,0 +1,37 @@
+---
+title: Terminology
+description: 欢迎来到 Hooks
+---
+### 什么是 Hooks？
+
+Hooks 是专门为 Xahau 设计的小型高效 WebAssembly 模块。Hooks 可以用任何能编译成 WebAssembly 的语言编写，并且大多数业务逻辑与智能合约概念都可以通过 hook 来实现。通常 Hooks 使用 C 编写。
+
+Hooks 通过 `SetHook` 交易安装到某个 Xahau 账户上。安装完成后，一个 hook 可以：
+
+1. 阻止或允许该账户的流入和流出交易
+2. 修改并维护该账户上该 hook 专属的内部状态与逻辑
+3. 代表该账户发射新的交易
+
+### 术语表
+
+这份 Hooks 文档与 Hooks API 使用了一些不太熟悉的术语。如果你在阅读时迷失了方向，可以参考下面的对照表。
+
+| 术语 | 说明 |
+| --- | --- |
+| Hook | _此术语会随上下文指代不同内容。_ 1. 一个可通过 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 上传到 Xahau 的 WebAssembly 二进制；2. 一个已经上传到账本并设置/配置到某个 Xahau 账户上的 WebAssembly 二进制；3. 生成该二进制的[源代码](/docs/hooks/concepts/compiling-hooks)。 |
+| Originating Transaction | 触发 Hook 执行的那笔交易。它可以是发往安装了 Hook 的账户的交易，也可以是从该账户发出的交易。 |
+| Originating Account | 发送 Originating Transaction 的账户。 |
+| Hook Account | 当前正在执行 Hook 所在的账户。也就是拥有该 Hook 的账户、执行了 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 创建该 Hook 的账户，以及当前执行 Hook 所对应 Hook State 所属的账户。 |
+| Installer | 正在通过 SetHook 交易安装 Hook 的账户。 |
+| Emitted Transaction | Hook 在执行过程中创建的一笔新交易，它不是 Originating Transaction。通常用于把资金发回给 Originating Account。参见 [Emitted Transactions](/docs/hooks/concepts/emitted-transactions)。 |
+| State | 每账户一张 key-value 映射表，键是 32 字节，值是任意数据。安装在同一账户上的所有 Hooks 都可访问并修改同一份 Hook State。注意，Hook State 存在于 Hook Account 上，**不是** Originating Account 上。参见 [State Management](/docs/hooks/concepts/state-management)。 |
+| SetHook | Hooks amendment 引入的一种新交易类型，用于把 Hook 设置到账户上。参见 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction)。 |
+| Guards | 如果你在 Hook 里写循环，就需要使用的一种特殊控制机制。参见 [Loops and Guarding](/docs/hooks/concepts/loops-and-guarding)。 |
+| Grants | Hook Installer 可以授予另一个账户，或某个特定 Hook（不论安装在哪里）的特殊权限，以便其修改 Installer 账户上的 Hook State。 |
+| Namespace | 一个独特的 32 字节代码，用来把一组状态键与另一组状态键隔离开来。即使两个不同 Hooks 使用了相同的 state key，只要其 namespace 不同，它们也不会互相干扰。 |
+| Parameters | 可在安装 Hook 时可选设置的安装期参数。 |
+| Reference Counting | 账本上的某些无主对象可能采用引用计数；当最后一个引用它的账户移除引用时，该对象就会被删除。 |
+| XFL or Floating Point | Hooks 中进行高精度数学运算（例如汇率计算）的一种方式。参见 [Floating Point Numbers (XFL)](/docs/hooks/concepts/floating-point-numbers-xfl)。 |
+| Serialized Objects (STO) | xahaud 传输与存储账本对象的方式。参见 [Serialized Objects](/docs/hooks/concepts/serialized-objects)。 |
+| Slots and Keylets | Slots 可以保存账本对象，而 keylets 用于标识这些对象。参见 [Slots and Keylets](/docs/hooks/concepts/slots-and-keylets)。 |
+| Trace | 一种从 Hook 向 xrpld 输出日志行的方法。参见 [Debugging Hooks](/docs/hooks/concepts/debugging-hooks)。 |

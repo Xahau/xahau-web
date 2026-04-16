@@ -1,0 +1,60 @@
+---
+title: float_sto_set
+description: 将序列化金额读入为 XFL
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+<LinkButton href="/docs/hooks/concepts/serialized-objects">序列化对象</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 读取一个序列化浮点数
+* 如果该浮点数后还有其他字段或数据，则忽略
+* 返回其对应的 XFL 封装数
+</TabItem>
+
+<TabItem label="JavaScript">
+* 设置用于读取浮点表示的缓冲区
+* 返回 ErrorCode 或结果数值
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sto_set (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sto_set(buf: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>输出缓冲区写入的字节数。<br /><br />若为负数，则表示错误：<br /><code>NOT_AN_OBJECT</code><br />- 提供缓冲区不包含合法序列化浮点数<br /><br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode or number | 返回错误码或结果数值。 |
+</TabItem>
+</Tabs>

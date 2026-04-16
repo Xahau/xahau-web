@@ -1,0 +1,77 @@
+---
+title: Hooks
+description: '认识 Hooks：Xahau 的智能合约能力。'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="note">
+Hooks 是专门为 Xahau 设计的小型高效 WebAssembly 模块。
+
+Hooks 可以使用任何能够编译到 WebAssembly 的语言来编写，并且大多数业务逻辑与智能合约概念都可以通过 hook 实现。
+
+[**由 XRPL Labs 开发**](https://xrpl-labs.com/#team)
+</Aside>
+
+### 什么是 Hooks？
+
+Hooks 让你能够在 Xahau 中创建自定义逻辑与自动化，让交易变得更智能、更方便。这些小而高效的模块为账本增加了自定义链上功能，例如为账本中的特定事件创建自定义触发器。
+
+这些触发器可以用于发送链上动作，或在指定事件发生时执行其他响应动作。Hooks 目前可在 [Xahau 网络](https://xahau.network/) 上使用。
+
+> _如果你想了解 Hooks 的理论概念，可以访问 [_Concepts_](/docs/hooks/concepts/introduction) 章节。_
+
+> _如果你想学习如何用 C 编写 Hooks 及其函数，可以访问 [_Hooks C-Functions_](/docs/hooks/functions/overview/hook-api-conventions/)。_
+
+> _你也可以使用 [_Hooks Builder_](https://builder.xahau.network/) 在浏览器里开发、测试、调试并部署自己的 Hooks。_
+
+> _[Hookstore](https://hookstore.xahau.network/) 提供了一个用于发现、分享和管理 Hooks 的平台。可通过 [Hookstore Console](https://console.hookstore.xahau.network/) 管理你的 Hooks 并探索整个生态。_
+
+> _未来还会支持用 JavaScript 编写 Hooks，也就是 JSHooks。目前可以通过 [JSHooks](https://github.com/Xahau/jshooks-alpha) 仓库进行测试。_
+
+### 为什么 Hooks 很重要？
+
+简单来说，Hooks 为 Xahau 增加了强大的智能合约能力，让你能够构建和部署符合自己需求的定制化应用。
+
+Hooks 是一个非常灵活的平台，可以用来实现各种业务逻辑与智能合约范式。一旦某个账户上安装了 hook，你就可以：
+
+* 阻止或允许流入和流出该账户的交易
+* 修改并维护 hook 的内部状态与逻辑，用于支撑程序化决策
+* 代表账户自主发起新的交易
+
+Hooks 可以使用 C 或其他语言编写，然后编译为 WebAssembly。
+
+<figure>
+![Using Hooks Builder, you can develop, test, debug and deploy your own Hooks on our testnet, using our examples or building your own from scratch.](/assets/cdn.feather-2.webp)
+<figcaption>*使用 Hooks Builder，你可以在我们的 testnet 上开发、测试、调试并部署自己的 Hooks，也可以基于示例快速开始。*</figcaption>
+</figure>
+
+Hooks Builder 是一个集成开发环境，可帮助你编写、测试、调试并部署 Hooks。
+
+### Hooks 的一些具体应用场景
+
+以下示例展示了 Hooks 在 Xahau 上实现智能合约能力的潜力：
+
+* **Auto-Savings Hook**：自动储蓄。你可以配置一个 Hook，把固定数量的 XAH 转移到单独的储蓄账户。它可以按日、周或月自动执行，用于个人理财应用或订阅模型。
+* **Carbon-Offset Hook**：每笔交易都会额外把金额的 1% 转入某个由可信 NGO 管理的碳抵消账户，用于环保用途。这可以成为构建“每笔交易都支持可持续发展”的应用基础。
+* **Firewall Hook**：通过过滤流入与流出交易来阻止恶意行为。它可以拒绝来自已知诈骗账户或带有可疑 memo 的交易，也能通过从其他账户上的 Hook 获取最新黑名单来保持动态防御能力。还可以设置支出限额，防止高价值的未授权提现。
+
+### Hooks 与 Ethereum Virtual Machine（EVM）的区别
+
+Xahau Hooks 与 EVM 都允许开发者在各自平台中构建和部署自定义逻辑与自动化，但两者之间有几个关键差异：
+
+* **平台适配性**：Hooks 专为 Xahau 定制，而 EVM 智能合约面向以太坊兼容链
+* **执行效率**：Hooks 使用 WebAssembly（WASM），在速度与效率上优于 EVM 使用的字节码
+* **可预测执行时间**：Xahau Hooks 使用 guards 来确保最大执行时间是有界且可预知的
+
+### XRPL 生态中 Hooks 的替代方案
+
+Ripple 与 Peersyst 已宣布其兼容 EVM 的 sidechain 已在 [devnet](https://opensource.ripple.com/docs/evm-sidechain/intro-to-evm-sidechain/) 上运行。这条 sidechain 是一条自治链，拥有自己独立的共识协议与交易规则。它是 Hooks 之外、为 XRPL 生态增加智能合约能力的另一种方案。
+
+但需要注意的是，EVM sidechain 合约运行在 Layer 2 上，这意味着 XRP 需要先转移到 sidechain 执行合约，再回到主账本。相比之下，Hooks 直接在 Xahau 上运行，属于 Layer 1 XRPL-core fork，因此它能更深入地影响交易本身。Hooks 可以决定交易是否一开始就被允许发生，而 Layer 2 往往只能在事后做出反应。
+
+Hooks 与 XRPL/Xahau 的底层账本技术结合得更紧密，也能更好利用 WebAssembly 的可扩展性与性能优势。
+
+### Hooks 将扩展链上能力并推动 Xahau 发展
+
+Hooks 为 Xahau 增加了原生智能合约能力，使开发者能够构建满足用户独特需求的定制应用，带来新的功能，并打开全新的应用空间。随着 Xahau 继续发展，Hooks 无疑会在推动平台的创新与采用方面扮演关键角色。

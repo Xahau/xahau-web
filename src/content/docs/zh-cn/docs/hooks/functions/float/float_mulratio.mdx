@@ -1,0 +1,91 @@
+---
+title: float_mulratio
+description: 用非 XFL 分子和分母对 XFL 浮点数做比例乘法
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 计算 XFL 与两个整数形成的分数之积
+* 返回新的 XFL `int64_t`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 按分子/分母定义的比例乘以浮点值
+* 返回错误码或新的 XFL bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mulratio (
+    int64_t float1,
+    uint32_t round_up,
+    uint32_t numerator,
+    uint32_t denominator
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mulratio(
+    f1: bigint,
+    round_up: number,
+    numerator: number,
+    denominator: number
+  ): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name        | Type      | Description |
+| ----------- | --------- | ----------- |
+| float1      | int64_t  | 参与乘法的 XFL |
+| round_up   | uint32_t | 非零时向上取整 |
+| numerator   | uint32_t | 乘法分数的分子 |
+| denominator | uint32_t | 乘法分数的分母 |
+
+<Aside type="caution">
+某些乘法会溢出并返回 `INVALID_FLOAT`。但下溢会直接返回 XFL Canonical Zero（即封装数为 0）。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name        | Type   | Description |
+| ----------- | ------ | ----------- |
+| f1          | bigint | 参与乘法的 XFL |
+| round_up   | number | 非零时向上取整 |
+| numerator   | number | 分子 |
+| denominator | number | 分母 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>XFL（xls17）封装数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL<br /><br /><code>OVERFLOW</code><br />- 结果过大，无法存入 XFL<br /><br /><code>DIVISION_BY_ZERO</code><br />- 分母为零。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode or bigint | 返回错误码或新的 XFL 封装数。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,119 @@
+---
+title: sto_erase
+description: 从 STObject 中移除一个字段
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">序列化对象</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 解析 `read_ptr` 指向的 STObject
+* 向 `write_ptr` 写入新的 STObject，但如果原对象中存在 `field_id`，则移除它
+</TabItem>
+
+<TabItem label="JavaScript">
+* 接收要删除字段的 STO 对象（二进制账本数据）
+* 接收要删除的字段 ID
+* 成功时返回更新后的二进制账本数据格式 STO 对象，失败时返回错误码
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_erase (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t field_id
+);
+```
+
+<Aside type="caution" title="Field ID 编码">
+`sto_` API 接收的 `field_id` 编码方式为：`(type << 16U) + field`
+因此 type 1、field 2 会写作 `0x10002U`。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_erase(
+    sto: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t result = 
+  sto_erase(tx_out, sizeof(tx_out),
+            tx_in, tx_len, sfSigners);
+
+if (tx_len <= 0)
+    rollback("Erasing failed.", 15, 1);
+```
+
+<Aside type="tip" title="与 emplace 等价">
+`sto_erase` 等同于对 `sto_emplace` 传入 `0,0` 作为 `field_ptr, field_len`。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_erase(tx_in, sfSigners)
+
+if (typeof tx_out === 'number')
+    rollback("Erasing failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 用于写入修改后 STObject 的缓冲区 |
+| write_len | uint32_t | 输出缓冲区长度 |
+| read_ptr  | uint32_t | 用于读取源 STObject 的缓冲区 |
+| read_len  | uint32_t | 源对象长度 |
+| field_id  | uint32_t | 要删除的 `sf` 代码（位置） |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name      | Type                   | Description |
+| --------- | ---------------------- | ----------- |
+| sto       | ByteArray \| HexString | 要删除字段的 STO 对象（二进制账本数据） |
+| field_id | number                 | 要删除的字段 ID |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入 <code>write_ptr</code> 的字节数<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_SMALL</code><br />- 输出缓冲区至少要和源对象一样大。<br /><br /><code>TOO_BIG</code><br />- 要删除字段所在对象过大<br /><br /><code>PARSE_ERROR</code><br />- 提供的 STObject 格式错误，或并非 STObject。<br /><br /><code>DOESNT_EXIST</code><br />- 指定的 <code>field_id</code> 不存在于 STObject 中。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ErrorCode \| ByteArray | 返回更新后的二进制账本数据格式 STO 对象，或返回错误码。 |
+</TabItem>
+</Tabs>

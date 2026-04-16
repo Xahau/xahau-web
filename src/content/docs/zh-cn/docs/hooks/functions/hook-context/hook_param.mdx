@@ -1,0 +1,52 @@
+---
+title: hook_param
+sidebar:
+  order: 4
+---
+
+`hook_param` 根据参数名查找当前 Hook 的参数值，并将其写入输出缓冲区。
+
+## C
+
+```c
+int64_t hook_param(uint32_t write_ptr, uint32_t write_len, uint32_t read_ptr, uint32_t read_len);
+```
+
+## JavaScript
+
+```javascript
+function hook_param(key: ByteArray | HexString): ErrorCode | ByteArray
+```
+
+## 参数
+
+### `write_ptr`
+
+指向输出缓冲区的指针。
+
+### `write_len`
+
+输出缓冲区长度。
+
+### `read_ptr`
+
+指向参数名的指针。
+
+### `read_len`
+
+参数名长度。
+
+## 返回值
+
+- 成功时返回写入的字节数
+- 失败时可能返回：
+  - `OUT_OF_BOUNDS`
+  - `DOESNT_EXIST`
+  - `TOO_SMALL`
+  - `TOO_BIG`
+
+## 说明
+
+- 参数名不能为空
+- 参数名最大长度为 `32` 字节
+- 如果指定参数不存在，会返回 `DOESNT_EXIST`

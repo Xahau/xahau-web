@@ -1,0 +1,42 @@
+---
+title: Hook State
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(由 [Hooks amendment][] 引入。)_
+
+`HookState` 对象描述 Hook 的状态。Hook 是运行在 Xahau 上、能够与交易交互的一段代码。`HookState` 对象保存该 Hook 的状态数据，而这些数据可以由 Hook 代码修改。
+
+### JSON 示例
+
+```json
+{
+  "OwnerNode": "0000000000000000",
+  "HookStateKey": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+  "HookStateData": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+  "LedgerEntryType": "HookState",
+  "index": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924"
+}
+```
+
+### 字段
+
+`HookState` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `OwnerNode` | String | UInt64 | 是 | 一个提示值，指出此对象链接于所有者目录的哪一页；当目录包含多页时尤其有用。 |
+| `HookStateKey` | String | Hash256 | 是 | 唯一标识此 Hook 状态的键。 |
+| `HookStateData` | String | VL | 是 | Hook 存储的数据。内容可以是 Hook 代码决定保存的任意数据。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0043`，映射为字符串 `HookState`，表示这是一个 HookState 对象。 |
+
+#### HookState ID 格式
+
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/Indexes.cpp#L193-L200)
+
+`HookState` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* HookState 空间键（`0x0076`）
+* 拥有该 Hook 的账户的 AccountID
+* `HookState` 对象的 `HookStateKey`
+* Hook 的 `HookNamespace`

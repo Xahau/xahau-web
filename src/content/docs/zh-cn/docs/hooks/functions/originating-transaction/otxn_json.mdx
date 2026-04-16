@@ -1,0 +1,48 @@
+---
+title: otxn_json
+description: 以 JSON 格式输出原始交易
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="JavaScript">
+* 以 JSON 格式输出原始交易。
+* 成功时返回原始交易的 JSON 对象或 Transaction，获取失败时返回 ErrorCode。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function otxn_json(): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const tx_json = otxn_json()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+无参数
+
+### 返回码
+
+<Tabs>
+<TabItem label="JavaScript">
+| Type                                             | Description |
+| ------------------------------------------------ | ----------- |
+| ErrorCode \| Record\<string, any> \| Transaction | 成功时返回原始交易的 JSON 对象或 Transaction，失败时返回 ErrorCode。 |
+</TabItem>
+</Tabs>

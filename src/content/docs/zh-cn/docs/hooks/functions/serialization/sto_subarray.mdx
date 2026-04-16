@@ -1,0 +1,71 @@
+---
+title: sto_subarray
+description: 在 xahaud 序列化数组中按索引定位并返回位置和长度
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">序列化对象</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 解析 `read_ptr` 指向的 STArray
+* 查找 `array_id` 指定的数组索引
+* 如果找到，则返回该序列化字段在对象中的字节偏移与长度
+
+<Aside type="caution" title="Field ID 编码">
+`sto_` API 接收的 `field_id` 编码方式为：`(type << 16U) + field`
+因此 type 1、field 2 会写作 `0x10002U`。
+
+在这里，数组字段 ID 即为 `array_id`。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 接收要提取子数组的 STO 对象（二进制账本数据）
+* 查找 `array_id` 指定的数组索引
+* 返回对应的子数组位置结果
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_subarray (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t array_id
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_subarray(
+    sto: ByteArray | HexString,
+    array_id: number
+  ): bigint | number
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>字段在指定缓冲区中的位置：<br />- 高 32 位为偏移<br />- 低 32 位为长度<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_SMALL</code><br />- 输入缓冲区过小，不可能包含合法 STArray。<br /><br /><code>DOESNT_EXIST</code><br />- 指定索引不存在于 STArray 中。<br /><br /><code>PARSE_ERROR</code><br />- 提供的 STArray 格式错误，或并非 STArray。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type               | Description |
+| ------------------ | ----------- |
+| bigint / ErrorCode | 返回字段位置结果：高 32 位为偏移，低 32 位为长度；失败时返回错误码。 |
+</TabItem>
+</Tabs>

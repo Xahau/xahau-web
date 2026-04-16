@@ -1,0 +1,54 @@
+---
+title: Serialized Objects
+description: 操作原始序列化后的 xahaud 对象！
+---
+### 什么是 Serialized Objects？
+
+Xahau 对所有参与共识的对象都定义了规范的 [serialized](/docs/protocol-reference/binary-format) 形式。在编写 Hook 时，你迟早会接触到这些序列化对象。它们表现为一些缓冲区，在开发者眼里可能像是不透明的二进制 blob；但实际上你可以用 [XRPL-Binary-Visualiser](https://richardah.github.io/xrpl-binary-visualizer/) 来读取它们。
+
+例如，一个 `sfAmount` 字段会被序列化成像 `61D50F26109A32B7EC` 这样的字节集合。
+
+### Serialized Object API
+
+为了帮助 Hook 开发者处理序列化对象，Hooks API 提供了 `sto` 命名空间。这些函数会在 Hook 提供的缓冲区中操作指针。如下表所示：
+
+| Hook API | 作用 |
+| --- | --- |
+| [sto_subfield](/docs/hooks/functions/serialization/sto_subfield) | 在 xrpld 序列化对象中索引一个子字段，并返回其位置与长度 |
+| [sto_subarray](/docs/hooks/functions/serialization/sto_subarray) | 在 xrpld 序列化数组中索引某个元素，并返回其位置与长度 |
+| [sto_emplace](/docs/hooks/functions/serialization/sto_emplace) | 按 canonical placement 把一个字段嵌入现有 STObject |
+| [sto_erase](/docs/hooks/functions/serialization/sto_erase) | 从 STObject 中移除一个字段 |
+| [sto_validate](/docs/hooks/functions/serialization/sto_validate) | 校验一个 STObject |
+
+在适用情况下，这些 API 会把 _offset_ 与 _length_ 编码进同一个 `int64_t` 返回值中。详情请参见各自文档。
+
+### 示例
+
+一个典型使用 STO API 的场景，是处理 Originating Transaction 中的 memos。由于你很可能本来就需要访问整个 memo，因此一种高效做法是：先把完整的 `sfMemos` 字段读入缓冲区，再在其中做索引。虽然也可以用 slot API 来先 slot Originating Transaction 再处理，但那会引入额外代码与额外拷贝。
+
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+
+uint8_t memos[2048];
+int64_t memos_len = otxn_field(SBUF(memos), sfMemos);
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+    int64_t memo_lookup = sto_subarray(memos, memos_len, i);
+    if (memo_lookup < 0)
+        rollback(SBUF("Memo lookup error"), 1);
+    uint8_t*  memo_ptr = SUB_OFFSET(memo_lookup) + memos;
+    uint32_t  memo_len = SUB_LENGTH(memo_lookup);
+    // 上面两个值现在已经指向该 memo ... 在此进行处理
+}
+```
+
+### 与 slots 的重叠
+
+你可能会注意到 slot APIs 与 STO APIs 之间存在一些能力重叠。两者的关键区别在于：到底是谁“拥有”底层数据。
+
+* 如果你使用的是 _slots_，那么对象由 xrpld 持有
+* 如果你使用的是 _STO API_，那么缓冲区由 **Hook** 持有
+
+两组函数都可以在不做不必要拷贝的前提下，对 Serialized Object 进行索引。

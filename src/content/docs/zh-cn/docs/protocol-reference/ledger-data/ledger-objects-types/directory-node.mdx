@@ -1,0 +1,96 @@
+---
+title: Directory Node
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L44)
+
+`DirectoryNode` 对象类型提供一组指向账本状态树中其他对象的链接。一个概念上的 _Directory_ 表现为双向链表，由一个或多个 `DirectoryNode` 对象组成，每个对象最多包含 32 个其他对象的 ID。第一个对象称为目录根节点，而除根节点外的其他对象都可以按需添加或删除。
+
+Directory 分为两类：
+
+* **Owner directories** 列出某个账户拥有的其他对象，例如 `RippleState`（信任线）或 `Offer` 对象。
+* **Offer directories** 列出去中心化交易所中可用的挂单。单个 Offer 目录包含相同汇率、且同一代币组合（货币代码与发行者）的全部挂单。
+
+### JSON 示例
+
+_Offer Directory_
+
+```json
+{
+    "ExchangeRate": "4F069BA8FF484000",
+    "Flags": 0,
+    "Indexes": [
+        "AD7EAE148287EF12D213A251015F86E6D4BD34B3C4A0A1ED9A17198373F908AD"
+    ],
+    "LedgerEntryType": "DirectoryNode",
+    "RootIndex": "1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000",
+    "TakerGetsCurrency": "0000000000000000000000000000000000000000",
+    "TakerGetsIssuer": "0000000000000000000000000000000000000000",
+    "TakerPaysCurrency": "0000000000000000000000004A50590000000000",
+    "TakerPaysIssuer": "5BBC0F22F61D9224A110650CFE21CC0C4BE13098",
+    "index": "1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000"
+}
+```
+
+_Owner Directory_
+
+```json
+{
+    "Flags": 0,
+    "Indexes": [
+        "AD7EAE148287EF12D213A251015F86E6D4BD34B3C4A0A1ED9A17198373F908AD",
+        "E83BBB58949A8303DF07172B16FB8EFBA66B9191F3836EC27A4568ED5997BAC5"
+    ],
+    "ReferenceCount": "1",
+    "LedgerEntryType": "DirectoryNode",
+    "Owner": "rpR95n1iFkTqpoy1e878f4Z1pVHVtWKMNQ",
+    "RootIndex": "193C591BF62482468422313F9D3274B5927CA80B4DD3707E42015DD609E39C94",
+    "index": "193C591BF62482468422313F9D3274B5927CA80B4DD3707E42015DD609E39C94"
+}
+```
+
+### 字段
+
+| 名称 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Owner` | String | AccountID | 否 | 仅适用于 Owner Directory。拥有该目录中对象的账户地址。 |
+| `TakerGetsCurrency` | String | Hash160 | 否 | 仅适用于 Offer Directory。该目录中挂单的 `TakerGets` 金额所对应的货币代码。 |
+| `TakerGetsIssuer` | String | Hash160 | 否 | 仅适用于 Offer Directory。该目录中挂单的 `TakerGets` 金额所对应的发行者。 |
+| `TakerPaysCurrency` | String | Hash160 | 否 | 仅适用于 Offer Directory。该目录中挂单的 `TakerPays` 金额所对应的货币代码。 |
+| `TakerPaysIssuer` | String | Hash160 | 否 | 仅适用于 Offer Directory。该目录中挂单的 `TakerPays` 金额所对应的发行者。 |
+| `ExchangeRate` | String | UInt64 | 否 | 仅适用于 Offer Directory。**已弃用**，不要使用。 |
+| `ReferenceCount` | String | UInt64 | 否 | 账本中的引用计数可降低存储负担和费用，因为它允许多个相同 Hook 安装共同指向账本中的同一个对象，只有在没有任何账户继续安装该 Hook 时才会移除。 |
+| `Indexes` | Array | Vector256 | 是 | 此 Directory 的内容：其他对象 ID 的数组。 |
+| `IndexNext` | Number | UInt64 | 否 | 如果此 Directory 由多页组成，该 ID 指向链中的下一个对象，并在末尾回绕。 |
+| `IndexPrevious` | Number | UInt64 | 否 | 如果此 Directory 由多页组成，该 ID 指向链中的上一个对象，并在开头回绕。 |
+| `NFTokenID` | String | Hash256 | 否 | 未使用。 |
+
+### Directory ID 格式
+
+根据 `DirectoryNode` 所表示的目录类型不同，其 ID 有三种不同的计算方式：
+
+* Owner Directory 的第一页（也称根节点）
+* Offer Directory 的第一页
+* 任意一种目录的后续页面
+
+**Owner Directory 的第一页** 的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* Owner Directory 空间键（`0x004F`）
+* `Owner` 字段中的 AccountID
+
+**Offer Directory 的第一页** 具有一种特殊 ID：其高 192 位定义订单簿，剩余的 64 位定义该目录中挂单的汇率。（该 ID 采用 big-endian，因此订单簿位于更高有效位，质量值位于更低有效位。）
+
+这使得系统能够按照从最佳挂单到最差挂单的顺序遍历订单簿。具体来说，前 192 位是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 所得到结果的前 192 位：
+
+* Book Directory 空间键（`0x0042`）
+* `TakerPaysCurrency` 的 160 位货币代码
+* `TakerGetsCurrency` 的 160 位货币代码
+* `TakerPaysIssuer` 的 AccountID
+* `TakerGetsIssuer` 的 AccountID
+
+Offer Directory ID 的低 64 位表示该目录中挂单的 `TakerPays` 金额除以 `TakerGets` 金额后的结果，编码为 Xahau 内部金额格式中的 64 位数字。
+
+**如果 `DirectoryNode` 不是目录中的第一页**（无论它属于 Owner Directory 还是 Offer Directory），其 ID 则是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* DirectoryNode 空间键（`0x0064`）
+* 根 DirectoryNode 的 ID
+* 此对象的页码。（由于 `0` 表示根 DirectoryNode，因此该值为 `1` 或更大的整数。）

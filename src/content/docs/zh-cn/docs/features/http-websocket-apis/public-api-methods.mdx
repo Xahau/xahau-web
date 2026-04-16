@@ -1,0 +1,77 @@
+---
+title: Public API Methods
+---
+你可以使用 public API methods 直接与 `xahaud` 服务器交互。这些方法不一定是为普通公众使用场景设计的，但任何连接到服务器的客户端都可以访问它们。
+
+### 账户方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| account_channels | 列出该账户作为通道源的支付通道。 |
+| account_currencies | 列出该账户可以发送或接收的货币。 |
+| account_info | 获取账户的基础信息。 |
+| account_lines | 访问账户的 trust line 信息。 |
+| account_objects | 获取账户拥有的所有账本对象。 |
+| account_offers | 查看账户的货币兑换挂单。 |
+| account_tx | 获取账户的交易历史。 |
+| gateway_balances | 计算某账户发行资产的总量。 |
+| noripple_check | 为账户的 Default Ripple 与 No Ripple 设置提供调整建议。 |
+
+### 账本方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| ledger | 获取某个特定账本版本的信息。 |
+| ledger_closed | 获取最近一次关闭的账本版本。 |
+| ledger_current | 获取当前工作中的账本版本。 |
+| ledger_data | 访问原始账本内容。 |
+| ledger_entry | 获取某个账本版本中的指定元素。 |
+
+### 交易方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| submit | 向网络提交一笔交易。 |
+| submit_multisigned | 提交一笔多重签名交易。 |
+| transaction_entry | 获取某个特定账本中的交易详情。 |
+| tx | 跨所有账本获取交易信息。 |
+| sign | （Admin）对交易进行加密签名。 |
+| sign_for | （Admin）参与一笔多重签名。 |
+
+### 订单簿方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| book_offers | 查看两种货币之间的兑换挂单。 |
+| deposit_authorized | 检查一个账户是否可直接向另一个账户发送付款。 |
+
+### 支付通道方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| channel_authorize | 为支付通道中的一项 claim 进行签名 |
+| channel_verify | 验证支付通道 claim 的签名。 |
+
+### 订阅方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| subscribe | 监听某个主题的更新 |
+| unsubscribe | 停止接收更新 |
+
+### 服务器信息方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| fee | 获取交易成本相关信息。 |
+| server_info | 以人类可读格式获取服务器状态。 |
+| server_state | 以机器可读格式获取服务器状态。 |
+| manifest | 获取某个验证者的公钥详情。 |
+
+### 工具方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| json | 以 JSON 参数执行命令的代理。_（仅命令行）_ |
+| ping | 验证服务器连通性。 |
+| random | 生成随机数。 |

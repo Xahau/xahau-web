@@ -1,0 +1,65 @@
+---
+title: state_foreign
+description: 在其他账户上读取 Hook State 键对应的数据并写入输出缓冲区
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 从 `aread_ptr` 读取一个 20 字节 Account ID
+* 从 `kread_ptr` 读取一个 32 字节 Hook State 键
+* 将该账户、该命名空间、该键对应的值写入 `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取另一个账户上指定键对应的 Foreign Hook State 值
+* 成功时返回该值，失败时返回错误码
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_foreign (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t nread_ptr,
+    uint32_t nread_len,
+    uint32_t aread_ptr,
+    uint32_t aread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_foreign(
+    key: ByteArray | HexString,
+    namespace: ByteArray | HexString | undefined | null,
+    accountid: ByteArray | HexString | undefined | null
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入写缓冲区的字节数。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>DOESNT_EXIST</code><br />- 指定 Hook State 键在当前账本中没有对应值。<br /><br /><code>TOO_BIG</code><br />- 指定键长度大于 32 字节。<br /><br /><code>TOO_SMALL</code><br />- 输出缓冲区不足以容纳 Hook State 数据。<br /><br /><code>INVALID_ACCOUNT</code><br />- <code>aread_ptr</code> 指定的账户无效或不存在。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ErrorCode or ByteArray | 返回错误码或该键对应的 Hook State 值。 |
+</TabItem>
+</Tabs>

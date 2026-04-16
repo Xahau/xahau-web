@@ -1,0 +1,58 @@
+---
+title: Cron
+description: Cron pseudo-transaction 会在计划中的 Hook 执行到期时，由 Cron 引擎自动插入。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Cron.cpp)]
+
+_(由 [Cron amendment][] 引入。)_
+
+当计划中的 Hook 执行到期时，`Cron` pseudo-transaction 会由 Cron 引擎自动插入到账本中。该 pseudo-transaction 会触发 `Owner` 字段所指定账户上的 Hook 执行。
+
+### 示例
+
+```json
+{
+  "TransactionType": "Cron",
+  "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+  "Fee": "0",
+  "LedgerSequence": 21225473,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TxnSignature": "",
+  "Owner": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm"
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Owner` | String | AccountID | 拥有该计划 Hook 执行的账户。也就是 cron 执行时会被调用的账户。 |
+| `LedgerSequence` | Number | UInt32 | 此 pseudo-transaction 出现时对应的 [ledger index][]。它用于区分同一类变更在不同时间的出现。 |
+
+### Common Fields
+
+作为 pseudo-transaction，`Cron` 会为 common fields 使用标准的 pseudo-transaction 取值：
+
+| 字段 | 值 |
+| --- | --- |
+| `Account` | `rrrrrrrrrrrrrrrrrrrrrhoLvTp` (`ACCOUNT_ZERO`) |
+| `Fee` | `0` |
+| `Sequence` | `0` |
+| `SigningPubKey` | `""`（空字符串） |
+| `TxnSignature` | `""`（空字符串） |
+
+### 执行行为
+
+当某个 [Cron ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/cron) 根据其 `StartTime`、`DelaySeconds` 与 `RepeatCount` 字段达到可执行状态时，Cron 引擎会自动向账本插入一笔 `Cron` pseudo-transaction。
+
+该 pseudo-transaction 包含一个 `Owner` 字段，用于引用拥有该计划 Hook 的账户。该账户上的 Hook 会被自动调用，并且在执行期间，该账户会被视为一个 **weak transactional stakeholder (TSH)**。
+
+**重要：** Hook 开发者必须在其 Hooks 上启用 collect calls（`hsfCOLLECT` 标志），因为当 Cron pseudo-transaction 执行时，`Owner` 会构成弱事务利益相关者。该账户还必须启用 `asfTshCollect` 标志。
+
+### Related Documentation
+
+* [CronSet transaction](/docs/protocol-reference/transactions/transaction-types/cronset): 创建、更新或删除计划中的 Hook 执行
+* [Cron ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/cron): 表示计划 Hook 执行的账本对象
+* [Weak and Strong](/docs/hooks/concepts/weak-and-strong): 理解 transactional stakeholders
+* [Collect Call Hooks](/docs/hooks/concepts/collect-call): 弱 TSH Hooks 的执行方式

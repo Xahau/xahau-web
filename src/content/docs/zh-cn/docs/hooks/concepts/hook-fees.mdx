@@ -1,0 +1,64 @@
+---
+title: Hook Fees
+description: 当你的 Hook 运行时，费用大致会是什么样。
+---
+### Hook Creation Fees
+
+SetHook 交易会按照创建出来的 WebAssembly 字节数收费，费率为每字节 500 drops。因此，一个 1 KiB 的 Hook 创建成本约为 0.5 XAH。
+
+### Hook Execution Fees
+
+当 Hooks 以 [Strongly Executed](/docs/hooks/concepts/weak-and-strong) 方式执行时，原始交易必须在自己的交易费用中承担这些 Strong Executions 的成本。
+
+Hook Execution fees 的收费标准是：按函数 `hook`（或 callback 场景下的 `cbak`）在最坏情况下执行的 WebAssembly 指令数，每条指令 1 drop。也就是说，一个逻辑本身不大但循环很多的小 Hook，运行时费用也可能很高。
+
+### Fee RPC Helper
+
+在启用 Hooks Amendment 的账本上，交易费用对终端用户和钱包应用来说会变得不再简单。原因在于：原始交易必须为所有 strong hooks 付费，而发送账户上最多可能有 4 个 strong hooks，接收账户上也最多可能有 4 个，还可能存在其他强事务利益相关者（某些更复杂的交易类型中会出现）。此外，如果交易本身是 SetHook，那么参数大小、代码大小，以及它究竟是 _create_ 还是 _install_ 操作，也都会影响费用大小。
+
+因此，我们强烈建议：**所有**交易在提交到账本前，都先通过更新后的 fee RPC 调用计算费用。
+
+调用方式如下：
+
+1. 先连接到你将要使用的 Hooks 节点的 websocket
+2. 构造你想查询费用的序列化交易，并满足以下条件：
+
+* `Fee: "0"`
+* `SigningPubKey: ""`（即 0 字节 VL，类型 0x73；十六进制表示为：`0x7300`）
+* **不要**对交易签名
+
+3. 然后把它作为十六进制 blob 提交给 RPC：
+
+```json
+{"command":"fee", "tx_blob":"<hex blob>"}
+```
+
+对于 HTTP POST RPC，可这样提交：
+
+```json
+{"method":"fee", "params": [{"tx_blob":"<hex blob>"}] }
+```
+
+响应大致会像这样：
+
+```json
+{
+  result: {
+    drops: {
+      base_fee: '130520'
+    }
+  //...
+  },
+  type: 'response'
+}
+```
+
+取出 `base_fee`，把它填回交易中的 `Fee` 字段，然后再按正常流程签名并提交。
+
+如果 `tx_blob` 缺失，或者其值无效，那么返回的常规 JSON 结果中 `base_fee` 会是 10。
+
+### Emission Fees
+
+Hooks 也可以访问与 _Fee RPC Helper_ 相同的计算逻辑。要使用它，只需调用 [etxn_fee_base](/docs/hooks/functions/emitted-transaction/etxn_fee_base)，并把包含序列化交易的缓冲区作为参数传入。与 RPC 调用一样，你必须确保该序列化交易中存在 `Fee` 字段；至于它当前的值是什么并不重要。
+
+当 `etxn_fee_base` 返回推荐费用后，你可以使用 [sto_emplace](/docs/hooks/functions/serialization/sto_emplace) 在 emission 之前，把该费用嵌回序列化交易中。对应字段是 `sfFee`。

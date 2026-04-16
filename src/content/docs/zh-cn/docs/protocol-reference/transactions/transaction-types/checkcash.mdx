@@ -1,0 +1,36 @@
+---
+title: CheckCash
+description: 尝试兑现账本中的 Check 对象，以接收对应 CheckCreate 交易授权的金额。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(由 [Checks amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "Account": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+    "TransactionType": "CheckCash",
+    "Amount": "100000000",
+    "CheckID": "838766BA2B995C00744175F69A1B11E32C3DBC40E64801A4056FCBD657F57334",
+    "Fee": "12"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `CheckID` | String | Hash256 | 要兑现的 Check 账本对象 ID，使用 64 字符十六进制字符串表示。 |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | _(可选)_ 如果可行，则按该精确金额兑现 Check。其货币必须与对应 CheckCreate 交易中的 `SendMax` 一致。你必须提供此字段或 `DeliverMin` 之一。 |
+| `DeliverMin` | [Currency Amount][] | Amount | _(可选)_ 以“至少该金额、尽可能多”的方式兑现 Check。其货币必须与对应 CheckCreate 交易中的 `SendMax` 一致。你必须提供此字段或 `Amount` 之一。 |
+
+交易_**必须**_包含 `Amount` 或 `DeliverMin` 之一，但不能两者同时存在。
+
+### 错误场景
+
+* 如果 CheckCash 交易的发送方不是该 Check 的 `Destination`，则交易以结果码 `tecNO_PERMISSION` 失败。
+* 如果 `CheckID` 标识的 Check 不存在，则交易以结果 `tecNO_ENTRY` 失败。
+* 如果 `CheckID` 标识的 Check 已经过期，则交易以结果 `tecEXPIRED` 失败。
+* 如果 Check 的目标账户启用了 `RequireDest` 标志，但创建该 Check 时没有 destination tag，则交易以结果码 `tecDST_TAG_NEEDED` 失败。
+* 如果交易同时指定了 `Amount` 与 `DeliverMin`，或两者都未指定，则交易以结果 `temMALFORMED` 失败。
+* 如果 `Amount` 或 `DeliverMin` 与该 Check 的货币不匹配（若非 XAH，还包括 issuer 不匹配），则交易以结果 `temBAD_CURRENCY` 失败。

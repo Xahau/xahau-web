@@ -1,0 +1,31 @@
+---
+title: SetRegularKey
+description: SetRegularKey 交易用于为账户分配、更改或移除 regular key pair。
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/4239880acb5e559446d2067f00dabb31cf102a23/src/ripple/app/transactors/SetRegularKey.cpp)
+
+你可以通过为账户分配一个 regular key pair，并在可能时用它替代 master key pair 来签名交易，从而保护你的账户。如果 regular key pair 泄露，但 master key pair 没有泄露，你可以使用 `SetRegularKey` 交易重新夺回账户控制权。
+
+### SetRegularKey JSON 示例
+
+```json
+{
+    "Flags": 0,
+    "TransactionType": "SetRegularKey",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "RegularKey": "rAR8rR8sUkBoCZFawhkWzY4Y5YoyuznwD"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `RegularKey` | String | AccountID | _(可选)_ 一个 base-58 编码的 [Address][]，表示要分配给该账户的 regular key pair。如果省略，则移除账户上已有的 regular key pair。该值不得与该地址的 master key pair 相同。 |
+
+### See Also
+
+关于 regular key pair 与 master key pair 的更多信息，请参见 Cryptographic Keys。
+
+关于如何为账户分配 regular key pair 的教程，请参见 Working with a Regular Key Pair。
+
+如果需要更高安全性，你也可以使用 multi-signing，但 multi-signing 需要额外的 XAH 来支付 [transaction cost][] 和 reserve。

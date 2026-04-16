@@ -1,0 +1,43 @@
+---
+title: DepositPreauth
+description: DepositPreauth 交易可预先授权另一账户向本交易发送方发送付款。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+  你可以在启用 Deposit Authorization 之前，先用这笔交易预授权某些交易对手。这有助于从“不要求 deposit authorization”平滑过渡到“要求 deposit authorization”。
+</Aside>
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_由 [DepositPreauth amendment][] 引入。_
+
+### 示例
+
+```json
+{
+  "TransactionType": "DepositPreauth",
+  "Account": "rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
+  "Authorize": "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Fee": "10",
+  "Flags": 2147483648,
+  "Sequence": 2
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Authorize` | String | AccountID | _(可选)_ 要预授权的发送方 Xahau 地址。 |
+| `Unauthorize` | String | AccountID | _(可选)_ 要撤销其预授权的发送方 Xahau 地址。 |
+
+你必须提供 `Authorize` 或 `Unauthorize` 其中之一，但不能同时提供两者。
+
+### 错误场景
+
+* 账户不能预授权（或取消预授权）其自身地址。尝试这样做会以 `temCANNOT_PREAUTH_SELF` 失败。
+* 尝试预授权一个已经被预授权的账户，会以 `tecDUPLICATE` 失败。
+* 尝试取消一个未被预授权账户的授权，会以 `tecNO_ENTRY` 失败。
+* 尝试预授权一个在账本中尚未注资的地址，会以 `tecNO_TARGET` 失败。
+* 添加授权会在账本中增加一个 DepositPreauth 对象，从而计入 owner reserve requirement。如果交易发送方没有足够的 XAH 来支付新增储备，则会以 `tecINSUFFICIENT_RESERVE` 失败。如果该账户已达到可拥有对象数量上限，则以 `tecDIR_FULL` 失败。

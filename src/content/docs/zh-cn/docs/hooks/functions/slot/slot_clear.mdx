@@ -1,0 +1,59 @@
+---
+title: slot_clear
+description: 释放一个当前已占用的槽位
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+* 释放指定槽位，移除其中当前存放的对象
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_clear (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_clear(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type      | Description |
+| -------- | --------- | ----------- |
+| slot_no | uint32_t | 槽位编号 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description |
+| ------ | ------ | ----------- |
+| slotno | number | 槽位编号 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p><code>1</code> 或错误码<br /><br />若为负数，则表示错误：<br /><code>DOESNT_EXIST</code><br />- 指定槽位中没有对象，或该槽位无效</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode \| number | 返回错误码或清除操作结果。 |
+</TabItem>
+</Tabs>

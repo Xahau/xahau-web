@@ -1,0 +1,49 @@
+---
+title: 关于 Xahau
+description: Xahau 是什么？简要说明
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import PageSection from '../../components/PageSection.astro';
+
+<PageLayout frontmatter={frontmatter} wide="true">
+<PageSection align="center">
+<div class="w-full relative pb-[56.25%]">
+<iframe width="560" height="315" class="absolute h-full w-full top-0 left-0" src="https://www.youtube.com/embed/4pruN6sWJho?si=IlxKDlD2LFLwS6EK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+</PageSection>
+<PageSection align="left" gem="10" gemSize="large" loading="eager">
+Xahau 是一条 L1 区块链，具备独特的功能组合，并为区块链可编程性，也就是智能合约，带来了全新的思路。
+
+这项经过长期验证的技术可在约 4 秒内完成交易确认，成本低至不到一美分的几分之一。它具备可扩展性，目前每个账本可处理最多 10,000 笔交易，同时天生绿色、节能友好。
+
+Xahau 原生支持在内置去中心化交易所上发行和交易货币、原生非同质化代币，以及通过被称为 Hooks 的 Xahau 智能合约实现带有自定义逻辑的各种 DeFi 场景。
+
+Hooks 直接存在于账户之上，这为如何在账户事件上应用自定义逻辑提供了新的方式，例如接收交易时自动执行逻辑。Hooks 目前使用 C 开发，但 JavaScript 支持已经完成并正在测试中，未来也计划支持其他编程语言。这让数以百万计的开发者无需经历陡峭的学习曲线，也能进入智能合约的世界。
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="1">
+### Xahau 背后的技术是什么？
+Xahau 建立在成熟技术之上。它是 XRP Ledger 代码的演进版本，在此基础上增强了智能合约、基于账户的可编程性（Hooks），并在托管和支付通道等原生功能中对发行货币提供了同等支持。
+
+和 XRPL 一样，Xahau 使用联邦共识机制来验证交易。交易通过共识协议得到确认，指定的独立服务器，也就是验证者，会就交易的顺序和结果达成一致。网络中的所有服务器都按照同样的规则处理每一笔交易，任何遵循协议的交易都会被立即确认。所有交易都是公开透明的，任何人都可以运行验证者节点。
+
+Xahau 引入了治理博弈机制，以确保网络决策采用社区导向的方式。在这个机制中，各治理桌成员通过投票参与决策。这种两层治理桌体系讨论的主题包括席位、hooks 以及奖励等事项。
+</PageSection>
+<PageSection align="left" gem="14">
+## Xahau 的原生货币 XAH
+Xahau 的原生货币叫做 XAH，它是一种通胀型货币。每个账户都可以通过与创世账户上的 Hook 交互来参与余额调整，每月按账户余额累积 4%。
+
+XAH 用于通过引入交易成本来防止网络垃圾交易。普通交易只消耗极少量的 XAH，而与 Hooks 交互时交易成本会更高。XAH 还需要作为锁定余额，也就是准备金，用于持有账户、持有对象，或为智能合约使用而存储数据。
+
+由于 Hooks 的存在，XAH 的销毁速度相比 XRPL 更高。对于依赖 Hooks 来实现自定义逻辑的项目，建议保有一定数量的 XAH，以便通过每月的余额调整来支付手续费。
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="12">
+## Xahau 有哪些关键事件？
+Xahau 于 2023 年 10 月 30 日由 Xahau Launch Alliance 推出。该联盟是一个临时合作体，由长期深耕 XRPL、且不隶属于 Ripple 的开发者、组织和基础设施提供商组成，包括 XRPL Labs、GateHub Limited、Titanium OU、Evernode Labs Ltd 和 Digital Governing OU。
+
+在第一年中，Xahau 获得了许多更新，例如 2024 年 3 月上线的新原生功能 Remit、性能改进、纯内存节点以及 JavaScript Hooks 支持。
+
+在第一年内，The Inclusive Financial Technologies Foundation（InFTF）与埃塞俄比亚最大的银行之一 Cooperative Bank of Oromia（COOP）合作推出了首个跨境汇款服务。该入账汇款解决方案帮助非洲侨民，尤其是在中东、美国和欧洲工作的蓝领群体，将资金汇回给埃塞俄比亚的亲友。该服务最初支持以欧元进行入账汇款，任何人都可以购买数字欧元，以极低甚至接近零的成本通过区块链发送，并在几秒钟内以当地货币 ETB 结算到家人或朋友的银行账户中。
+
+InFTF 还与非洲联盟签署了谅解备忘录，通过部署前沿创新金融技术推动非盟和平基金的工作。这项合作将为捐赠开辟新的路径，使个人和组织能够通过基于 Xahau 的无缝捐赠平台，以多种货币更加便捷地支持非洲和平倡议。
+</PageSection>
+</PageLayout>

@@ -1,0 +1,46 @@
+---
+title: Payments
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Xahau 网络中的 Payments 功能是网络内部资产和资金转移的关键组成部分。该功能旨在支持顺畅的交易流程，确保网络运行高效而稳定。
+
+### 交易类型
+
+Payments 功能包含多种交易类型，每一种都在网络中承担不同作用。以下是各交易类型的简要说明：
+
+**DepositPreauth**
+
+这种交易类型允许账户预先授权来自指定来源的入账交易。它相当于一种白名单机制，用来确保只有被授权的交易才会被处理。
+
+<LinkCard title="DepositPreauth" href="/docs/protocol-reference/transactions/transaction-types/depositpreauth" />
+
+**TrustSet**
+
+这种交易类型允许用户与另一个账户建立信任线。它是一种在两个账户之间建立信任关系的方式，使双方能够进行相应资产交易。
+
+<LinkCard title="TrustSet" href="/docs/protocol-reference/transactions/transaction-types/trustset" />
+
+**Payment**
+
+这是最基础的交易类型，用于在账户之间转移资产。它是网络中执行任何支付操作的核心交易类型。
+
+<LinkCard title="Payment" href="/docs/protocol-reference/transactions/transaction-types/payment" />
+
+**PaymentChannelCreate**
+
+这种交易类型允许两个账户之间创建支付通道。支付通道是一种链下扩展方案，可支持双方进行高频、低成本交易。
+
+<LinkCard title="PaymentChannelCreate" href="/docs/protocol-reference/transactions/transaction-types/paymentchannelcreate" />
+
+**PaymentChannelFund**
+
+这种交易类型允许账户为已存在的支付通道追加资金。它用于向支付通道中增加更多资产，以便支持更多交易。
+
+<LinkCard title="PaymentChannelFund" href="/docs/protocol-reference/transactions/transaction-types/paymentchannelfund" />
+
+**PaymentChannelClaim**
+
+这种交易类型允许账户从支付通道中提取资金。它是一种关闭支付通道并取回剩余资产的方式。
+
+<LinkCard title="PaymentChannelClaim" href="/docs/protocol-reference/transactions/transaction-types/paymentchannelclaim" />

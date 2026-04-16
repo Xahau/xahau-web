@@ -1,0 +1,14 @@
+---
+title: Reference Counted Hook Definitions
+description: 避免把相同字节码重复上传到账本
+---
+当一个全新的 Hook WebAssembly 字节码被上传到 Xahau 时，会给网络带来显著的存储负担。这种存储负担会体现在网络收取的 [Hook Fees](/docs/hooks/concepts/hook-fees) 中。
+
+为了避免这种负担（以及终端用户承担过高费用），系统采用了引用计数：
+
+* 当一个全新 Hook 第一次被安装时，[SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 必须支付较高费用
+* 该 Hook 的 WebAssembly 字节码会在账本中变成一个无主、带引用计数的对象（称为 `HookDefinition`）
+* 后续由同一用户或其他用户安装完全相同的 Hook（即字节码完全一致）时，只会增加这个对象的引用计数。所有这些安装都会指向账本中的同一个对象
+* 只要 Hook Definition 的引用计数仍大于零（也就是仍有至少一个账户安装着该 Hook），这个对象就会保留在账本中
+
+![Reference Counted Hook Definitions](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)

@@ -1,0 +1,63 @@
+---
+title: 交易签名
+description: >-
+  由于启用了 Hooks 的网络需要特定的交易字段，并且提供更多交易类型，因此并非所有客户端都能开箱即用。`xrpl-accountlib`
+---
+## 主要差异
+
+1. 启用了 Hooks 的网络允许动态获取 network definitions。这使客户端能够适配可用的交易类型、账本对象、属性和值类型。如果实现正确，当网络新增交易类型 / 对象类型 / 属性时，签名与编码库无需更新。<mark style="color:blue;">**下面列出的库已经实现了这一点，并会为你处理。**</mark>
+2. 启用了 Hooks 的网络要求每一笔交易都带上 **NetworkID**，以防止交易在其他链上被重放。`server_info` RPC 命令也会在 `network_id` 字段中返回 **NetworkID**（例如 Hooks V3 testnet 的值为 **`21338`**）。
+3. 在启用了 Hooks 的网络上，交易可能需要更高的费用才能把交易送达另一个账户，具体取决于发送账户发出交易时以及目标账户接收交易时将被执行的 Hooks。你可以通过向节点发出 `fee` 命令并将交易作为 `tx_blob` 提供，动态获取满足 Hooks 执行所需的合理费用。<mark style="color:blue;">**下面列出的库已经实现了这一点，并会为你处理。**</mark>
+
+## JavaScript / Typescript
+
+[**npm 包 `xrpl-accountlib`**](https://www.npmjs.com/package/xrpl-accountlib) 可以为启用了 Hooks 的网络签名交易，因为它支持完整的动态网络特性，并会在运行时获取 network definitions。
+
+[**npm 包 `xrpl-client`**](https://www.npmjs.com/package/xrpl-client) 与 `xrpl-accountlib` 集成良好（并且本身就是其依赖项），可动态获取上述 network definitions 和账户数值，从而帮助提交交易。
+
+### 代码示例
+
+```javascript
+import {
+  derive,
+  utils,
+  signAndSubmit,
+} from "xrpl-accountlib"
+
+const wss = 'wss://xahau-test.net'
+const account = derive.familySeed("s...")
+
+const networkInfo = await utils.txNetworkAndAccountValues(wss, account)
+
+const tx = {
+  TransactionType: "SetHook",
+  Hooks: [ { Hook: {
+    CreateCode: "0061736D01000000011C0460057F7F7F7F7F017E60037F7F7E017E60027F7F017F60017F017E02230303656E76057472616365000003656E7606616363657074000103656E76025F670002030201030503010002062B077F0141B088040B7F004180080B7F0041A6080B7F004180080B7F0041B088040B7F0041000B7F0041010B07080104686F6F6B00030AC4800001C0800001017F230041106B220124002001200036020C41920841134180084112410010001A410022002000420010011A41012200200010021A200141106A240042000B0B2C01004180080B254163636570742E633A2043616C6C65642E00224163636570742E633A2043616C6C65642E22",
+    Flags: 1,
+    HookApiVersion: 0,
+    HookNamespace: "F".repeat(64),
+    HookOn: "F".repeat(58) + "BFFFFE",
+  }
+  }],
+  ...networkInfo.txValues,
+  // ^^ 这会自动为你添加获取到的值：
+  // Sequence, Account, LastLedgerSequence,
+  // Fee（启用 Hooks 时：自动从账本检测）
+}
+
+/**
+ * 注意：上面的代码配合 `signAndSubmit` 会自动为你获取并设置 fee。
+ * 如果你想自行检查 fee 的最小值 / 最大值 / 等条件，
+ * 可以使用下面的方法获取你自己的 fee（字符串，单位为 drops）：
+ *    utils.networkTxFee(wss, tx)
+ * 
+ * 例如：
+ *    const Fee = await utils.networkTxFee(wss, tx)
+ *    assert(Number(Fee) < 50_000, "Auto fee above 50k drops, abort")
+ *    Object.assign(tx, { Fee, })
+ */
+
+const submitted = await signAndSubmit(tx, wss, account)
+
+console.log(submitted)
+```

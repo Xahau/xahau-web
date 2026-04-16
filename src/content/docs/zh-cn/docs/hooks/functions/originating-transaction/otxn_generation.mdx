@@ -1,0 +1,73 @@
+---
+title: otxn_generation
+description: 获取原始交易的 generation
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 返回原始交易的 generation；如果不存在 generation 字段，则返回 `1`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取原始交易的 generation 编号。
+* 返回 generation 数值。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_generation (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_generation(): number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t generation = 
+  otxn_generation();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const generation = otxn_generation()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+无
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | 原始交易的 generation；如果原始交易上不存在 generation，则返回 `1` |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 返回 generation 数值。 |
+</TabItem>
+</Tabs>

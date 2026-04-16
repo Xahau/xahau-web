@@ -1,0 +1,193 @@
+---
+title: 提供用于身份验证的 TOML 文件
+---
+***身份验证需要两个部分。切勿仅凭 TOML 文件，或仅凭链上的 validator / account attestation 来确认身份，因为任何人都可以设置这些内容。必须由某个网站（URL）声明其拥有该 validator / account，同时链上数据也必须与之匹配。***
+
+鉴于信任是 Xahau Network 的基础，运行 `xahaud` validator 的实体最好能够为其服务器署名背书。身份证明为用户提供保障，帮助确认不会有单一实体在网络中的受信任（默认 UNL）validators 中获得不成比例的控制权。这个过程通过发布两份 attestation 来完成：一份来自 Xahau Network 上的 validating server，另一份来自通过 TLS 提供相同域名的 Web 服务器。也就是说，validator 声称自己关联某个 Web 域名，而该 Web 域名也反过来声称自己关联该 validator。*如果这两个声明缺少任何一个，就无法信任该身份证明。*
+
+同样地，单个 Xahau 账户持有人也可能希望发布一个 TOML 文件，用来证明网络上的特定账户由自己控制。账户所有权证明对于企业场景尤其重要，例如交易所或金融机构。与 validators 一样，这类证明也需要两个部分：一个声称拥有某个 Xahau Network 地址的 Web 服务器，以及一个声称由同一域名拥有的链上账户地址。账户证明能帮助用户确认自己把资金充值到了正确的地址。
+
+这个文件的内容与结构与 [Stellar](https://developers.stellar.org/docs/tokens/publishing-asset-info) 和 [XRP Ledger](https://xrpl.org/docs/references/xrp-ledger-toml) 所使用的同类文件相似。由于该文件可以包含自定义字段，因此在构建解析 TOML 文件的工具时，应保留足够的灵活性。
+
+## Web 服务器与 DNS 配置
+
+1. 文件内容必须使用 [TOML 格式](https://github.com/toml-lang/toml)。
+2. TOML 文件必须从以下路径提供： `https://[optional-subdomain.your-domain.com]/.well-known/xahau.toml`
+    * 路径 `/.well-known/xahau.toml` 不能被修改，且必须全部为小写。
+    * 关于 `/.well-known/` 路径的更多信息，请参见 [RFC 5785](https://datatracker.ietf.org/doc/html/rfc5785)。
+3. 提供该 TOML 文件的连接必须使用链向受信任证书颁发机构的 TLS 证书进行加密。
+4. 建议为该域名启用 DNS Sec。
+5. 可以使用子域名托管该文件，也可以在多个子域上托管相同文件。
+6. 文件的 Content-Type 应为 `application/toml`。
+7. TOML 文件必须带有 CORS 头： `Access-Control-Allow-Origin: *`
+8. 如有需要，也可以为 TOML 文件提供其他额外头部。
+9. 可以根据用户个体需要在 TOML 文件中加入自定义或非标准字段。
+10. TOML 文件中没有任何字段是绝对强制要求的。
+
+### CORS 配置
+
+Apache:
+```
+<Location "/.well-known/xahau.toml">
+    Header set Access-Control-Allow-Origin "*"
+</Location>
+```
+Nginx:
+```
+location /.well-known/xahau.toml {
+    add_header 'Access-Control-Allow-Origin' '*';
+}
+```
+
+### TOML 文件内容
+
+TOML 文件通常会分为若干部分，用于描述 TOML 文件本身（metadata）、主体（responsible parties），以及所声明的资产，包括：validators、非 validating 的 `xahaud` 服务器、accounts 和已发行货币。
+
+#### TOML 示例
+
+以下示例旨在展示 Xahau Network TOML 文件中常见的全部部分。单个用户未必会拥有全部这些部分，也有些用户可能需要包含多个同类部分。例如，如果某个交易所发行了多种货币，那么它应为每一种在网络上发行的 IOU 都增加一个 `[[CURRENCIES]]` 段。
+```
+[METADATA]
+modified = 2025-08-04T14:24:34.123Z
+expired = 2025-12-31T14:24:34.123Z
+
+[ORGANIZATION]
+name = "A Company B.V."
+website = "https://example.com"
+email = "contact@example.com"
+
+[[PRINCIPALS]]
+name = "A. Person"
+email = "a_person@example.com"
+social_1 = "https://www.linkedin.com/company/incfintech"
+x = "@IncFinTech"
+
+[[VALIDATORS]]
+public_key = "nHBixLw8q7XUP5AKceK2aZriN67PPjQW7JJ7hLkJgxvkTTs5go6k"
+attestation = "07FA61020CA5E0605BE29D213DCC33F934B631EB6215F52D3E99D8AEA841272E300758B5C03CD2332190307324B4869838B77BAD275B31CF59D13E8FA6A8780B"
+owner_country = "US"
+server_country = "CA"
+network_asn = "398726"
+network = "21337"
+unl = "https://vl.xahau.org"
+
+[[SERVERS]]
+ws = "wss://"
+json_rpc = "https://"
+peer = "https://"
+network = "21337"
+
+[[ACCOUNTS]]
+address = "rabc..."
+network = "21337"
+desc = "This wallet is used for client deposits."
+
+[[CURRENCIES]]
+code = "USD"
+issuer = "rabc..."
+symbol = "$"
+network = "21337"
+display_decimals = 2
+
+[[CURRENCIES]]
+code = "EUR"
+issuer = "rabc..."
+symbol = "€"
+network = "21337"
+display_decimals = 2
+```
+
+#### Metadata
+
+TOML 文件中的日期 / 时间应使用 UTC，并包含毫秒精度。例如： `2025-08-04T14:24:34.123Z`。一个 TOML 文件中只能包含一个 metadata 段。
+<table>
+<thead><tr><td>字段</td><td>数据类型</td><td>说明</td></tr></thead>
+<tr><td>`modified`</td><td>Date-Time</td><td>TOML 最近一次修改的日期与时间。</td></tr>
+<tr><td>`expires`</td><td>Date-Time</td><td>超过该日期 / 时间后，TOML 文件将被视为过期并因此无效。</td></tr>
+</table>
+
+#### Organization
+
+如果是某个实体而非个人对 TOML 文件负责，则应使用此部分来标识该实体。一个 TOML 文件中出现多个 `[ORGANIZATION]` 段通常不常见，也很可能意味着错误。如果确实需要多个这样的部分，应增加一层额外方括号： `[[ORGANIZATION]]`。
+<table>
+<thead><tr><td>字段</td><td>数据类型</td><td>说明</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>托管该 TOML 文件的组织名称。</td></tr>
+<tr><td>`email`</td><td>String</td><td>组织联系邮箱。</td></tr>
+<tr><td>`website`</td><td>String</td><td>组织网站（通常与 TOML 托管地址相同）。</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>社交媒体资料链接。该字段目前尚未标准化。因此，`x = "@IncFinTech` 与 `social_1 = https://x.com/IncFinTech` 都是有效的。</td></tr>
+</table>
+
+#### Principals
+
+此部分用于标识 Xahau Network 基础设施和 / 或账户的个人联系人。
+<table>
+<thead><tr><td>字段</td><td>数据类型</td><td>说明</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>负责监督组织 Xahau Network 运营的个人姓名。</td></tr>
+<tr><td>`email`</td><td>String</td><td>该联系人邮箱。</td></tr>
+<tr><td>`website`</td><td>String</td><td>该联系人的网站。</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>社交媒体资料链接。该字段目前尚未标准化。因此，`x = "@IncFinTech` 与 `social_1 = https://x.com/IncFinTech` 都是有效的。</td></tr>
+</table>
+
+#### Validators
+
+强烈建议 validator 运营者发布 attestation 作为所有权证明。提供地理位置与 ISP 信息非常重要，因为这使受信任（dUNL）列表发布者能够评估网络中受信任 validators 的地理分布多样性。如果过多受信任 validators 集中在同一地理区域或同一网络 ASN 上，将对整个网络构成风险。
+<table>
+<thead><tr><td>字段</td><td>数据类型</td><td>说明</td></tr></thead>
+<tr><td>`public_key`</td><td>String</td><td>用于进行 validations 的主公钥。</td></tr>
+<tr><td>`attestation`</td><td>String</td><td>由 validator-keys 工具生成的域名 attestation。</td></tr>
+<tr><td>`owner_country`</td><td>String</td><td>负责该服务器的实体或个人所在国家的 [ISO-3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) 代码。</td></tr>
+<tr><td>`server_country`</td><td>String</td><td>服务器物理所在国家的 ISO-3166-2 代码。</td></tr>
+<tr><td>`network_asn`</td><td>String</td><td>为服务器提供互联网连接的 Internet Service Provider 的 Autonomous System Number（ASN）。</td></tr>
+<tr><td>`network`</td><td>String</td><td>标识服务器参与的是哪个网络（Mainnet、Testnet 等）。</td></tr>
+<tr><td>`unl`</td><td>String</td><td>托管该 validator 所订阅受信任验证者列表的 URL。</td></tr>
+</table>
+
+#### Servers
+
+提供公共 peering 或 websocket / RPC API 访问的网络参与者，可以在此部分发布访问其服务器的信息。
+<table>
+<thead><tr><td>字段</td><td>数据类型</td><td>说明</td></tr></thead>
+<tr><td>`ws`</td><td>String</td><td>公共 websocket 访问地址，以 `ws://` 或 `wss://` 开头。</td></tr>
+<tr><td>`json_rpc`</td><td>String</td><td>公共 RPC 访问地址，以 `http://` 或 `https://` 开头。</td></tr>
+<tr><td>`peer`</td><td>String</td><td>其他服务器可用来与 TOML 中该服务器建立 peering 的 URL。</td></tr>
+<tr><td>`network`</td><td>String</td><td>标识服务器参与的是哪个网络（Mainnet、Testnet 等）。</td></tr>
+</table>
+
+#### Accounts
+
+需要进行账户验证的实体可以使用这一部分来声明自己拥有某个 Xahau Network 钱包。
+<table>
+<thead><tr><td>字段</td><td>数据类型</td><td>说明</td></tr></thead>
+<tr><td>`address`</td><td>String</td><td>以 `r` 开头的编码公钥，用于标识一个 Xahau Network 钱包。</td></tr>
+<tr><td>`network`</td><td>String</td><td>标识该钱包用于哪个网络（Mainnet、Testnet 等）。</td></tr>
+<tr><td>`desc`</td><td>String</td><td>关于该钱包用途的人类可读说明。</td></tr>
+</table>
+
+#### Currencies
+
+多个钱包可能会发行拥有相同货币代码的货币。***因此，用户必须同时验证发行钱包和货币代码本身。***
+<table>
+<thead><tr><td>字段</td><td>数据类型</td><td>说明</td></tr></thead>
+<tr><td>`code`</td><td>String</td><td>代币的 ticker symbol，可为三位字符或 40 位十六进制字符。该字段区分大小写。</td></tr>
+<tr><td>`issuer`</td><td>String</td><td>发行该货币的钱包地址（以 `r` 开头）。对应的钱包应在 TOML 文件的 `[[ACCOUNTS]]` 段中出现。</td></tr>
+<tr><td>`symbol`</td><td>String</td><td>用于标识货币的符号（例如 `$`）。</td></tr>
+<tr><td>`network`</td><td>String</td><td>标识该货币在哪个网络（Mainnet、Testnet 等）上发行。</td></tr>
+<tr><td>`display_decimals`</td><td>Integer</td><td>客户端在显示该货币数量时，小数点右侧应显示的位数。</td></tr>
+</table>
+
+## Validator 域名验证
+
+托管 `xahau.toml` 文件使域名所有者能够声明自己拥有某个 validator。但与此同时，validator 也必须承认这种所有权，第三方才能可靠信任网络运营者。由于 validators 是推动 Xahau Network 向前运行的骨干力量，因此运营者必须妥善保护自己的 validation 私钥。
+
+如果你还不熟悉 Validator Keys Tool，请参见 [在 xahaud 中启用验证](/docs/infrastructure/enabling-validation) 页面。
+
+已经完成 Enabling Validation 页面步骤的用户，无需重复操作。只需把 `attestation = ""` 字段粘贴到 TOML 文件中，并确保正确的 `[validator_token]` 已安装在 `xahaud.cfg` 中。
+
+如果用户在最初生成 validation token 时没有配置域名，可以运行 `./validator-keys set_domain [example.com]` 来补充设置。在尝试设置域名前，请确保 master validation key JSON 文件存储在正确路径： `/home/[username]/[.ripple or .xahaud]/validator-keys.json`。
+
+## 钱包地址验证
+
+与 validator 域名验证一致，要验证某个 Xahau Network 钱包地址的所有权，同样需要两个组成部分：一个通过 TLS 加密连接（并带有正确链式证书）提供 TOML 文件的域名，以及一个来自该钱包地址、用以证明所有权声明的交易。若要声明某个钱包地址的所有权：
+
+1. 将该地址作为一个 `[[accounts]]` 段加入 TOML 文件。
+2. 提交一笔 [AccountSet transaction](/docs/protocol-reference/transactions/transaction-types/accountset)，并指定 `Domain` 字段。

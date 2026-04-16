@@ -1,0 +1,117 @@
+---
+title: Remit
+description: Remit 交易允许用户发送多种付款类型、铸造 URIToken、转移一组 URITokens，并激活账户。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+Remit 交易会承担 _Account Activation、Trustlines 和 URIToken Reserves_ 的全部费用。
+</Aside>
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Remit.cpp)]
+
+_(由 [Remit amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "TransactionType": "Remit",
+    "Account": "rGvbdrdCxG2tk9ZU2673XmsjRdHCDQEpt7",
+    "Amounts": [
+        {
+            "AmountEntry": {
+                "Amount": "1000000"
+            }
+        }, {
+            "AmountEntry": {
+                "Amount": {
+                    "currency": "USD",
+                    "issuer": "rExKpRKXNz25UAjbckCRtQsJFcSfjL9Er3",
+                    "value": "1"
+                }
+            }
+        }
+    ],
+    "Destination": "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn",
+    "URITokenIDs": [
+        "714F206C865D334721B2F3388BEAF33AA91BC1D78C71941D10A2A653C873EDD3"
+    ],
+    "MintURIToken": {
+        "Digest": "6F11A4DF4EE794E2800BB361173D454BFBECB3D7506C4F4CB0EC5AE98BE43747",
+        "Flags": 1,
+        "URI": "697066733A2F2F"
+    }
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 将激活账户、发送付款以及/或铸造/转移 URIToken 的账户地址。 |
+| `Destination` | String | AccountID | 接收付款以及/或 URIToken 的账户地址。 |
+| `DestinationTag` | Number | UInt32 | _(可选)_ 用于共享托管账户入账的 DestinationTag。 |
+| `MintURIToken` | Object | STObject | _(可选)_ 一个 `MintURIToken` STObject，包含你想在 `Destination` 上铸造的 URIToken 细节。 |
+| `URITokenIDs` | Array | STArray | _(可选)_ 要转移到 `Destination` 的 URITokenID（256 位哈希）数组。_上限 32。_ |
+| `Amounts` | Array | STArray | _(可选)_ `AmountEntry` STObject 数组，表示账户想发送到 `Destination` 的金额。_上限 32。_ |
+| `Inform` | String | AccountID | _(可选)_ 一个账户地址，它可以安装 hook，并在 remit 发生时收到通知。 |
+| `Blob` | String | Blob | _(可选)_ 任意十六进制值，可附加到交易中供 Hooks 使用。 |
+| `InvoiceID` | String | Hash256 | _(可选)_ 任意 256 位哈希，可表示此 remit 的特定原因或标识符。 |
+
+### AmountEntry 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 账户想发送到 `Destination` 的货币金额。 |
+
+### MintURIToken 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `URI` | String | String | 已铸造 URIToken 关联的 URI。（最大 256 字节） |
+| `Digest` | String | Hash256 | _(可选)_ URIToken 的摘要。 |
+| `Flags` | Number | UInt32 | _(可选)_ 铸造交易上的 Flags。 |
+
+### MintURIToken Flags
+
+`MintURIToken` STObject 支持以下 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfBurnable` | `0x00000001` | 1 | 允许发行方销毁已铸造的 `URIToken`。（`URIToken` 的所有者始终也可以这样做。） |
+
+### 特殊交易费用
+
+Remit 交易具有标准交易费用，也就是 Xahau 任意交易都需要满足的最低费用。
+
+除最低费用外，Remit 还会额外扣除以下动作对应的费用：
+
+| 动作 | 费用 |
+| --- | --- |
+| `Account Activation` | 标准 Reserve Requirement |
+| `Create Trustline` | 标准 Reserve Requirement |
+| `URIToken Mint` | 标准 Reserve Requirement |
+| `URIToken Transfer` | 标准 Reserve Requirement |
+
+### 错误场景
+
+除所有交易都可能出现的错误外，Remit 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temINVALID_FLAG` | 指定了除 `tfFullyCanonicalSig` 之外的不合法 flag。 |
+| `temREDUNDANT` | `Account` 与 `Destination` 相同。 |
+| `temMALFORMED (Inform & Blob)` | `sfInform` 与 source 或 destination 相同，或 Blob 超过 128 KiB。 |
+| `temMALFORMED (AmountEntry)` | AmountEntry 数量超过 `32`、缺少预期 AmountEntry、原生货币重复出现，或同一已发行货币重复出现。 |
+| `temMALFORMED (MintURIToken)` | `sfMintURIToken` 含有无效字段、未提供 URI、URI 长度非法，或 `MintURIToken` 中含有无效 UTF-8。 |
+| `temMALFORMED (URITokenIDs)` | URITokenIDs 长度不合法或存在重复 URITokenID。 |
+| `temBAD_AMOUNT` | AmountEntry 中某个 Amount 无效。 |
+| `terNO_ACCOUNT` | 源账户不存在。 |
+| `tecNO_TARGET` | 存在 `sfInform` 字段但该账户不存在。 |
+| `tecNO_PERMISSION` | `Destination` 上启用了 `disallowIncomingRemit`。 |
+| `tecNO_PERMISSION` | `Destination` 启用了 `DepositAuthorization`。 |
+| `tecDST_TAG_NEEDED` | 目标账户要求 destination tag，但交易未提供。 |
+| `tecDUPLICATE` | 该发行方下的 `MintURIToken` URI 已存在。 |
+| `tecDIR_FULL` | 源账户或目标账户的目录已满。 |
+| `tecNO_ENTRY` | 指定的 URIToken 不存在。 |
+| `tecNO_PERMISSION` | 指定的 URIToken 不属于源账户。 |
+| `tecUNFUNDED_PAYMENT` | 源账户没有足够资金执行交易（XAH 或已发行货币）。 |

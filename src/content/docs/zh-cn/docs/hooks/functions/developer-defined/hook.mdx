@@ -1,0 +1,42 @@
+---
+title: hook
+sidebar:
+  order: 1
+---
+
+`hook` 是由开发者定义、并由 `xahaud` 调用的主入口函数。
+
+当 Hook 因匹配交易而被触发时，`xahaud` 会执行此函数。
+
+通常，`hook` 会在内部调用以下函数之一结束执行：
+
+- `accept`
+- `rollback`
+
+如果函数执行到结尾而没有显式调用这两个函数之一，则视为接受。
+
+## C
+
+```c
+int64_t hook(uint32_t reserved);
+```
+
+## JavaScript
+
+```javascript
+type Hook = (reserved: number) => number
+```
+
+## 参数
+
+### `reserved`
+
+保留参数，供未来使用。
+
+## 返回值
+
+返回任意由开发者定义的整数代码，该值会记录到元数据中。
+
+## 说明
+
+这是 Hook 程序最核心的入口点。每个 Hook 都必须定义它。

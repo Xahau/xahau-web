@@ -1,0 +1,98 @@
+---
+title: Signers List
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/6d2e3da30696bd10e3bb11a5ff6d45d2c4dae90f/src/ripple/protocol/impl/LedgerFormats.cpp#L127)
+
+_(由 [MultiSign amendment][] 引入。)_
+
+`SignerList` 对象类型表示一组签名方列表。作为一个整体，这组签名方被授权代替单个账户为交易签名。你可以使用 [SignerListSet transaction][] 创建、替换或移除 signer list。
+
+### JSON 示例
+
+```json
+{
+    "Flags": 0,
+    "LedgerEntryType": "SignerList",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "5904C0DC72C58A83AEFED2FFC5386356AA83FCA6A88C89D00646E51E687CDBE4",
+    "PreviousTxnLgrSeq": 16061435,
+    "SignerEntries": [
+        {
+            "SignerEntry": {
+                "Account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                "SignerWeight": 2
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "raKEEVSGnKSD9Zyvxu4z6Pqpm4ABH8FS6n",
+                "SignerWeight": 1
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "rUpy3eEg8rqjqfUoLeBnZkscbKbFsKXC3v",
+                "SignerWeight": 1
+            }
+        }
+    ],
+    "SignerListID": 0,
+    "SignerQuorum": 3,
+    "index": "A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7"
+}
+```
+
+### 字段
+
+`SignerList` 对象包含以下字段：
+
+| 名称 | JSON 类型 | Internal Type | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Flags` | Number | UInt32 | 是 | 此 signer list 启用的布尔标志位图。更多信息请参见 SignerList Flags。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0053`，映射为字符串 `SignerList`，表示这是一个 SignerList 对象。 |
+| `OwnerNode` | String | UInt64 | 是 | 一个提示值，指出此对象链接于所有者目录的哪一页；当目录包含多页时尤其有用。 |
+| `PreviousTxnID` | String | Hash256 | 是 | 最近一次修改此对象的交易识别哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | 是 | 包含最近一次修改此对象之交易的 [账本索引][Ledger Index]。 |
+| `SignerEntries` | Array | Array | 是 | Signer Entry 对象数组，表示此 signer list 中包含的各个签名方。 |
+| `SignerListID` | Number | UInt32 | 是 | 此 signer list 的 ID。目前始终为 `0`。如果未来的 amendment 允许一个账户拥有多个 signer list，这一点可能会改变。 |
+| `SignerQuorum` | Number | UInt32 | 是 | 签名权重的目标值。要为该 SignerList 的所有者生成有效签名，签名方必须提供有效签名，且其权重总和达到或超过此值。 |
+
+`SignerEntries` 可以是任意组合的已注资地址与未注资地址，并且既可使用 secp256k1 密钥，也可使用 ed25519 密钥。
+
+#### Signer Entry 对象
+
+`SignerEntries` 字段中的每个成员都是一个对象，用于描述列表中的该签名方。Signer Entry 包含以下字段：
+
+| 名称 | JSON 类型 | Internal Type | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 一个 Xahau 地址，其签名会计入多重签名。它不必是在账本中已注资的地址。 |
+| `SignerWeight` | Number | UInt16 | 该签名方签名的权重。只有当所提供签名的权重总和达到或超过 signer list 的 `SignerQuorum` 值时，多重签名才有效。 |
+| `WalletLocator` | String | Hash256 | _(可选)_ 任意十六进制数据。可用于标识签名方或其他相关用途。_(由 [ExpandedSignerList amendment][] 引入。)_ |
+
+在处理多重签名交易时，服务器会依据交易执行时的账本状态来查找这些 `Account` 值。如果该地址_不_对应于已注资的 AccountRoot 对象，那么只能使用与该地址关联的主私钥生成有效签名。如果该账户_确实_存在于账本中，则取决于该账户的状态：如果账户配置了 Regular Key，则可以使用该 Regular Key；只有当账户主密钥未被禁用时，主密钥才可使用。多重签名不能作为另一重多重签名的一部分使用。
+
+### SignerList Flags
+
+_(由 [MultiSignReserve amendment][] 引入。)_
+
+SignerList 对象可以具有以下标志值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `lsfOneOwnerCount` | `0x00010000` | 65536 | 如果启用此标志，则此 SignerList 在 owner reserve 计算中只算作一个条目。否则，该列表算作 N+2 个条目，其中 N 是其包含的签名方数量。在 [MultiSignReserve amendment][] 启用后，如果你新增或更新 signer list，该标志会自动启用。 |
+
+### Signer Lists and Reserves
+
+signer list 会增加其所有者的储备金要求。
+
+[MultiSignReserve amendment][]（于 2019-04-17 启用）使得每个 signer list 无论有多少成员，都只算作一个对象。因此，新 signer list 对应的 owner reserve 为 2 XAH。
+
+在 [MultiSignReserve amendment][] 之前创建的 signer list 本身算作两个对象，而列表中的每个成员再各算一个对象。因此，该 signer list 关联的总 owner reserve 会达到单条 trust line（RippleState）或 Offer 对象所需储备金的 3 倍到 10 倍不等。若要将 signer list 更新为新的、更低的储备金规则，可发送一个 [SignerListSet transaction][] 来更新它。
+
+### SignerList ID 格式
+
+signer list 对象的 ID 是按以下顺序连接下列值后，对结果执行 SHA-512Half 得到的：
+
+* RippleState 空间键（`0x0053`）
+* signer list 所有者的 AccountID
+* `SignerListID`（目前始终为 `0`）

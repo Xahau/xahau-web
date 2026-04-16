@@ -1,0 +1,57 @@
+---
+title: PaymentChannelClaim
+description: 从 payment channel 领取金额、调整通道过期时间，或同时执行这两件事。
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_由 [PayChan amendment][] 引入。_
+
+通道的 **source address** 可以：
+
+* 向目标方发送通道中的金额，可以_带签名 claim，也可以不带_
+* 设置通道在 `SettleDelay` 到期后尽快过期
+* 清除待生效的 `Expiration` 时间
+* 立即关闭通道，可在处理 claim 前或后执行；但如果通道中仍有剩余金额，source address 不能立即关闭通道
+
+通道的 **destination address** 可以：
+
+* 使用带签名的 claim 从通道中接收金额
+* 在处理完 claim 后立即关闭通道，并将任何未领取金额退回通道 source
+
+**任何地址** 发送此交易都可以：
+
+* 如果通道的 `Expiration` 或 `CancelAfter` 早于前一个账本的 close time，则触发通道关闭。只要 PaymentChannelClaim 交易格式有效，无论其字段内容为何，都会产生这一效果。
+
+### 示例
+
+```json
+{
+  "Channel": "C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
+  "Amount": {
+     "currency": "USD",
+     "value": "1",
+     "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+  },
+  "Signature": "30440220718D264EF05CAED7C781FF6DE298DCAC68D002562C9BF3A07C1E721B420C0DAB02203A5A4779EF4D2CCC7BC3EF886676D803A9981B928D3B8ACA483B80ECA3CD7B9B",
+  "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Channel` | String | Hash256 | 通道的唯一 ID，使用 64 字符十六进制字符串表示。 |
+| `Balance` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | _(可选)_ 处理此 claim 后，该通道已累计交付的总金额。若要实际交付金额，则必须提供。其值必须大于通道迄今已交付总额，但不能大于签名 claim 中授权的 `Amount`。关闭通道而不交付时可以省略。 |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | _(可选)_ `Signature` 所授权的金额。必须与签名消息中的金额一致。该值是通道可支付的累计总金额，包括此前已兑付的 XAH。 |
+| `Signature` | String | Blob | _(可选)_ 此 claim 的签名，使用十六进制表示。签名消息包含通道 ID 和 claim 金额。除非交易发送方就是通道的 source address，否则该字段必填。 |
+| `PublicKey` | String | Blob | _(可选)_ 用于该签名的公钥，使用十六进制表示。必须与账本中为该通道存储的 `PublicKey` 匹配。除非交易发送方是通道 source address 且省略了 `Signature` 字段，否则该字段必填。 |
+
+如果 payment channel 创建于 fixPayChanRecipientOwnerDir amendment 启用之前，那么该 payment channel 的目标账户有可能已被删除，目前不存在于账本中。若目标账户已删除，source account 无法再通过该通道向目标账户发送 XAH，此时交易会以 `tecNO_DST` 失败。（当然，已删除账户本身也无法发送任何交易。）不过，此交易类型的其他用途不受影响，包括调整通道过期时间、关闭一个没有剩余金额的通道，或移除一个已过期的通道。
+
+### PaymentChannelClaim Flags
+
+PaymentChannelClaim 类型交易支持以下附加 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfRenew` | `0x00010000` | 65536 | 清除通道的 `Expiration` 时间。(`Expiration` 不同于通道不可变的 `CancelAfter` 时间。) 只有 payment channel 的 source address 可以使用此标志。 |
+| `tfClose` | `0x00020000` | 131072 | 请求关闭通道。只有通道的 source 与 destination 地址可以使用该标志。如果处理完当前 claim 后通道已无剩余金额，或 destination address 使用该标志，则通道会立即关闭。如果 source address 在通道仍有金额时使用该标志，则会安排通道在 `SettleDelay` 秒后关闭。具体来说，它会把通道的 `Expiration` 设为“前一个账本的 close time 加上通道的 `SettleDelay`”，除非通道已经有一个更早的 `Expiration`。如果 destination address 在通道仍有金额时使用该标志，则处理 claim 后剩余金额会退回 source address。 |

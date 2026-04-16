@@ -1,0 +1,81 @@
+---
+title: 'XRPL/Xahau：有哪些不同？'
+description: XRP Ledger 与 Xahau 之间值得注意的差异列表。
+---
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+#### IOU 代币托管与支付通道
+
+Xahau 引入了 IOU 代币托管（Escrow）和支付通道（PayChannels）这两项特性，以增强交易的灵活性和安全性。它们支持在预定义条件下临时托管 IOU 代币，并建立高效的链下支付通道。
+
+<LinkCard title="Payments" href="/docs/features/network-features/payments" />
+
+#### 使用 URITokens，而不是 NFTokens
+
+Xahau 不使用 XRPL 的 NFTokens，而是采用 URITokens。URITokens 是一种具有唯一标识符和元数据的非同质化数字资产，为区块链上的资产表达方式提供了新的思路。
+
+<LinkCard title="URIToken" href="/docs/features/network-features/uritoken" />
+
+#### 不同的代码仓库
+
+Xahau 和 XRPL 运行在不同的代码仓库中，这意味着它们是两个拥有各自开发路线与文档的独立协议。这种差异也意味着 Xahau 可能提供 XRPL 中没有的独特功能和优化。
+
+[https://github.com/Xahau/xahaud](https://github.com/Xahau/xahaud)
+
+#### 不同的构建流程（WASM 与 LLVM）
+
+Xahau 的构建流程使用了 WebAssembly（WASM）和 Low-Level Virtual Machine（LLVM），而这些内容并不出现在 XRPL 的构建流程说明中。Xahau 使用这些技术来增强智能合约能力，并提升代码库的性能与跨平台兼容性。
+
+<LinkCard title="Build Xahau" href="/docs/infrastructure/build-xahaud" />
+
+#### 不同的 Amendment 时间（5 天）
+
+Xahau 的 amendment 流程设定为 5 天，这与 XRPL 的时间线不同。Amendment 指的是协议变更，而这 5 天是验证者达成共识并启用这些变更所需的持续支持周期。
+
+<LinkCard title="Amendments" href="/docs/features/amendments" />
+
+#### 不同的初始 Sequence
+
+Xahau 账户的起始 sequence 与 XRPL 不同。账户的初始 sequence 是该账户被创建或导入 Xahau 时的 ripple epoch 时间。
+
+#### Import / Burn 2 Mint
+
+从 XRPL 导入到 Xahau 时，用户可获得 2 枚 XAH 代币。这体现了一种激励机制，用于鼓励资产从 XRPL 迁移或桥接到 Xahau，从而可能提升网络采用率和流动性。
+
+<LinkCard title="Burn 2 Mint (B2M)" href="/docs/features/burn-2-mint" />
+
+#### Balance Rewards（使用 XAH 的奖励）
+
+Xahau 提供使用 XAH 的余额奖励机制，而这在 XRPL 中并不存在。该机制通过奖励持有或使用 Xahau 原生代币 XAH 的用户，来促进网络参与度和稳定性。
+
+<LinkCard title="Balance Rewards" href="/docs/features/network-features/balance-rewards" />
+
+#### Hooks
+
+Xahau 中的 Hooks 是 XRPL 所没有的能力。它们是可附加到账户上的可编程脚本或类似智能合约的函数，为网络操作增加了一层可编程性和自动化能力。
+
+<LinkCard title="Hooks" href="/docs/hooks/" />
+
+#### 治理结构
+
+Xahau 的治理结构与 XRPL 不同。Xahau 拥有自己的决策方式、提案系统和验证者角色分工，这些都会影响网络的演进方向。
+
+<LinkCard title="Governance Game" href="/docs/features/governance-game" />
+
+#### 节点要求
+
+运行 Xahau 节点所需的条件与 XRPL 节点不同。这些差异与支撑 Xahau 独特功能和网络需求的技术规格有关。
+
+<LinkCard title="System Requirements" href="/docs/infrastructure/system-requirements" />
+
+#### 原生代币
+
+Xahau 的原生代币是 XAH，而不是 XRPL 的 XRP。作为 Xahau 网络中的主要货币，XAH 很可能承担主要交换媒介与价值储存的角色，是网络经济体系的核心。
+
+<LinkCard title="Currency Formats" href="/docs/protocol-reference/data-types/currency-formats" />
+
+#### 版本管理（使用日期）
+
+Xahau 使用基于日期的版本管理方式，而不是 XRPL 的版本方案。这种方法可能让网络更新和历史演进的追踪更直观。
+
+<LinkCard title="Versioning Process" href="/docs/features/versioning-process" />

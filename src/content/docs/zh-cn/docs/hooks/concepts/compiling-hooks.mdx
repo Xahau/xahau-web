@@ -1,0 +1,74 @@
+---
+title: Compiling Hooks
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 约束
+
+所有 Hooks 在被设置到 Xahau 账户上之前，都必须先编译成一个单独的 [WebAssembly module](https://webassembly.github.io/spec/core/syntax/modules.html)。
+
+一个 Hook 必须实现并导出以下函数中的一个或两个：
+
+`int64_t hook(uint32_t ctx) { ... }` _必需_
+
+* 当某笔交易进入或离开安装该 Hook 的账户时执行（`ctx = 0`），或者
+* 当它作为 [Weak Transactional Stakeholder](/docs/hooks/concepts/weak-and-strong) 执行时运行（`ctx > 0`）
+
+`int64_t cbak(uint32_t ctx) { ... }` _可选_
+
+* 当某笔 emitted transaction 成功进入账本时执行（`ctx = 0`），或者
+* 当某笔 emitted transaction 无法进入任何账本时执行（`ctx = 1`）
+
+Hooks 不允许导出其他函数。因此，开发者必须巧妙地使用宏，把全部计算都放进这两个函数里完成。这是 Hooks 计算限制的一部分，用于让运行时保持可预测。
+
+另外，Hooks 不提供 _heap_ 内存。所有需要的内存都必须预留并使用在栈上。
+
+### 示例
+
+下面是一个用 C 编写的示例 Hook。它会先向 trace 日志打印 0...3，然后接受 Originating Transaction。
+
+```c
+#include <stdint.h>
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+extern int32_t _g (uint32_t id, uint32_t maxiter);
+extern int64_t accept (uint32_t read_ptr, uint32_t read_len, int64_t error_code);
+extern int64_t trace_num (uint32_t read_ptr, uint32_t read_len, int64_t number);
+
+int64_t hook(uint32_t ctx)
+{
+    for (int i = 0; GUARD(3), i < 3; ++i)
+    {
+        trace_num("test", 4, i);
+    }
+    accept (0,0,0);
+    return 0;
+}
+```
+
+<Aside type="tip">
+出于教学目的，上面的示例刻意没有包含 `hookapi.h`（而开发者通常实际会使用它）。
+</Aside>
+
+### 编译
+
+有[多种编译器](https://www.google.com/search?q=webassembly+compiler+C)都可以把 C 源文件编译成合法的 WebAssembly。编译之后，Hook 会成为一个二进制 `.wasm` 文件，其中包含一个 WebAssembly module。
+
+平均 Hook 开发者通常不需要直接阅读 WebAssembly，但从概念上理解它依然很有帮助。需要特别注意的是：
+
+* Hook _只能_导入 Hooks API 提供的函数
+* Hook _只能_导出 `cbak` 与 `hook`
+* 所有 hooks 还必须从 Hooks API 中导入 `_g`，也就是 `guard` 函数
+
+<Aside type="tip">
+WebAssembly 是一种平台无关的通用计算 `bytecode` 语言，并且它与人类可读形式是一一对应的，因此两者经常被交替引用。
+</Aside>
+
+### Unwanted Exports
+
+大多数 WebAssembly 编译器（包括常见工具链）都会为了自身链接目的产生额外 exports。在很多情况下，这些 exports 很难甚至无法在编译阶段直接禁用。
+
+这些不需要的 exports 会导致原本有效的 Hook 被拒绝。因此在编译完成后，开发者应使用 [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c) 去除这些多余 exports。否则你的 Hook 会被拒绝。
+
+<Aside type="caution">
+不要忘记使用 [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c)，否则你的 Hooks 会被拒绝。
+</Aside>

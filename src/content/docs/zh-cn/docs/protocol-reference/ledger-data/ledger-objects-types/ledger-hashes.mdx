@@ -1,0 +1,72 @@
+---
+title: Ledger Hashes
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L104-L108)
+
+（不要与用于唯一标识某个账本版本的 ["ledger hash" 字符串数据类型][Hash] 混淆。本节描述的是 `LedgerHashes` 账本对象类型。）
+
+`LedgerHashes` 对象类型包含通往当前账本版本之前历史账本的哈希记录。关闭账本时，这类对象会被自动修改。（这是少数几种无需交易或伪交易就会修改账本状态数据的情况之一。）`LedgerHashes` 对象的存在，使得仅凭当前账本版本并最多再查询一次较早账本版本，就能查到某个历史账本的哈希。
+
+`LedgerHashes` 对象分为两种类型，但二者字段相同。每个账本版本包含：
+
+* 恰好一个“近期历史” `LedgerHashes` 对象
+* 若干个“更早历史” `LedgerHashes` 对象，其数量取决于当前账本索引（也就是账本历史长度）。具体来说，Xahau 每 65536 个账本版本新增一个“更早历史”对象。
+
+**注意：** 作为例外，全新的创世账本完全没有 `LedgerHashes` 对象，因为它没有任何账本历史。
+
+`LedgerHashes` 对象示例（已截短）：
+
+```json
+{
+  "LedgerEntryType": "LedgerHashes",
+  "Flags": 0,
+  "FirstLedgerSequence": 2,
+  "LastLedgerSequence": 33872029,
+  "Hashes": [
+    "D638208ADBD04CBB10DE7B645D3AB4BA31489379411A3A347151702B6401AA78",
+    "254D690864E418DDD9BCAC93F41B1F53B1AE693FC5FE667CE40205C322D1BE3B",
+    "A2B31D28905E2DEF926362822BC412B12ABF6942B73B72A32D46ED2ABB7ACCFA",
+    "AB4014846DF818A4B43D6B1686D0DE0644FE711577C5AB6F0B2A21CCEE280140",
+    "3383784E82A8BA45F4DD5EF4EE90A1B2D3B4571317DBAC37B859836ADDE644C1",
+    ... (up to 256 ledger hashes) ...
+  ],
+  "index": "B4979A36CDC7F3D3D5C31A4EAE2AC7D7209DDA877588B9AFC66799692AB0D66B"
+}
+```
+
+`LedgerHashes` 对象包含以下字段：
+
+| 名称 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `FirstLedgerSequence` | Number | UInt32 | 是 | **已弃用**，不要使用。（生产环境 Xahau 的“近期哈希”对象由于早期 `rippled` 软件的原因，在该字段中固定保留值 `2`。随着“近期哈希”对象更新，这个值会被沿用。新的“更早历史”对象没有此字段，而使用较新版本 `rippled` 启动的平行网络中的“近期哈希”对象也没有该字段。） |
+| `Flags` | Number | UInt32 | 是 | 此对象启用的布尔标志位图。目前协议没有为 `LedgerHashes` 对象定义任何标志，因此该值始终为 `0`。 |
+| `Hashes` | Array of Strings | Vector256 | 是 | 最多包含 256 个账本哈希的数组。其内容取决于该 `LedgerHashes` 对象属于哪种子类型。 |
+| `LastLedgerSequence` | Number | UInt32 | 是 | 此对象 `Hashes` 数组中最后一个条目的 [Ledger Index][]。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0068`，映射为字符串 `LedgerHashes`，表示这是账本哈希列表对象。 |
+
+### Recent History LedgerHashes
+
+除创世账本外，每个账本中都恰好存在一个“近期历史”子类型的 `LedgerHashes` 对象。该对象的 `Hashes` 数组中保存最近 256 个账本版本的标识哈希（如果总历史少于 256 个账本，则保存更少）。每当一个新账本关闭时，关闭流程的一部分就是用该账本所派生自的前一个账本版本的哈希（也称为此账本版本的 _parent ledger_）更新“近期历史”对象。当哈希数量超过 256 个时，最旧的一个会被移除。
+
+使用某个账本版本中的“近期历史” `LedgerHashes` 对象，可以获取该账本之前 256 个账本版本范围内任意账本索引对应的哈希。
+
+### Previous History LedgerHashes
+
+“更早历史” `LedgerHashes` 条目共同保存整个账本历史中每隔 256 个账本版本的哈希（也称为“flag ledgers”）。当某个 flag ledger 的子账本关闭时，该 flag ledger 的哈希会被添加到最新的“更早历史” `LedgerHashes` 对象的 `Hashes` 数组中。每 65536 个账本，`rippled` 会创建一个新的 `LedgerHashes` 对象，因此每个“更早历史”对象都保存 256 个 flag ledger 的哈希。
+
+**注意：** 最早的“更早历史” `LedgerHashes` 对象只有 255 个条目，因为创世账本的账本索引是 1 而不是 0。
+
+这些“更早历史” `LedgerHashes` 对象构成了一个 [skip list](https://en.wikipedia.org/wiki/Skip_list)，因此你可以通过索引获取任意历史 flag ledger 的哈希。随后，再利用该 flag ledger 的“近期历史”对象，就可以获取任意其他账本的哈希。
+
+### LedgerHashes ID 格式
+
+`LedgerHashes` 对象的 ID 有两种格式，具体取决于该对象是“近期历史”子类型还是“更早历史”子类型。
+
+**“近期历史”** `LedgerHashes` 对象的 ID 是对 `LedgerHashes` 空间键（`0x0073`）直接执行 [SHA-512Half][] 的结果。换句话说，“近期历史”对象的 ID 恒为 `B4979A36CDC7F3D3D5C31A4EAE2AC7D7209DDA877588B9AFC66799692AB0D66B`。
+
+**“更早历史”** `LedgerHashes` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* `LedgerHashes` 空间键（`0x0073`）
+* 对象 `Hashes` 数组中某个 flag ledger 的 32 位 [Ledger Index][] 除以 65536 的结果
+
+  **提示：** 除以 65536 会保留最高的 16 位，这些位对于某个“更早历史”对象中列出的所有 flag ledger 都相同，而且仅对它们相同。你可以利用这一点来查找包含任意 flag ledger 哈希的 `LedgerHashes` 对象。

@@ -1,0 +1,37 @@
+---
+title: TicketCreate
+description: TicketCreate 交易会预留一个或多个 [sequence numbers][Sequence Number] 作为 Tickets。
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/CreateTicket.cpp)
+
+_(由 [TicketBatch amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "TransactionType": "TicketCreate",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "10",
+    "Sequence": 381,
+    "TicketCount": 10
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `TicketCount` | Number | UInt32 | 要创建多少个 Tickets。必须是正整数，并且在该交易执行后，不能导致账户拥有超过 250 个 Tickets。 |
+
+如果交易无法创建_全部_请求的 Tickets（无论是因为 250 个 Ticket 限制还是 owner reserve 不足），则整笔交易失败，且不会创建任何 Ticket。若要查询某账户当前拥有多少 Tickets，可使用 [account_info method][] 并查看 `account_data.TicketCount` 字段。
+
+**提示：** 这笔交易会将发送账户的 [sequence number][Sequence Number] 增加 1，_再加上_创建的 ticket 数量（`TicketCount`）。这是唯一一种会让账户 sequence number 增加超过 1 的交易。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，TicketCreate 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temINVALID_COUNT` | `TicketCount` 字段无效。它必须是 1 到 250 之间的整数。 |
+| `tecDIR_FULL` | 该交易会导致账户同时拥有超过 250 个 Tickets，或总体上超过账本对象允许的最大数量。 |
+| `tecINSUFFICIENT_RESERVE` | 发送账户没有足够的 XAH 来满足所有请求 Tickets 的 owner reserve。 |

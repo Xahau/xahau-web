@@ -1,0 +1,52 @@
+---
+title: SignerListSet
+description: SignerListSet 交易会创建、替换或删除一个可用于多重签名的 signer 列表。
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/SetSignerList.cpp)
+
+### 示例
+
+```json
+{
+    "Flags": 0,
+    "TransactionType": "SignerListSet",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "SignerQuorum": 3,
+    "SignerEntries": [
+        {
+            "SignerEntry": {
+                "Account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                "SignerWeight": 2
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "rUpy3eEg8rqjqfUoLeBnZkscbKbFsKXC3v",
+                "SignerWeight": 1
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "raKEEVSGnKSD9Zyvxu4z6Pqpm4ABH8FS6n",
+                "SignerWeight": 1
+            }
+        }
+    ]
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `SignerQuorum` | Number | UInt32 | signer 权重的目标值。只有当提供的签名权重总和大于或等于该值时，这个列表生成的多重签名才有效。若要删除 signer list，请使用值 `0`。 |
+| `SignerEntries` | Array | Array | _(删除时省略)_ `SignerEntry` 对象数组，用于表示该列表中的签名人地址及其权重。该 signer list 至少要有 1 个成员，最多不能超过 32 个成员。列表中任何地址都不能重复，也不能包含提交本交易的 `Account` 本身。_(由 [ExpandedSignerList amendment][] 更新。)_ |
+
+成功的 SignerListSet 交易会替换该账户在账本中的 `SignerList` 对象；如果之前不存在，则新增一个。一个账户不能拥有多个 signer list。若要删除 signer list，必须将 `SignerQuorum` 设为 `0`，并且省略 `SignerEntries` 字段。否则交易会以 `temMALFORMED` 失败。即使原本并没有 signer list，删除 signer list 的交易仍视为成功。
+
+你不能创建一个永远无法满足 `SignerQuorum` 的 signer list。`SignerQuorum` 必须大于 0，且小于或等于列表中全部 `SignerWeight` 的总和。否则交易会以 `temMALFORMED` 失败。
+
+如果账户当前可用的签名方式允许，你可以使用 master key、regular key 或当前 signer list 来创建、更新或移除 signer list。
+
+你不能移除账户最后一种可用的签名方式。如果账户的 master key 已禁用（账户启用了 `lsfDisableMaster`），且该账户又没有配置 Regular Key，那么你就不能从账户中删除 signer list。否则交易会以 `tecNO_ALTERNATIVE_KEY` 失败。
+
+创建或替换 signer list 会在 SignerList 对象上启用 `lsfOneOwnerCount` 标志。那些在 [MultiSignReserve amendment][] 启用前创建的列表没有该标志，因此 owner reserve 更高。你可以通过用相同列表替换它自身来降低这些列表的 owner reserve。更多信息请参见 SignerList Flags。

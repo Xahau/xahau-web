@@ -1,0 +1,260 @@
+---
+title: 二进制格式
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/STObject.cpp#L696-L718)
+
+本页介绍 Xahau 用于交易及其他数据的规范二进制格式（canonical binary format）。这种二进制格式是创建和验证交易内容数字签名所必需的，也用于其他场景，包括服务器之间的点对点通信。`xahaud` APIs 通常使用 JSON 与客户端应用通信。然而，JSON 并不适合用作待签名交易的序列化格式，因为 JSON 可以用许多不同但等价的方式表示同一份数据。
+
+将交易从 JSON 或其他表示方式序列化为其规范二进制格式的过程，可以概括为以下步骤：
+
+1. 确保提供了所有必填字段，包括那些虽为必填但可以“自动补全”的字段。
+
+   Transaction Formats Reference 定义了 Xahau 交易的必填字段和可选字段。
+
+   **注意：** 在这一步还必须提供 `SigningPubKey`。在签名时，你可以从用于签名的 secret key 推导出该公钥。
+2. 将每个字段的数据转换为其“内部”二进制格式。
+3. 按规范顺序对字段进行排序。
+4. 为每个字段加上一个 Field ID 前缀。
+5. 按排序后的顺序将这些字段（包括前缀）拼接起来。
+
+最终结果是一个单一的二进制 blob，它可以使用常见签名算法进行签名，例如 ECDSA（使用 secp256k1 椭圆曲线）和 Ed25519。对于 Xahau，你还必须在签名前，使用适当前缀对数据进行 \[hash]\[Hash]：单签名时使用 `0x53545800`，多签名时使用 `0x534D5400`。签名完成后，还必须再次序列化交易，并包含 `TxnSignature` 字段。
+
+**注意：** Xahau 也使用相同的序列化格式来表示其他类型的数据，例如账本对象和已处理交易。不过，只有某些字段适合包含在需要签名的交易中。（例如，包含签名本身的 `TxnSignature` 字段，就不应出现在被签名的二进制 blob 中。）因此，某些字段被标记为 “Signing” 字段，这些字段在对象被签名时会被包含进去；而另一些则是 “non-signing” 字段，不会被包含。
+
+#### 示例
+
+带签名和不带签名的交易，都可以用 JSON 和二进制两种格式表示。以下示例展示了同一笔已签名交易在 JSON 与二进制格式下的表示：
+
+**JSON：**
+
+```json
+
+<div data-gb-custom-block data-tag="include" data-0='_code-samples/tx-serialization/py/test-cases/tx1.json'></div>
+
+```
+
+**二进制（以十六进制表示）：**
+
+```
+
+<div data-gb-custom-block data-tag="include" data-0='_code-samples/tx-serialization/py/test-cases/tx1-binary.txt'></div>
+
+```
+
+### 示例代码
+
+这里描述的序列化过程已在多个位置和多种编程语言中实现：
+
+* 在 C++ 中，见 [`rippled` 代码库](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/STObject.cpp)。
+* 在 JavaScript 中，见本仓库的代码示例部分。
+* 在 Python 3 中，见本仓库的代码示例部分。
+
+此外，许多客户端库也在宽松开源许可证下提供了序列化支持，因此你可以直接导入、使用或根据自身需求改造这些代码。
+
+### 内部格式
+
+每个字段都有一种“内部”二进制格式，`xahaud` 源码在签名时（以及大多数其他场景中）使用这种格式来表示该字段。所有字段的内部格式都定义在 [`SField.cpp`](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/impl/SField.cpp) 的源码中。（该文件中还包含交易字段以外的其他字段。）Transaction Format Reference 也列出了所有交易字段对应的内部格式。
+
+例如，通用交易字段 `Flags` 会被转换成 `UInt32`（32 位无符号整数）。
+
+#### Definitions 文件
+
+以下 JSON 文件定义了将 Xahau 数据序列化为二进制格式，以及从二进制反序列化时所需的重要常量：
+
+[**https://github.com/Xahau/xahau.js/tree/main-xahau/packages/xahau-binary-codec/src/enums/definitions.json**](https://github.com/Xahau/xahau.js/tree/main-xahau/packages/xahau-binary-codec/src/enums/definitions.json)
+
+下表定义了 definitions 文件中的顶层字段：
+
+| 字段 | 内容 |
+| ---- | ---- |
+| `TYPES` | 数据类型到其 “type code” 的映射，用于构造 Field ID，并按规范顺序排序字段。低于 1 的 code 不应出现在实际数据中；高于 10000 的 code 表示诸如 “Transaction” 之类的特殊“高层级”对象类型，它们不能被序列化到其他对象内部。关于每种类型如何序列化，参见 Type List。 |
+| `LEDGER_ENTRY_TYPES` | 账本对象到其数据类型的映射。这些值出现在 ledger state 数据中，也出现在已处理交易 metadata 的 “affected nodes” 部分。 |
+| `FIELDS` | 一个已排序的 tuple 数组，表示所有可能出现在交易、账本对象或其他数据中的字段。每个 tuple 的第一个成员是字段名字符串，第二个成员是该字段属性的对象。（这些属性字段的含义见下方 “Field properties” 表。） |
+| `TRANSACTION_RESULTS` | 交易结果代码到其数值的映射。未进入账本的结果类型为负值；`tesSUCCESS` 的数值为 0；`tec` 类代码表示虽失败但仍被写入账本的结果。 |
+| `TRANSACTION_TYPES` | 所有交易类型到其数值的映射。 |
+
+对于交易签名和提交所需的序列化来说，`FIELDS`、`TYPES` 和 `TRANSACTION_TYPES` 这三个字段是必要的。
+
+`FIELDS` 数组中的字段定义对象包含以下字段：
+
+| 字段 | 类型 | 内容 |
+| ---- | ---- | ---- |
+| `nth` | Number | 该字段的字段代码（field code），用于构造其 Field ID，并与其他相同数据类型的字段排序。 |
+| `isVLEncoded` | Boolean | 若为 `true`，则该字段带有长度前缀。 |
+| `isSerialized` | Boolean | 若为 `true`，则该字段应被编码进序列化的二进制数据中。若为 `false`，则该字段通常是按需重建的，而不是持久存储。 |
+| `isSigningField` | Boolean | 若为 `true`，则在为交易准备签名时应序列化该字段。若为 `false`，则该字段不应包含在待签名数据中。（它甚至可能根本不属于交易字段。） |
+| `type` | String | 该字段的内部数据类型。它映射到 `TYPES` 表中的某个键，而后者给出该字段的 type code。 |
+
+#### Field IDs
+
+[\[Source - Encoding\]](https://github.com/seelabs/rippled/blob/cecc0ad75849a1d50cc573188ad301ca65519a5b/src/ripple/protocol/impl/Serializer.cpp#L117-L148) [\[Source - Decoding\]](https://github.com/seelabs/rippled/blob/cecc0ad75849a1d50cc573188ad301ca65519a5b/src/ripple/protocol/impl/Serializer.cpp#L484-L509)
+
+将一个字段的 type code 与 field code 组合起来，就得到该字段的唯一标识符，也就是会加在最终序列化 blob 中该字段前面的 Field ID。Field ID 的大小为 1 到 3 字节，具体取决于它组合的 type code 和 field code。如下表所示：
+
+|                      | Type Code < 16 | Type Code >= 16 |
+| -------------------- | -------------- | --------------- |
+| **Field Code < 16**  |                |                 |
+| **Field Code >= 16** |                |                 |
+
+在解码时，你可以通过**第一个字节**中哪些位是 0 来判断 Field ID 占用了多少字节。这与上表中的情况对应如下：
+
+|                            | High 4 bits are nonzero | High 4 bits are zero |
+| -------------------------- | ----------------------- | -------------------- |
+| **Low 4 bits are nonzero** | 1 字节：高 4 位定义类型；低 4 位定义字段。 | 2 字节：第一个字节低 4 位定义字段；下一个字节定义类型。 |
+| **Low 4 bits are zero**    | 2 字节：第一个字节高 4 位定义类型；第一个字节低 4 位为 0；下一个字节定义字段。 | 3 字节：第一个字节是 `0x00`，第二个字节定义类型，第三个字节定义字段。 |
+
+**注意：** 尽管 Field ID 由用于排序字段的两个元素组成，但你不应直接按序列化后的 Field ID 字节值排序，因为 Field ID 的字节结构本身会改变排序结果。
+
+#### 长度前缀
+
+某些可变长度字段类型会带有长度指示前缀。`Blob` 字段（包含任意二进制数据）就是其中之一。关于哪些类型会带长度前缀，请参见 Type List 表。
+
+**注意：** 某些长度可变的字段类型并不会使用长度前缀。这类类型会用其他方式标识内容结束位置。
+
+长度前缀由 1 到 3 个字节组成，用于表示紧随其后的字段内容长度。
+
+* 若字段包含 0 到 192 字节数据，则第一个字节直接表示内容长度，随后紧跟对应长度的数据。
+* 若字段包含 193 到 12480 字节数据，则前两个字节按如下公式表示长度：
+
+  ```
+    193 + ((byte1 - 193) * 256) + byte2
+  ```
+* 若字段包含 12481 到 918744 字节数据，则前三个字节按如下公式表示长度：
+
+  ```
+    12481 + ((byte1 - 241) * 65536) + (byte2 * 256) + byte3
+  ```
+* 带长度前缀的字段不能包含超过 918744 字节的数据。
+
+在解码时，你可以通过第一个长度字节的值来判断后面是否还有 0、1 或 2 个额外长度字节：
+
+* 若第一个长度字节的值小于或等于 192，则它就是唯一的长度字节，并且直接表示字段内容的字节长度。
+* 若第一个长度字节的值在 193 到 240 之间，则一共有两个长度字节。
+* 若第一个长度字节的值在 241 到 254 之间，则一共有三个长度字节。
+
+### 规范字段顺序
+
+交易中的所有字段都按特定顺序排序：先按字段类型（更准确地说，是分配给每种类型的数字 “type code”），再按字段本身（“field code”）排序。（可以把它理解成先按姓排序，再按名排序，其中“姓”相当于字段类型，“名”相当于字段本身。）
+
+#### Type Codes
+
+每种字段类型都有一个任意指定的 type code，数值越小，排序越靠前。这些 code 定义在 [`SField.h`](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/SField.h#L57-L74) 中。
+
+例如，[UInt32 的 type code 是 2](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/SField.h#L59)，因此所有 UInt32 字段都会排在所有 [Amount 字段之前，而后者的 type code 是 6](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/SField.h#L63)。
+
+definitions 文件中的 `TYPES` 映射列出了每种类型的 type code。
+
+#### Field Codes
+
+每个字段都有一个 field code，用于对相同字段类型内部进行排序，数值越小排序越靠前。这些字段定义在 [`SField.cpp`](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/impl/SField.cpp#L72-L266) 中。
+
+例如，\[Payment transaction]\[] 中的 `Account` 字段[排序代码为 1](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/impl/SField.cpp#L219)，因此它排在 `Destination` 字段前面，而后者的[排序代码为 3](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/impl/SField.cpp#L221)。
+
+不同字段类型之间可以重复使用同一个 field code，但相同类型的字段绝不会拥有相同的 field code。当你把 type code 和 field code 组合起来时，就得到该字段唯一的 Field ID。
+
+### 类型列表
+
+交易指令中的字段可以属于以下任意类型：
+
+| 类型名 | Type Code | 位长度 | 是否带长度前缀 | 说明 |
+| ------ | --------- | ------ | -------------- | ---- |
+| AccountID | 8 | 160 | Yes | 账户的唯一标识符。 |
+| Amount | 6 | 64 or 384 | No | 一笔 XAH 或 token 数量。若为 XAH，字段长度是 64 位；若为 token，则为 384 位（64+160+160）。 |
+| Blob | 7 | Variable | Yes | 任意二进制数据。其中一个重要字段是 `TxnSignature`，即授权交易的签名。 |
+| Hash128 | 4 | 128 | No | 128 位任意二进制值。该类型唯一字段是 `EmailHash`，用于保存账户持有人邮箱的 MD-5 哈希，以便获取 [Gravatar](https://www.gravatar.com/)。 |
+| Hash160 | 17 | 160 | No | 160 位任意二进制值。它可表示货币代码或发行方。 |
+| Hash256 | 5 | 256 | No | 256 位任意二进制值。通常表示交易、账本版本或账本数据对象的 “SHA-512Half” 哈希。 |
+| PathSet | 18 | Variable | No | 跨币种支付的一组可能支付路径。 |
+| STArray | 15 | Variable | No | 包含可变数量成员的数组，具体成员类型取决于字段。例如 memos 和多签中的 signer 列表。 |
+| STIssue | 24 | 160 or 320 | No | 一种资产定义，可以是 XAH 或 token，但不包含数量。 |
+| STObject | 14 | Variable | No | 包含一个或多个嵌套字段的对象。 |
+| UInt8 | 16 | 8 | No | 8 位无符号整数。 |
+| UInt16 | 1 | 16 | No | 16 位无符号整数。`TransactionType` 是该类型的一个特殊例子，不同字符串映射到特定整数值。 |
+| UInt32 | 2 | 32 | No | 32 位无符号整数。所有交易中的 `Flags` 和 `Sequence` 字段都是此类型示例。 |
+
+除了上述所有字段类型外，以下类型还可能出现在其他上下文中，例如账本对象和交易 metadata：
+
+| 类型名 | Type Code | 是否带长度前缀 | 说明 |
+| ------ | --------- | -------------- | ---- |
+| Transaction | 10001 | No | 一种“高层级”类型，包含整笔交易。 |
+| LedgerEntry | 10002 | No | 一种“高层级”类型，包含完整账本对象。 |
+| Validation | 10003 | No | 一种“高层级”类型，用于点对点通信中表示共识流程里的 validation vote。 |
+| Metadata | 10004 | No | 一种“高层级”类型，包含单笔交易的 metadata。 |
+| UInt64 | 3 | No | 64 位无符号整数。该类型不出现在交易指令中，但多个账本对象会使用这种字段。 |
+| Vector256 | 19 | Yes | 该类型不出现在交易指令中，但 Amendments 账本对象中的 `Amendments` 字段会用它表示当前启用的 amendments。 |
+
+#### AccountID 字段
+
+这类字段包含 XRP Ledger 账户的 160 位标识符。在 JSON 中，这些字段表示为 \[base58]\[] 编码的 XRP Ledger “地址”，其中附带额外校验和数据，以降低输入错误仍被视为有效地址的概率。（这种编码有时也称为 “Base58Check”，可以防止用户意外把钱发送到错误地址。）这类字段的二进制格式不包含任何校验和数据，也不包含地址 base58 编码中使用的 `0x00` “type prefix”。（不过，由于二进制格式主要用于已签名交易，若在转录已签名交易时出现笔误或其他错误，签名本身会失效，从而阻止错误交易发生。）
+
+单独作为字段出现的 AccountID（例如 `Account` 和 `Destination`）虽然长度固定为 160 位，但仍然带有长度前缀。因此，这类字段的长度指示字节始终是 `0x14`。而作为特殊字段子项出现的 AccountID（例如 Amount 中的 `issuer` 和 PathSet 中的 `account`）则**不**带长度前缀。
+
+#### Amount 字段
+
+“Amount” 类型是一种特殊字段类型，用于表示一笔货币数量，可以是 XAH，也可以是 token。该类型又分为两种子类型：
+
+* XAH
+
+  XAH 序列化为一个 64 位无符号整数（big-endian 顺序），但最高位始终为 0，以表示它是 XAH；次高位始终为 `1`，表示它是正数。由于 XAH 的最大值（10^17 drops）只需要 57 位，因此你可以在标准 64 位无符号整数基础上，对其执行与 `0x4000000000000000` 的按位 OR 运算来得到 XAH 的序列化格式。
+* **Tokens**
+
+  Token 由以下三个部分按顺序组成：
+
+  1. 64 位：使用 token amount format 表示数量。第一位为 `1`，表示这不是 XAH。
+  2. 160 位：表示货币代码。标准 API 会把诸如 `"USD"` 之类的 3 字符代码转换为标准货币代码格式对应的 160 位编码，但也支持自定义 160 位代码。
+  3. 160 位：表示发行方的 Account ID。（另见：Account Address Encoding）
+
+你可以通过第一位来区分子类型：`0` 表示 XAH；`1` 表示 token。
+
+下图展示了 XAH amount 和 token amount 两种序列化格式：
+
+include_svg("img/serialization-amount.svg", 'XAH amounts have a "not XAH" bit, a sign bit, and 62 bits of precision. Token amounts consist of a "not XRP" bit, a sign bit, an exponent (8 bits), significant digits (54 bits), currency code (160 bits), and issuer (160 bits).')
+
+**Token Amount Format**
+
+[\[Source\]](https://github.com/Xahau/xahaud/blob/35fa20a110e3d43ffc1e9e664fc9017b6f2747ae/src/ripple/protocol/impl/STAmount.cpp)
+
+include_svg("img/currency-number-format.svg", "Token Amount Format diagram")
+
+Xahau 使用 64 位来序列化（可替代）token 的数值部分。（在 JSON 格式中，数值部分对应 currency amount 对象中的 `value` 字段。）在二进制格式中，数值部分按顺序由 “not XAH” 位、sign 位、有效数字和指数构成：
+
+1. Token amount 的第一位（最高位）为 `1`，表示这不是 XAH amount。（XAH amount 的最高位总是 `0`，以与该格式区分。）
+2. sign 位表示数量是正数还是负数。不同于标准的 [two's complement](https://en.wikipedia.org/wiki/Two's_complement) 整数表示，在 Xahau 格式中，`1` 表示**正数**，`0` 表示负数。
+3. 接下来的 8 位表示指数，作为无符号整数存储。指数表示有效数字要乘以 10 的几次幂，范围是 -96 到 +80（含边界）。不过在序列化时，会先给指数加上 97，使其能够被表示为无符号整数。因此，序列化值为 `1` 表示指数 `-96`，序列化值为 `177` 表示指数 `80`，以此类推。
+4. 剩余的 54 位表示有效数字（有时也称作 _mantissa_），作为无符号整数存储。序列化时，该值会被归一化到 10^15（`1000000000000000`）至 10^16-1（`9999999999999999`）之间，唯一例外是数值为 0 的特殊情况。对 0 这一特殊值来说，sign 位、指数和有效数字全部为 0，因此 64 位值会被序列化为 `0x8000000000000000000000000000000000000000`。
+
+数值部分会与货币代码和发行方一起序列化，组成完整的 token amount。
+
+**货币代码**
+
+在协议层面，Xahau 中的货币代码本质上是任意 160 位值，不过以下值具有特殊含义：
+
+* 货币代码 `0x0000000000000000000000005852500000000000` **始终不允许**使用。（这是标准格式中的 “XAH” 代码。）
+* 货币代码 `0x0000000000000000000000000000000000000000`（全 0）**通常不允许**使用。一般来说，XAH amount 不会通过货币代码来表示。不过，在极少数必须显式指定 XAH 货币代码的字段中，会使用该值。
+
+`xahaud` APIs 支持一种 **标准格式**，将 3 字符 ASCII 代码转换为 160 位十六进制值，规则如下：
+
+include_svg("img/currency-code-format.svg", "Standard Currency Code Format")
+
+1. 前 8 位必须是 `0x00`。
+2. 接下来的 88 位为保留位，且应全部为 `0`。
+3. 再接下来的 24 位表示 3 个 ASCII 字符。Ripple 建议使用 [ISO 4217](https://www.xe.com/iso4217.php) 代码，或流行的伪 ISO 4217 代码，例如 `"BTC"`。不过，以下字符的任意组合都被允许：所有大小写字母、数字，以及符号 `?`、`!`、`@`、`#`、`$`、`%`、`^`、`&`、`*`、`<`、`>`、`(`、`)`、`{`、`}`、`[`、`]` 和 `|`。全大写的货币代码 `XAH` 保留给 XAH，不能被 tokens 使用。
+4. 接下来的 40 位为保留位，且应全部为 `0`。
+
+**非标准格式** 指的是任意 160 位数据，只要其前 8 位不是 `0x00` 即可。
+
+#### Array 字段
+
+某些交易字段，例如 \[SignerListSet transactions]\[] 中的 `SignerEntries` 以及 `Memos`，是对象数组（称为 “STArray” 类型）。
+
+数组会按特定顺序包含若干对象字段，并使用其原生二进制格式。对于 JSON 来说，每个数组成员都是一个仅包含单个字段的 JSON “wrapper” 对象，该字段的名字就是成员对象字段名，而其值则是内部对象本身。
+
+在二进制格式中，数组中的每个成员都带有一个 Field ID 前缀（基于 wrapper 对象的唯一键）以及内容（内容本身是按对象格式序列化的内部对象）。要标记数组结束，需要追加一个 “Field ID” 为 `0xf1` 的项（即数组类型的 type code 搭配 field code 1），且不带任何内容。
+
+以下示例展示了数组（`SignerEntries` 字段）的序列化格式：
+
+include_svg("img/serialization-array.svg", 'Array field ID, followed by the Field ID and contents of each array element, followed by the "Array end" field ID')
+
+#### Blob 字段
+
+Blob 类型是一个带长度前缀的任意数据字段。使用该类型的两个常见字段是 `SigningPubKey` 和 `TxnSignature`，它们分别包含授权执行交易所需的公钥与签名。

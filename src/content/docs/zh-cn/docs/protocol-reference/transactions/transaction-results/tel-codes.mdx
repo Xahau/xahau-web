@@ -1,0 +1,28 @@
+---
+title: TEL Codes
+---
+这些代码表示本地服务器在处理交易时发生错误；另一台配置或负载不同的服务器仍有可能成功处理该交易。其数值范围为 -399 到 -300。具体数值可能变化，因此不要依赖数值本身。
+
+**注意：** 带有 `tel` 代码的交易不会被应用到账本中，也不会引发任何 Xahau 状态变化。不过，这些交易可能会被自动缓存并稍后重试。
+
+| 代码 | 说明 |
+| --- | --- |
+| `telBAD_DOMAIN` | 交易指定了一个不可用的 domain 值，通常因为它太长，无法存储到账本中。 |
+| `telBAD_PATH_COUNT` | 交易包含过多 paths，超出本地服务器可处理上限。 |
+| `telBAD_PUBLIC_KEY` | 交易指定了不可用的公钥值，通常因为长度不正确。 |
+| `telCAN_NOT_QUEUE` | 交易没有满足 open ledger cost，而且该服务器也没有将其加入队列。 |
+| `telCAN_NOT_QUEUE_BALANCE` | 交易没有满足 open ledger cost，也未加入队列，因为已排队交易的潜在 XAH 成本总和超过了账户预期余额。 |
+| `telCAN_NOT_QUEUE_BLOCKS` | 交易没有满足 open ledger cost，也未加入队列，因为若把它插入队列，会阻塞同一发送方的其他已排队交易。 |
+| `telCAN_NOT_QUEUE_BLOCKED` | 交易没有满足 open ledger cost，也未加入队列，因为前面同一发送方的某笔已排队交易阻塞了它。 |
+| `telCAN_NOT_QUEUE_FEE` | 队列中已存在同发送方、同 sequence number 的交易，而新交易支付的费用不足以替换它。 |
+| `telCAN_NOT_QUEUE_FULL` | 交易没有满足 open ledger cost，而且服务器的交易队列已满。 |
+| `telFAILED_PROCESSING` | 处理交易时发生未指定错误。 |
+| `telINSUF_FEE_P` | 交易中的 `Fee` 不足以满足服务器当前的交易费用要求。 |
+| `telLOCAL_ERROR` | 未指定的本地错误。 |
+| `telNO_DST_PARTIAL` | 这是一笔将资助新账户的 XAH 付款，但启用了 `tfPartialPayment`，因此不被允许。 |
+| `telWRONG_NETWORK` | 交易指定了错误的 `NetworkID`。 |
+| `telREQUIRES_NETWORK_ID` | 当前网络要求 `NetworkID`，但交易未指定。 |
+| `telNETWORK_ID_MAKES_TX_NON_CANONICAL` | 交易指定了 `NetworkID`，但当前网络要求不能提交该字段。 |
+| `telNON_LOCAL_EMITTED_TXN` | emitted transaction 不能被应用，因为它不是在本地生成的。 |
+| `telIMPORT_VL_KEY_NOT_RECOGNISED` | 交易是在另一网络上签名的，或提交到了错误网络。 |
+| `telCAN_NOT_QUEUE_IMPORT` | `Import` 交易无法直接应用，也不能排队。 |

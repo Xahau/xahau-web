@@ -1,0 +1,105 @@
+---
+title: 数据类型
+---
+不同类型的对象会以不同方式被唯一识别：
+
+账户通过其 Address 识别，例如 `"r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59"`。地址始终以 `"r"` 开头。许多 `rippled` 方法也接受十六进制表示。
+
+交易通过其二进制格式的 Hash 来识别。你也可以通过发送该交易的账户以及其 Sequence Number 来识别一笔交易。
+
+每一个已关闭的 Ledger 都有一个 Ledger Index 和一个 Hash 值。在 \[Specifying Ledgers]\[] 时，可以使用其中任意一个。
+
+### 地址
+
+### 哈希
+
+#### 哈希前缀
+
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/HashPrefix.h)
+
+在很多情况下，Xahau 会在计算对象哈希之前，先给对象的二进制数据加上一个 4 字节代码前缀，以便不同类型的对象即使二进制格式相同，也能得到不同哈希。这些 4 字节代码由三个 ASCII 字母字符加一个零字节组成。
+
+某些类型的哈希会出现在 API 请求和响应中。另一些则只会在对特定类型数据签名时，或者在计算更高层级哈希时作为第一步出现。下表展示了 Xahau 使用的所有 4 字节哈希前缀：
+
+| 对象类型 | API 字段 | 哈希前缀（Hex） | 哈希前缀（文本） |
+| -------- | -------- | --------------- | ---------------- |
+| 共识提案 | N/A | `0x50525000` | `PRP\0` |
+| 账本版本 | `ledger_hash` | `0x4C575200` | `LWR\0` |
+| 账本状态数据 | `account_state` in ledger header | `0x4D4C4E00` | `MLN\0` |
+| 账本数据内部节点 | N/A | `0x4D494E00` | `MIN\0` |
+| 账本数据内部节点（SHAMapv2） | N/A | `0x494E5200` | `INR\0` |
+| Payment Channel Claim | N/A | `0x434C4D00` | `CLM\0` |
+| 已签名交易 | transactions 的 `hash` | `0x54584E00` | `TXN\0` |
+| 带 metadata 的交易 | N/A | `0x534E4400` | `SND\0` |
+| 未签名交易（单签名） | N/A | `0x53545800` | `STX\0` |
+| 未签名交易（多签名） | N/A | `0x534D5400` | `SMT\0` |
+| Validation vote | N/A | `0x56414C00` | `VAL\0` |
+| Validator manifest | N/A | `0x4D414E00` | `MAN\0` |
+
+Ledger object IDs 的计算方式与此相似，但它们使用的是一个 2 字节前缀，称为 “space key”，而不是这里描述的这种 4 字节前缀。
+
+### 账户序号
+
+### 账本索引
+
+#### 指定账本
+
+许多 API 方法要求你指定某个账本实例，而返回的数据会被视为截至该特定共享账本版本为止的最新状态。所有接受账本版本的命令在这方面的工作方式都一致。你可以通过以下三种方式来指定所要使用的账本：
+
+1. 在 `ledger_index` 参数中通过 Ledger Index 指定账本。每个已关闭账本的 ledger index 都比前一个大 1。（第一个账本的 ledger index 为 1。）
+
+   ```
+    "ledger_index": 61546724
+   ```
+2. 在 `ledger_hash` 参数中通过 Hash 值指定账本。
+
+   ```
+    "ledger_hash": "8BB204CE37CFA7A021A16B5F6143400831C4D1779E6FE538D9AC561ABBF4A929"
+   ```
+3. 在 `ledger_index` 参数中使用以下快捷值之一：
+   * `validated`：最近一个已通过共识验证的账本
+
+     ```
+       "ledger_index": "validated"
+     ```
+   * `closed`：最近一个已关闭修改并已提议验证的账本
+   * `current`：服务器当前正在处理的账本版本。
+
+另有一个已弃用的 `ledger` 参数，也可以接受上述三种格式中的任意一种。**不要**使用这个参数；它可能会在不另行通知的情况下被移除。
+
+如果你不指定账本，则服务器会自行决定使用哪个账本来处理请求。默认情况下，服务器选择 `current`（进行中的）账本；在 Reporting Mode 下，服务器则改用最近一个已验证账本。不要同时提供多个指定账本的字段。
+
+**注意：** 不要依赖服务器在未指定账本时的默认行为；该行为未来可能变化。如果可以，请始终在请求中明确指定账本版本。
+
+Reporting Mode 不会记录未验证的账本数据。如果你向 Reporting Mode 服务器请求 `current` 或 `closed` 账本，服务器会将该请求转发给一个 P2P Mode 服务器。如果你请求的是一个尚未验证的账本索引或哈希，则 Reporting Mode 服务器会返回 `lgrNotFound` 错误。
+
+### 指定货币金额
+
+Xahau 中有两种货币：XAH 与 tokens。这两类货币使用不同格式表示，并且在精度与舍入行为上也不同。
+
+某些字段，例如 \[Payment transaction]\[] 的目标 `Amount`，可以接受任意一种类型。还有一些字段只能接受 XAH，例如 `Fee` 字段（交易成本）。
+
+XAH 使用字符串形式表示，内容是 XAH 的 “drops” 整数数量，其中 100 万 drops 等于 1 XAH。Token 则使用对象形式表示，其中包含十进制金额、货币代码和发行方字段。例如：
+
+* **XAH** - 若要指定一个值为 13.1 XAH 的 `Amount` 字段：
+
+  ```
+    "Amount": "13100000"
+  ```
+* **Token** - 若要指定一个值为 13.1 FOO，且由 / 向 `rf1B...` 发行的 `Amount` 字段：
+
+  ```
+    "Amount": {
+        "value": "13.1",
+        "currency": "FOO",
+        "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+    }
+  ```
+
+更多信息请参见 Currency Formats。
+
+### 指定时间
+
+`xahaud` 服务器及其 APIs 使用无符号整数表示时间。这个数值表示自 “Ripple Epoch” 起经过的秒数，而 Ripple Epoch 指的是 2000 年 1 月 1 日（UTC 00:00）。它的原理与 [Unix epoch](http://en.wikipedia.org/wiki/Unix_time) 类似，只不过 Ripple Epoch 比 Unix Epoch 晚 946684800 秒。
+
+不要在 32 位变量中把 Ripple Epoch 时间转换成 UNIX Epoch 时间，这可能导致整数溢出。

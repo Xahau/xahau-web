@@ -1,0 +1,38 @@
+---
+title: EnableAmendment
+---
+`EnableAmendment` pseudo-transaction 用于标记某个提议 amendment 状态的变化，当它：
+
+* 获得验证者的 supermajority approval
+* 失去 supermajority approval
+* 在 Xahau 协议上被启用
+
+### JSON 示例
+
+```json
+{
+  "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+  "Amendment": "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE",
+  "Fee": "0",
+  "LedgerSequence": 21225473,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TransactionType": "EnableAmendment"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Amendment` | String | Hash256 | amendment 的唯一标识符。它不是面向人类阅读的名称。已知 amendments 列表请参见 Amendments。 |
+| `LedgerSequence` | Number | UInt32 | 此 pseudo-transaction 出现时对应的 [ledger index][]。它用于区分同一类变更在不同时间的出现。 |
+
+### EnableAmendment Flags
+
+EnableAmendment pseudo-transaction 的 `Flags` 值表示在包含该 pseudo-transaction 的账本时刻，amendment 所处的状态。
+
+`Flags` 值为 `0`（无 flags），或者直接省略 `Flags` 字段，都表示该 amendment 已被启用，并适用于其后的所有账本。其他 `Flags` 值如下：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfGotMajority` | `0x00010000` | 65536 | 从该账本版本开始，此 amendment 获得了至少 80% 受信任验证者的支持。 |
+| `tfLostMajority` | `0x00020000` | 131072 | 从该账本版本开始，此 amendment 的支持率下降到 80% 以下。 |

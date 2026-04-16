@@ -1,0 +1,32 @@
+---
+title: URIToken
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+URITokens 是 Xahau 网络原生的非同质化代币（NFT）实现。它们作为账本中的一等对象存在，并通过发行方与统一资源标识符（URI）的哈希值进行唯一标识。URITokens 可以指向任何数字内容，并且在账本上，同一账户下每个 URI 只能对应一个对象。
+
+发行方可以设置一个标志，以允许该对象在未来被销毁。账户持有 URIToken 时，也需要锁定相应的准备金。
+
+### 交易类型
+
+#### URITokenMint
+
+`URITokenMint` 交易用于铸造一个新的 URIToken，并将所有权分配给指定账户。被铸造的 URIToken 表示一个可用于多种场景的唯一数字资产。发行方可以选择允许该 URIToken 在未来被销毁。
+
+<LinkCard title="URITokenMint" href="/docs/protocol-reference/transactions/transaction-types/uritokenmint" />
+
+#### URITokenBurn
+
+`URITokenBurn` 交易用于在 Xahau 上销毁一个 URIToken。销毁 URIToken 会将其永久移出流通。该交易没有特殊的交易成本要求，但必须由持有该 URIToken 的账户来发起。
+
+<LinkCard title="URITokenBurn" href="/docs/protocol-reference/transactions/transaction-types/uritokenburn" />
+
+#### URITokenBuy
+
+`URITokenBuy` 交易允许用户从发行方购买一个 URIToken。该交易用于将 URIToken 的所有权从发行方转移给购买方。完成该交易需要提供购买方账户、要购买的 URIToken 唯一标识符，以及支付该 URIToken 的货币金额。
+
+<LinkCard title="URITokenBuy" href="/docs/protocol-reference/transactions/transaction-types/uritokenbuy" />
+
+<LinkCard title="URITokenCreateSellOffer" href="/docs/protocol-reference/transactions/transaction-types/uritokencreateselloffer" />
+
+<LinkCard title="URITokenCancelSellOffer" href="/docs/protocol-reference/transactions/transaction-types/uritokencancelselloffer" />

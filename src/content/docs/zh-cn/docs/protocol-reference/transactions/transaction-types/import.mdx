@@ -1,0 +1,62 @@
+---
+title: Import
+description: Import 是一种新交易，可接收来自 XRPL Mainnet（network_id=0）或 Testnet（network_id=1）的 XPOP，并提供账户同步能力。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(由 [Import amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+  "TransactionType": "Import",
+  "Sequence": 0,
+  "Fee": "0",
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "Blob": "DEADBEEF"
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Blob` | String | Blob | 表示 XPOP 的十六进制值 |
+| `Issuer` | String | AccountID | （可选）可在 Hook 内部使用的地址 |
+| `Destination` | String | AccountID | （可选）可在 Hook 内部使用的地址 |
+
+### 错误场景
+
+* 如果账户尚未 Activated，则 `Sequence` 必须为 0，`Fee` 也必须为 0
+* 如果账户已经 Activated，则 `Sequence` 与 `Fee` 需要按标准方式计算
+* 如果存在 `Issuer` 字段，则 `Fee` 必须按标准方式计算
+
+### 备注
+
+_建议如果你使用 `SignerList` 或 `RegularKey` 为交易签名，最好先完成账户 key 配置，再尝试进行 _B2M_ XAH。_
+
+* 如果内部（xpop）交易是 `AccountSet`，则 Mainnet 上已有的 flags 会被转移到新网络
+* 如果内部（xpop）交易是 `SetRegularKey`，并且 `RegularKey` 字段缺失或为空，同时账户不存在 signers list，则账户上会设置 `lsfDisableMaster`
+* 如果内部（xpop）交易是 `SetRegularKey`，则账户上会设置 `lsfPasswordSpent`
+* `Import` 不支持 `TicketSequence`
+
+### 为 Issuer 执行导入
+
+对于 issuer，在其资产持有人能够导入交易之前，还需要额外步骤。
+
+首先，issuer 需要安装一个 hook。对此有两个选项：`B2MNFToken` 或 `B2MPayment`。
+
+#### B2MNFToken
+
+Mainnet 上的一笔 `NFTokenBurn` 交易，将在该网络上产生一笔 `URITokenMint` 交易。
+
+> c hook: https://example.com
+
+#### B2MPayment
+
+Mainnet 上发送给该 Issuer 的一笔 `Payment` 交易，将在该网络上产生一笔由 Issuer 发出的 `Payment` 交易。
+
+> c hook: https://example.com
+
+_请注意，issuer 的导入流程涉及特定交易类型，并且需要谨慎配置。务必确保 hooks 已正确设置，并且这些交易对预期操作是有效的。_

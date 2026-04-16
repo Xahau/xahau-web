@@ -1,0 +1,62 @@
+---
+title: Slots and Keylets
+description: 检查并操作链上对象。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 背景
+
+Xahau 中有许多异构对象类型，而 Hook 对这些对象拥有读取权限。例如：_transactions_、_accounts_、_ledgers_，以及它们各自的子组件，只是其中一部分。
+
+如果可以通过“视图”访问同一份底层数据，却仍然让程序反复做无意义拷贝，那就是一种常见的低效实现方式。在编程里，有意识地避免拷贝通常被称为 [Zero copy](https://en.wikipedia.org/wiki/Zero-copy)。
+
+在 Hooks 里同样适用这个原则：我们想尽量避免拷贝，尤其要避免无谓地复制整本 ledger 这样的大对象，也要尽量避免不必要的序列化与反序列化。
+
+### 什么是 slots？
+
+Slots 是 Hook API 的一部分，提供了一个零拷贝的、_heterogenous_ 的链上对象与交易访问系统。
+
+* 每个 Hook 在运行时可使用 255 个 slots
+* 每个 slot 要么为空，要么包含一个已经 _slotted_ 的对象
+* slot API 允许深入到对象的内部结构，并且这些内部对象本身也可以继续被放入其他 slot
+* slot API 允许 Hook 把 slotted objects 导出到缓冲区，或直接读取它们
+
+可用的 slot APIs 包括：
+
+| Hook API | 作用 |
+| --- | --- |
+| [slot](/docs/hooks/functions/slot/slot) | 把一个 slotted object 序列化并输出 |
+| [slot_clear](/docs/hooks/functions/slot/slot_clear) | 释放当前已占用 slot |
+| [slot_count](/docs/hooks/functions/slot/slot_count) | 统计某个 slot 中数组对象的元素数量 |
+| `slot_id` | 计算 slotted object 的 canonical hash 并返回 |
+| [slot_set](/docs/hooks/functions/slot/slot_set) | 根据 keylet 定位某对象并把它放入一个 slot |
+| [slot_subarray](/docs/hooks/functions/slot/slot_subarray) | 在一个 slotted array 中索引某个子对象，并把它分配到另一个 slot |
+| [slot_subfield](/docs/hooks/functions/slot/slot_subfield) | 在一个 slotted object 中索引某个子字段，并把它分配到另一个 slot |
+| [slot_type](/docs/hooks/functions/slot/slot_type) | 获取 slot 中对象的 field code，并可选返回其他信息 |
+| [slot_float](/docs/hooks/functions/slot/slot_float) | 把指定 slot 中的 STI_AMOUNT 解析为 XFL enclosed number |
+| [slot_size](/docs/hooks/functions/slot/slot_size) | 计算 slot 中对象的序列化大小 |
+
+### 什么是 keylets？
+
+Keylets 用于定位（指向）链上对象。简而言之，它们是由对象标识信息计算出的 _hash_，是该对象的 canonical _handle_。
+
+Hooks 使用一种序列化的 34 字节 keylet 格式，它可以通过关键函数 [util_keylet](/docs/hooks/functions/utilities/util_keylet) 派生出来。如果没有它，查找并 slot 对象几乎是不可能的。
+
+<Aside type="tip">
+  接受 34 字节 keylet 的 Hook APIs，通常也接受 32 字节 canonical transaction hash。
+</Aside>
+
+### 示例
+
+下面示例中，先为一个 `signers` 对象生成 34 字节 keylet，然后把该对象 slot 到一个新 slot 中：
+
+```c
+uint8_t keylet[34];
+if (util_keylet(SBUF(keylet), KEYLET_SIGNERS, SBUF(hook_accid), 0, 0, 0, 0) != 34)
+    rollback(SBUF("Notary: Internal error, could not generate keylet"), 10);
+
+// 然后请求 XRPLD 把这个 keylet 放进一个新 slot
+int64_t slot_no = slot_set(SBUF(keylet), 0);
+if (slot_no < 0)
+   rollback(SBUF("Notary: Could not set keylet in slot"), 10);
+```

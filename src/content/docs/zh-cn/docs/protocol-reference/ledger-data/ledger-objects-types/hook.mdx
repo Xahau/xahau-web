@@ -1,0 +1,57 @@
+---
+title: Hook
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(由 [Hooks amendment][] 引入。)_
+
+`Hook` 对象描述一个智能合约。它可以在交易触发时执行预定义操作。这些操作由 `Hook` 的创建者定义，并且可以与账本和交易交互。
+
+### JSON 示例
+
+```json
+{
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "Hooks": [
+    {
+      "HookHash": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+      "HookParameters": []
+    }
+  ],
+  "LedgerEntryType": "Hook",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### 字段
+
+`Hook` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Account` | String | Account | 是 | 创建该 Hook 的账户。 |
+| `OwnerNode` | String | UInt64 | 是 | 一个提示值，指出此对象链接于所有者目录的哪一页；当目录包含多页时尤其有用。 |
+| `PreviousTxnID` | String | Hash256 | 是 | 最近一次修改此对象的交易 ID。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | 是 | 包含最近一次修改此对象之交易的账本的 [ledger index][]. |
+| `Hooks` | Array | Array | 是 | Hook 对象数组。每个对象可包含以下字段：`HookHash`、`CreateCode`、`HookGrants`、`HookNamespace`、`HookParameters`、`HookOn`、`HookApiVersion`、`Flags`。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0043`，映射为字符串 `Hook`，表示这是一个 Hook 对象。 |
+
+### Hook 字段
+
+以下字段用于 Hook 条目本身：
+
+| 字段 | JSON 类型 | Internal Type | 说明 |
+| --- | --- | --- | --- |
+| `HookHash` | String | Hash256 | Hook 的哈希值。 |
+| `HookParameters` | Array | Array | Hook 的参数。 |
+| `Flags` | Number | UInt32 | Hook 的附加标志。 |
+
+#### Hook ID 格式
+
+`Hook` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* Hook 空间键（`0x0048`）
+* 创建该 `Hook` 对象的 [SetHook transaction][] 发送方的 AccountID

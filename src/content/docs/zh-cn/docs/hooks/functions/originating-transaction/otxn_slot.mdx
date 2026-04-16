@@ -1,0 +1,76 @@
+---
+title: otxn_slot
+description: 将原始交易加载到一个槽位中
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+* 将原始交易放入指定槽位；如果未指定槽位，则放入一个新槽位
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_slot(slotno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot_no = 
+		otxn_slot(0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const otxn_slot_no = otxn_slot(0)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type      | Description |
+| -------- | --------- | ----------- |
+| slot_no | uint32_t | 要放入的槽位编号；若为 0，则选择下一个可用槽位 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description |
+| ------ | ------ | ----------- |
+| slotno | number | 要查找的槽位号 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>原始交易被放入的槽位号<br /><br /><code>INVALID_ARGUMENT</code><br />- 指定的槽位号超过最大可能槽位号<br /><br /><code>NO_FREE_SLOTS</code><br />- 没有空闲槽位可用于放置原始交易。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ErrorCode \| ByteArray | 成功时返回与指定槽位关联的值数组，失败时返回 ErrorCode。 |
+</TabItem>
+</Tabs>

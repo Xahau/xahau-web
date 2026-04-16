@@ -1,0 +1,61 @@
+---
+title: Admin API Methods
+---
+这些方法仅供负责维护 `xahaud` 服务器运行的受信任人员使用。
+
+### 密钥生成方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| validation_create | 为 `xahaud` 节点生成格式化密钥对。（验证者应使用 token，而不是此方法生成的密钥。） |
+| wallet_propose | 为新账户生成密钥。 |
+
+### 日志与数据管理方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| can_delete | 启用在线删除，删除至某个指定账本为止的账本数据。 |
+| download_shard | 下载指定的账本历史 shard。 |
+| ledger_cleaner | 设置 ledger cleaner 以检测并修复损坏数据。 |
+| ledger_request | 向对等节点查询某个指定账本版本。 |
+| log_level | 查看或更改日志详细级别。 |
+| logrotate | 重新打开日志文件。 |
+| node_to_shard | 将数据从 ledger store 转移到 shard store。 |
+
+### 服务器控制方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| ledger_accept | 在 stand-alone 模式下关闭并推进账本。 |
+| stop | 关闭 `xahaud` 服务器。 |
+
+### 签名方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| sign | 对交易进行加密签名。 |
+| sign_for | 参与一笔多重签名。 |
+
+### 对等节点管理方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| connect | 强制服务器连接到指定对等节点。 |
+| peer_reservations_add | 为指定对等节点添加或更新一个保留槽位。 |
+| peer_reservations_del | 删除指定对等节点的保留槽位。 |
+| peer_reservations_list | 查看所有保留的对等节点槽位。 |
+| peers | 获取当前已连接对等节点的信息。 |
+
+### 状态 / 调试方法
+
+| 方法 | 说明 |
+| ---- | ---- |
+| consensus_info | 查看当前共识流程的状态。 |
+| feature | 获取协议 amendments 的信息。 |
+| fetch_info | 检查服务器与网络的同步状态。 |
+| get_counts | 查看服务器内部统计与内存使用情况。 |
+| manifest | 获取已知验证者的公钥详情。 |
+| print | 访问信息化的内部子系统数据。 |
+| validator_info | 获取服务器的验证者配置详情。 |
+| validator_list_sites | 查看发布验证者列表的网站。 |
+| validators | 获取当前验证者的信息。 |

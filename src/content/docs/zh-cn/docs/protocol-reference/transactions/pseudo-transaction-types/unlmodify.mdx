@@ -1,0 +1,30 @@
+---
+title: UNLModify
+---
+_(由 [NegativeUNL amendment][] 引入。)_
+
+`UNLModify` pseudo-transaction 用于标记 Negative UNL 的变化，也就是指出某个受信任验证者已经离线，或重新上线。
+
+**注意：** 你不能发送 pseudo-transaction，但在处理账本时可能会看到它。
+
+### JSON 示例
+
+```json
+{
+  "Account": "",
+  "Fee": "0",
+  "LedgerSequence": 1600000,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TransactionType": "UNLModify",
+  "UNLModifyDisabling": 1,
+  "UNLModifyValidator": "ED6629D456285AE3613B285F65BBFF168D695BA3921F309949AFCD2CA7AFEC16FE"
+}
+```
+
+| 名称 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `TransactionType` | String | UInt16 | 值为 `0x0066`，映射为字符串 `UNLModify`，表示这是一个 `UNLModify` pseudo-transaction。 |
+| `LedgerSequence` | Number | UInt32 | 此 pseudo-transaction 出现时对应的 [ledger index][]。它用于区分同一类变更在不同时间的出现。 |
+| `UNLModifyDisabling` | Number | UInt8 | 若为 `1`，表示该变更是把验证者加入 Negative UNL；若为 `0`，表示把验证者从 Negative UNL 中移除。（不允许其他值。） |
+| `UNLModifyValidator` | String | Blob | 要添加或移除的验证者，以其主公钥标识。 |

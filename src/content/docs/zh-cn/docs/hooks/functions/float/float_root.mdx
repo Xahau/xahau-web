@@ -1,0 +1,62 @@
+---
+title: float_root
+description: 计算 XFL 的 n 次方根
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 计算 XFL 数值的 `n` 次方根
+* 返回新的 XFL
+
+<Aside type="caution">
+出于性能限制，`float_root` 会先将参数转换为 IEEE 二进制双精度浮点，再计算 n 次根，因此返回结果通常比预期精度更低。如果你需要更高精度，可以将 XFL 拆成高低两部分，分别开方后再相乘。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 计算浮点表示的 n 次方根
+* 返回错误码或结果 bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_root (
+    int64_t float1,
+    uint32_t n
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_root(f1: bigint, n: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>计算得到的 n 次根<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- 参数为负值，结果会变成复数</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| bigint or ErrorCode | 返回错误码或方根 bigint。 |
+</TabItem>
+</Tabs>

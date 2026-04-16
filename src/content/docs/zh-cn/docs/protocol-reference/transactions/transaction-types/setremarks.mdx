@@ -1,0 +1,89 @@
+---
+title: SetRemarks
+description: SetRemarks 交易允许账户在受支持的账本对象上附加、更新或移除任意 remarks（键值对）。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetRemarks.cpp)]
+
+_(由 [Remarks amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+  "TransactionType": "SetRemarks",
+  "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+  "Flags": 0,
+  "ObjectID": "AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899",
+  "Remarks": [
+    {
+      "Remark": {
+        "RemarkName": "CAFE",
+        "RemarkValue": "DEADBEEF",
+        "Flags": 0
+      }
+    }
+  ]
+}
+```
+
+| 字段 | JSON 类型 | Internal Type | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 提交该交易的账户地址（必须是对象的 owner/issuer） |
+| `ObjectID` | String | Hash256 | remarks 所附加到的账本对象 ID（见 Supported Objects） |
+| `Remarks` | Array | Array | 要设置、更新或删除的 remark 对象数组（见 Remarks Format） |
+
+### SetRemarks Flags
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfImmutable` | `0x00000001` | 1 | 将该 remark 标记为不可变（不能修改或删除） |
+
+### Remarks 格式
+
+`Remarks` 数组中的每个条目都是一个对象，内部有一个 `Remark` 字段，而 `Remark` 对象包含以下字段：
+
+| 字段 | JSON 类型 | Internal Type | 必填 | 说明 |
+| --- | --- | --- | --- | --- |
+| `RemarkName` | String | Blob | 是 | remark 的名称/键（1 到 256 字节；每个对象内必须唯一） |
+| `RemarkValue` | String | Blob | 否 | remark 的值（1 到 256 字节）。若省略则表示删除该 remark。 |
+| `Flags` | Number | UInt32 | 否 | 设为 `1`（`tfImmutable`）则该 remark 不可变。默认值为 `0`。 |
+
+### 支持的对象与权限
+
+Remarks 可以附加到以下账本对象类型上。**只有指定一方（owner 或 issuer）可以在每类对象上创建、更新或删除 remarks：**
+
+| Ledger Object Type | 谁可以设置 Remarks？ | 备注 |
+| --- | --- | --- |
+| **AccountRoot** | Owner | 对象中的账户本身 |
+| **Offer** | Owner | 创建该 offer 的账户 |
+| **Escrow** | Owner | 创建该 escrow 的账户 |
+| **Ticket** | Owner | 创建该 ticket 的账户 |
+| **PayChannel** | Owner | 创建该 payment channel 的账户 |
+| **Check** | Owner | 创建该 check 的账户 |
+| **DepositPreauth** | Owner | 创建该 deposit preauthorization 的账户 |
+| **URI Token** | Issuer | 发行该 URI token 的账户（字段 `sfIssuer`） |
+| **Trustline (RippleState)** | Issuer | 只有 trustline 的 issuer 一侧（发行该 IOU 的账户）可以设置 remarks。 |
+
+### 限制
+
+* 每个对象**最多 32 条 remarks**
+* 每个 `RemarkName` 和 `RemarkValue` 必须在 1 到 256 字节之间
+* 每个 `RemarkName` 在同一个对象内必须唯一
+* 一旦某条 remark 被标记为 immutable（`Flags: 1`），就不能再修改或删除
+
+### 特殊交易费用
+
+基础交易费用会按交易中所有 `RemarkName` 与 `RemarkValue` 字段的总字节数，**每字节增加 1 drop**。
+
+### 错误场景
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temDISABLED` | Remarks amendment 未启用。 |
+| `temINVALID_FLAG` | 交易中设置了无效 flags。 |
+| `temMALFORMED` | 交易格式错误（例如 remarks 过多、名称重复、字段大小无效）。 |
+| `terNO_ACCOUNT` | 发送账户不存在。 |
+| `tecNO_TARGET` | 目标对象不存在。 |
+| `tecNO_PERMISSION` | 发送方不是该对象的 owner/issuer。 |
+| `tecIMMUTABLE` | 试图修改或删除一个 immutable remark。 |
+| `tecTOO_MANY_REMARKS` | 对象上的 remarks 数量将超过 32 条上限。 |

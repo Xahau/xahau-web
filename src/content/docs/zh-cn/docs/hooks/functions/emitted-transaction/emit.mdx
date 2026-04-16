@@ -1,0 +1,92 @@
+---
+title: emit
+description: 从 Hook 发射一笔新交易
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">发射交易</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 从 `read_ptr` 读取一笔交易
+* 根据发射规则验证该交易
+* 如果合法，则将其发射到共识流程中
+* 将规范交易哈希写入 `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 此函数会发射提供的交易 JSON。
+* 成功时返回发射交易哈希的数量。
+* 如果出错，则返回错误码。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t emit (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function emit(
+    txJson: Record<string, any> | Transaction
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+if (emit(tx, tx_len) < 0)
+    rollback("Failed to emit!", 15, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const emitResult = emit(txJson)
+if(typeof emitResult === 'number')
+    rollback("Failed to emit!", 1)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Name</th><th width="124">Type</th><th>Description</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>指向用于写入交易哈希的缓冲区</td></tr><tr><td>write_len</td><td>uint32_t</td><td>写入交易哈希缓冲区的大小（应为 32）</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>指向要发射交易的指针</td></tr><tr><td>read_len</td><td>uint32_t</td><td>交易长度</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="124">Type</th><th>Description</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>要发射的交易 JSON。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="127">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>成功时为写入的交易哈希字节数（32），或：<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- 必须先调用 <code>emit_reserve</code><br /><br /><code>TOO_MANY_EMITTED_TXN</code><br />- 发射交易数量超过此前调用 <code>emit_reserve</code> 时声明的上限<br /><br /><code>EMISSION_FAILURE</code><br />- 该交易根据发射规则属于格式错误。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="231">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>如果出错返回 ErrorCode，成功时返回发射交易哈希数组。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

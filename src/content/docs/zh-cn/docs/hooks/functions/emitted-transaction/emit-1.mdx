@@ -1,0 +1,60 @@
+---
+title: prepare
+description: 为发射准备一笔 JSON 交易
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/protocol-reference/transactions/">交易</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="JavaScript">
+* 此函数接收一个交易 JSON 对象并将其准备为可发射状态。
+* 该交易除 `Account` 字段外必须已经完整，且 `Account` 应始终为 Hook 账户。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function prepare(
+    txJson: Record<string, any> | Transaction
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const prepared_txn = prepare({
+                TransactionType: "Payment",
+                Destination: util_raddr(p1address_ns),
+                Amount: parseFloat(drops_sent)*2
+            })
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="124">Type</th><th>Description</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>交易 JSON。除 `Account` 外必须是完整交易；`Account` 始终应为 Hook 账户。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="JavaScript">
+<table><thead><tr><th width="231">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | Record&#x3C;string, any> | Transaction</td><td>如果出错返回 ErrorCode，成功时返回已准备好的交易 JSON 或 Transaction 对象。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

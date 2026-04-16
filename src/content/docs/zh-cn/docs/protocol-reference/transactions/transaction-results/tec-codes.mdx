@@ -1,0 +1,59 @@
+---
+title: TEC Codes
+---
+这些代码表示交易失败了，但它仍被应用到账本中以收取交易费用。其数值范围为 100 到 199。建议使用文本代码，而不是数值。
+
+带有 `tec` 代码的交易会销毁作为交易费用支付的 XAH，并消耗一个 sequence number。大多数情况下，这类交易不会产生其他动作，但也有例外。例如，结果为 `tecOVERSIZE` 的交易仍可能清理一些未注资 offers。要精确知道交易实际做了什么，始终应查看交易元数据。
+
+**注意：** 一笔暂时以 `tec` 失败的交易，在重新应用后仍可能成功，或以其他代码失败。只有当它出现在已验证账本版本中时，结果才是最终的。
+
+| 代码 | 数值 | 说明 |
+| --- | --- | --- |
+| `tecCANT_ACCEPT_OWN_NFTOKEN_OFFER` | 157 | 交易试图接受由同一账户自己挂出的非同质化代币买单或卖单。 |
+| `tecCLAIM` | 100 | 未指定的失败，但交易费用已销毁。 |
+| `tecCRYPTOCONDITION_ERROR` | 146 | 此 [EscrowCreate][] 或 [EscrowFinish][] 交易包含格式错误或不匹配的 crypto-condition。 |
+| `tecDIR_FULL` | 121 | 交易试图向某账户的 owner directory 添加对象（例如 trust line、Check、Escrow 或 Payment Channel），但该账户已无法再拥有更多账本对象。 |
+| `tecDUPLICATE` | 149 | 交易试图创建一个已存在的对象，例如一个 [DepositPreauth][] 授权。 |
+| `tecDST_TAG_NEEDED` | 143 | [Payment transaction][] 省略了 destination tag，但目标账户启用了 `lsfRequireDestTag`。 |
+| `tecEXPIRED` | 148 | 交易试图创建一个其 Expiration 时间已经过去的对象，例如 Offer 或 Check。 |
+| `tecFAILED_PROCESSING` | 105 | 处理交易时发生了未指定错误。 |
+| `tecFROZEN` | 137 | [OfferCreate transaction][] 失败，因为涉及的一项或两项资产处于全局冻结状态。 |
+| `tecHAS_OBLIGATIONS` | 151 | [AccountDelete transaction][] 失败，因为待删除账户仍拥有不能删除的对象。 |
+| `tecINSUF_RESERVE_LINE` | 122 | 发送账户没有足够 XAH 来创建新的 trust line。当对手方已经存在同币种、且对发送账户处于非默认状态的 trust line 时，会出现此错误。 |
+| `tecINSUF_RESERVE_OFFER` | 123 | 发送账户没有足够 XAH 来创建新的 Offer。 |
+| `tecINSUFF_FEE` | 136 | 发送账户没有足够 XAH 来支付它自己指定的交易费用。若账户余额是在交易已传播并进入共识候选集之后才下降，便会出现此结果。否则通常会先返回 `terINSUF_FEE_B`。 |
+| `tecINSUFFICIENT_FUNDS` | 158 | 涉及的某个账户不持有足够的必要资产。 |
+| `tecINSUFFICIENT_PAYMENT` | 161 | 指定金额不足以支付交易中涉及的全部费用。 |
+| `tecINSUFFICIENT_RESERVE` | 141 | 交易会使 reserve requirement 超过发送账户余额。 |
+| `tecINTERNAL` | 144 | 未指定的内部错误，但交易费用已应用。理论上不应常见。 |
+| `tecINVARIANT_FAILED` | 147 | 执行该交易时 invariant check 失败。 |
+| `tecKILLED` | 150 | [OfferCreate transaction][] 指定了 `tfFillOrKill`，但无法成交，因此被终止。 |
+| `tecMAX_SEQUENCE_REACHED` | 153 | 某个 sequence number 字段已达到最大值。 |
+| `tecNEED_MASTER_KEY` | 142 | 此交易试图执行那些必须使用 master key 才能完成的变更，例如禁用 master key 或永久放弃冻结能力。 |
+| `tecNFTOKEN_BUY_SELL_MISMATCH` | 155 | [NFTokenAcceptOffer transaction][] 试图匹配一组互不兼容的非同质化代币买卖挂单。 |
+| `tecNFTOKEN_OFFER_TYPE_MISMATCH` | 156 | 交易中指定的一项或多项 offer 类型不正确。 |
+| `tecNO_ALTERNATIVE_KEY` | 130 | 交易试图移除账户唯一可用的交易授权方式。 |
+| `tecNO_AUTH` | 134 | 交易需要在一个启用了 `lsfRequireAuth` 的账户上增加 trust line 余额，但该 trust line 尚未被授权。 |
+| `tecNO_DST` | 124 | 交易接收方账户不存在。包括 Payment 与 TrustSet 等情况。 |
+| `tecNO_DST_INSUF_NATIVE` | 125 | 接收方账户不存在，而且交易发送的 XAH 不足以创建该账户。 |
+| `tecNO_ENTRY` | 140 | 交易试图修改某个账本对象（例如 Check、Payment Channel 或 Deposit Preauthorization），但指定对象不存在。 |
+| `tecNO_ISSUER` | 133 | 某个 currency amount 的 `issuer` 字段中指定的账户不存在。 |
+| `tecNO_LINE` | 135 | [OfferCreate transaction][] 的 `TakerPays` 指定了一项资产，其发行方启用了 `lsfRequireAuth`，而创建 offer 的账户并没有该资产的 trust line。 |
+| `tecNO_LINE_INSUF_RESERVE` | 126 | 发送账户没有足够 XAH 来创建新的 trust line。当对手方尚不存在同币种指向该账户的 trust line 时，会出现此错误。 |
+| `tecNO_LINE_REDUNDANT` | 127 | 交易试图把一条 trust line 设置为默认状态，但该 trust line 本就不存在。 |
+| `tecNO_PERMISSION` | 139 | 发送方没有执行该操作的权限。 |
+| `tecNO_REGULAR_KEY` | 131 | [AccountSet transaction][] 试图禁用 master key，但账户没有其他授权交易的方法。 |
+| `tecNO_SUITABLE_NFTOKEN_PAGE` | 154 | 交易试图铸造或获取非同质化代币，但接收 `NFToken` 的账户没有能够容纳它的目录页。 |
+| `tecNO_TARGET` | 138 | 交易引用了一个不存在的 Escrow 或 PayChannel 账本对象，或者目标账户设置了 `asfDisallowXAH`。 |
+| `tecOBJECT_NOT_FOUND` | 160 | 本交易指定的某个对象在账本中不存在。 |
+| `tecOVERSIZE` | 145 | 该交易无法被处理，因为服务器在尝试应用它时生成了过大的元数据。 |
+| `tecOWNERS` | 132 | 交易无法成功，因为发送方已经拥有账本对象。 |
+| `tecPATH_DRY` | 128 | 交易失败，因为提供的 paths 完全没有足够流动性，无法发送任何金额。 |
+| `tecPATH_PARTIAL` | 101 | 交易失败，因为提供的 paths 没有足够流动性来发送完整金额。 |
+| `tecTOO_SOON` | 152 | [AccountDelete transaction][] 失败，因为待删除账户的 `Sequence` 太高。 |
+| `tecUNFUNDED` | 129 | 账户没有足够 XAH 来支付交易金额，并同时满足执行该交易所需的额外 reserve。 |
+| `tecUNFUNDED_ADD` | 102 | **已弃用。** |
+| `tecUNFUNDED_PAYMENT` | 104 | 发送账户试图发送超出其持有量的 XAH（不含 reserve）。 |
+| `tecUNFUNDED_OFFER` | 103 | [OfferCreate transaction][] 失败，因为创建 offer 的账户并不持有任何 `TakerGets` 货币。 |
+| `tecREQUIRES_FLAG` | 169 | SetHook 交易因为 Flag 与 Field 组合不正确而失败。 |
+| `tecPRECISION_LOSS` | 170 | 交易失败，因为结果会带来显著精度损失。 |

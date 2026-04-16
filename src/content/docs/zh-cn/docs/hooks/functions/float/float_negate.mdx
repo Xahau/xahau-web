@@ -1,0 +1,61 @@
+---
+title: float_negate
+description: 对 XFL 浮点数取负
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 将 XFL 乘以 `-1`
+* 返回新的 XFL `int64_t`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 对浮点表示取负
+* 返回错误码或取负后的 bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_negate (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_negate(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+<Aside type="tip" title="特殊情况">
+Canonical Zero 的相反数仍然是 Canonical Zero。与某些浮点标准（如 IEEE）不同，XFL 中没有“负零”。
+</Aside>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>XFL（xls17）封装数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode or bigint | 返回错误码或取负后的 XFL。 |
+</TabItem>
+</Tabs>

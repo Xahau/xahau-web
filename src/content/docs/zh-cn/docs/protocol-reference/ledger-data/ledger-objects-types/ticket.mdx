@@ -1,0 +1,44 @@
+---
+title: Ticket
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/76a6956138c4ecd156c5c408f136ed3d6ab7d0c1/src/ripple/protocol/impl/LedgerFormats.cpp#L155-L164)
+
+_(由 [TicketBatch amendment][] 引入。)_
+
+`Ticket` 对象类型表示一个 Ticket，它用于跟踪某个已预留、供未来使用的账户 [sequence number][Sequence Number]。你可以通过 [TicketCreate transaction][] 创建新的 ticket。[New in: rippled 1.7.0][]
+
+### JSON 示例
+
+```json
+{
+  "Account": "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Flags": 0,
+  "LedgerEntryType": "Ticket",
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "F19AD4577212D3BEACA0F75FE1BA1644F2E854D46E8D62E9C95D18E9708CBFB1",
+  "PreviousTxnLgrSeq": 4,
+  "TicketSequence": 3
+}
+```
+
+### 字段
+
+`Ticket` 对象包含以下字段：
+
+| 名称 | JSON 类型 | Internal Type | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Account` | String | AccountID | 是 | 拥有此 Ticket 的账户。 |
+| `Flags` | Number | UInt32 | 是 | 此对象启用的布尔标志位图。目前协议没有为 `Ticket` 对象定义任何标志，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0054`，映射为字符串 `Ticket`，表示这是一个 Ticket 对象。 |
+| `OwnerNode` | String | UInt64 | 是 | 一个提示值，指出此对象链接于所有者目录的哪一页；当目录包含多页时尤其有用。**注意：** 此对象不直接包含指向其所在所有者目录的链接，因为该值可以从 `Account` 推导出来。 |
+| `PreviousTxnID` | String | Hash256 | 是 | 最近一次修改此对象的交易识别哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | 是 | 包含最近一次修改此对象之交易的 [账本索引][Ledger Index]。 |
+| `TicketSequence` | Number | UInt32 | 是 | 此 Ticket 预留的 [Sequence Number][]。 |
+
+### Ticket ID 格式
+
+Ticket 对象的 ID 是按以下顺序连接下列值后，对结果执行 SHA-512Half 得到的：
+
+* Ticket 空间键（`0x0054`）
+* Ticket 所有者的 AccountID
+* Ticket 的 `TicketSequence` 编号

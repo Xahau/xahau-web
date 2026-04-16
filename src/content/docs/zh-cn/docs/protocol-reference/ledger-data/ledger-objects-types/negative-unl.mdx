@@ -1,0 +1,53 @@
+---
+title: Negative UNL
+---
+_(由 [NegativeUNL amendment][] 引入。)_
+
+`NegativeUNL` 对象类型包含 Negative UNL 的当前状态。Negative UNL 是一个当前被认为处于离线状态的受信任验证者列表。
+
+每个账本版本 **最多只包含一个** `NegativeUNL` 对象。如果当前没有任何验证者被禁用或计划禁用，那么账本中就不存在 `NegativeUNL` 对象。
+
+### JSON 示例
+
+```json
+{
+  "DisabledValidators": [
+    {
+      "DisabledValidator": {
+        "FirstLedgerSequence": 1609728,
+        "PublicKey": "ED6629D456285AE3613B285F65BBFF168D695BA3921F309949AFCD2CA7AFEC16FE"
+      }
+    }
+  ],
+  "Flags": 0,
+  "LedgerEntryType": "NegativeUNL",
+  "index": "2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244"
+}
+```
+
+`NegativeUNL` 对象包含以下字段：
+
+| 名称 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `DisabledValidators` | Array | Array | 否 | `DisabledValidator` 对象列表（见下文），每个对象代表一个当前被禁用的受信任验证者。 |
+| `Flags` | Number | UInt32 | 是 | 布尔标志位图。NegativeUNL 对象类型没有定义任何标志，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x004E`，映射为字符串 `NegativeUNL`，表示该对象就是 Negative UNL。 |
+| `ValidatorToDisable` | String | Blob | 否 | 计划在下一个 flag ledger 中禁用的受信任验证者公钥。 |
+| `ValidatorToReEnable` | String | Blob | 否 | Negative UNL 中计划在下一个 flag ledger 重新启用的受信任验证者公钥。 |
+
+### DisabledValidator 对象
+
+每个 `DisabledValidator` 对象表示一个被禁用的验证者。在 JSON 中，`DisabledValidator` 对象包含一个字段 `DisabledValidator`，其内部对象具有以下字段：
+
+| 名称 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `FirstLedgerSequence` | Number | UInt32 | 该验证者被加入 Negative UNL 时的 [ledger index][]。 |
+| `PublicKey` | String | Blob | 验证者的主公钥，采用十六进制表示。 |
+
+### NegativeUNL ID 格式
+
+`NegativeUNL` 对象的 ID 仅由 `NegativeUNL` 空间键（`0x004E`）的哈希构成。这意味着账本中的 `NegativeUNL` 对象 ID 始终为：
+
+```
+2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244
+```

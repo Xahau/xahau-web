@@ -1,0 +1,56 @@
+---
+title: 交易费用
+description: >-
+  Xahau 智能合约（Hooks）需要基于交易内容和目标账户来确定特定费用。
+  你可以通过 `fee` RPC 命令轻松获取所需费用。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+虽然某些库可以替你处理费用计算，但当你自己构建与 Xahau Network 的集成时，可能需要基于交易内容、源账户和目标账户来实现动态费用计算。
+
+由于交易发送方需要支付该交易所触发 Hooks 所需的费用，而 Hooks 既可能存在于源账户，也可能存在于目标账户，因此你可以将一个 TX Blob（使用一个 dummy account 签名）发送给 `fee` 命令，随后 Xahau 会返回该笔特定交易所需的具体费用。
+
+### Fee RPC Helper
+
+在启用了 Hooks Amendment 的账本上，交易费用对终端用户和 / 或钱包应用来说会变得不那么容易计算。这是因为 strong hooks 的费用必须由交易发起者支付，而发送账户上最多可能有 4 个 strong hooks，接收账户上也最多可能有 4 个 strong hooks，另外还可能存在其他 strong transactional stakeholders（某些特殊交易类型中会出现这种情况）。此外，如果交易本身是 `SetHook`，那么参数大小、代码大小，以及它是 _create_ 操作还是 _install_ 操作，都会影响最终费用大小。
+
+因此，强烈建议在所有交易提交到账本之前，都先通过更新后的 `fee` RPC 调用进行一次计算。
+
+#### 调用该 RPC 的方式：
+
+1. 打开一个到目标 Hooks 节点的 websocket 连接。
+2. 组装你想要查询费用的序列化交易，并满足以下条件：
+
+* `Fee: 0`
+* `SigningPubKey: ""`（也就是：类型为 `0x73` 的 0 字节 VL。在 hex 中为：`0x7300`。）
+* **不要**对交易签名。
+
+3. 以 hex blob 形式将其提交给 RPC，如下：
+
+```json
+{"command":"fee", "tx_blob":"<hex blob>"}
+```
+
+如果是 HTTP POST RPC，则按以下方式提交：
+
+```json
+{"method":"fee", "params": [{"tx_blob":"<hex blob>"}] }
+```
+
+响应大致会如下所示：
+
+```json
+{
+  result: {
+    drops: {
+      base_fee: '130520',
+    },
+  //...
+  },
+  type: 'response'
+}
+```
+
+取出 `base_fee`，并将其设置为交易中的 `Fee` 字段。然后按正常的交易提交流程对交易签名并提交。
+
+如果 `tx_blob` 的值无效，或根本没有提供 `tx_blob`，则会返回一个常规 JSON 结果，其中 `base_fee` 为 `10`。

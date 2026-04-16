@@ -1,0 +1,66 @@
+---
+title: OfferCreate
+description: OfferCreate 交易会在去中心化交易所中放置一个 Offer。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+### 示例
+
+```json
+{
+    "TransactionType": "OfferCreate",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108682,
+    "Sequence": 8,
+    "TakerGets": "6000000",
+    "TakerPays": {
+      "currency": "GKO",
+      "issuer": "ruazs5h1qEsqpke88pcqnaseXdm6od2xc",
+      "value": "2"
+    }
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Expiration` | Number | UInt32 | _(可选)_ 此 Offer 失效的时间，以 [seconds since the Ripple Epoch][] 表示。 |
+| `OfferSequence` | Number | UInt32 | _(可选)_ 先删除的一个 Offer，以 [OfferCancel][] 相同方式指定。 |
+| `OfferID` | String | Hash256 | _(可选)_ 要取消的 Offer 账本对象的 ID，使用 64 字符十六进制字符串表示。 |
+| `TakerGets` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 被卖出的货币种类与金额。 |
+| `TakerPays` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 被买入的货币种类与金额。 |
+
+### OfferCreate Flags
+
+OfferCreate 类型交易支持以下附加 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfPassive` | `0x00010000` | 65536 | 启用后，该 Offer 不会消耗与其完全匹配的 Offers，而是作为新的 Offer 对象进入账本；但仍会消耗与其交叉的 Offers。 |
+| `tfImmediateOrCancel` | `0x00020000` | 131072 | 将该 Offer 视为 [Immediate or Cancel order](http://en.wikipedia.org/wiki/Immediate_or_cancel)。它不会在账本中创建 [Offer object][]，只会在处理交易时尽可能与现有 Offers 成交。若没有任何匹配 Offers，它仍会以 `tesSUCCESS` “成功”执行，但不会发生交易。 |
+| `tfFillOrKill` | `0x00040000` | 262144 | 将该 Offer 视为 [Fill or Kill order](http://en.wikipedia.org/wiki/Fill_or_kill)。它不会在账本中创建 [Offer object][]，若执行时无法完全成交，则整笔取消。默认表示所有者必须收到完整的 `TakerPays`；若启用 `tfSell`，则改为要求所有者必须能够卖出全部 `TakerGets`。 |
+| `tfSell` | `0x00080000` | 524288 | 无论是否因此得到超过 `TakerPays` 的对价，都要把全部 `TakerGets` 数量卖出。 |
+
+### 错误场景
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temINVALID_FLAG` | 同时指定了 `tfImmediateOrCancel` 与 `tfFillOrKill`。 |
+| `tecEXPIRED` | 指定的 `Expiration` 时间已经过去。 |
+| `tecKILLED` | 指定了 `tfFillOrKill`，但无法完全成交。若启用了 [ImmediateOfferKilled amendment][]，那么在指定 `tfImmediateOrCancel` 且未发生资金移动时，也会返回该结果码。 |
+| `temBAD_EXPIRATION` | `Expiration` 字段格式无效。 |
+| `temBAD_SEQUENCE` | `OfferSequence` 字段格式无效，或大于该交易自身的 `Sequence`。 |
+| `temBAD_OFFER` | Offer 尝试用 XAH 兑换 XAH，或尝试交易无效/负数的代币金额。 |
+| `temREDUNDANT` | 交易指定了同一种代币兑换同一种代币（相同 issuer 与 currency code）。 |
+| `temBAD_CURRENCY` | 交易指定的代币货币代码为 `"XAH"`。 |
+| `temBAD_ISSUER` | 交易指定的代币 `issuer` 值无效。 |
+| `tecNO_ISSUER` | 交易指定的代币发行方在账本中不是已注资账户。 |
+| `tecFROZEN` | 交易涉及被冻结 trust line 上的代币（包括本地冻结与全局冻结）。 |
+| `tecUNFUNDED_OFFER` | 所有者不持有 `TakerGets` 所指定货币的正余额。（例外：若 `TakerGets` 指定的是所有者自己发行的代币，则交易仍可成功。） |
+| `tecNO_LINE` | 交易涉及某种代币，而其发行方使用 Authorized Trust Lines，且所需 trust line 不存在。 |
+| `tecNO_AUTH` | 交易涉及某种代币，而其发行方使用 Authorized Trust Lines，且接收代币的 trust line 虽已存在但尚未被授权。 |
+| `tecINSUF_RESERVE_OFFER` | 所有者没有足够的 XAH 来满足向账本新增 Offer 对象的储备要求，且该交易没有成功兑换任何货币。若交易成功成交了任意数量，则仍会以 `tesSUCCESS` 成功，但不会为剩余数量创建新的 Offer 对象。 |
+| `tecDIR_FULL` | 所有者在账本中拥有过多条目，或订单簿中在同一汇率下已存在过多 Offers。 |

@@ -1,0 +1,55 @@
+---
+title: GenesisMint - (Emitted Txn)
+description: GenesisMint 交易用于铸造新的 XAH 并将其分发到多个账户。
+---
+\[[Source](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/GenesisMint.cpp)]
+
+_由 [XahauGenesis amendment][] 与 [Hooks amendment][] 引入_
+
+### 示例
+
+```json
+{
+    "TransactionType": "GenesisMint",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "GenesisMints": [
+        {
+            "GenesisMint": {
+                "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+                "Amount": "1000000000"
+            }
+        }
+    ]
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | Internal Type | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 将铸造并分发 XAH 的创世账户地址。 |
+| `GenesisMints` | Array | Array | 一个对象数组，表示铸造的 XAH 将发送到哪些目标地址以及各自金额。 |
+
+### GenesisMint 对象
+
+GenesisMint 交易包含一个名为 `GenesisMints` 的对象数组。每个对象都表示一个目标账户，以及要铸造并分发给该账户的 XAH 数量。
+
+| 字段 | JSON 类型 | Internal Type | 说明 |
+| --- | --- | --- | --- |
+| `Destination` | String | AccountID | 将接收已铸造 XAH 的账户地址。 |
+| `Amount` | String | Amount | 要铸造并分发给目标账户的 XAH 数量。 |
+| `GovernanceFlags` | String | Hash256 | _(可选)_ 与目标账户关联的治理标志。 |
+| `GovernanceMarks` | String | Hash256 | _(可选)_ 与目标账户关联的治理标记。 |
+
+### 特殊交易费用
+
+GenesisMint 交易具有标准交易费用，也就是所有交易都需要满足的最低交易成本。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，GenesisMint 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temDISABLED` | “Hooks” 或 “XahauGenesis” amendments 未启用。 |
+| `temMALFORMED` | 交易格式错误，例如缺少必填字段或字段值无效。 |

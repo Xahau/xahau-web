@@ -1,0 +1,65 @@
+---
+title: State Management
+description: Hooks 可以读取并保存少量链上数据
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 什么是 Hook State？
+
+在计算机科学中，[State](https://en.wikipedia.org/wiki/State_\(computer_science\)) 指的是系统在多次执行之间保留的信息（区别于输入与输出）。例如，浏览器即使在关闭再重新打开后，仍能让你保持登录状态；这个登录 cookie 就存在于浏览器的 _state_ 中。
+
+**Hook State** 指的是：对于 Xahau 上的每个账户，都逻辑上存在一张 key-value 映射表，不管当前是否已经有任何键存在。键固定为 32 字节（无符号 256 位整数），值为可变长度，最大大小由验证者投票决定；截至当前文档编写时为 256 字节。
+
+State Management 主要通过以下 APIs 实现：
+
+* [state](/docs/hooks/functions/state/state)
+* [state_set](/docs/hooks/functions/state/state_set)
+* [state_foreign](/docs/hooks/functions/state/state_foreign)
+
+### 存储与读取
+
+下面示例使用 [state_set](/docs/hooks/functions/state/state_set) Hook API，把值 `0xC001CAFE` 写入 Hook Account 的 Hook State 中键 `0x0..000001`（uint256 = 1）对应的位置。
+
+```c
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+uint8_t value[4] = { 0xC0U, 0x01U, 0xCAU, 0xFEU };
+if (state_set(value, 4, key, 32) == 4)
+{
+    // ... state 保存成功
+}
+```
+
+在后续 Hook 执行中，就可以用同一个 key 把这个值再取回来：
+
+```c
+uint8_t value[4];
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+if (state(value, 4, key, 32) < 0)
+{
+    // ... state 获取失败
+}
+```
+
+执行完上面代码后，`value` 缓冲区里就会填入该 key 所对应的值。
+
+<Aside type="tip">
+  <code>state()</code> 要写入的缓冲区（<code>writeptr</code>）必须足够大，能够容纳该 key 当前持有的值。否则 Hook API 会返回 <code>TOO_SMALL</code> 错误。
+</Aside>
+
+### Foreign state
+
+有时，一个账户上的 Hook 读取另一个账户上 Hook 的 Hook State 会很有用。[state_foreign](/docs/hooks/functions/state/state_foreign) Hook API 正是用于此目的。由于账本本身是公开的，因此并不存在合理的隐私预期。也因此，任何 Hook 都可以读取（但不能写入）其他 Hook 的 Hook State。
+
+### Namespaces 与查询
+
+更多内容请参见 [Namespaces](/docs/hooks/concepts/namespaces)。

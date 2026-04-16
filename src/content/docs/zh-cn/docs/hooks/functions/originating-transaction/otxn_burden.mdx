@@ -1,0 +1,73 @@
+---
+title: otxn_burden
+description: 获取原始交易的 burden
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 返回原始交易的 burden；如果不存在 burden 字段，则返回 `1`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取原始交易的 burden。
+* 成功时返回 burden 数值，获取失败时返回 ErrorCode。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_burden (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_burden(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t burden = 
+  otxn_burden();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const burden = otxn_burden()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+无
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | 原始交易的 burden；如果原始交易上不存在 burden，则返回 `1` |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| number or ErrorCode | 成功时返回 burden 数值，失败时返回 ErrorCode。 |
+</TabItem>
+</Tabs>

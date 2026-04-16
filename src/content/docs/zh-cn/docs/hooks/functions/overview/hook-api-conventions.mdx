@@ -1,0 +1,95 @@
+---
+title: Hook API 约定
+sidebar:
+  order: 1
+---
+
+Xahau Hooks API（下称 Hook API）遵循一组统一约定，以便在学习和使用时更易理解。
+
+## 函数命名约定
+
+Hook API 函数通常遵循如下命名模式：
+
+`namespace[_noun1][_verb][_noun2]`
+
+其中：
+
+- `namespace` 用于表示函数所属的逻辑分组
+- `noun1` 是主要作用对象
+- `verb` 是执行的操作
+- `noun2` 是次要作用对象
+
+例如：
+
+- `sto_subfield`
+- `slot_set`
+- `state_foreign_set`
+
+### 省略的命名部分
+
+如果省略 `noun1`，通常表示与 `namespace` 同名的默认对象。  
+例如，`otxn_type` 可理解为 `otxn_txn_type`。
+
+如果省略 `verb`，则通常隐含为 `get`。  
+例如，`etxn_fee_base` 可理解为 `etxn_fee_base_get`。
+
+## 内存模型
+
+Hooks 运行在一个受严格限制的执行环境中：
+
+- 只有一个栈帧
+- 不存在堆
+- 不支持动态内存分配
+
+所有传递给 `xahaud` 的参数本质上都必须是整数。实践中，这些整数通常表示：
+
+- 指针
+- 长度
+- 标志位
+- 编码后的值
+
+由于 Hooks 环境本身限制严格，大多数 API 都以“写入缓冲区 + 读取缓冲区”的模式工作。
+
+## 允许的入口点
+
+Hook 代码中只有两个由 `xahaud` 调用的特殊函数：
+
+- `hook()`
+- `cbak()`
+
+它们分别用于：
+
+- 处理触发当前 Hook 的交易
+- 处理此前发射交易的回调
+
+## 参数顺序约定
+
+### C
+
+在 C API 中，参数顺序通常如下：
+
+1. 写入指针
+2. 写入长度
+3. 读取指针
+4. 读取长度
+5. 额外专用参数
+
+也就是说，通常采用如下模式：
+
+`write_ptr, write_len, read_ptr, read_len, ...`
+
+### JavaScript
+
+在 JavaScript API 中，写入参数通常表现为返回值，而读取参数直接作为函数入参传递。  
+因此可以近似理解为：
+
+`write_var, read_var, ...`
+
+## 返回值约定
+
+所有 Hook API 都返回带符号整数。
+
+- 负数表示错误
+- `0` 或正数表示成功，具体含义取决于对应 API
+
+更多细节请参见 [返回码](./return-codes)。

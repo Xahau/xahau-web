@@ -1,0 +1,33 @@
+---
+title: Introduction
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Hooks 为 Xahau 增加了智能合约能力：一种运行在 _Layer 1_ 的自定义代码，用于影响交易的行为与流向。Hooks 是定义在 Xahau 账户上的小型高效代码片段，允许在 Xahau 交易执行之前和/或之后运行逻辑。
+
+<Aside type="note">
+请注意：你正在阅读的是 Hooks 的**技术文档**。这部分内容技术性很强，并默认读者已经具备编程基础以及对 Xahau 网络的基本理解。如果你想先看 Hooks 是什么、能为 Xahau 带来什么，以及它们有哪些应用示例，请先阅读[这个页面](/docs/hooks/concepts/introduction/example-usage)。
+</Aside>
+
+Xahau 以其交易吞吐量、速度和低费用而受到认可。再加上 multi sign、escrows、payment channels，甚至是去中心化交易所等高级交易类型（都在账本内原生支持，不依赖智能合约），Xahau 已经为企业与有创造力的开发者提供了很多能力。
+
+Hooks 进一步为 Xahau 增加了智能合约能力：一种运行在 _Layer 1_ 的自定义代码，用于影响交易的行为与流向。Hooks 是定义在 Xahau 账户上的小型高效代码片段，可以在交易执行之前和/或之后运行。它们既可以很简单，例如“拒绝小于 10 XAH 的支付”或“所有转出支付自动拿出 10% 发到储蓄账户”，也可以更复杂。
+
+<figure>
+![Hooks high level concept](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_sEBiInWuRskTqxB29Xgd_7359187-Hooks_High_Level2x_1.png)
+<figcaption>*Hooks 高层概念图*</figcaption>
+</figure>
+
+由于 Hooks 不仅能执行高效逻辑，还能存储小型简单数据对象，因此你可以定义这样的 Hook：对于所有流入支付，先检查发送账户是否在另一个 Hook 维护的列表中；如果存在，就拒绝该交易。
+
+Hooks 刻意不是 Turing-Complete。虽然图灵完备性常被当作智能合约的“圣杯”，但对智能合约而言它实际上并不理想。（参见 [Blog 2](https://dev.to/wietse/hooked-2-hooks-security-smart-contracts-on-the-xrp-ledger-83e)。）
+
+Hooks 目前已经在公开 testnet 上可用。现在正是测试、编码、动手玩、甚至“折腾出问题”的时候，这样未来把 Hooks 加入 Xahau livenet 的 amendment 才能更有把握地推进。
+
+### 资源
+
+* [Xahau Testnet](https://xahau-test.net/)
+* [Xahau Testnet Explorer](https://explorer.xahau-test.net/)
+* [示例（源代码）](https://github.com/XRPL-Labs/xrpld-hooks/tree/hooks-ssvm/hook-api-examples)
+* [概念博客](https://dev.to/t/xrplhooks/top/infinity)

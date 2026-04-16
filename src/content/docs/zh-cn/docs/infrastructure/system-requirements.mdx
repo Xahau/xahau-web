@@ -1,0 +1,27 @@
+---
+title: 系统要求
+---
+针对不同任务定制的节点（例如 RPC/WS、hub、validator 等）的硬件要求，应与下方列出的规格保持一致。请根据你的实际用途对系统进行相应调整。
+
+## 节点类型
+
+可以根据用户需求，以多种配置方式运行 `xahaud`。同样地，一个 `xahaud` 服务器也可以被配置成多种用途，例如既作为 full history server，又同时用于 RPC/WS 调用。服务器的用途决定了所需的系统资源。常见的 `xahaud` 配置包括：
+
+1. Stock server - 这个术语通常指任何未配置为验证者的 `xahaud` 节点。Stock server 一般只对默认配置做了很少修改。
+2. Full history servers - 适合查询历史数据。除了需要大量存储空间外，根据查询用户数量，通常还需要更高的磁盘 IOPS 和网络带宽。
+3. RPC / Websocket servers - 适合提交交易、查询当前账本数据（如 order books 或 validation stream）等任务。通常会在 RPC/WS 服务器前加一层 Nginx 或其他代理软件，以实现负载均衡、加密和其他收益。
+4. Hub server - 节点之间的 peering 对于在 Xahau Network 中转发消息至关重要，而单台服务器可以配置为为数百个 peers 提供 peering。不过这可能需要非常大的带宽（10 Gbit+）。
+5. [Validating servers](/docs/infrastructure/enabling-validation) - Validators 与其他类型节点不同，因为它们需要额外安装一对加密密钥，以便对提议账本中的交易顺序进行签名确认。由于可用性和安全性至关重要，因此不建议让 validator 同时承担其他功能。
+
+## 通用说明
+
+* 构建通常会在 Ubuntu LTS 上测试。不过，Docker、可移植二进制文件、自定义构建及其他安装方式也支持多种操作系统。
+* 通常每个 `xahaud` 实例需要一个 IPv4 和 / 或 IPv6 地址。不建议在同一个 IPv4 地址后面运行多个实例。
+* 保存 full history 的机器必须使用 XFS 或类似文件系统，以避免 EXT4 在单文件大小上的限制（最大文件大小为 16TB）。如果保存的历史较少，则 EXT4 已足够。
+* 理论上可以在低于下方“Minimum”规格的机器上运行 `xahaud` 生产服务器，但这样做会带来不稳定风险。
+* 这些系统要求会随着时间增长。例如，full history servers 所需的磁盘空间会持续增加。
+* 截至 2025 年 11 月 1 日，<strong>Xahau Network 的 full history 大小为 10TB</strong>。
+
+## 生产环境 `xahaud` 服务器推荐规格
+
+<table><thead><tr><th width="140"></th><th width="200">最低</th><th width="199">推荐</th><th>理想</th></tr></thead><tbody><tr><td>CPU（2.5+ GHz x86_64）</td><td>8 cores</td><td>20 cores</td><td>40+ cores</td></tr><tr><td>内存</td><td>32GB</td><td>64GB</td><td>128GB+</td></tr><tr><td>磁盘 IO（持续）</td><td>15k random RW</td><td>20k random RW</td><td>30k random RW</td></tr><tr><td>磁盘大小</td><td>500GB</td><td>1TB</td><td>20TB+</td></tr><tr><td>文件系统</td><td>XFS</td><td>XFS</td><td>XFS</td></tr><tr><td>网络 IO</td><td>500Mbit+</td><td>1Gbit</td><td>10Gbit</td></tr></tbody></table>

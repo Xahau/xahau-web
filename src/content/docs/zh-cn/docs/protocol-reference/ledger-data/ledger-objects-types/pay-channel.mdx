@@ -1,0 +1,99 @@
+---
+title: Pay Channel
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/c0a0b79d2d483b318ce1d82e526bd53df83a4a2c/src/ripple/protocol/impl/LedgerFormats.cpp#L180-L198)
+
+_(Added by the \[PayChan amendment]\[].)_
+
+`PayChannel` 对象类型表示一个 payment channel。Payment channels 支持快速、小额的链下 XAH 或 IOU 支付，之后再与共识账本对账。Payment channel 会持有一部分 XAH 或 IOU 余额，在 channel 被关闭之前，这些余额只能支付给一个特定的 destination 地址。当 channel 关闭时，任何未使用的 XAH 或 IOU 都会返回给该 channel 的 owner（即创建并注资该 channel 的 source 地址）。
+
+\[PaymentChannelCreate transaction]\[] 类型会创建一个 `PayChannel` 对象。\[PaymentChannelFund]\[] 与 \[PaymentChannelClaim transaction]\[] 类型则会修改已有的 `PayChannel` 对象。
+
+Payment channel 过期时，最开始它仍会保留在账本中，因为只有新的交易才能修改账本内容。当任意交易在过期后访问该 channel 时，交易处理过程会自动将其关闭。若要关闭一个已过期的 channel 并将未使用的 XAH 或 IOU 退还给 owner，必须由某个地址发送新的 PaymentChannelClaim 或 PaymentChannelFund 交易来访问该 channel。
+
+如需查看 payment channels 的使用示例，请参见 Payment Channels Tutorial。
+
+### 示例 JSON
+
+```json
+{
+    "Account": "rBqb89MRQJnMPq8wTwEbtz4kvxrEDfcYvt",
+    "Destination": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Amount": "4325800",
+    "Balance": "2323423",
+    "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A",
+    "SettleDelay": 3600,
+    "Expiration": 536027313,
+    "CancelAfter": 536891313,
+    "SourceTag": 0,
+    "DestinationTag": 1002341,
+    "DestinationNode": "0000000000000000",
+    "Flags": 0,
+    "LedgerEntryType": "PayChannel",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "F0AB71E777B2DA54B86231E19B82554EF1F8211F92ECA473121C655BFC5329BF",
+    "PreviousTxnLgrSeq": 14524914,
+    "index": "96F76F27D8A327FC48753167EC04A46AA0E382E6F57F32FD12274144D00F1797"
+}
+```
+
+### 字段
+
+`PayChannel` 对象包含以下字段：
+
+| 字段名 | JSON 类型 | \[Internal Type]\[] | 必填？ | 说明 |
+| ------ | --------- | ------------------- | ------ | ---- |
+| `Account` | String | AccountID | Yes | 拥有该 payment channel 的 source 地址。该值来自创建 channel 的交易发送地址。 |
+| `Amount` | String or Object | Amount | Yes | 已分配给该 channel 的总金额。其中也包含已经支付给 destination 地址的金额。它最初由创建 channel 的交易设定，并且如果 source 地址发送 PaymentChannelFund 交易，还可以继续增加。 |
+| `Balance` | String or Object | Amount | Yes | 该 channel 已经支付出去的总金额。`Amount` 字段与该值之间的差额，就是仍可通过 PaymentChannelClaim 交易支付给 destination 地址的剩余金额。如果 channel 关闭，剩余差额会退还给 source 地址。 |
+| `CancelAfter` | Number | UInt32 | No | 该 payment channel 不可变的过期时间，以 \[seconds since the Ripple Epoch]\[] 表示。如果该字段存在且小于前一个账本的 `close_time`，则该 channel 视为已过期。它由创建 channel 的交易可选设置，之后不能修改。 |
+| `Destination` | String | AccountID | Yes | 该 payment channel 的目标地址。在 channel 打开期间，只有这个地址可以从该 channel 接收金额。该值来自创建 channel 的交易中的 `Destination` 字段。 |
+| `DestinationTag` | Number | UInt32 | No | 一个任意标签，用于进一步指定该 payment channel 的目标，例如目标地址上的托管子账户。 |
+| `DestinationNode` | String | UInt64 | No | 一个提示值，用于指示如果目标地址的 owner directory 由多页组成，则链接到该对象的是哪一页。在启用 \[fixPayChanRecipientOwnerDir amendment]\[] 之前创建的 payment channels 会省略该字段。 |
+| `Expiration` | Number | UInt32 | No | 该 payment channel 的可变过期时间，以 \[seconds since the Ripple Epoch]\[] 表示。如果该字段存在且小于前一个账本的 `close_time`，则该 channel 已过期。详见 Setting Channel Expiration。 |
+| `Flags` | Number | UInt32 | Yes | 为该对象启用的一组布尔位标志。当前协议未为 `PayChannel` 对象定义任何 flags，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | Yes | 值 `0x0078`，映射为字符串 `PayChannel`，表示该对象是一个 payment channel 对象。 |
+| `OwnerNode` | String | UInt64 | Yes | 一个提示值，用于指示如果 source 地址的 owner directory 由多页组成，则链接到该对象的是哪一页。 |
+| `PreviousTxnID` | String | Hash256 | Yes | 最近一次修改该对象的交易的标识性哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | Yes | 包含最近一次修改该对象交易的 \[账本索引]\[Ledger Index]。 |
+| `PublicKey` | String | Blob | Yes | 可用于对该 channel 的 claims 签名的密钥对公钥，以十六进制表示。它可以是任意有效的 secp256k1 或 Ed25519 公钥。该值由创建 channel 的交易设定，并且必须与后续 claims 使用的公钥一致。Channel source 地址也可以无需签名 claim，直接从该 channel 向 destination 发送金额。 |
+| `SettleDelay` | Number | UInt32 | Yes | 如果 source 地址想关闭 channel，但 channel 中仍有金额，则 source 必须等待的秒数。值越小，destination 地址在 source 请求关闭后可用于赎回未结 claims 的时间就越短。它可以是任何 32 位无符号整数范围内的值（0 到 2^32-1），由创建 channel 的交易设定。 |
+| `SourceTag` | Number | UInt32 | No | 一个任意标签，用于进一步指定该 payment channel 的来源，例如 owner 地址上的托管子账户。 |
+| `TransferRate` | Number | UInt32 | No |  |
+
+### 设置 Channel 过期时间
+
+Payment channel 的 `Expiration` 字段表示可变的过期时间，而 `CancelAfter` 字段表示不可变的过期时间。Channel 是否过期，始终相对于前一个账本的 `close_time` 字段进行判断。创建 `PayChannel` 对象时，`Expiration` 字段默认不会出现。`PayChannel` 对象的 `Expiration` 字段可以通过多种方式被更新，总体规则可以概括为：只要在 source 地址第一次尝试关闭 channel 之后，该 channel 仍至少保持 `SettleDelay` 秒的打开状态，source 地址就可以自由设置 channel 的 `Expiration`。
+
+#### Source 地址
+
+Source 地址可以通过 PaymentChannelFund 交易类型直接设置 `Expiration`。新的值不得早于以下两个值中较早者：
+
+* 当前的 `Expiration` 值（如果已设置）
+* 前一个账本的 close time 加上该 channel 的 `SettleDelay`
+
+换句话说，如果已设置过期时间，source 地址总是可以把 `Expiration` 延后。若当前尚未设置 `Expiration`，或希望缩短已有的 `Expiration`，那么新的值至少必须在未来 `SettleDelay` 秒之后。如果 source 地址试图设置无效的 `Expiration` 日期，交易会以 `temBAD_EXPIRATION` 错误失败。
+
+Source 地址还可以通过 PaymentChannelClaim 交易类型中的 `tfClose` 标志设置 `Expiration`。如果启用了该标志，账本会自动把 `Expiration` 设为以下两个值中较早者：
+
+* 当前的 `Expiration` 值（如果已设置）
+* 前一个账本的 close time 加上该 channel 的 `SettleDelay`
+
+Source 地址还可以通过 PaymentChannelClaim 交易类型中的 `tfRenew` 标志移除 `Expiration`。
+
+#### Destination 地址
+
+Destination 地址不能设置 `Expiration` 字段。不过，destination 地址可以使用 PaymentChannelClaim 的 `tfClose` 标志立即关闭 channel。
+
+#### 其他地址
+
+如果其他任意地址试图设置 `Expiration` 字段，则交易会以 `tecNO_PERMISSION` 错误失败。不过，如果 channel 已经过期，则该交易反而会触发 channel 关闭，并返回 `tesSUCCESS`。
+
+### PayChannel ID 格式
+
+`PayChannel` 对象的 ID 是对以下值按顺序拼接后计算得到的 \[SHA-512Half]\[]：
+
+* PayChannel space key（`0x0078`）
+* source account 的 AccountID
+* destination account 的 AccountID
+* 创建该 channel 的 \[PaymentChannelCreate transaction]\[] 的 Sequence number。如果 PaymentChannelCreate 交易使用了 Ticket，则应改用 `TicketSequence` 值。

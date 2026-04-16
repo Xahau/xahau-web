@@ -1,0 +1,61 @@
+---
+title: slot_subarray
+description: 在已放入槽位的数组中按索引取子对象并分配到另一个槽位
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 查找 `parent_slot` 中的数组
+* 取出 `array_id` 指定索引的子对象
+* 将子对象放入 `new_slot`，如果 `new_slot` 为 0，则使用下一个可用槽位
+* 返回新槽位编号
+</TabItem>
+
+<TabItem label="JavaScript">
+* 在指定父槽位中创建一个子数组引用
+* 返回错误码或创建结果
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_subarray (
+    uint32_t parent_slot,
+    uint32_t array_id,
+    uint32_t new_slot
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_subarray(
+    parent_slotno: number,
+    array_id: number,
+    new_slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>新分配对象所在的槽位号<br /><br />若为负数，则表示错误：<br /><code>DOESNT_EXIST</code><br />- <code>parent_slot</code> 中数组不存在指定 <code>array_id</code><br /><br /><code>NO_FREE_SLOTS</code><br />- 需要分配新槽位，但 Hook 已达到最大槽位数<br /><br /><code>NOT_AN_ARRAY</code><br />- 指定的 <code>parent_slot</code> 不是 STArray</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 返回错误码或子数组创建结果。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,194 @@
+---
+title: Governance Game
+description: >-
+  Governance Game 是 Xahau 生态中的一种创新治理机制，用于确保网络决策采用以社区为中心的方式。
+---
+
+### 概览
+
+Xahau Governance Game 允许最多 400 名利益相关者通过安装在创世账户上的 Governance Hook，以民主方式参与 Xahau 网络的治理。
+
+### 第 1 层
+
+该机制由一个“第 1 层”（Layer 1）治理桌构成，桌上共有 20 个席位。每个席位可以由一个 Xahau 账户（r-address）占据，也可以为空。当席位被占据时，就表示该桌有一位成员坐在该席位上。
+
+要参与这个治理游戏，桌上的成员需要投票。投票主题分为三类：
+
+* 席位主题
+* Hook 主题
+* 奖励主题
+
+席位主题为 `S00` 到 `S19`，表示对当前该席位应由谁（如果有的话）占据进行投票。达到 80% 支持即可触发变更。投票过程是持续进行的，当最终一票跨过阈值时，变更就会被执行。
+
+Hook 主题为 `H0` 到 `H9`，表示哪些 Hooks 被安装在该治理桌账户上，其中也包括 Governance Hook 本身。这些主题必须得到该桌所有在席成员 100% 同意，才能进行变更。这样设计可以让 Governance Game 自身得以更新，也能随着时间推移为创世账户增加更多功能。
+
+奖励主题为 `RR` 和 `RD`，分别表示 Reward-Rate 和 Reward-Delay。这些主题同样要求桌上成员 100% 同意后才能变更。这些参数会影响 `BalanceAdjustments` 系统，也就是每个活跃用户可以领取多少奖励，以及领取频率。
+
+### 第 2 层
+
+第 1 层治理桌上的席位成员本身也是 Xahau 账户（r-address）。治理游戏被设计成一种结构递归系统，因此这些账户中的某一个也可以本身就是另一张拥有 20 个席位的治理桌。这被称为第 2 层治理桌（Layer 2 table），其席位被称为第 2 层席位。
+
+在第 2 层治理桌中，同样存在席位投票和 Hook 投票主题，并且投票规则与第 1 层一致。这使得一张治理桌可以治理自己的成员构成以及在那里运行的 Hooks。
+
+除了这些主题之外，第 2 层治理桌还可以通过 51% 投票，向第 1 层治理桌提交一票。这一票是以第 2 层治理桌所在 r-address 的名义投出的，并在第 1 层治理桌中计作一票。
+
+第 2 层治理桌的某项投票之后也可能跌破 51%，但在这种情况下，之前已经提交到第 1 层治理桌的投票**不会**被撤回。只有一项新的、不同的投票达到 51%，才能改变该治理桌在第 1 层的投票内容。
+
+第 2 层治理桌只能通过向第 1 层提交投票的方式参与奖励主题投票。
+
+总结来说，第 2 层成员可以投票决定：
+
+* 自己治理桌的席位和 Hooks，以及
+* 通过自己所在的第 1 层席位，对第 1 层治理桌的席位、Hooks 和奖励主题进行投票。
+
+### 游戏约束
+
+* 任意治理桌最少可有 2 名成员，最多可有 20 名成员。
+* 同一个 r-address 在同一张治理桌中只能占据一个席位，但可以在多张不同的治理桌中各占一个席位。
+* Governance Game 的设计并不打算递归超过两层。虽然从技术上实现第 3 层治理桌并非不可行，但当前的 Governance Hook 并不支持。
+
+### 验证者奖励
+
+验证者奖励是为激励用户在网络中运行验证者而设置的。奖励由网络生成，并发放给同时满足以下条件的对象：既是第 1 层成员，又是活跃的 UNL 验证者。若要在某个由 256 个账本组成的区块中获得验证者奖励，必须满足以下条件：
+
+* 该验证者位于 Xahau UNL 上。
+* 该验证者在其他 UNL 验证者看来成功完成验证。
+* 当该验证者的主公钥被转换为 r-address 后，该账户位于第 1 层治理桌中。
+
+奖励是动态的，并且与 Xahau 用户的 `Balance Adjustments` 挂钩。当用户执行一次 Balance Adjustment 时，会向每一个满足上述条件的活跃验证者 r-address 发送一笔金额，数额等于该用户本次调整值除以 20。
+
+## 技术规范
+
+在一个新网络中，Governance Hook 会由 `XahauGenesis` amendment 在账本 1 之后的若干账本内安装到创世账户上。这就是第 1 层治理桌。若要创建第 2 层治理桌，需要先将 Hook 安装到另一个账户上，再把该账户安排到第 1 层治理桌的某个席位中。
+
+### Governance Hook 参数
+
+安装 Governance Hook 时，会同时设置一组 `HookParameters`。这些参数用于指定治理桌的初始构成。
+
+每个 `HookParameter` 都有一个 3 字节名称，由 3 个 ASCII 字符或 2 个 ASCII 字符加一个标识符组成，如下所示。LE = Little Endian。
+
+```
+Parameter Name: {'I', 'R', 'R'}
+Parameter Value: Initial Reward Rate <8 byte XFL fraction between 0 and 1, LE>
+Parameter Name: {'I', 'R', 'D'}
+Parameter Value: Initial Reward Delay <8 byte LE XFL seconds between rewards>
+Parameter Name: {'I', 'M', 'C'}
+Parameter Value: Initial Member Count <1 byte>
+Parameter Name: {'I', 'S', 0x00}
+Parameter Value: Initial seat #0's member's 20 byte Account ID.
+Parameter Name: {'I', 'S', 0x01}
+Parameter Value: Initial seat #1's member's 20 byte Account ID.
+... etc ... up to at most Seat 19.
+
+```
+
+为了启动这个治理游戏，必须向该 Hook 发送一笔 `Invoke` 交易。这笔交易可以由任何账户发送，不需要 `Blob` 或 `HookParameters`。该 `Invoke` 交易会首次触发 Hook，并提示其为每个初始席位、奖励速率和奖励延迟创建状态条目。
+
+### Governance Hook 状态
+
+Governance Hook 的 Hook State 存储在零命名空间中：`0000000000000000000000000000000000000000000000000000000000000000`。
+
+这里有多种状态条目类型。第一类是所谓的正向和反向成员键（forward and reverse member keys）。它们分别用于将席位号映射到该席位上的成员，以及将成员映射回其所坐的席位。
+
+```
+Key: 0x0000000000000000000000000000000000000000000000000000000000000005
+Val: <20 byte AccountID of the member at seat 5 or all 0's or absent.>
+
+Key: <20 byte AccountID of the member at seat 3>
+Val: 0x03
+```
+
+接下来是一些单例状态条目，分别表示 Member Count、Reward Rate 和 Reward Delay：
+
+```
+Key in Ascii: MC
+Key: 0x0000000000000000000000000000000000000000000000000000000000004D43
+Val: <1 byte member count (how many seats are occupied)>
+
+Key in Ascii: RR
+Key: 0x0000000000000000000000000000000000000000000000000000000000005252
+Val: <8 byte LE XFL reward rate (between 0 and 1 (1 being 100%))>
+
+Key in Ascii: RD
+Key: 0x0000000000000000000000000000000000000000000000000000000000005244
+Val: <8 byte LE XFL reward delay in seconds>
+```
+
+最后，投票及投票计数器也会存储在 Hook state 中。当某个席位发起一票时，其记录形式如下：
+
+```
+Vote key is 32 bytes comprising:
+    'V' (0x56) - vote
+    'H' (0x48) or 'R' (0x52) or 'S' (0x53) - topic type
+    'R' (0x52) or 'D' (0x44) or 0 (0x00) to 19 (0x13) - topic detail
+     1  (0x01) or  2  (0x02) - target layer for this vote
+    0x00 00 00 00 00 00 00 00 - 8 bytes of padding
+    20 byte Account ID - the voter
+Vote data:
+    20 byte Account ID or 8 byte XFL
+```
+
+当投票被提交时，会增加一个投票计数器状态条目。这个计数器用于跟踪当前某个主题-数据组合获得了多少票，并允许 Hook 在票数跨过所需阈值时执行对应动作。计数器状态如下：
+
+```
+Counter key is 32 bytes comprising:
+    'C' (0x43) - count
+    'H' (0x48) or 'R' (0x52) or 'S' (0x53) - topic type
+    'R' (0x52) or 'D' (0x44) or 0 (0x00) to 19 (0x13) - topic detail
+     1  (0x01) or  2  (0x02) - target layer for this vote
+     0's for padding
+     vote data or left-truncated vote data
+```
+
+### Governance Hook 交易
+
+Governance Hook 的成员通过 `ttINVOKE` 交易与之交互。除此之外，如果它是一个需要向第 1 层提交投票的第 2 层治理桌，该 Hook 也可以自行发出 `ttINVOKE` 交易。
+
+一笔投票交易在交易顶层包含一个 `HookParameters` 数组：
+
+```
+{
+    Account: <member's account>,
+    TransactionType: Invoke,
+    NetworkID: 21337,
+    Destination: <table's account>,
+    HookParameters:
+    [
+        {
+            HookParameter:
+            {
+                HookParameterName: "4C",     // L - the target layer
+                HookParameterValue: "01",    // 01 for L1 table, 02 for L2 table
+                                             // note: this is the table the vote is
+                                             // intended for, not the table you're at
+                                             // i.e. for a L2 table you can vote on
+                                             // your own membership or on L1's
+            }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "54",    // T - topic type
+                 HookParameterValue: "4801", // H [0x00-0x09] or
+                                             // S [0x00-0x13] or
+                                             // RR or RD
+             }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "56",    // V - vote data
+                 HookParameterValue: <32 or 20 or 8 bytes of vote data>
+             }
+         }
+    ]
+}
+```
+
+### 清除一票
+
+严格来说，没有办法“删除一票”。您可以改投为当前状态本身，以达到撤销原有投票效果。
+
+例如，如果当前第 8 席没有人，而您之前投票支持账户 A 入席，后来改变主意，那么您可以对“第 8 席为空”进行投票，即使它本来就是空席，这样就相当于让您的投票重新与当前状态对齐。
+
+实现方式是：在 vote data 中使用全 0 的值，长度则保持与该投票主题原本要求一致。比如对于席位投票，就使用 20 字节的 0。

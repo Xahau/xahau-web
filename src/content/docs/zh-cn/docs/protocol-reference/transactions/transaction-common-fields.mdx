@@ -1,0 +1,181 @@
+---
+title: 交易通用字段
+---
+
+每一笔交易都具有同一组通用字段，此外还会根据交易类型拥有额外字段。字段名区分大小写。所有交易的通用字段如下：
+
+| 字段 | JSON 类型 | \[Internal Type]\[] | 说明 |
+| ---- | --------- | ------------------- | ---- |
+| `Account` | String | AccountID | _(必填)_ 发起该交易的账户唯一地址。 |
+| `TransactionType` | String | UInt16 | _(必填)_ 交易类型。有效的交易类型包括：`Payment`、`OfferCreate`、`TrustSet` 等等。 |
+| `Fee` | String | Amount | _(必填；可自动填充)_ 以 drops 为单位、会被销毁的 XAH 整数数量，作为将该交易分发到网络中的成本。某些交易类型有不同的最低要求。详见 \[Transaction Cost]\[]。 |
+| `Sequence` | Number | UInt32 | _(必填；可自动填充)_ 发送该交易的账户序号。只有当 `Sequence` 恰好比同一账户前一笔交易大 1 时，交易才有效。特殊值 `0` 表示该交易使用的是 Ticket。_(Added by the \[TicketBatch amendment]\[].)_ |
+| `AccountTxnID` | String | Hash256 | _(可选)_ 用于标识另一笔交易的哈希值。如果提供，则当前交易只有在发送账户上一笔已发送交易与该哈希匹配时才有效。 |
+| `Flags` | Number | UInt32 | _(可选)_ 该交易的一组位标志。 |
+| `LastLedgerSequence` | Number | UInt32 | _(可选；强烈推荐)_ 该交易能够出现的最高账本索引。指定该字段可为交易等待验证或被拒绝设定严格上限。详见 Reliable Transaction Submission。 |
+| `Memos` | Array of Objects | Array | _(可选)_ 用于标识该交易的附加任意信息。 |
+| `NetworkID` | Number | UInt32 | _(网络特定)_ 该交易所针对的链的 network ID。对 Mainnet 及部分 test networks **必须省略**。对于 network ID 为 1025 或更高的链则 **必须提供**。 |
+| `Signers` | Array | Array | _(可选)_ 一组对象数组，表示用于授权该交易的多重签名。 |
+| `SourceTag` | Number | UInt32 | _(可选)_ 任意整数，用于标识该笔支付的原因，或代表该交易所代为处理的发送方。按照惯例，退款交易应把原始支付的 `SourceTag` 用作退款交易的 `DestinationTag`。 |
+| `SigningPubKey` | String | Blob | _(签名时自动添加)_ 与签署此交易的私钥对应的公钥的十六进制表示。如果为空字符串，则表示多重签名存在于 `Signers` 字段中。 |
+| `TicketSequence` | Number | UInt32 | _(可选)_ 用来替代 `Sequence` number 的 ticket 序号。如果提供该字段，则 `Sequence` 必须为 `0`。不能与 `AccountTxnID` 一起使用。 |
+| `TxnSignature` | String | Blob | _(签名时自动添加)_ 用于验证该交易确实源自其声明来源账户的签名。 |
+| `EmitDetails` | Object | Object | 包含关于 emission 的详细信息。这包括 emission 的 generation、burden、callback address、发出该交易的 hook 的哈希、emission 的 nonce，以及父交易 ID。 |
+| `HookParameters` | Array | Array | 该交易的 hook 参数。 |
+
+\[Removed in: rippled 0.28.0]\[]：交易中的 `PreviousTxnID` 字段已被 `AccountTxnID` 字段取代。这个 String / Hash256 字段仍会出现在某些历史交易中。它与某些 ledger objects 中同名的 `PreviousTxnID` 字段无关。
+
+### AccountTxnID
+
+`AccountTxnID` 字段可以把你的交易串联起来，使当前交易在同一账户前一笔已发送交易不匹配指定 \[transaction hash]\[identifying hash] 时无效。
+
+与 `PreviousTxnID` 跟踪最后一笔 _修改_ 某账户的交易（无论发送者是谁）不同，`AccountTxnID` 跟踪的是账户最后一笔 _发送出去的_ 交易。要使用 `AccountTxnID`，你必须先启用 `asfAccountTxnID` 标志，让账本记录该账户前一笔交易的 ID。（相比之下，`PreviousTxnID` 总是会被跟踪。）
+
+一个典型用途是：如果你有一个主交易提交系统和一个被动备份系统，而被动备份系统与主系统失去连接，但主系统又并未完全宕机，并且两套系统同时开始工作，那么就可能出现严重问题，例如某些交易发送两次，而另一些根本没发出。通过使用 `AccountTxnID` 将交易串联起来，可以确保即使两套系统同时活跃，也只有其中一套能在某一时刻提交有效交易。
+
+`AccountTxnID` 字段不能用于使用 Ticket 的交易。使用 `AccountTxnID` 的交易也不能进入 transaction queue。
+
+### 可自动填充字段
+
+某些字段可以在交易签名之前自动填充，这项工作可以由 `xahaud` 服务器或客户端库完成。自动填充值需要一个到 Xahau 的活动连接，以获得最新状态，因此无法离线完成。具体细节因库而异，但自动填充通常至少会为以下字段提供合适的值：
+
+* `Fee` - 基于网络自动填入 \[Transaction Cost]\[]。
+
+  **注意：** 使用 `xahaud` 的 \[sign command]\[] 时，可以通过 `fee_mult_max` 和 `fee_mult_div` 参数限制自动填充出的最大值。）
+* `Sequence` - 自动使用发送账户的下一个 sequence number。
+
+对于生产系统，我们建议**不要**把这些字段完全交给服务器填充。例如，如果网络负载临时飙升导致交易费用变高，你可能会更希望先等待费用回落，再发送某些交易，而不是直接支付临时性的高费用。
+
+\[Payment transaction]\[] 类型的 `Paths` 字段也可以自动填充。
+
+### Flags 字段
+
+`Flags` 字段可以包含多种会影响交易行为的选项。这些选项使用二进制值表示，并可通过按位 OR 一次性组合多个标志。
+
+若要检查某个交易是否启用了某个给定 flag，可对该 flag 的值与 `Flags` 字段使用按位 AND 运算。如果结果为 0，则表示该 flag 未启用；如果结果等于该 flag 本身的值，则表示该 flag 已启用。（如果得到任何其他结果，那就是你用错了。）
+
+大多数 flags 只对某种特定交易类型有意义。同一个位值可能会在不同交易类型中被复用，因此在设置和读取 flags 时，务必注意 `TransactionType` 字段。
+
+未定义为 flags 的位 **必须** 为 0。（\[fix1543 amendment]\[] 会在某些交易类型上强制执行这条规则。多数交易类型默认都会执行这一规则。）
+
+#### 全局 Flags
+
+唯一适用于所有交易的全局 flag 如下：
+
+| Flag 名称 | 十六进制值 | 十进制值 | 说明 |
+| --------- | ---------- | -------- | ---- |
+| `tfFullyCanonicalSig` | `0x80000000` | 2147483648 | **已弃用** 无实际效果。（如果 \[RequireFullyCanonicalSig amendment]\[] 未启用，则该 flag 会强制使用完全规范化签名。） |
+
+使用 \[sign method]\[]（或者“sign-and-submit”模式下的 \[submit method]\[]）时，如果交易中尚未存在 `Flags` 字段，`xahaud` 会自动添加带有 `tfFullyCanonicalSig` 的 `Flags` 字段。如果你显式指定了 `Flags` 字段，则不会自动添加该 flag。在使用 \[sign_for method]\[] 为多签交易增加签名时，也不会自动添加该 flag。
+
+**注意：** `tfFullyCanonicalSig` flag 在 2014 到 2020 年间用于防御 transaction malleability，同时保持与旧版签名软件的兼容性。\[RequireFullyCanonicalSig amendment]\[] 则终止了与这些旧版软件的兼容，并把这些保护变成了所有交易的默认行为。如果你使用的是某个未启用 `RequireFullyCanonicalSig` 的平行网络，则应始终启用 `tfFullyCanonicalSig`，以防 transaction malleability。
+
+#### Flag 范围
+
+交易的 `Flags` 字段可以包含适用于不同层级或上下文的 flags。每一类上下文的 flags 都局限于以下范围：
+
+| 范围名称 | 位掩码 | 说明 |
+| -------- | ------ | ---- |
+| Universal Flags | `0xff000000` | 对所有交易类型都同样适用的 flags。 |
+| Type-based Flags | `0x00ff0000` | 含义依赖于具体交易类型的 flags。 |
+| Reserved Flags | `0x0000ffff` | 当前尚未定义的 flags。只有这些位全部禁用时，交易才有效。 |
+
+**注意：** \[AccountSet transaction]\[] 类型还有它自己的一组非位运算 flags，其作用与 type-based flags 类似。Ledger objects 也有 `Flags` 字段，但其位定义与交易不同。
+
+### Memos 字段
+
+`Memos` 字段用于随交易附加任意消息数据。它表示为一个对象数组。每个对象都只有一个字段 `Memo`，而 `Memo` 本身又包含另一个对象，其中包含以下一个或多个字段：
+
+| 字段 | 类型 | \[Internal Type]\[] | 说明 |
+| ---- | ---- | ------------------- | ---- |
+| `MemoData` | String | Blob | 任意十六进制值，通常用于保存 memo 的正文内容。 |
+| `MemoFormat` | String | Blob | 以十六进制表示、内容应为 URL 可用字符。通常用于说明 memo 的编码方式，例如 [MIME type](http://www.iana.org/assignments/media-types/media-types.xhtml)。 |
+| `MemoType` | String | Blob | 以十六进制表示、内容应为 URL 可用字符。通常用于表示一个唯一关系（依据 [RFC 5988](http://tools.ietf.org/html/rfc5988#section-4)），用于定义该 memo 的格式。 |
+
+`MemoType` 与 `MemoFormat` 字段应只包含以下字符：`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%`
+
+`Memos` 字段在序列化为二进制格式后，总大小不能超过 1 KB。
+
+**Transaction Cost：** 带有 `Memos` 字段的交易会产生额外成本，具体取决于 memos 的大小。费用会随着该交易中所有 memos 总大小的增加而按比例上升。
+
+带有 `Memos` 字段的交易示例：
+
+```json
+{
+    "TransactionType": "Payment",
+    "Account": "rMmTCjGFRWPz8S2zAUUoNVSQHxtRQD4eCx",
+    "Destination": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+    "Memos": [
+        {
+            "Memo": {
+                "MemoType": "687474703a2f2f6578616d706c652e636f6d2f6d656d6f2f67656e65726963",
+                "MemoData": "72656e74"
+            }
+        }
+    ],
+    "Amount": "1"
+}
+```
+
+### NetworkID 字段
+
+\[New in: rippled 1.11.0]\[]
+
+`NetworkID` 字段用于防止“跨链”交易重放攻击，避免同一笔交易被复制到并执行在原本不打算运行它的平行网络上。为了与现有链兼容，凡是 Network ID 小于或等于 1024 的网络，都必须省略 `NetworkID` 字段；而凡是 Network ID 大于或等于 1025 的网络，则必须包含该字段。下表展示了若干已知网络的状态与取值：
+
+| 网络 | ID | `NetworkID` 字段 |
+| ---- | -- | ---------------- |
+| Mainnet | 0 | 不允许 |
+| Testnet | 1 | 不允许 |
+| Devnet | 2 | 不允许 |
+| AMM Devnet | 25 | 不允许 |
+| Sidechains Devnet Locking Chain | 2551 | 不允许，但更新后将变为必需 |
+| Sidechains Devnet Issuing Chain | 2552 | 不允许，但更新后将变为必需 |
+| Xahau Testnet | 21338 | 必需 |
+| Xahau Mainnet | 21337 | 必需 |
+
+从理论上说，交易重放攻击是可能发生的，但必须满足目标网络上的一组特定条件。以下所有条件都必须同时成立：
+
+* 交易发送方在第二条网络上是一个已注资账户。
+* 发送方在第二条网络上的 `Sequence` number 与交易中的 `Sequence` 匹配，或者该交易使用的 Ticket 在第二条网络上也可用。
+* 交易要么没有 `LastLedgerSequence` 字段，要么该值大于第二条网络当前账本索引。
+  * Mainnet 的账本索引通常高于 test networks 或 sidechains，因此在正常使用 `LastLedgerSequence` 的情况下，把 Mainnet 上的交易重放到 sidechain 或 test network 上，通常比反向重放更容易。
+* 两个网络要么都使用不高于 1024 的 ID，要么两个网络使用相同 ID，要么第二条网络并不要求 `NetworkID` 字段。
+
+### Signers 字段
+
+`Signers` 字段包含一个多重签名，它由最多 8 个密钥对签名组成，这些签名共同授权该交易。`Signers` 列表是一个对象数组，每个对象都只有一个字段 `Signer`。`Signer` 字段包含以下嵌套字段：
+
+| 字段 | 类型 | \[Internal Type]\[] | 说明 |
+| ---- | ---- | ------------------- | ---- |
+| `Account` | String | AccountID | 与该签名关联的地址，应与 signer list 中记录的地址一致。 |
+| `TxnSignature` | String | Blob | 针对该交易的签名，可用 `SigningPubKey` 验证。 |
+| `SigningPubKey` | String | Blob | 用于生成该签名的公钥。 |
+
+`SigningPubKey` 必须是与 `Account` 地址相关联的某把密钥。如果被引用的 `Account` 是账本中的已注资账户，则 `SigningPubKey` 可以是该账户当前设置的 Regular Key；也可以是该账户的 Master Key，前提是未启用 `lsfDisableMaster` 标志。如果被引用的 `Account` 在账本中尚未注资，则 `SigningPubKey` 必须是与该地址对应的 master key。
+
+由于签名验证是计算密集型任务，多签交易在传递到网络时需要额外的 XAH 成本。多重签名中每增加一个签名，交易所需的 \[transaction cost]\[] 就会增加。例如，如果当前将一笔交易转发到网络的最低交易成本为 `10000` drops，那么一个在 `Signers` 数组中包含 3 个条目的多签交易，至少需要 `40000` drops 的 `Fee` 才能被转发。
+
+### EmitDetails 字段
+
+一个 `EmitDetails` 对象包含以下字段：
+
+| 字段 | JSON 类型 | \[Internal Type]\[] | 必填？ | 说明 |
+| ---- | --------- | ------------------- | ------ | ---- |
+| `EmitGeneration` | Number | UInt32 | Yes | 此字段用于跟踪一条 emitted transactions 链，这些 emitted transactions 又进一步触发其他交易的发出。 |
+| `EmitBurden` | String | UInt64 | Yes | 此字段是一种用于检测 forkbombs 的启发式指标。费用会基于 burden 计算，并会在链式反应发生时指数级增加，以防网络被自我强化的 emitted transactions 淹没。 |
+| `EmitParentTxnID` | String | Hash256 | Yes | 发出该交易的 Hook Execution 与 Originating Transaction 相连，因此该字段始终是高效追踪行为所必需的。 |
+| `EmitNonce` | String | Hash256 | Yes | 如果不使用 nonce，那么带有相同字段的 Emitted Transactions 会完全相同，从而产生相同的 transaction hash。但网络中每个节点又都必须对 nonce 达成一致，因此提供了一个专门的 Hook API 来生成确定性 nonce。 |
+| `EmitCallback` | String | AccountID | No | 当 `xahld` 需要发起 callback 时，会使用该字段来确定应在哪个 Hook 和哪个账户上发起 callback。Callbacks 会在 emitted transaction 被接受进账本时发生。 |
+| `EmitHookHash` | String | Hash256 | Yes | 该 Hook 在执行时的 SHA512H。 |
+
+### Hook Parameters
+
+`HookParameters` 字段是一个对象数组，用于指定 hook 的参数。每个参数对象包含以下字段：
+
+| 字段 | JSON 类型 | Internal Type | 说明 |
+| ---- | --------- | ------------- | ---- |
+| `Name` | String | Blob | 参数名称。 |
+| `Value` | String | Blob | 参数值。 |
+
+**Transaction Cost：** 带有 `HookParameters` 字段的交易会产生额外成本，其费用会随着交易中所有参数总大小的增加而按比例上升。

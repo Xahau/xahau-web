@@ -1,0 +1,45 @@
+---
+title: URITokenCreateSellOffer
+description: URITokenCreateSellOffer 交易允许用户为某个 URIToken 创建卖出挂单。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(由 [URIToken amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "TransactionType": "URITokenCreateSellOffer",
+    "Account": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "Amount": {
+      "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+      "currency": "USD",
+      "value": "100"
+    }
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 创建卖单的账户地址。 |
+| `URITokenID` | String | Hash256 | 被出售的 URIToken 的 ID。 |
+| `Destination` | String | AccountID | _(可选)_ 接收该卖出挂单的账户地址。 |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 账户希望用该 URIToken 交换得到的货币金额。 |
+
+### 错误场景
+
+除所有交易都可能出现的错误外，URITokenCreateSellOffer 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `tecNO_TARGET` | 目标账户不存在。 |
+| `tecNO_PERMISSION` | 该账户无权限创建卖出挂单。 |
+| `tecINSUF_RESERVE_LINE` | 该账户没有足够 reserve 来创建卖出挂单。 |
+| `tecINSUF_RESERVE_OFFER` | 该账户没有足够 reserve 来创建卖出挂单。 |
+| `tecUNFUNDED_OFFER` | 该账户没有足够余额来创建卖出挂单。 |
+| `tecOFFER_INVALID` | 卖出挂单无效。 |

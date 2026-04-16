@@ -1,0 +1,48 @@
+---
+title: hook_skip
+sidebar:
+  order: 7
+---
+
+`hook_skip` 在当前链执行期间，按哈希查找某个 Hook，并将其加入或移出跳过列表。
+
+## C
+
+```c
+int64_t hook_skip(uint32_t read_ptr, uint32_t read_len, uint32_t flags);
+```
+
+## JavaScript
+
+```javascript
+function hook_skip(hash, flag): ErrorCode | number
+```
+
+## 参数
+
+### `read_ptr`
+
+指向目标 Hook 哈希的指针。
+
+### `read_len`
+
+目标 Hook 哈希长度。
+
+### `flags`
+
+控制操作模式的标志：
+
+- `0`：将目标 Hook 加入跳过列表
+- `1`：将目标 Hook 从跳过列表移除
+
+## 返回值
+
+- 成功时返回 `1`
+- 失败时可能返回：
+  - `OUT_OF_BOUNDS`
+  - `DOESNT_EXIST`
+  - `INVALID_ARGUMENT`
+
+## 说明
+
+这个函数可以临时影响当前 Hook 链的执行路径，而不会永久修改链配置。

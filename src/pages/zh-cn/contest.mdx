@@ -1,0 +1,210 @@
+---
+title: Xahau Dev Contest
+description: Ecosystem Rising - 构建由 Xahau 驱动的面向用户服务
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import PageSection from '../../components/PageSection.astro';
+
+<PageLayout frontmatter={frontmatter} wide="true">
+<PageSection align="left" gem="5" gemSize="large" loading="eager">
+## 介绍
+
+欢迎来到 **Xahau Dev Contest: Ecosystem Rising**！
+本次比赛邀请创新者构建**由 Xahau 驱动的面向用户服务**，在争夺奖项的同时推动 Xahau 生态成长。
+
+## 奖项
+
+* **获胜项目将获得 3 个 XAH 主奖项**
+    * **🥇 一等奖** 价值 4000 美元的 XAH
+    * **🥈 二等奖** 价值 2000 美元的 XAH
+    * **🥉 三等奖** 价值 1000 美元的 XAH
+
+## 时间安排
+
+* **提交截止日期：** 2026 年 2 月 1 日
+* **评审团：** 来自 Xahau 与 XRPL 社区的 5 位成员（见下文）
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="9">
+## 评审团
+
+本次比赛将由 **5 位社区成员**进行评审：
+
+* • [**tequ**](https://x.com/_tequ_) – Xahau Blockchain Developer
+* • [**Robert Kiuru**](https://x.com/robertkiuru) – COO, *XRPL Labs*
+* • **[gadget78](https://x.com/gadget78)** – Evernode Developer
+* • [**Andrei Rosseti**](https://x.com/andreirosseti) – Architect of Xahau DocProof | CTO, *EleveCRM*
+* • [**Vet**](https://x.com/Vet_X0) – XRPL Community contributor
+
+## 主题：Xahau 上的服务
+
+参赛者必须构建**与 Xahau（主网）交互的 Web 服务**，并面向**终端用户**设计，无论是普通用户、高级用户、公共部门还是私营部门。
+
+示例包括但不限于：
+
+<div class="space-y-2">
+  <div>
+    <strong>• 日常用户工具：</strong>
+    <div class="ml-6 space-y-1">
+      <div>◦ 个人财务面板</div>
+      <div>◦ 钱包管理器</div>
+      <div>◦ 社区应用</div>
+    </div>
+  </div>
+  <div>
+    <strong>• 商业服务：</strong>
+    <div class="ml-6 space-y-1">
+      <div>◦ 支付门户</div>
+      <div>◦ 忠诚度平台</div>
+      <div>◦ 客户服务工具</div>
+    </div>
+  </div>
+  <div>
+    <strong>• 公共平台：</strong>
+    <div class="ml-6 space-y-1">
+      <div>◦ NFT 市场</div>
+      <div>◦ 投票系统</div>
+      <div>◦ 捐赠平台</div>
+      <div>◦ 文化类应用</div>
+      <div>◦ 面向社会公益的工具</div>
+    </div>
+  </div>
+</div>
+</PageSection>
+<PageSection align="left" gem="4">
+## 参赛规则
+
+<div class="space-y-2">
+  <div>• 您可以提交<strong>任意数量的项目</strong>。</div>
+  <div>• 每个项目可以由个人或团队提交。</div>
+  <div>• 同一参赛者（或团队）的不同项目可分别竞争不同奖项。</div>
+  <div>• 项目<strong>必须运行在 Xahau 主网</strong>上。</div>
+  <div>
+    <div>• 每个项目<strong>必须可在线访问</strong>，以便评委和公众都能使用或查看。</div>
+    <div class="ml-6 mt-1">◦ 这样可以避免评委在本地安装或配置项目，并减少因环境问题或需要参赛者协助而产生的风险。</div>
+  </div>
+  <div>
+    <div>• 每份提交必须包含<strong>基础文档</strong>，帮助他人理解项目。</div>
+    <div class="ml-6 mt-1">◦ 您也可以选择附加<strong>多媒体材料</strong>（视频、演示文稿、幻灯片、Demo 等）来更好地展示作品。</div>
+  </div>
+  <div>• <strong>AI 工具</strong>可用于开发和文档编写。</div>
+  <div>• 如果您的项目使用了 <strong>Hooks</strong>，其 Hook 代码必须开源，以便社区进行安全审计并作为学习资源。您必须在提交材料中附上对应的 C 代码和 hook 哈希。详见“提交格式”部分。</div>
+  <div>• 明显提供受监管金融服务或以非法活动为目标的项目不具备参赛资格。</div>
+  <div>• 若要进入评审，您必须按照“提交格式”部分的说明，通过 PR 提交作品。</div>
+  <div>• 创建提交 PR 后，请在 X 上发布一条关于您项目的推文并标记 <a href="https://x.com/XahauNetwork" target="_blank" rel="noopener noreferrer">@XahauNetwork</a>，宣布您已参加 Xahau Dev Contest。</div>
+</div>
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="13">
+## 评审标准
+
+评委在审阅作品时会特别看重：
+
+<div class="space-y-2">
+  <div>• <strong>创意和原创性</strong>。</div>
+  <div>• 在比赛开始前，Xahau 主网上是否<strong>不存在相同服务的现有竞争者</strong>。</div>
+  <div>• 对终端用户（个人、企业或公共部门）的<strong>影响力与实用性</strong>。</div>
+  <div>• <strong>执行质量</strong>（稳定性、文档、用户体验）。</div>
+  <div>• 对 <strong>Hooks（Xahau 上的智能合约）</strong> 的使用情况。</div>
+</div>
+</PageSection>
+<PageSection align="left" gem="2">
+## 提交格式
+
+每个项目都必须在 **[此仓库](https://github.com/xahau/xahau-2nd-dev-contest)** 的 `submissions` 目录下包含一个文件夹和至少一个**提交文件**。
+文件夹和文件名必须采用“GitHub 用户名_项目名”的格式，文件扩展名使用 `.md`。
+
+示例：`submissions/GitHubName_ProjectName/GitHubName_ProjectName.md`
+
+文件应包含以下字段：
+
+<div class="space-y-2">
+  <div>• <strong>项目标题</strong></div>
+  <div>• <strong>简要描述</strong></div>
+  <div>• <strong>参与者</strong>（姓名或昵称）</div>
+  <div>• <strong>参与者社交媒体</strong></div>
+  <div>• <strong>联系邮箱</strong></div>
+  <div>• <strong>在线项目链接</strong></div>
+  <div>• <strong>获奖时接收奖励的 Xahau 地址</strong></div>
+  <div>• <strong>文档链接</strong></div>
+  <div>• <strong>Hooks 的 C 代码及对应哈希</strong>（如果项目使用了一个或多个 Hook，为确认安全性，应在提交文件夹中附上 `.c` 文件）</div>
+  <div>• <strong>项目的 Hooks 账户</strong>（用于确认您使用的是此前为该项目提供的 hooks）</div>
+  <div>• <strong>项目仓库链接</strong>（可选）</div>
+  <div>• <strong>其他链接</strong>（可选，例如 Demo 视频、演示文稿、幻灯片）</div>
+</div>
+
+仓库中提供了模板目录和模板文件，参赛者可以直接用来填写项目详情。
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="11">
+## 支持与社区
+
+如果您有问题或需要帮助：
+
+* 加入 **[Xahau Builders Discord](https://discord.gg/ds7nb93mYj)**。
+* 或发送邮件至 **[contests@xahau.org](mailto:contests@xahau.org)**。
+
+我们会尽快回复。您的问题也可能被补充到此 README 的 FAQ 中，帮助其他人受益。
+
+## 所有权
+
+* 所有已提交项目仍归其**原始创作者所有**。
+
+## 实用链接
+
+以下是一些对 Xahau 开发者有帮助的资源：
+
+* [Xahau Documentation](https://docs.xahau.network)
+* [Xahau Hooks Documentation](https://xahau.network/docs/hooks/)
+* [Xahau GitHub Repositories](https://github.com/Xahau)
+* [Xaman Website](https://xaman.app)
+* [Xahau Testnet Faucet](https://xahau-test.net/)
+* [Xahau Discord](https://discord.gg/ds7nb93mYj)
+
+## 回顾：您需要做什么
+
+<div class="space-y-2">
+  <div>• 获得灵感。发挥创造力，构建一个能增强 Xahau 生态的项目。</div>
+  <div>• 构建您的项目。使用 Xahau 主网开发您的 Web 服务。</div>
+  <div>• 提交作品。按照“提交格式”部分的说明创建 PR（Pull Request）。</div>
+  <div>• 宣布参赛。在 X 上发布关于您项目的推文，标记 <a href="https://x.com/XahauNetwork" target="_blank" rel="noopener noreferrer">@XahauNetwork</a>，并分享您已加入 <strong>Xahau Dev Contest</strong>。</div>
+</div>
+</PageSection>
+<PageSection align="left" gem="6">
+## 常见问题
+
+**问：我可以提交多个项目吗？**
+- 答：可以！您可以提交任意多个项目，无论是个人还是团队参与。
+
+**问：项目必须开源吗？**
+- 答：不必须，但必须至少提供基础文档，以便评委理解项目如何运作。如果项目包含 Hooks，您必须随提交材料附上对应的 C 代码和 hook 哈希。详见“提交格式”部分。
+
+**问：我可以使用 AI 来帮助我开发或编写文档吗？**
+- 答：可以，完全允许使用 AI。
+
+**问：你们希望看到什么样的服务？**
+- 答：任何能为**终端用户创造价值**的服务都可以，无论面向个人、企业还是公共部门。从 NFT 市场、金融面板到投票系统、支付应用、捐赠平台，或任何创新型公共/私营服务都欢迎。
+
+**问：使用 Hooks 会有优势吗？**
+- 答：会。能够创造性使用 **Hooks（Xahau 上的智能合约）** 的项目将获得特别认可。
+
+**问：比赛结束后我的项目会怎样？**
+- 答：项目所有权完全归您自己。
+
+**问：我可以去哪里提问？**
+- 答：可以在 **[Xahau Community Discord](https://discord.gg/ds7nb93mYj)** 提问，或发送邮件至 **[contests@xahau.org](mailto:contests@xahau.org)**。
+</PageSection>
+<PageSection class="bg-xahau-gray text-white" align="right" gem="7">
+## 最终免责声明
+
+参与本次比赛即表示您同意以下内容：
+
+<div class="space-y-2">
+  <div>• 参赛者必须符合资格要求并遵守所有规则。不得提交在比赛开始前已经公开发布过的项目。</div>
+  <div>• 项目仍归创作者所有，但主办方保留在注明署名的前提下展示、分享或推荐投稿作品的权利。</div>
+  <div>• 主办方保留取消违反规则或损害比赛公正性的投稿资格的权利。评审团的所有决定均为最终决定，不接受申诉。</div>
+  <div>• 主办方不对参赛过程中发生的损失、费用或损害承担责任。如有必要，主办方也保留随时修改比赛要求的权利。</div>
+  <div>• 您理解可能存在制裁和某些司法辖区限制。领取奖励的资格可能需要遵守适用法律，包括完成 KYC（了解您的客户）验证。</div>
+  <div>• 与奖励相关的所有税费或其他财务义务均由参赛者自行承担。</div>
+  <div>• 如您对资格、要求或税务责任有任何疑问，请在提交作品前通过提供的沟通渠道联系我们。</div>
+  <div>现在轮到您了：**使用 Xahau 区块链构建、提交并展示您的创新成果吧！**</div>
+</div>
+</PageSection>
+</PageLayout>

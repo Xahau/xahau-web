@@ -1,0 +1,53 @@
+---
+title: float_one
+description: 返回以 XFL 封装数表示的数字 1
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 以 XFL `int64_t` 形式返回数字 `1`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取数字 1 的浮点表示
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_one();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_one(): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | XFL（xls17）封装数 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode \| bigint | XFL（xls17）封装数 |
+</TabItem>
+</Tabs>

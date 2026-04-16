@@ -1,0 +1,45 @@
+---
+title: Deposit Pre Auth
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L172-L178)
+
+`DepositPreauth` 对象用于跟踪一个账户对另一个账户授予的预授权。[DepositPreauth transactions][] 会创建此类对象。
+
+除非提供预授权的账户启用了 Deposit Authorization，否则该对象不会影响交易处理。在启用该要求的情况下，已被预授权的账户可以直接向授予预授权的账户发送付款及其他交易。预授权是单向的，不会影响反方向的付款。
+
+### JSON 示例
+
+```json
+{
+  "LedgerEntryType": "DepositPreauth",
+  "Account": "rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
+  "Authorize": "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Flags": 0,
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "3E8964D5A86B3CD6B9ECB33310D4E073D64C865A5B866200AD2B7E29F8326702",
+  "PreviousTxnLgrSeq": 7,
+  "index": "4A255038CC3ADCC1A9C91509279B59908251728D0DAADB248FFE297D0F7E068C"
+}
+```
+
+### 字段
+
+`DepositPreauth` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Account` | String | Account | 是 | 授予预授权的账户。（也就是预授权付款的目标账户。） |
+| `Authorize` | String | Account | 是 | 获得预授权的账户。（也就是预授权付款的发送方。） |
+| `Flags` | Number | UInt32 | 是 | 此对象启用的布尔标志位图。目前协议没有为 `DepositPreauth` 对象定义任何标志，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0070`，映射为字符串 `DepositPreauth`，表示这是一个 DepositPreauth 对象。 |
+| `OwnerNode` | String | UInt64 | 是 | 一个提示值，指出此对象链接于发送方所有者目录的哪一页；当目录包含多页时尤其有用。**注意：** 此对象不直接包含指向其所在所有者目录的链接，因为该值可以从 `Account` 推导出来。 |
+| `PreviousTxnID` | String | Hash256 | 是 | 最近一次修改此对象的交易识别哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | 是 | 包含最近一次修改此对象之交易的 [账本索引][Ledger Index]。 |
+
+### DepositPreauth ID 格式
+
+`DepositPreauth` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* DepositPreauth 空间键（`0x0070`）
+* 此对象所有者的 AccountID（即创建此对象的 [DepositPreauth transaction][] 的发送者，也就是授予预授权的一方）
+* 被预授权账户的 AccountID（即创建此对象的 [DepositPreauth transaction][] 中的 `Authorized` 字段，也就是接收预授权的一方）

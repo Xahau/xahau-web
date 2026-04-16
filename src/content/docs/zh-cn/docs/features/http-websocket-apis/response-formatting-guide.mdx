@@ -1,0 +1,27 @@
+---
+title: 响应格式指南
+---
+响应的结构会根据请求是通过 WebSocket、JSON-RPC 还是命令行接口发出的而有所不同。JSON-RPC 与命令行接口使用相同格式，因为命令行接口内部实际上使用的是 JSON-RPC。
+
+### 字段
+
+| 字段 | 类型 | 说明 |
+| ---- | ---- | ---- |
+| id | (Varies) | （用于 WebSocket）原始请求中的 ID。 |
+| status | String | （用于 WebSocket）当请求被正确接收并处理时，其值为 `success`。 |
+| result.status | String | （用于 JSON-RPC 和命令行）当请求成功处理时，其值为 `success`。 |
+| type | String | （用于 WebSocket）直接响应 API 请求时其值为 `response`。异步通知则使用其他值，例如 `ledgerClosed` 或 `transaction`。 |
+| result | Object | 包含查询结果，其具体内容因命令而异。 |
+| warning | String | _（可选）_ 如果存在，其值为 `load`，表示客户端已接近速率限制阈值，服务器可能断开连接。 |
+| warnings | Array | _（可选）_ 一组 **Warning Objects**，包含重要的服务器警告。更多细节请参见 API Warnings。 |
+| forwarded | Boolean | _（可选）_ `true` 表示该请求由 Reporting Mode 服务器转发到 P2P 服务器以完成处理。默认值为 `false`。 |
+
+API Warnings
+
+当响应中包含 `warnings` 数组时，其中每一项都表示来自服务器的一条特定警告。每个 **Warning Object** 都包含以下字段：
+
+| 字段 | 类型 | 说明 |
+| ---- | ---- | ---- |
+| id | Number | 唯一的数字代码，用于标识这条警告信息。 |
+| message | String | 面向人类的警告说明。不要编写依赖这个字段文本内容的代码；应改用 `id`（以及存在时的 `details`）来解释警告。 |
+| details | Object | _（可选）_ 关于警告的附加上下文，其内容会因警告类型而异。 |

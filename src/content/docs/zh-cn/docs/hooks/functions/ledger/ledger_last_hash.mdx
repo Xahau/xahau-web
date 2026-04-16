@@ -1,0 +1,85 @@
+---
+title: ledger_last_hash
+description: 获取最近关闭账本的 32 字节命名空间偏置 SHA512H
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 将 32 字节哈希写入 `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取上一账本的哈希。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_hash (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_hash(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash[32];
+int64_t bytes_written = 
+    ledger_last_hash(hash, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const hash = ledger_last_hash()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 指向合适大小输出缓冲区的指针，至少应为 32 字节 |
+| write_len | uint32_t | 输出缓冲区长度 |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入的字节数<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 如果出错返回错误码，成功时返回表示最近账本哈希的数组。 |
+</TabItem>
+</Tabs>

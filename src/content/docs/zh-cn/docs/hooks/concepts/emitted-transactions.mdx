@@ -1,0 +1,64 @@
+---
+title: Emitted Transactions
+description: 你的 Hook 能做的不仅仅是阻止或允许交易！
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 背景
+
+在 Xahau 上，**所有**变更都_必须_是某笔有效交易被应用到账本后的结果。也就是说，如果发生了某个变更 _X_，那就一定存在一笔负责它的交易 _Y_。
+
+在设计 Hooks API 时，我们需要一种方式，让 Hooks 能够在“接受或拒绝一笔交易”之外，对账本产生进一步影响。但如果把这些变化直接附着在 Originating Transaction 上，会让语义变得混乱，并显著增加系统整体复杂度。
+
+例如，假设某个 Hook 需要给你发送一笔资金……如果把这次转账直接附着到 Originating Transaction 上，那么实际写到账本里的可能是一笔完全无关的交易，比如 AccountSet。除此之外，这次转账还可能需要再触发收款方的 Hook。
+
+解决方案就是：**Emitted Transactions**。Originating Transaction 只做它自身声明要做的事；如果 Hook 还需要在账本上做额外变更，例如发起一笔 payment，那么它就创建并 _emit_ 一笔全新的交易。
+
+### 什么是 Emitted Transactions？
+
+Emitted Transactions 是由 Hook 在执行过程中创建出来的_新交易_，它们会进入下一本账本的共识处理流程。该交易可以是任意 Transaction Type，但必须遵守严格的 emission rules。
+
+要 emit 一笔交易，Hook 会先准备好序列化后的交易数据，然后调用 [emit](/docs/hooks/functions/emitted-transaction/emit-1)。
+
+由于 emitted transactions 可以在下一本账本中再次触发 Hooks，而这些 Hooks 又可能继续 emit 更多交易，因此所有 emitted transactions 都会在其 `EmitDetails` 块中携带一个 `burden` 与一个 `generation` 字段。`EmitDetails` 会替代传统交易中的签名字段。
+
+`burden` 与 `generation` 两个字段共同用来防止账本遭受 [Fork bomb](https://en.wikipedia.org/wiki/Fork_bomb) 式攻击；它们通过指数级提高交易成本，来抑制 emitted transactions 的指数扩张。
+
+需要特别注意的是，Hooks API 遵循严格的 _no rewriting_ 规则。你_必须_把一笔完整、有效、且 canonical form 正确的 emitted transaction 提交给 xahaud 进行 emission，否则它会被拒绝。构造交易是 Hook 本身的责任，不是 xahaud 的责任。
+
+### Callbacks
+
+正如在 [Introduction and Terminology](/docs/hooks/concepts/terminology) 中介绍的那样，emitted transactions 在被账本接受后会触发回调。由于共识本身是去中心化的，一笔 emitted transaction 被账本接受**并不是绝对保证**，尽管大多数情况下几乎都会发生。
+
+如果某笔 emitted transaction 在被账本接受之前就过期了（原因可能很多：账本已满、它的 fee 太高、或交易本身无效），那么账本中会创建一笔 _pseudo transaction_ 来清理这笔 emitted transaction。此时你的 hook 也会收到回调，并且参数 `parameter = 1`，表示这笔 emitted transaction 最终失败了。
+
+### Emission Rules
+
+[emit](/docs/hooks/functions/emitted-transaction/emit-1) Hook API 会对待发射交易强制执行以下规则：
+
+| # | Emission Rule | 说明 |
+| --- | --- | --- |
+| 1 | `sfSequence = 0` | Emitted Transactions **不会**增加 Hook Account 的 sequence number，因此该字段必须始终为 0 |
+| 2 | `sfPubSigningKey = 0` | Emitted Transactions 不使用签名，但这又是 xrpld 处理所需字段，所以必须全置 0 |
+| 3 | `sfEmitDetails` 存在且有效 | Emitted Transactions 必须包含正确填写的 `sfEmitDetails` 块 |
+| 4 | `sfSignature` 缺失 | 该字段必须不存在，否则交易会变得有歧义 |
+| 5 | `LastLedgerSequence` 有效且位于未来 | 所有 emitted transactions 都必须设置 last ledger sequence，这样 Hook 才知道交易是否因超时而失败 |
+| 6 | `FirstLedgerSequence` 有效且设为下一本账本 | 所有 emitted transactions 都必须把 first ledger sequence 设为当前账本之后的下一本，以避免同一账本内递归级联 |
+| 7 | Fee 计算并设置正确 | Fee 取决于 emitted transaction 的大小，以及网络 burden |
+| 8 | 未超过 generation 上限 | emitted transaction 还可以继续生成其他 emitted transactions，其链长由 `sfEmitGeneration` 表示，目前上限是 10 |
+
+### EmitDetails 块
+
+所有 emitted transactions 都必须包含一个填写正确的 `sfEmitDetails` 对象，其中字段如下：
+
+| 字段 | 必需值 | 说明 |
+| --- | --- | --- |
+| `sfEmitGeneration` | 如果 Originating Transaction 本身就是 emitted transaction，则取其 `sfEmitGeneration + 1`；否则为 `1` | 用于跟踪 emitted transaction 链条中“由谁再发射了谁” |
+| `sfEmitBurden` | 如果 Originating Transaction 本身就是 emitted transaction，则为其 burden 乘以 Hook 使用 [etxn_reserve](/docs/hooks/functions/emitted-transaction/etxn_reserve) 声明的最大 emission 数；否则为 `1` | 用于检测 forkbomb。费用会基于 burden 增长，以防止链式自激增 |
+| `sfEmitParentTxnID` | Originating Transaction 的交易 ID | 用来高效追踪 emitted transaction 与源交易之间的关系 |
+| `sfEmitNonce` | 通过 [etxn_nonce](/docs/hooks/functions/emitted-transaction/etxn_nonce) 生成的特殊确定性 nonce | 避免相同字段的 emitted transactions 产生相同交易哈希 |
+| `sfEmitCallback` | 20 字节 Hook Account ID | 当 emitted transaction 被账本接受时，xahaud 通过它知道该回调哪个 Hook 与哪个账户 |
+
+<Aside type="tip" title="Check the examples">
+[Example Hooks](https://github.com/XRPL-Labs/xrpld-hooks/tree/hooks-ssvm/hook-api-examples) 中，尤其是 Peggy、Carbon 与 Doubler，展示了如何 emit 简单和复杂的交易。
+</Aside>

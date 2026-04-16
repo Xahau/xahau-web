@@ -1,0 +1,64 @@
+---
+title: ledger_seq
+description: 获取当前账本序号
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+* 返回当前账本的序号
+
+### 定义
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_seq();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_seq(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t seq =
+    ledger_seq();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const seq = ledger_seq()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+此 API 无参数。
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | 当前账本的序号 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 当前账本的序号 |
+</TabItem>
+</Tabs>

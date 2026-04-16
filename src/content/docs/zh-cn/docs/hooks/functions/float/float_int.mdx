@@ -1,0 +1,88 @@
+---
+title: float_int
+description: 将 XFL 浮点数转换为整数（向下取整）
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 将 XFL 左移指定小数位数（乘以 10）
+* 将结果向下取整为整数
+* 返回该整数
+</TabItem>
+
+<TabItem label="JavaScript">
+* 将浮点表示按指定小数位转换为整数
+* 返回错误码或结果整数
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_int (
+    int64_t float1,
+    uint32_t decimal_places,
+    uint32_t absolute
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_int(
+    f1: bigint,
+    decimal_places: number,
+    abs: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name            | Type      | Description |
+| --------------- | --------- | ----------- |
+| float1          | int64_t  | 待转换的 XFL |
+| decimal_places | uint32_t | 取整前要向右移动的小数位数 |
+| absolute        | uint32_t | 若为 `1`，返回前先取绝对值 |
+
+<Aside type="tip">
+负返回值保留给错误码。因此如果要处理负 XFL，应使用 `absolute = 1`。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name            | Type   | Description |
+| --------------- | ------ | ----------- |
+| f1              | bigint | 要转换的浮点数 |
+| decimal_places | number | 参与计算的小数位数 |
+| abs             | number | 是否取绝对值 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>计算得到的正整数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL<br /><br /><code>INVALID_ARGUMENT</code><br />- 指定了超过 15 位的小数位数<br /><br /><code>CANT_RETURN_NEGATIVE</code><br />- 试图返回负整数；如需处理负值请使用 <code>absolute = 1</code></p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| number or ErrorCode | 返回错误码或结果整数。 |
+</TabItem>
+</Tabs>

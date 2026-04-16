@@ -1,0 +1,56 @@
+---
+title: 使用 Websocket 与 RPC 与 xahaud 交互
+---
+`xahaud` 软件同时提供 websocket 与 RPC 接口，可用于多种场景，例如提交交易或查询账本历史。一些用户会选择在 `xahaud` 前面再放一层代理软件，以提供加密、负载均衡或其他附加能力。也可以在 `xahaud.cfg` 文件中使用 `ssl_key = [/path/to/key]` 之类的参数安装 TLS 证书。
+
+## 配置 Websocket 与 RPC 端口
+
+若要启用监听端口，请编辑 `xahaud.cfg` 文件。启用的端口列在配置文件的 `[server]` 段中。`[server]` 段下列出的每个端口，都必须再通过它自己的配置段进行定义。除了配置 websocket 或 RPC 端口之外，管理员还可以配置用于监听传入 peer 连接的端口（`port_peer`）。对于验证服务器，最好从配置文件中移除 `port_peer`，以避免外部连接进入。一个同时包含 peer 协议、一个 websocket 端口和一个 RPC 端口的配置文件大致如下：<br></br><br></br>
+
+```
+[server]
+port_peer
+port_ws_public
+port_rpc_public
+
+[port_peer] # Name of the port.
+protocol = peer # Required field.
+port = 21337 # Required field.
+ip = :: # Address of interface to bind to.
+
+[port_ws_public]
+protocol = ws
+port = 16006
+ip = ::
+limit = 150 # Maximum number of clients allowed to connect to a given port. "0" is unlimited.
+admin = [ 10.10.10.5, 10.11.11.0/24 ] # IP addresses or subnets allowed to submit [admin](/docs/features/http-websocket-apis/admin-api-methods) requests.
+secure_gateway = [ 10.10.10.20, 10.15.15.0/24 ] # Addresses allowed to send X-Forwarded-For and X-User headers.
+
+[port_rpc_public]
+protocol = http
+port = 16007
+ip = ::
+```
+<br></br>
+关于 websocket 和 RPC 连接的更多配置选项，可参见 [示例配置文件](https://github.com/Xahau/xahaud/blob/dev/cfg/rippled-example.cfg)。
+
+## UDP RPC
+
+`xahaud` 支持基于 UDP 的 RPC，用于高性能、低延迟查询。UDP RPC 适用于需要频繁快速查询、并且可以容忍偶发丢包的应用。
+
+若要启用 UDP RPC，请在 `xahaud.cfg` 中增加一个 UDP 端口定义：
+
+```
+[server]
+port_udp_rpc
+
+[port_udp_rpc]
+protocol = http
+port = 16008
+ip = ::
+transport = udp
+```
+
+UDP RPC 请求使用与 HTTP RPC 相同的 JSON-RPC 格式，只是通过 UDP 数据报发送。响应也通过 UDP 返回。由于 UDP 是无连接协议，每个请求都必须包含所有必要上下文，客户端也应通过实现重试逻辑来处理可能的丢包情况。
+
+**注意：** UDP RPC 更适合只读操作。交易提交应使用 WebSocket 或 HTTP RPC，以获得更可靠的结果。

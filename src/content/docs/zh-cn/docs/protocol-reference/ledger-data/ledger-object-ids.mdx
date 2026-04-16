@@ -1,0 +1,23 @@
+---
+title: 账本对象 ID
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/Indexes.cpp)
+
+账本状态数据中的每个对象都有一个唯一 ID。这个 ID 是通过对对象的重要内容，以及一个 [namespace identifier](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/LedgerFormats.h#L99) 一起进行哈希而得到的。Ledger object 的类型决定了要使用哪个 namespace identifier，以及哪些内容需要被纳入哈希。这样可以确保每一个 ID 都是唯一的。为了计算哈希，`xahaud` 使用 SHA-512，然后将结果截断为前 256 位。这个算法通常被非正式地称为 **SHA-512Half**。它提供的安全性与 SHA-256 相当，但在 64 位处理器上运行更快。
+
+通常情况下，ledger object 的 ID 会在 JSON 中以 `index` 字段返回，并与对象内容处于同一级。在 transaction metadata 中，ledger object 的 ID 在 JSON 中对应 `LedgerIndex`。
+
+**提示：** 账本中对象的 `index` 或 `LedgerIndex` 字段就是该对象的 ledger object ID。它与 \[ledger index]\[] 不是同一个概念。
+
+include_svg("img/ledger-object-ids.svg", "Diagram: xahaud uses SHA-512Half to generate IDs for ledger objects. The space key prevents IDs for different object types from colliding.")
+
+### Flags <a href="#flags" id="flags"></a>
+
+Flags 是开关型设置，它们使用二进制值表示，并通过按位 OR 组合成一个数字。Ledger entries 中 flags 的位值，与交易中用于启用或禁用这些 flag 的值是不同的。Ledger state flags 的名称都以 **`lsf`** 开头。
+
+`Flags` 字段的可用取值取决于 ledger entry 类型。某些 ledger entry 类型没有定义任何 flags。在这种情况下，`Flags` 字段的值始终为 `0`。
+
+### 另见
+
+* 如需了解 Xahau 如何创建和使用哈希，参见 Hashes。
+* 有关账本基础知识，请参见 Ledgers。

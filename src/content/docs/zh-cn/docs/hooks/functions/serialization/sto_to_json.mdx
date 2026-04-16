@@ -1,0 +1,61 @@
+---
+title: sto_to_json
+description: 将 STO 对象（二进制账本数据）格式化为 JSON
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">序列化对象</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="JavaScript">
+* 将 STO 对象（二进制账本数据）格式化为 JSON
+* 接收序列化交易 `blob` 并将其转换为可读 JSON
+* 成功时返回解码后的 JSON，失败时返回错误码
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function sto_to_json(
+    blob: ByteArray | HexString
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const jsonSto = sto_to_json(stoBlob)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="JavaScript">
+| Name | Type                   | Description |
+| ---- | ---------------------- | ----------- |
+| blob | ByteArray \| HexString | 要转换的 blob（例如序列化交易） |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="JavaScript">
+| Type                                             | Description |
+| ------------------------------------------------ | ----------- |
+| ErrorCode \| Record\<string, any> \| Transaction | 返回解码后的 STO 对象 JSON 表示，失败时返回错误码。 |
+</TabItem>
+</Tabs>

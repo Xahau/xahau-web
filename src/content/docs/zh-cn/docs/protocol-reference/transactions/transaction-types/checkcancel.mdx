@@ -1,0 +1,27 @@
+---
+title: CheckCancel
+description: 取消一张尚未兑现的 Check，将其从账本中移除而不发送任何资金。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(由 [Checks amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+    "TransactionType": "CheckCancel",
+    "CheckID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Fee": "12"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `CheckID` | String | Hash256 | 要取消的 Check 账本对象 ID，使用 64 字符十六进制字符串表示。 |
+
+### 错误场景
+
+* 如果 `CheckID` 标识的对象不存在，或它不是一个 Check，则交易以结果 `tecNO_ENTRY` 失败。
+* 如果该 Check 尚未过期，且 CheckCancel 交易的发送方既不是该 Check 的 source 也不是 destination，则交易以结果 `tecNO_PERMISSION` 失败。

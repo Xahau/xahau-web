@@ -1,0 +1,77 @@
+---
+title: slot
+description: 序列化并输出一个已放入槽位的对象
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 序列化当前位于指定槽位中的对象
+* 将该对象的序列化结果写入输出缓冲区
+
+<Aside type="tip" title="替代用法">
+对于较小对象，可以不使用缓冲区。将 `write_ptr, write_len` 设为 `0, 0`，尝试把槽位对象作为大端打包数据直接通过 `int64_t` 返回。最多可通过这种方式返回 63 位数据。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取指定槽位中的数据
+* 成功时返回槽位数据，失败时返回错误码
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot(slotno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 指向合适输出缓冲区的指针 |
+| write_len | uint32_t | 输出缓冲区长度 |
+| slot_no   | uint32_t | 槽位编号 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description |
+| ------ | ------ | ----------- |
+| slotno | number | 槽位编号 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入的字节数<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_SMALL</code><br />- 输出缓冲区不足以容纳序列化对象</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ErrorCode \| ByteArray | 返回错误码或槽位数据。 |
+</TabItem>
+</Tabs>

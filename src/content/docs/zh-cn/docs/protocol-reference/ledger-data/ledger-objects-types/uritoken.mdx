@@ -1,0 +1,59 @@
+---
+title: URIToken
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(由 [URI Token amendment][] 引入。)_
+
+`URIToken` 对象描述一个 URI 代币，可用于在账本中表示某个唯一资源标识符。
+
+### JSON 示例
+
+```json
+{
+  "Owner": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "OwnerNode": "0000000000000000",
+  "Issuer": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+  "URI": "DEADBEEF",
+  "Digest": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+  "Amount": "100000000",
+  "Destination": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "LedgerEntryType": "URIToken",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### 字段
+
+`URIToken` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Owner` | String | Account | 是 | URI Token 的所有者。 |
+| `OwnerNode` | String | UInt64 | 是 | 一个提示值，指出此对象链接于所有者目录的哪一页；当目录包含多页时尤其有用。 |
+| `Issuer` | String | Account | 是 | URI Token 的发行者。 |
+| `URI` | String | VL | 是 | 此代币所表示的 URI。 |
+| `Digest` | String | Hash256 | 否 | 所有者提供的任意 256 位哈希，可作为该 URI Token 的特定标识符。 |
+| `Amount` | String or Object | Amount | 否 | URI Token 的金额。 |
+| `Destination` | String | Account | 否 | URI Token 的预期接收者。 |
+| `PreviousTxnID` | String | Hash256 | 是 | 最近一次修改此对象的交易识别哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | 是 | 包含最近一次修改此对象之交易的账本索引。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0073`，映射为字符串 `URIToken`，表示这是一个 URI Token 对象。 |
+
+### URIToken Flags
+
+`URIToken` 对象可以包含以下标志值：
+
+| 标志名 | 十六进制值 | 十进制值 | 对应的 URITokenMint Flag | 说明 |
+| --- | --- | --- | --- | --- |
+| `lsfBurnable` | `0x00000001` | 1 | `tfBurnable` | 发行者（或由发行者授权的实体）可以销毁已铸造的 `URIToken`。（`URIToken` 的所有者始终也可以这样做。） |
+
+### URIToken ID 格式
+
+`URIToken` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* URI Token 空间键（`0x0055`）
+* URI Token 发行者的 AccountID
+* URI Token 所表示的 URI

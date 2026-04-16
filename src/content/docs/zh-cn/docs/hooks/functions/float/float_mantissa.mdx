@@ -1,0 +1,56 @@
+---
+title: float_mantissa
+description: 获取 XFL 封装数的尾数
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 以无符号整数形式返回 XFL 的尾数部分
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取浮点表示的尾数
+* 返回错误码或尾数 bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mantissa (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mantissa(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>XFL 的尾数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| bigint or ErrorCode | 返回错误码或尾数 bigint。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,26 @@
+---
+title: Pseudo Transaction Types
+---
+Pseudo-transactions 永远不会由用户提交，也不会通过网络传播。相反，服务器可以根据特定协议规则，选择直接向某个提议账本中注入 pseudo-transaction。如果有足够多的服务器提议完全相同的 pseudo-transaction，共识过程就会批准它，并将该 pseudo-transaction 纳入该账本的交易数据中。
+
+### Common Fields 的特殊取值
+
+普通交易所要求的一些 [common fields][]，对于 pseudo-transactions 并不适用。pseudo-transactions 会为这些公共字段使用以下特殊值：
+
+| 字段 | JSON 类型 | [内部类型][] | 值 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | ACCOUNT_ZERO |
+| `Fee` | String | Amount | `0` |
+| `Sequence` | Number | UInt32 | `0` |
+| `SigningPubKey` | String | Blob | `""`（空字符串） |
+| `TxnSignature` | String | Blob | `""`（空字符串） |
+
+Pseudo-transactions 对以下 common fields 的使用方式与普通交易相同：
+
+* `TransactionType`
+* `Flags`
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `TransactionType` | String | UInt16 | _(必填)_ 交易类型。 |
+| `Flags` | Number | UInt32 | _(可选)_ 此交易的一组 bit-flags。具体含义取决于交易类型。 |

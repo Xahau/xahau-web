@@ -1,0 +1,68 @@
+---
+title: ledger_last_time
+description: 获取最近关闭账本的时间戳
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+* 返回最近关闭账本的 Xahau 时间戳。
+
+<Aside type="tip">
+Xahau 时间戳与 Unix 时间戳相同，只是偏移量为 `-946684800`。
+
+对应的 Unix 时间戳为：`ledger_last_time() + 946684800;`
+</Aside>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_time();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_time(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ts =
+    ledger_last_time();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const ts = ledger_last_time()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+此 API 无参数。
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | 最近关闭账本的 XRPL 时间戳 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 如果出错返回错误码，成功时返回表示最近账本时间戳的数值。 |
+</TabItem>
+</Tabs>

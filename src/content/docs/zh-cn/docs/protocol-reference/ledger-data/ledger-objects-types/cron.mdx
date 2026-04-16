@@ -1,0 +1,57 @@
+---
+title: Cron
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/LedgerFormats.cpp)
+
+_(由 [Cron amendment][] 引入。)_
+
+`Cron` 对象表示一个计划中的 Hook 执行，它由 [CronSet transaction](/docs/protocol-reference/transactions/transaction-types/cronset) 创建。当计划执行到期时，Cron 引擎会自动向账本插入类型为 `Cron` 的伪交易。
+
+### JSON 示例
+
+```json
+{
+  "Owner": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+  "OwnerNode": "0000000000000000",
+  "StartTime": 816348759,
+  "RepeatCount": 3,
+  "DelaySeconds": 120,
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "LedgerEntryType": "Cron",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### 字段
+
+`Cron` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Owner` | String | AccountID | 是 | 拥有此计划 Hook 执行的账户。也就是在 cron 执行时会被调用的账户。 |
+| `OwnerNode` | String | UInt64 | 是 | 一个提示值，指出此对象链接于所有者目录的哪一页；当目录包含多页时尤其有用。**注意：** 此对象不直接包含指向其所在所有者目录的链接，因为该值可以从 `Owner` 推导出来。 |
+| `StartTime` | Number | UInt32 | 是 | 第一次执行应发生时的 Ripple Epoch 时间戳。使用 `0` 表示立即执行。详情参见 [Specifying Time][]。 |
+| `RepeatCount` | Number | UInt32 | 是 | cron 应执行的次数。可以通过后续的 [CronSet transactions](/docs/protocol-reference/transactions/transaction-types/cronset) 延长。每笔交易最多 256 次，但可以在此限制之上继续扩展。 |
+| `DelaySeconds` | Number | UInt32 | 是 | 每次执行之间的时间间隔（秒）。最大值为 31,536,000 秒（365 天）。 |
+| `PreviousTxnID` | String | Hash256 | 是 | 最近一次修改此对象的交易识别哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | 是 | 包含最近一次修改此对象之交易的 [账本索引][Ledger Index]。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0061`，映射为字符串 `Cron`，表示这是一个 Cron 对象。 |
+
+### Cron ID 格式
+
+`Cron` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* Cron 空间键（`0x0076`）
+* `StartTime` 字段的时间戳
+* `Owner` 字段的随机化 AccountID
+
+### Execution Behavior
+
+当某个 cron 准备执行时，Cron 引擎会向账本插入一笔类型为 `Cron` 的伪交易。该伪交易包含 `Owner` 字段，用于引用原始 Hook 账户。计划中的 Hook 会在指定时间间隔自动执行，而不需要外部触发。
+
+Hook 开发者必须在其 Hook 上启用 collect calls（`hsfCOLLECT` 标志），因为当 Cron 伪交易执行时，`Owner` 会构成一个弱事务利益相关者（TSH）。
+
+### Related Transactions
+
+* [CronSet transaction](/docs/protocol-reference/transactions/transaction-types/cronset): 创建、更新或删除 Cron 对象

@@ -1,0 +1,38 @@
+---
+title: Invoke
+description: Invoke 交易用于调用 hook，也就是一段在特定账本操作响应时执行的代码。
+---
+\[[Source](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/Invoke.cpp)]
+
+_(由 [Hooks amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "TransactionType": "Invoke",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Blob": "697066733A2F2F4445414442454546",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `Account` | String | AccountID | 是 | 调用该 hook 的账户地址。 |
+| `Blob` | String | Blob | 否 | 传递给 hook 的一段数据 blob。（最大 128k 字节） |
+| `Destination` | String | AccountID | 否 | 作为 hook 目标的账户地址。 |
+
+### 特殊交易费用
+
+Invoke 交易具有标准交易费用，外加基于 `Blob` 字段大小计算的附加费用。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，Invoke 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temDISABLED` | Hooks amendment 未启用。 |
+| `temMALFORMED` | `Blob` 字段超过 128k 字节。 |
+| `terNO_ACCOUNT` | 发送账户或目标账户不存在。 |

@@ -1,0 +1,65 @@
+---
+title: TrustSet
+description: 创建或修改连接两个账户的 trust line。
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/SetTrust.cpp)
+
+### 示例
+
+```json
+{
+    "TransactionType": "TrustSet",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 262144,
+    "LastLedgerSequence": 8007750,
+    "LimitAmount": {
+      "currency": "USD",
+      "issuer": "rsP3mgGb2tcYUrxiLFiHJiQXhsziegtwBc",
+      "value": "100"
+    },
+    "Sequence": 12
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `LimitAmount` | Object | Amount | 用于定义要创建或修改的 trust line 的对象，格式与 [Currency Amount][] 相同。 |
+| `LimitAmount`.`currency` | String | (Amount.currency) | 此 trust line 适用的货币，可以是三字母 [ISO 4217 Currency Code](https://www.xe.com/iso4217.php)，也可以是根据货币格式编码的 160 位十六进制值。`XAH` 无效。 |
+| `LimitAmount`.`value` | String | (Amount.value) | 要在该 trust line 上设置的额度上限，采用字符串形式的十进制表示。 |
+| `LimitAmount`.`issuer` | String | (Amount.issuer) | 你要向其扩展信任的账户地址。 |
+| `QualityIn` | Number | UInt32 | _(可选)_ 对此 trust line 上流入余额按每 1,000,000,000 单位对应此数值的比例估值。值为 `0` 表示按面值处理。 |
+| `QualityOut` | Number | UInt32 | _(可选)_ 对此 trust line 上流出余额按每 1,000,000,000 单位对应此数值的比例估值。值为 `0` 表示按面值处理。 |
+
+如果 `LimitAmount.issuer` 指定的账户阻止传入 trust lines，则该交易会以 `tecNO_PERMISSION` 失败。_(需要 [DisallowIncoming amendment][]。)_
+
+### TrustSet Flags
+
+TrustSet 类型交易支持以下附加 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfSetfAuth` | `0x00010000` | 65536 | 授权另一方持有由本账户发行的货币。（除非启用了 `asfRequireAuth` AccountSet 标志，否则无效果。）一旦设置，无法撤销。 |
+| `tfSetNoRipple` | `0x00020000` | 131072 | 启用 No Ripple 标志。如果该货币的两条 trust lines 都启用了此标志，则阻止 rippling。 |
+| `tfClearNoRipple` | `0x00040000` | 262144 | 禁用 No Ripple 标志，允许该 trust line 上发生 rippling。 |
+| `tfSetFreeze` | `0x00100000` | 1048576 | 冻结该 trust line。 |
+| `tfClearFreeze` | `0x00200000` | 2097152 | 解除该 trust line 的冻结。 |
+| `tfSetDeepFreeze` | `0x00400000` | 4194304 | 对该 trust line 执行深度冻结。_(需要 [DeepFreeze amendment][]。)_ |
+| `tfClearDeepFreeze` | `0x00800000` | 8388608 | 清除该 trust line 上的深度冻结。_(需要 [DeepFreeze amendment][]。)_ |
+
+如果某笔交易尝试启用 No Ripple 但条件不满足，则会以 `tecNO_PERMISSION` 失败。在 [fix1578 amendment][] 启用前，此类交易会返回 `tesSUCCESS`，同时保留它能够做出的其他修改。
+
+trust line 的 Auth 标志并不决定它是否计入其所有者的 XAH 储备要求。但是，启用 Auth 标志会使该 trust line 不再处于默认状态。已授权的 trust line 永远不能被删除。发行者甚至可以只使用 `tfSetfAuth` 预先授权一条 trust line，即使其 limit 与 balance 都为 0。
+
+### Deep Freeze 规则
+
+在启用 [DeepFreeze amendment][] 的情况下，深度冻结操作遵循以下规则：
+
+当且仅当以下任一条件为真时，试图设置 `tfSetDeepFreeze` 的 TrustSet 交易才会成功：
+
+* 持有方已经被冻结，这体现在 trust line 上存在 `lsfLowFreeze` / `lsfHighFreeze`
+* 同一笔 TrustSet 交易中也设置了 `tfSetFreeze`
+
+如果该 trust line 已由发行方执行深度冻结（体现在 `lsfLowDeepFreeze` / `lsfHighDeepFreeze`），那么当发行方设置 `tfClearFreeze` 却没有同时设置 `tfClearDeepFreeze` 时，TrustSet 交易会失败。也就是说，发行方不能在不同时清除 deep freeze 的情况下单独清除普通冻结。
+
+关于 low account 与 high account 的判定方式，请参见 [High vs. Low Account](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state#high-vs-low-account)。

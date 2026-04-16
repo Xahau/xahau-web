@@ -1,0 +1,36 @@
+---
+title: URITokenBurn
+description: URITokenBurn 交易用于在 Xahau 中销毁一个 URIToken。
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/URIToken.cpp)
+
+_(由 [URIToken amendment][] 引入。)_
+
+URITokenBurn 交易用于在 Xahau 中销毁一个 URIToken。销毁后，该 URIToken 将被永久移出流通。
+
+### 示例
+
+```json
+{
+    "TransactionType": "URITokenBurn",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA"
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 拥有待销毁 URIToken 的账户地址。 |
+| `URITokenID` | String | Hash256 | 要销毁的 URIToken 的 ID。 |
+
+### 特殊交易费用
+
+URITokenBurn 交易没有任何额外的特殊交易费用要求。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，URITokenBurn 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `tecNO_PERMISSION` | 该账户无权限销毁该代币。 |

@@ -1,0 +1,60 @@
+---
+title: 高级 xahaud 配置
+---
+`xahaud` 提供了大量可配置选项。本节将介绍一些更常用的选项，包括用于服务器 clustering 和数据库配置的选项。
+
+如需完整的配置选项文档，请参阅 [xahaud GitHub 仓库](https://github.com/Xahau/xahaud/tree/dev/cfg)中的示例配置文件。
+
+## 在内存中运行数据库
+
+希望最大化 `xahaud` 性能的用户，可以选择将数据库运行在内存中，而不是专用存储介质上。内存数据库不适合用于保存历史数据的机器，因为数据库在 `xahaud` 重启后不会持久保留。同样，可存储的历史数据量也取决于系统可用内存。因此，必须在 `xahaud.cfg` 中配置 `online_delete` 和 `advisory_delete`，以防止内存耗尽错误。使用内存数据库时，建议禁用 SWAP，因为 SWAP 会将内存内容写入磁盘，从而可能抵消把数据库放在内存中所获得的性能优势。
+
+若要启用内存数据库，请编辑 `xahaud.cfg`：
+
+```
+[relational_db]
+type=RWDB
+
+[node_db]
+type=RWDB # RWDB is the memory database
+online_delete=256 # This value should be low on machines using memory databases. '256' is the minimum value.
+advisory_delete=0 # Do not require human intervention to delete history. This is necessary for preventing out of memory errors.
+```
+
+## Clustering
+
+Clustering 允许 `xahaud` 运营者配置多个 `xahaud` 服务器，使这些服务器彼此信任，从而降低整体负载。配置得当的 clustered servers 可以共享有关恶意或异常 websocket、rpc 与 peer 连接的信息，同时也能在集群内自动传播已提交的交易。因此，如果一笔交易是在负载较高、而其 fee 又不足以满足该服务器要求的节点上提交的，该交易仍然会传播到集群中的其他服务器，从而提高其被纳入即将到来的账本的概率。
+
+运行 `xahaud` validator 的管理员也能从 clustering 中受益，因为集群可以为高安全性的 validator 提供连接能力，从而避免 validator 直接连接到未知或不受信任的服务器。
+
+服务器运营者不应将自己的服务器与不受自己控制的外部服务器做 clustering。同样，clustered servers 之间应保持低延迟连接，理想情况下应部署在同一数据中心。
+
+生成 cluster seeds（公私钥）可通过 `validation_create` [API method](/docs/features/http-websocket-apis/admin-api-methods) 完成。虽然方法名中包含 “validation”，但它**并不是**用来[生成签名 validation messages 所需的密钥](/docs/infrastructure/enabling-validation)的。它的作用是为任意 `xahaud` 服务器生成身份密钥，不论该服务器是否为 validating server。
+
+若要创建一个 cluster：
+
+1. 在每个将加入 cluster 的 `xahaud` 实例上，生成公钥和 seed： `./xahaud validation_create`
+2. 打开每个服务器的 `xahaud.cfg` 文件，并添加或编辑以下段：
+    * `[ips_fixed]` - 写入 cluster 中其他服务器的 IPv4/6 地址与 peer 监听端口（例如 `10.1.1.2 21337`）。监听端口定义在接收传入连接的服务器的 `xahaud.cfg` 文件中的 `[port_peer]` 段里。Xahau Main Network 的默认监听端口为 `21337`。
+    * `[node_seed]` - 使用 `validation_create` 命令输出中的 `validation_seed` 字段。它是私钥，且必须安装在生成它的那台服务器上。
+    * `[cluster_nodes]` - 使用 `validation_create` 命令输出中的 `validation_public_key` 字段。它是公钥，应安装到 peer servers 上，而不是生成它的那台服务器本身。
+3. 在 cluster 中的每台服务器上重启 `xahaud`： `systemctl restart xahaud`
+4. 备份每台服务器的 `xahaud.cfg`。
+5. 使用 [peers](/docs/features/http-websocket-apis/admin-api-methods) API method 验证 clustered peers 之间的连通性： `./xahaud peers`
+
+一个 `xahaud.cfg` 中的 cluster 段可能如下所示：
+```
+[ips_fixed]
+10.1.1.2 21337 # Clustered peer 1
+10.1.1.3 21337 # Clustered peer 2
+10.1.1.4 21337 # Clustered peer 3
+
+[cluster_nodes]
+n9LzAHaB7ka318dAJWLQD1WkpGR86NyvaCzrtUAt4PuNtDCTCqxn # validation_public_key from clustered peer 1
+n9KWNMsRdQ66jYHLCVgFBAQAzb16DwDioVdXSuV8pTcfEfaHkdvZ # validation_public_key from clustered peer 2
+n9JFK8xUcy9S9TBmCcZKKmY28LEVjTurcpzC5XkXnyAAj1Svytee # validation_public_key from clustered peer 3
+
+[node_seed]
+sn8QEFTpBM8nydnLD6FjxKN845uRG # Private validation_seed from the local xahaud instance
+
+```

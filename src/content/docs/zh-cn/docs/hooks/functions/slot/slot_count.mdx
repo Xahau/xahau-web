@@ -1,0 +1,44 @@
+---
+title: slot_count
+description: 统计槽位中数组对象的元素个数
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+* 统计指定槽位中数组的元素数量
+* 返回计数结果
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_count (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_count(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>槽位数组中的元素数量<br /><br />若为负数，则表示错误：<br /><code>DOESNT_EXIST</code><br />- 指定槽位中没有对象，或该槽位无效<br /><br /><code>NOT_AN_ARRAY</code><br />- 指定槽位中不是数组对象</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode or number | 返回错误码或条目数量。 |
+</TabItem>
+</Tabs>

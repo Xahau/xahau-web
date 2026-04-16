@@ -1,0 +1,53 @@
+---
+title: EscrowFinish
+description: 将托管中的 XAH 或 IOU 交付给接收方。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_由 [Escrow amendment][] 引入。_
+
+### 使用 OfferSequence 完成
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowFinish",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "OfferSequence": 7,
+    "Condition": "A0258020E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855810100",
+    "Fulfillment": "A0028000"
+}
+```
+
+### 使用 EscrowID 完成
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowFinish",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "EscrowID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Condition": "A0258020E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855810100",
+    "Fulfillment": "A0028000"
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Owner` | String | AccountID | 为该托管付款提供资金的源账户地址。 |
+| `OfferSequence` | Number | UInt32 | _(可选)_ 创建待完成托管付款的 [EscrowCreate transaction][] 的交易序列号。 |
+| `Condition` | String | Blob | _(可选)_ 与该托管付款先前提供的 [PREIMAGE-SHA-256 crypto-condition](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1) 匹配的十六进制值。 |
+| `Fulfillment` | String | Blob | _(可选)_ 与该托管付款 `Condition` 相匹配的 [PREIMAGE-SHA-256 crypto-condition fulfillment](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1.4) 的十六进制值。 |
+| `EscrowID` | String | Hash256 | _(可选)_ 要完成的 Escrow 账本对象 ID，使用 64 字符十六进制字符串表示。 |
+
+任何账户都可以提交 EscrowFinish 交易。
+
+* 如果托管付款设置了 `FinishAfter` 时间，则在该时间到来之前不能执行。具体来说，如果对应的 [EscrowCreate transaction][] 指定的 `FinishAfter` 晚于最近关闭账本的 close time，则 EscrowFinish 交易会失败。
+* 如果托管付款具有 `Condition`，则只有在提供与之匹配的 `Fulfillment` 时才能执行。
+* 托管付款到期后不能再执行。具体来说，如果对应的 [EscrowCreate transaction][] 指定的 `CancelAfter` 早于最近关闭账本的 close time，则 EscrowFinish 交易会失败。
+
+**注意：** 提交 EscrowFinish 交易的最低交易费用在包含 fulfillment 时会提高。如果交易不包含 fulfillment，则交易费用为标准的 10 drops；如果包含 fulfillment，则费用为 330 [drops of XAH][]，外加每 16 字节 preimage 大小再增加 10 drops。
+
+在非生产网络中，可能存在删除某个待处理 escrow 的目标账户的情况。此时，尝试完成该 escrow 会以 `tecNO_TARGET` 失败，但 escrow 对象本身仍会保留，除非它已正常过期。如果之后另一笔付款重新创建了目标账户，则该 escrow 仍可以成功完成。只有在该 escrow 创建于 fix1523 amendment 启用之前时，目标账户才可能被删除。生产环境 Xahau 中不存在这种 escrow，因此这个边缘情况不会出现。

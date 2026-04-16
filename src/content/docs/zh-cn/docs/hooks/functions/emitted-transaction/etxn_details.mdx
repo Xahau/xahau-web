@@ -1,0 +1,95 @@
+---
+title: etxn_details
+description: 生成适用于即将发射交易的 sfEmitDetails
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">发射交易</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 如果未定义 `cbak`，则生成并向 `write_ptr` 写入一个 105 字节的 `sfEmitDetails` 对象
+* 如果定义了 `cbak`，则生成并向 `write_ptr` 写入一个 127 字节的 `sfEmitDetails` 对象
+</TabItem>
+
+<TabItem label="JavaScript">
+* 此函数提供交易的详细信息。
+* 如果出错返回 ErrorCode，成功时返回交易详情数组。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_details (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_details(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t emitdet[105];
+int64_t result =
+    etxn_details(emitdet, 105);
+if (result != 105)
+    rollback("Etxndetails failed.", 19, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const emitdet = etxn_details()
+if (typeof emitdet === 'string || emitdet.length != 105)
+    rollback("Etxndetails failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 指向接收 `sfEmitDetails` 记录的缓冲区 |
+| write_len | uint32_t | 缓冲区长度 |
+</TabItem>
+
+<TabItem label="JavaScript">
+JavaScript 无参数
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入的字节数。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_SMALL</code><br />- 缓冲区不足以接收该记录<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- Hook 尚未先调用 <code>etxn_reserve(n)</code><br /><br /><code>FEE_TOO_LARGE</code><br />- burden 过高，网络不允许。<br /><br /><code>INTERNAL_ERROR</code><br />- 生成所需字段时出现通用内部错误。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ErrorCode \| ByteArray | 如果出错返回 ErrorCode，成功时返回交易详情数组。 |
+</TabItem>
+</Tabs>

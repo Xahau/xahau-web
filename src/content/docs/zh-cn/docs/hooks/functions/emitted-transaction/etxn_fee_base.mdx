@@ -1,0 +1,80 @@
+---
+title: etxn_fee_base
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+启用 Hooks 的账本中，费用并不简单。详情参见：[Hook Fees](/docs/hooks/concepts/hook-fees)。
+</Aside>
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">发射交易</LinkButton>
+
+### 行为
+
+* 返回推荐给待发射交易使用的费用（单位为 drops）。
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_fee_base (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_fee_base(txblob: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee_to_pay =
+    etxn_fee_base(tx_blob, tx_blob_len);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const fee_to_pay = etxn_fee_base(tx_blob)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Name</th><th width="118">Type</th><th>Description</th></tr></thead><tbody><tr><td>read_ptr</td><td>uint32_t</td><td>指向包含待发射序列化交易的缓冲区。需要包含 Fee 字段，但其值会被忽略（可设为 0）。应使用本函数输出值来正确填充 Fee 字段。</td></tr><tr><td>read_len</td><td>uint32_t</td><td>交易 blob 的长度。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="118">Type</th><th>Description</th></tr></thead><tbody><tr><td>txblob</td><td>ByteArray | HexString</td><td>交易 blob，可以是数字数组或字符串。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>发射交易被接受所需的最小 drops 数。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 提供的缓冲区不在有效 Hook 内存范围内。<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- 尚未先调用 <code>etxn_reserve</code>。<br /><br /><code>INVALID_TXN</code><br />- 提供的缓冲区未包含合法的序列化交易。（反序列化失败，或缺少必填字段。）</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 如果出错返回 ErrorCode，成功时返回计算出的基础费用。 |
+</TabItem>
+</Tabs>

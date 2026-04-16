@@ -1,0 +1,63 @@
+---
+title: 请求格式指南
+---
+### 公共服务器
+
+* `wss://xahau.network` 或 `https://xahau.network`（Mainnet）
+* `wss://xahau-test.net` 或 `https://xahau-test.net`（Testnet）
+
+### 示例请求
+
+如需向 API 发送一个示例请求，可使用以下格式。
+
+### WebSocket
+
+```json
+{
+  "id": 3,
+  "command": "account_info",
+  "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+  "strict": true,
+  "ledger_index": "validated",
+  "api_version": 1
+}
+```
+
+### WebSocket 请求结构
+
+在与 `xahaud` 服务器建立 WebSocket 连接后，你可以通过 JSON 对象发送命令，其中可包含以下字段：
+
+<table><thead><tr><th>字段</th><th width="220">类型</th><th>说明</th></tr></thead><tbody><tr><td>command</td><td>String</td><td>API 方法名称</td></tr><tr><td>id</td><td>(Multiple)</td><td><em>（可选）</em> 请求的唯一标识符。</td></tr><tr><td>api_version</td><td>Number</td><td><em>（可选）</em> 指定 API 版本。</td></tr></tbody></table>
+
+### JSON-RPC
+
+```json
+POST https://xahau.network/
+Content-Type: application/json
+
+{
+    "method": "account_info",
+    "params": [
+        {
+            "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+            "strict": true,
+            "ledger_index": "validated",
+            "api_version": 1
+        }
+    ]
+}
+```
+
+### JSON-RPC 请求结构
+
+<table><thead><tr><th>字段</th><th width="220">类型</th><th>说明</th></tr></thead><tbody><tr><td>method</td><td>String</td><td>API 方法名称</td></tr><tr><td>params</td><td>Array</td><td><em>（可选）</em> 只包含一个 JSON 对象的数组，该对象中是该方法的参数。</td></tr></tbody></table>
+
+### 命令行
+
+```bash
+xahaud account_info rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y validated strict
+```
+
+### 命令行请求结构
+
+<table><thead><tr><th>字段</th><th width="220">说明</th></tr></thead><tbody><tr><td>xahaud</td><td>开始调用 xahaud 服务</td></tr><tr><td>method</td><td>API 方法名称</td></tr><tr><td>params</td><td>（可选）</td></tr></tbody></table>

@@ -1,0 +1,70 @@
+---
+title: Debugging Hooks
+description: 如何从你的 Hook 里打印 “hello world”！
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 我该如何调试 Hook？
+
+Hook API 在 `trace` 命名空间中提供了一组函数，当 xrpld/xahaud 配置为 _trace_ 日志级别时，它们会把输出写入日志文件。一般来说，这些函数可以让你查看变量值、缓冲区内容，或者在运行时跟踪 Hook 的执行流程与状态。
+
+<Aside type="tip">
+截至当前文档编写时，还没有交互式 Hook Debugger。你必须使用 trace functions。
+</Aside>
+
+### Trace APIs
+
+Hooks API 中可用的 `trace` 函数如下：
+
+| Hook API | 作用 |
+| --- | --- |
+| [trace](/docs/hooks/functions/trace-debug/trace) | 打印一段 utf-8 消息，后接一个用户指定的缓冲区（可选是否按 hex 输出） |
+| [trace_num](/docs/hooks/functions/trace-debug/trace_num) | 打印一段 utf-8 消息，后接一个整数 |
+| [trace_float](/docs/hooks/functions/trace-debug/trace_float) | 打印一段 utf-8 消息，后接一个 XFL 浮点数 |
+
+### 示例
+
+下面的代码会打印一行 trace，然后接受 Originating Transaction。
+
+```c
+#include "../hookapi.h"
+int64_t hook(int64_t reserved)
+{
+  trace_num(SBUF("A number"), 10);
+  accept(0,0,0);
+  return 0;
+}
+```
+
+当某笔 payment 从 Hook Account 发出或流入 Hook Account 时，`xahaud` 产生的日志行示例如下：
+
+```
+2021-Apr-13 13:59:11.083700726 UTC View:TRC
+    HookTrace[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh-rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:
+        A number 10
+```
+
+上面为了可读性做了分行；在实际日志中它通常是一整行。
+
+<Aside type="tip" title="Use testnet">
+The [Xahau Testnet](https://xahau-test.net/) 是测试 Hooks 的理想环境。
+</Aside>
+
+### 日志格式
+
+下面对日志格式做一个拆解：
+
+| 部分 | 说明 | # |
+| --- | --- | --- |
+| `2021-Apr-13 13:59:11.083700726 UTC View:TRC` | `xahaud` 写到日志行前面的前缀 | 1 |
+| `HookTrace` | 这表示该 trace 是由 Hook 自身发出的，而不是关于 Hook 的其他系统信息 | 2 |
+| `[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh` | 方括号中的第一个账户是 Hook Account | 3 |
+| `-rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:` | 方括号中的第二个账户是 Originating Account | 4 |
+| `A number` | 这是 Hook 被要求在 trace payload 前输出的消息文本 | 5 |
+| `10` | 这是 trace payload | 6 |
+
+<Aside type="tip">
+`Xahaud` 会产生日志量很大，因此通常建议按你关心的账户过滤日志。
+
+例如：`tail -f log | grep HookTrace | grep <account>`
+</Aside>

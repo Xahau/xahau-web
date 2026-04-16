@@ -1,0 +1,59 @@
+---
+title: ClaimReward
+description: ClaimReward 交易允许账户领取其已累积的奖励，也可以选择退出奖励机制。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/ClaimReward.cpp)]
+
+_(由 [BalanceRewards amendment][] 引入。)_
+
+### Opt-in + Claim
+
+```json
+{
+    "TransactionType": "ClaimReward",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+}
+```
+
+### Opt-out
+
+```json
+{
+    "TransactionType": "ClaimReward",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 1
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 领取奖励的账户地址。 |
+| `Flags` | Number | UInt32 | _(可选)_ 可设置 flag `1` 以退出奖励机制。 |
+| `Issuer` | String | AccountID | _(可选)_ 创世账户。 |
+
+### ClaimReward Flags
+
+ClaimReward 类型交易支持以下附加 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfOptOut` | `0x00000001` | 1 | ClaimReward 代码中的 `isOptOut` 标志用于让账户退出奖励机制；如果交易中的 `sfFlags` 设为 1，则会从账本中的账户对象移除与奖励相关的字段。 |
+
+### 特殊交易费用
+
+ClaimReward 交易具有标准交易费用，也就是所有交易都需要满足的最低交易成本。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，ClaimReward 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temDISABLED` | 该功能未启用。 |
+| `temINVALID_FLAG` | flag 被设置为除 1 之外的其他值。 |
+| `temMALFORMED` | issuer 与 source account 相同，或 flag 与 issuer 的组合不合法。 |
+| `tecNO_ISSUER` | issuer 不存在。 |
+| `terNO_ACCOUNT` | 发送账户不存在。 |

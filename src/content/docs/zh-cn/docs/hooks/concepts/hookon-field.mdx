@@ -1,0 +1,44 @@
+---
+title: HookOn Field
+description: 指定 Hook 应在哪些交易类型上被触发
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+### 理解 HookOn 字段
+
+这个无符号 256 位整数中的每一位都表示 Hook 是否应在某种特定交易类型上执行。除了第 22 位是 _active high_ 之外，其余所有位都是 _active low_。由于第 22 位对应的是 `ttHOOK_SET`，这意味着默认值全 0 时，Hook **不会**在 SetHook 交易上触发，但会在其他所有交易类型上触发。这样设计是为了帮助开发者避免因为行为异常的 hook 而把自己的 Xahau 账户“锁死”。
+
+位的编号从右到左：
+
+* bit 0：最右边，也就是最低有效位
+* bit 63：最左边，也就是最高有效位
+
+示例（假设使用 256 位无符号整数类型）：
+
+1. 如果我们想完全禁用 hook：
+
+```c
+~(1ULL << 22) /* 每一位都是 1，只有第 22 位是 0 */
+```
+
+2. 如果我们想在除 `ttPAYMENT` 外的所有交易上都禁用 hook：
+
+```c
+~(1ULL << 22) & ~(1ULL)
+```
+
+3. 如果我们想在除 `ttHOOK_SET` 外的所有交易类型上都启用 hook：
+
+```c
+0
+```
+
+4. 如果我们想让 hook 在 `ttHOOK_SET`（危险）以及所有其他交易类型上都触发：
+
+```c
+(1ULL << 22)
+```
+
+### HookOn 计算器
+
+<LinkCard title="HookOn Calculator" href="https://richardah.github.io/xrpl-hookon-calculator/" />

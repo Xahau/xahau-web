@@ -1,0 +1,38 @@
+---
+title: hook_account
+sidebar:
+  order: 1
+---
+
+`hook_account` 返回当前 Hook 所挂载账户的 20 字节 Account ID。
+
+## C
+
+```c
+int64_t hook_account(uint32_t write_ptr, uint32_t write_len);
+```
+
+## JavaScript
+
+```javascript
+function hook_account(): ErrorCode | ByteArray
+```
+
+## 参数
+
+### `write_ptr`
+
+指向输出缓冲区的指针。
+
+### `write_len`
+
+输出缓冲区长度，应足以容纳 20 字节账户 ID。
+
+## 返回值
+
+- 成功时返回写入的字节数
+- 失败时返回错误码，例如 `OUT_OF_BOUNDS`
+
+## 说明
+
+该函数用于识别当前 Hook 属于哪个账户。

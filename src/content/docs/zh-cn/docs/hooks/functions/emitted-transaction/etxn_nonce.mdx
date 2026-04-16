@@ -1,0 +1,85 @@
+---
+title: etxn_nonce
+description: 为发射交易生成一个 32 字节 nonce
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">发射交易</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 将 32 字节哈希写入 `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 如果出错返回 ErrorCode，成功时返回包含 nonce 值的数组。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_nonce (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_nonce(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t n[32];
+int64_t bytes_written = 
+    etxn_nonce(n, 32);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const nonce = etxn_nonce()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 指向合适大小输出缓冲区的指针，至少应为 32 字节 |
+| write_len | uint32_t | 输出缓冲区长度 |
+</TabItem>
+
+<TabItem label="JavaScript">
+无参数
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="187">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>写入的字节数<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="187">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>如果出错返回 ErrorCode，成功时返回包含 nonce 值的数组。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

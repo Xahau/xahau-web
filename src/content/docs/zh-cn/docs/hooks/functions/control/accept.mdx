@@ -1,0 +1,57 @@
+---
+title: accept
+sidebar:
+  order: 1
+---
+
+`accept` 用于立即成功结束当前 Hook 执行。
+
+调用后会发生以下行为：
+
+- 当前 Hook 执行立即终止
+- 记录一段返回字符串和一个返回码到元数据中
+- 提交本次 Hook 执行期间的状态修改
+- 提交本次 Hook 发射的交易
+- 允许原始交易继续执行
+
+## C
+
+```c
+int64_t accept(uint32_t read_ptr, uint32_t read_len, uint64_t error_code);
+```
+
+## JavaScript
+
+```javascript
+function accept(msg: string, code: number): number
+```
+
+## 示例
+
+```c
+accept("Success", 7, 100);
+```
+
+## 参数
+
+### `read_ptr`
+
+指向返回消息字符串的指针。
+
+### `read_len`
+
+返回消息字符串长度，最大为 `32` 字节。
+
+### `error_code`
+
+由 Hook 作者定义的自定义返回码，会写入 Hook 元数据。
+
+## 返回值
+
+此函数在实际运行中不会正常返回，因为它会立即结束 Hook 执行。
+
+## 说明
+
+- 返回消息可以为 `null`
+- 返回码的含义完全由具体 Hook 自行定义
+- 使用 `accept` 不会阻止原始交易继续执行

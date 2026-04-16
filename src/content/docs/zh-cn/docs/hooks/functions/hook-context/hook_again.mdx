@@ -1,0 +1,31 @@
+---
+title: hook_again
+sidebar:
+  order: 2
+---
+
+`hook_again` 用于在当前 Hook 以强模式执行时，请求在原始交易成功后再次以弱模式执行一次。
+
+## C
+
+```c
+int64_t hook_again(void);
+```
+
+## JavaScript
+
+```javascript
+function hook_again(): ErrorCode | number
+```
+
+## 返回值
+
+- 成功时返回 `1`
+- 失败时可能返回：
+  - `PREREQUISITE_NOT_MET`：当前执行本身已经是弱模式
+  - `ALREADY_SET`：本次执行中已经调用过 `hook_again`
+
+## 说明
+
+如果原始交易最终成功，当前 Hook 会再以弱模式执行一次。  
+这在某些需要“提交后再观察或补充处理”的场景中很有用。

@@ -1,0 +1,58 @@
+---
+title: float_divide
+description: 用一个 XFL 浮点数除以另一个 XFL 浮点数
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 将一个 XFL 除以另一个 XFL
+* 返回新的 XFL `int64_t`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 将一个浮点表示除以另一个
+* 返回错误码或商值 bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_divide (
+    int64_t float1,
+    int64_t float2
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+ function float_divide(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>XFL（xls17）封装数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL，或除法结果无法表示为 XFL<br /><br /><code>DIVISION_BY_ZERO</code><br />- 分母为零。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| bigint or ErrorCode | 返回错误码或商值 bigint。 |
+</TabItem>
+</Tabs>

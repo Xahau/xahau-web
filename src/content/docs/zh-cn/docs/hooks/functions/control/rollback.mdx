@@ -1,0 +1,53 @@
+---
+title: rollback
+sidebar:
+  order: 2
+---
+
+`rollback` 用于立即拒绝并结束当前 Hook 执行。
+
+调用后会发生以下行为：
+
+- 当前 Hook 执行立即终止
+- 记录一段错误字符串和一个错误码到元数据中
+- 丢弃本次 Hook 执行期间的状态修改
+- 丢弃本次 Hook 发射的交易
+- 阻止原始交易继续执行
+
+原始交易会以 `tecHOOK_REJECTED` 失败，但交易费用仍会被收取。
+
+## C
+
+```c
+int64_t rollback(uint32_t read_ptr, uint32_t read_len, uint64_t error_code);
+```
+
+## JavaScript
+
+```javascript
+function rollback(error_msg: string, error_code: number): number
+```
+
+## 参数
+
+### `read_ptr`
+
+指向错误消息字符串的指针。
+
+### `read_len`
+
+错误消息长度，最大为 `32` 字节。
+
+### `error_code`
+
+由 Hook 作者定义的自定义错误码，会写入 Hook 元数据。
+
+## 返回值
+
+此函数在实际运行中不会正常返回，因为它会立即结束 Hook 执行。
+
+## 说明
+
+- 错误消息可以为 `null`
+- 通常约定非零错误码表示非成功结果
+- `rollback` 会使原始交易失败

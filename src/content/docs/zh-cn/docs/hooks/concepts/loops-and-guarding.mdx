@@ -1,0 +1,80 @@
+---
+title: Loops and Guarding
+description: 在 Hook 中使用循环时必须使用 Guards。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 什么是 guards？
+
+Hooks 被刻意设计为不是 [Turing Complete](https://en.wikipedia.org/wiki/Turing_completeness) 的。这意味着不允许任意循环。相反，你必须用 _guard_ 为循环设置一个硬性的“最大迭代次数”边界。
+
+guard 是放在每个循环顶部的一个标记。它告诉 Xahau：在_所有可能场景_下，该循环的最大迭代次数是多少。比如你的循环平常执行 2 次，但有时可能执行 _500_ 次，那么 guard 就必须写 500。
+
+Xahau 会使用 guards 来在执行之前确定你的 Hook 在_最坏情况下_的执行时间（以指令数衡量）。这也是 Xahau 计算 Hook 执行费用的基础，并使执行时间变得可预测、可控制。
+
+<Aside type="tip">
+从其他智能合约平台迁移过来的开发者一开始可能会觉得 guards 有点烦，但用习惯之后，它和普通 for-loop 的使用并没有本质区别。
+</Aside>
+
+### guard 函数
+
+guard 函数告诉账本：某个循环的**最大迭代次数**是多少。函数签名如下：
+
+```c
+int32_t _g (uint32_t id, uint32_t maxiter);
+```
+
+第一个参数 `id` 是这个 guard 的标识符。它是开发者指定的唯一常量，通常使用源文件中的行号。
+
+第二个参数 `maxiter` 是开发者对账本做出的承诺：在该 Hook 执行过程中，这个 guard 不会被命中超过 `maxiter` 次。如果 guard 调用次数超过这个数字，Hook 会自动以 `GUARD_VIOLATION` 回滚（参见 [Hook API return codes](/docs/hooks/functions/overview/return-codes)）。
+
+由于 guard 会在循环条件检查_之前_命中，所以需要在预期总迭代数基础上再加一。（注意：`GUARD()` 宏已经自动加了一。）
+
+<Aside type="caution">
+  Guards 必须使用数值字面量设置，不能使用变量或运行时值。
+</Aside>
+
+### guard enforcement
+
+考虑下面这个 C 里的 for-loop：
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  ...
+}
+```
+
+在 C 中，逗号运算符会依次执行表达式列表（例如 `A, B, C`），并返回最后一个表达式（例如 `C`）。因此，这里的条件依然是 `i < 3`，但在条件检查之前 guard 会先被调用。这是在 C 的 for-loop 里满足 _guard rule_ 的标准方式。
+
+<Aside type="tip" title="The Guard Rule">
+  对 <code>_g</code>（guard function）的调用，必须是循环指令之后遇到的第一条 branch instruction。
+</Aside>
+
+### 嵌套循环
+
+在使用嵌套循环时，`maxiter` 参数必须反映该 guard 被命中的_总次数_。这意味着你必须把嵌套层数相乘。
+
+例如：
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  for (int j = 0; GUARD(15), j < 5; ++j)
+  {
+    ...
+  }
+}
+```
+
+注意内部循环的 guard 被设置成了 **15**。因为你必须计算整个 Hook 执行期间，内层 guard 最多会被命中多少次。
+
+### 禁止递归
+
+在 Hooks amendment 中，不允许调用非 Hook API 的其他函数。所有用户代码都必须放进允许的两个 Hook 函数 `cbak` 与 `hook` 中。
+
+<Aside type="caution">
+  如果 guard 使用不正确，尝试执行的 <code>SetHook</code> 交易会被拒绝。
+</Aside>

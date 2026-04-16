@@ -1,0 +1,42 @@
+---
+title: SetFee
+---
+`SetFee` pseudo-transaction 用于标记由于 Fee Voting 而导致的交易成本或 reserve requirement 变化。
+
+**注意：** 你不能发送 pseudo-transaction，但在处理账本时可能会看到它。
+
+### JSON 示例
+
+```json
+{
+    "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+    "BaseFee": "000000000000000A",
+    "Fee": "0",
+    "ReferenceFeeUnits": 10,
+    "ReserveBase": 20000000,
+    "ReserveIncrement": 5000000,
+    "Sequence": 0,
+    "SigningPubKey": "",
+    "TransactionType": "SetFee",
+    "date": 439578860,
+    "hash": "1C15FEA3E1D50F96B6598607FC773FF1F6E0125F30160144BE0C5CBC52F5151B",
+    "ledger_index": 3721729
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `BaseFee` | String | UInt64 | 参考交易的费用，以 XAH drops 表示，并采用十六进制编码。（这是在负载缩放前的交易成本。） |
+| `ReferenceFeeUnits` | Unsigned Integer | UInt32 | 参考交易的成本，以 fee units 表示。 |
+| `ReserveBase` | Unsigned Integer | UInt32 | 基础 reserve，以 drops 表示。 |
+| `ReserveIncrement` | Unsigned Integer | UInt32 | 增量 reserve，以 drops 表示。 |
+| `LedgerSequence` | Number | UInt32 | _(某些历史 `SetFee` pseudo-transactions 中可能省略)_ 此 pseudo-transaction 出现时的账本版本索引。它用于区分同一类变更在不同时间的出现。 |
+
+如果启用了 _[XAHFees amendment][]_，则 `SetFee` pseudo-transactions 会改用以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `BaseFeeDrops` | String | Amount | 参考交易的费用，以 XAH drops 表示。（这是在负载缩放前的交易成本。） |
+| `ReserveBaseDrops` | String | Amount | 基础 reserve，以 drops 表示。 |
+| `ReserveIncrementDrops` | String | Amount | 增量 reserve，以 drops 表示。 |
+| `LedgerSequence` | Number | UInt32 | _(某些历史 `SetFee` pseudo-transactions 中可能省略)_ 此 pseudo-transaction 出现时的账本版本索引。它用于区分同一类变更在不同时间的出现。 |

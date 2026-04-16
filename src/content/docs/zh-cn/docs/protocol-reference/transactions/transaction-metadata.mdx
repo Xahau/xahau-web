@@ -1,0 +1,89 @@
+---
+title: 交易元数据
+---
+Transaction metadata 是在交易被处理后附加到交易上的一部分数据。任何被写入账本的交易都会带有 metadata，无论交易是否成功。Transaction metadata 会详细描述该交易的处理结果。
+
+:::caution
+只有当交易位于某个已验证账本版本中时，transaction metadata 中描述的变化才具有最终性。
+:::
+
+<details>
+
+<summary>示例 Metadata</summary>
+
+下面的 JSON 对象展示了[一笔复杂跨货币支付](https://xrpcharts.ripple.com/#/transactions/8C55AFC2A2AA42B5CE624AEECDB3ACFDD1E5379D4E5BF74A8460C5E97EF8706B)的 metadata：
+
+```json
+{
+  "AffectedNodes": [
+    {
+      "ModifiedNode": {
+        "FinalFields": {
+          "Account": "r9ZoLsJHzMMJLpvsViWQ4Jgx17N8cz1997",
+          "Balance": "77349986",
+          "Flags": 0,
+          "OwnerCount": 2,
+          "Sequence": 9
+        },
+        "LedgerEntryType": "AccountRoot",
+        "LedgerIndex": "1E7E658C2D3DF91EFAE5A12573284AD6F526B8F64DD12F013C6F889EF45BEA97",
+        "PreviousFields": {
+          "OwnerCount": 3
+        },
+        "PreviousTxnID": "55C11248ACEFC2EFD59755BF88867783AC18EA078517108F942069C2FBE4CF5C",
+        "PreviousTxnLgrSeq": 35707468
+      }
+    }
+  ]
+}
+```
+
+</details>
+
+### AffectedNodes
+
+`AffectedNodes` 是一个数组，列出该交易影响到的所有 ledger objects。数组中的每个成员都是一个对象，其中恰好包含以下三种字段之一：
+
+* `CreatedNode`
+* `ModifiedNode`
+* `DeletedNode`
+
+这三个字段分别表示：该交易创建了一个对象、修改了一个对象，或者删除了一个对象。
+
+每个受影响节点对象通常会包含如下信息：
+
+| 字段 | 说明 |
+| ---- | ---- |
+| `LedgerEntryType` | 被影响对象的类型。 |
+| `LedgerIndex` | 被影响对象的 ledger object ID。 |
+| `FinalFields` | 交易处理完成后，该对象的最终字段值。 |
+| `PreviousFields` | 交易处理前发生变化的字段值。 |
+| `NewFields` | 对于新创建的对象，表示其初始字段值。 |
+| `PreviousTxnID` | 上一次修改该对象的交易 ID。 |
+| `PreviousTxnLgrSeq` | 上一次修改该对象所在的账本序号。 |
+
+### 读取 Metadata 的方式
+
+通过 transaction metadata，你可以知道：
+
+* 哪些 ledger objects 被此次交易影响；
+* 这些对象在交易前后的状态差异；
+* 该交易是否真正改变了余额、挂单、trust line 或其他账本状态；
+* 交易结果虽然失败，但是否仍然写入了账本并消耗了手续费。
+
+这也是分析交易真实影响、编写索引器、审计系统和账本追踪工具时最重要的数据来源之一。
+
+### 常见用途
+
+Transaction metadata 常被用于：
+
+* 跟踪余额变化；
+* 判断某个挂单是否被部分成交或完全删除；
+* 分析 trust line、AccountRoot、Offer、RippleState 等对象的变化；
+* 检查一次交易是否创建或删除了账本对象；
+* 为区块浏览器、索引服务和会计工具提供依据。
+
+### 另见
+
+* 若需了解交易本身的结构，请参见 Transactions。
+* 若需了解 ledger objects，请参见 Ledger Data。

@@ -1,0 +1,58 @@
+---
+title: Hook Definition
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(由 [Hooks amendment][] 引入。)_
+
+`HookDefinition` 对象描述一个 Hook，也就是在特定交易发生时执行的一段代码。该 Hook 可以修改交易、发射新交易，或执行其他操作。
+
+### JSON 示例
+
+```json
+{
+  "HookHash": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+  "HookOn": "0000000000000000000000000000000000000000000000000000000000000000",
+  "HookNamespace": "0000000000000000000000000000000000000000000000000000000000000000",
+  "HookParameters": {
+    "HookParameter": {
+      "HookParameterName": "DEADBEEF",
+      "HookParameterValue": "DEADBEEF"
+    }
+  },
+  "HookApiVersion": 1,
+  "CreateCode": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "HookSetTxnID": "0000000000000000",
+  "ReferenceCount": "6",
+  "Fee": "100000000",
+  "HookCallbackFee": "200000000",
+  "LedgerEntryType": "HookDefinition",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### 字段
+
+`HookDefinition` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `HookHash` | String | Hash256 | 是 | Hook 的唯一标识符。 |
+| `HookOn` | String | Hash256 | 是 | 该 Hook 会在哪些交易上被触发。 |
+| `HookCanEmit` | String | Hash256 | 否 | 该 Hook 允许发射的交易类型。 |
+| `HookNamespace` | String | Hash256 | 是 | Hook 的命名空间。 |
+| `HookParameters` | String | Vector | 是 | Hook 接受的参数。 |
+| `HookApiVersion` | Number | UInt16 | 是 | 该 Hook 使用的 Hook API 版本。 |
+| `CreateCode` | String | VL | 是 | 创建 Hook 时执行的代码。 |
+| `HookSetTxnID` | String | Hash256 | 是 | 设置此 Hook 的交易 ID。 |
+| `ReferenceCount` | String | UInt64 | 是 | 指向该 Hook 的引用数量。 |
+| `Fee` | String | Amount | 是 | 执行该 Hook 的费用。 |
+| `HookCallbackFee` | String | Amount | 否 | 执行 Hook 回调函数的费用。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0043`，映射为字符串 `HookDefinition`，表示这是一个 HookDefinition 对象。 |
+
+#### Hook Definition ID 格式
+
+`HookDefinition` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* HookDefinition 空间键（`0x0044`）
+* 该 Hook 的 `HookHash`

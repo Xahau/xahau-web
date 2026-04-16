@@ -1,0 +1,46 @@
+---
+title: TEM Codes
+---
+这些代码表示交易格式错误，并且根据 Xahau 协议不可能成功。其数值范围为 -299 到 -200。具体数值可能变化，因此不要依赖数值本身。
+
+**提示：** 带有 `tem` 代码的交易不会被应用到账本，也不会引起任何 Xahau 状态变化。除非有效交易的规则发生变化，否则 `tem` 结果就是最终结果。
+
+| 代码 | 说明 |
+| --- | --- |
+| `temBAD_AMOUNT` | 交易中指定的金额无效，例如可能是负数。 |
+| `temBAD_AUTH_MASTER` | 用于签署此交易的密钥与发送账户的 master key 不匹配，且该账户也没有设置 Regular Key。 |
+| `temBAD_CURRENCY` | 交易错误地指定了货币字段。 |
+| `temBAD_EXPIRATION` | 交易错误地指定了 expiration 值，或缺少某个必需的 expiration 值。 |
+| `temBAD_FEE` | 交易错误地指定了 `Fee` 值，例如使用了非 XAH 货币或负数 XAH。 |
+| `temBAD_ISSUER` | 交易错误地指定了某项货币中的 `issuer` 字段。 |
+| `temBAD_LIMIT` | [TrustSet transaction][] 错误地指定了 trust line 的 `LimitAmount`。 |
+| `temBAD_NFTOKEN_TRANSFER_FEE` | [NFTokenMint transaction][] 错误地指定了 `TransferFee`。 |
+| `temBAD_OFFER` | [OfferCreate transaction][] 指定了无效 offer，例如用 XAH 交易 XAH 本身，或交易负数金额。 |
+| `temBAD_PATH` | [Payment transaction][] 错误地指定了一条或多条 Paths。 |
+| `temBAD_PATH_LOOP` | [Payment transaction][] 中某条 Path 被标记为循环路径。 |
+| `temBAD_SEND_NATIVE_LIMIT` | [Payment transaction][] 在直接 XAH-to-XAH 支付中使用了 `tfLimitQuality`。 |
+| `temBAD_SEND_NATIVE_MAX` | [Payment transaction][] 在直接 XAH-to-XAH 支付中包含了 `SendMax`。 |
+| `temBAD_SEND_NATIVE_NO_DIRECT` | [Payment transaction][] 在直接 XAH-to-XAH 支付中使用了 `tfNoDirectRipple`。 |
+| `temBAD_SEND_NATIVE_PARTIAL` | [Payment transaction][] 在直接 XAH-to-XAH 支付中使用了 `tfPartialPayment`。 |
+| `temBAD_SEND_NATIVE_PATHS` | [Payment transaction][] 在发送 XAH 时包含了 `Paths`。 |
+| `temBAD_SEQUENCE` | 交易引用了一个高于其自身 `Sequence` 的序列号。 |
+| `temBAD_SIGNATURE` | 用于授权此交易的签名缺失，或其格式并非合法签名。 |
+| `temBAD_SRC_ACCOUNT` | 代此交易发送的 `Account` 地址格式不正确。 |
+| `temBAD_TRANSFER_RATE` | AccountSet 交易中的 `TransferRate` 字段格式错误或超出允许范围。 |
+| `temCANNOT_PREAUTH_SELF` | [DepositPreauth transaction][] 的发送方把自己也指定成了预授权对象。 |
+| `temDST_IS_SRC` | 交易错误地把目标地址也设成了发送账户。 |
+| `temDST_NEEDED` | 交易错误地省略了目标地址。 |
+| `temINVALID` | 交易存在其他无效问题，例如交易 ID 格式错误、签名格式错误等。 |
+| `temINVALID_COUNT` | 交易包含 `TicketCount` 字段，但指定 Ticket 数量无效。 |
+| `temINVALID_FLAG` | 交易包含不存在的 Flag，或包含自相矛盾的 Flag 组合。 |
+| `temMALFORMED` | 未指定的交易格式错误。 |
+| `temREDUNDANT` | 该交易实际上什么都不会做，例如把付款直接发送给发送方自己，或创建一笔买卖同一发行方同一货币的 offer。 |
+| `temREDUNDANT_SEND_MAX` | [Removed in: rippled 0.28.0][] |
+| `temRIPPLE_EMPTY` | [Payment transaction][] 包含空的 `Paths` 字段，但完成该支付需要 paths。 |
+| `temBAD_WEIGHT` | [SignerListSet transaction][] 中包含无效的 `SignerWeight`，例如零或负数。 |
+| `temBAD_SIGNER` | [SignerListSet transaction][] 中包含无效 signer，例如重复项，或 SignerList 所有者自己也被列入列表。 |
+| `temBAD_QUORUM` | [SignerListSet transaction][] 中的 `SignerQuorum` 无效。 |
+| `temUNCERTAIN` | 仅内部使用，不应返回。 |
+| `temUNKNOWN` | 仅内部使用，不应返回。 |
+| `temDISABLED` | 该交易依赖的逻辑当前被禁用，通常表示你尝试使用一个尚未启用的 amendment。 |
+| `temHOOK_DATA_TOO_LARGE` | 交易中的 `CreateCode` 字段超过 256 字节。 |

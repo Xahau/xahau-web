@@ -1,0 +1,98 @@
+---
+title: CronSet
+description: CronSet 交易允许 Hooks 按固定时间间隔安排周期性自调用，类似 Linux cronjobs。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/CronSet.cpp)]
+
+_(由 CronSet amendment 引入。)_
+
+### 示例
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "StartTime": 816348759,
+  "RepeatCount": 3,
+  "DelaySeconds": 120
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 发起该 cron 的 Hook 账户。cron 执行时，被调用的就是这个账户。 |
+| `StartTime` | Number | UInt32 | _(可选)_ 第一次执行发生时的 Ripple Epoch 时间戳。使用 `0` 表示立即执行。若在删除 cron 时省略该字段，则交易会删除该 cron。 |
+| `RepeatCount` | Number | UInt32 | _(可选)_ cron 应执行的次数（单笔交易最大 256 次）。可以通过后续 CronSet 交易继续扩展。删除 cron 时省略。 |
+| `DelaySeconds` | Number | UInt32 | _(可选)_ 每次执行之间的时间间隔（秒）。删除 cron 时省略。 |
+
+### CronSet 的工作方式
+
+CronSet 交易允许在 Xahau 区块链上按固定时间间隔调度自动化 Hook 执行，无需外部服务或手动触发。
+
+整个流程包括四个关键步骤：
+
+1. 安装一个启用了 `hsfCOLLECT` 标志的 Hook
+2. 在账户上启用 Transaction Signature Hook Collection `asfTshCollect`（`SetFlag: 11`）
+3. 创建带有调度参数的 CronSet 交易
+4. 让 Xahau 自动处理执行
+
+### 执行机制
+
+当某个 cron 到达执行时间时，Cron 引擎会向账本插入一笔类型为 `Cron` 的伪交易，其中包含引用原始 Hook 账户的 `Owner` 字段。Hook 开发者必须启用 collect calls，因为 `Owner` 会构成一个弱事务利益相关者。
+
+计划中的 Hook 会按指定时间间隔自动执行，不需要外部触发。
+
+### 时间格式
+
+Xahau 使用的是 Ripple Epoch 时间（自 2000 年 1 月 1 日起的秒数），不是 Unix time。若从 JavaScript `Date` 转换：
+
+```javascript
+const rippleEpochTime = Math.floor(Date.now() / 1000) - 946684800;
+```
+
+### 删除 Cron
+
+若要移除现有 Cron，请在设置 `Flags: 1`（`tfCronUnset`）的同时省略 `StartTime`、`RepeatCount` 和 `DelaySeconds`：
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "Flags": 1
+}
+```
+
+### 扩展 Repeat Count
+
+当达到最低阈值后，可以提交后续的 CronSet 交易并更新 `RepeatCount`，从而将执行次数扩展到初始 256 次限制之外。
+
+### CronSet Flags
+
+CronSet 类型交易支持以下附加 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfCronUnset` | `0x00000001` | 1 | 移除一个现有 Cron。启用该标志时，所有调度字段都必须省略。 |
+
+### 限制与约束
+
+* CronSet 当前不能委托给其他账户
+* Hooks 必须自行发射 CronSet 交易，或在联合管理安排下运行
+* `RepeatCount` 必须大于 0，且单笔交易不能超过 256（但可通过后续交易扩展）
+* `DelaySeconds` 最大为 31,536,000 秒（365 天）
+* `StartTime` 必须是当前时间或未来时间，且不能超过未来 365 天
+* 不能将 `tfCronUnset` 与 `DelaySeconds`、`RepeatCount` 或 `StartTime` 同时使用
+* 创建 cron 时，`DelaySeconds` 与 `RepeatCount` 必须同时存在，或同时缺失
+
+### 错误场景
+
+除所有交易都可能出现的错误外，CronSet 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temDISABLED` | Cron 功能未启用。 |
+| `temINVALID_FLAG` | 交易中设置了无效 flags。 |
+| `temMALFORMED` | 交易字段组合不合法，导致格式错误。 |
+| `tecEXPIRED` | `StartTime` 已经过去，或超过未来 365 天。 |
+| `tefINTERNAL` | 账户账本条目缺失。 |
+| `tefBAD_LEDGER` | Cron 对象缺失、指向的并非 cron 条目，或 owner directory 移除失败。 |

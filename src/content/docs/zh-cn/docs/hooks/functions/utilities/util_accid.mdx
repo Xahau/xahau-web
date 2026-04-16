@@ -1,0 +1,68 @@
+---
+title: util_accid
+description: 将 r-address 转换为 20 字节 Account ID
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 从 `read_ptr` 读取一个 r-address
+* 向 `write_ptr` 写入一个 20 字节 Account ID
+</TabItem>
+
+<TabItem label="JavaScript">
+* 从 `raddress` 读取一个 r-address
+* 返回一个 20 字节 Account ID 或 ErrorCode
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_accid (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_accid(raddress: string): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Name</th><th width="102">Type</th><th>Description</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>用于存储输出 Account ID 的缓冲区，至少 20 字节</td></tr><tr><td>write_len</td><td>uint32_t</td><td>输出缓冲区长度</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>指向 r-address 的指针</td></tr><tr><td>read_len</td><td>uint32_t</td><td>r-address 长度</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Name</th><th width="102">Type</th><th>Description</th></tr></thead><tbody><tr><td>raddress</td><td>string</td><td>要格式化为 HEX Account ID 的 r-address</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入的字节数（输出 Account ID 的长度）。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_ptr</code> 指向的内容不是合法 r-address。<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> 不足以存放生成的 Account ID（应为 20 字节）。<br /><br /><code>TOO_BIG</code><br />- <code>read_len</code> 超出 r-address 最大长度。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type            | Description |
+| --------------- | ----------- |
+| string / number | 如果格式化失败返回错误码，否则返回 HEX Account ID 的字节数组。 |
+</TabItem>
+</Tabs>

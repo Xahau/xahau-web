@@ -1,0 +1,63 @@
+---
+title: etxn_burden
+description: 获取假设发射交易的 burden
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">发射交易</LinkButton>
+
+### 行为
+
+* 返回发射交易将携带的 burden。
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_burden (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_burden(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t burden = etxn_burden();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const burden = etxn_burden()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+无
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="165">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>发射交易为了成功传递给 <code>emit()</code> 所需携带的 burden</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="165">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td>如果出错返回 ErrorCode，成功时返回当前 burden 值。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

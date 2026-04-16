@@ -1,0 +1,79 @@
+---
+title: etxn_reserve
+description: 估算交易成功发射所需的保留值
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">发射交易</LinkButton>
+
+### 行为
+
+* 指定当前 Hook 在一次执行期间可能发射的交易数量。
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_fee_base (
+    uint32_t count
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_reserve(count: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+etxn_reserve(2);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+etxn_reserve(2)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name  | Type      | Description |
+| ----- | --------- | ----------- |
+| count | uint32_t | 此 Hook 在单次执行过程中可能发射的最大交易数量 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name  | Type   | Description |
+| ----- | ------ | ----------- |
+| count | number | 此 Hook 被允许发射的最大交易数量 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>此 Hook 可发射交易的最大数量。该值始终与 <code>count</code> 参数相同，或返回以下错误：<br /><br />若为负数，则表示错误：<br /><code>ALREADY_SET</code><br />- Hook 先前已经调用过此函数。<br /><br /><code>TOO_BIG</code><br />- 指定的发射交易数量过大。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 如果出错返回 ErrorCode，成功时返回已配置的交易数量。 |
+</TabItem>
+</Tabs>

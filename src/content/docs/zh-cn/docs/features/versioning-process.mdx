@@ -1,0 +1,62 @@
+---
+title: 版本管理流程
+description: >-
+  本文档说明我们在 GitHub 上使用的版本管理工作流，用于更顺畅地推进新功能与修复的开发、测试和发布。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+本文档介绍我们在 GitHub 仓库中使用的版本管理流程。我们采用由 `dev`、`candidate` 和 `release` 三个分支组成的工作流。这个流程确保所有新功能和修复在发布前都经过充分测试。
+
+### Dev 分支
+
+`dev` 分支是持续开发的主分支。所有新功能、缺陷修复和改进都会合并到这个分支中。它是最活跃的分支，也是开发者开展工作的基础分支。
+
+如果要向 `dev` 分支贡献代码，请按以下步骤操作：
+
+1. 将仓库 fork 到您自己的 GitHub 账户。
+2. 将 fork 后的仓库 clone 到本地机器。
+3. 为您的功能或缺陷修复创建一个新分支。
+4. 进行修改，并将变更提交到该分支。
+5. 将该分支 push 到您 GitHub 上的 fork 仓库。
+6. 从您的分支向主仓库的 `dev` 分支发起 pull request。
+
+<Aside type="caution">
+所有合并到 `dev` 分支的更改都必须进行 squash。
+</Aside>
+
+代码维护者会审查您的 pull request 并提供反馈。代码获批后，将被合并到 `dev` 分支。
+
+### Candidate 分支
+
+当 `dev` 分支中的功能准备好进入测试阶段后，它们会被合并到 `candidate` 分支。这个分支充当即将发布代码的预发布暂存区。
+
+`candidate` 分支中的代码会被充分测试。发现的任何 bug 或问题都会先在 `dev` 分支中修复，再重新合并回 `candidate` 分支。
+
+`candidate` 分支通常会经历大约 2 周的测试周期。不过根据修复的紧急程度或新功能的规模，这个时间也可能更长或更短。
+
+1. 从 `dev` 创建新的 `candidate` 分支。
+2. 从 `candidate` 分支向 `release` 分支创建一个名称类似 “Proposed” 的 PR。
+3. 更新 “High Level Overview of Change”，将来自 `candidate` 的 Pull Requests 包含进去。同时更新 “Context of Change”，补充与这些 PR 相关的说明。
+
+### Release 分支
+
+当 `candidate` 分支中的代码经过充分测试并且所有问题都已解决后，这些代码会被合并到 `release` 分支。这是代码正式发布前的最后一步。
+
+`release` 分支包含当前正在生产环境中运行或即将发布的代码。只有经过充分测试且稳定的代码才应该进入这个分支。
+
+一旦代码进入 `release` 分支，就会打上版本号标签。这个版本号用于跟踪发布，也会在编写发布说明时使用。
+
+在 `release` 分支中，会构建二进制文件并发布到 https://build.xahau.tech/ 。这个二进制文件就是交付给最终用户的最终产物。
+
+如果要发布代码，请按以下步骤操作：
+
+1. 将 `candidate` pull request 合并到 `release` 分支。
+2. 删除 `candidate` 分支。
+
+<Aside type="caution">
+所有合并到 `release` 分支的操作都必须通过 `git merge --ff-only candidate` 完成。
+</Aside>
+
+### 总结
+
+这个三分支工作流可确保所有代码在发布前都经过充分测试。它帮助我们在代码进入生产环境之前发现并修复问题，也为代码从开发走向发布提供了清晰路径。使用专用 LAN 进行测试和性能分析，也确保我们的代码不仅可用，而且高效且具备良好性能。

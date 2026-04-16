@@ -1,0 +1,57 @@
+---
+title: Parameters
+description: 安装期参数让 Hooks 更通用、更灵活
+---
+### Parameters
+
+Hook 开发者可以选择在 Hook 中使用 _install-time_ 参数（即 Hook Parameters）。这样一来，后续安装者就可以在不重新编译、也不重新上传 Hook 的前提下，改变程序员预先定义的一些行为（前提是仍至少有一个账户继续 [引用](/docs/hooks/concepts/reference-counted-hook-definitions) 现有 Hook Definition）。
+
+Hook Parameters 是一组在 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 期间设置的 Key-Value 对，Hook 可在运行时读取。`ParameterName` 与 `ParameterValue` 都以 _hex_ blob 形式提供，其最大长度分别为 32 字节与 256 字节。
+
+一笔 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 对每个已安装 Hook 最多可以定义 _16_ 个 Hook Parameters。
+
+### 设置 Parameters
+
+`HookParameters` 数组可选地定义在 `Hooks` 数组中每个 `Hook` 对象内部，如下所示：
+
+```json
+TransactionType: "SetHook",
+Hooks:
+[
+    {
+        Hook: {
+            ...,
+            HookParameters:
+            [
+                {
+                    HookParameter:
+                    {
+                        HookParameterName:  "ABCDEF12",
+                        HookParameterValue: "12345678"
+                    }
+                },
+                ...  // 还可以再加最多 15 个 Hook Parameters
+            ]
+        }
+    }
+],
+...
+```
+
+### Default Parameters
+
+第一个 [设置某个新 Hook](/docs/hooks/concepts/sethook-transaction) 的用户，可以定义 Hook Parameters，它们随后就会成为该 Hook 的 _Default Parameters_。这意味着后续其他 [引用同一个 _HookDefinition_](/docs/hooks/concepts/reference-counted-hook-definitions) 的用户，默认会得到这些最初设置的 Hook Parameters。
+
+后续用户也可以指定自己的 Parameters，从而覆盖自己安装时所采用的默认参数。
+
+如果你想在后续安装时擦除某个 Parameter，可以只指定 `ParameterName`，而不提供 `ParameterValue`。
+
+### 在 Hook 中使用 Parameters
+
+Hooks 可以通过 [hook_param](/docs/hooks/functions/hook-context/hook_param) 读取设置在自己身上的 Parameters。
+
+如果同一账户上的 Hook Chain 安装了多个 Hooks，那么在有限条件下，也可以通过 [hook_param_set](/docs/hooks/functions/hook-context/hook_param_set) 修改链中后方 Hook 的 Parameters。
+
+### Runtime Parameters
+
+在 Xahau 与 Xahau testnet 上，HookParameters 还可以按照相同规则与大小限制，直接出现在任意交易类型的顶层。Hooks 可通过 [otxn_param](/docs/hooks/functions/originating-transaction/otxn_param) API 读取这些参数。

@@ -1,0 +1,44 @@
+---
+title: OfferCancel
+description: OfferCancel 交易会从 Xahau 中移除一个 Offer 对象。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+### 使用 OfferSequence 取消
+
+```json
+{
+    "TransactionType": "OfferCancel",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108629,
+    "OfferSequence": 6,
+    "Sequence": 7
+}
+```
+
+### 使用 OfferID 取消
+
+```json
+{
+    "TransactionType": "OfferCancel",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108629,
+    "OfferID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Sequence": 7
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `OfferSequence` | Number | UInt32 | _(可选)_ 某个较早 `OfferCreate` 交易的序列号（或 Ticket 编号）。如果指定，则取消账本中由该交易创建的任意 offer 对象。如果指定的 offer 不存在，也不视为错误。 |
+| `OfferID` | String | Hash256 | _(可选)_ 要取消的 Offer 账本对象 ID，使用 64 字符十六进制字符串表示。 |
+
+_提示：_ 若要删除旧 offer 并以新 offer 替换，你可以直接使用带有 `OfferSequence` 参数的 [OfferCreate transaction][]，而不是先用 OfferCancel 再发送另一笔 OfferCreate。
+
+即使没有找到匹配序列号的 offer，OfferCancel 方法依然会返回 `tesSUCCESS`。

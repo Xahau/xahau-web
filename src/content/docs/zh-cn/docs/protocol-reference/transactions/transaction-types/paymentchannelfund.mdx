@@ -1,0 +1,43 @@
+---
+title: PaymentChannelFund
+description: 向一个开启中的 payment channel 追加金额，并可选地更新其过期时间。
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_由 [PayChan amendment][] 引入。_
+
+### 示例
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "PaymentChannelFund",
+    "Channel": "C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
+    "Amount": {
+         "currency": "USD",
+         "value": "1",
+         "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+      },
+    "Expiration": 543171558
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Channel` | String | Hash256 | 要注资的通道的唯一 ID，使用 64 字符十六进制字符串表示。 |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 要添加到通道中的金额。必须是正数。 |
+| `Expiration` | Number | UInt32 | _(可选)_ 为通道设置的新 `Expiration` 时间，以 [seconds since the Ripple Epoch][] 表示。该时间必须晚于“当前时间加上通道的 `SettleDelay`”与“通道现有 `Expiration`”两者中的较晚者。超过 `Expiration` 之后，任何访问该通道的交易都会直接关闭通道而不执行其通常操作。通道关闭时，任何未花费金额会退回 source address。(`Expiration` 与通道不可变的 `CancelAfter` 时间不同。) |
+
+### 错误场景
+
+除了所有交易都可能出现的错误外，PaymentChannelFund 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `tecINSUFFICIENT_RESERVE` | 发送账户的 XAH 少于 reserve requirement。 |
+| `tecNO_DST` | 通道的目标账户已被删除。只有在 payment channel 创建于 fixPayChanRecipientOwnerDir amendment 启用前时才可能出现。 |
+| `tecNO_ENTRY` | `Channel` 字段标识的 Payment Channel 不存在。 |
+| `tecNO_PERMISSION` | 交易发送方不是该通道的 source address。 |
+| `tecUNFUNDED` | 发送账户没有足够金额为通道追加请求的数额，同时仍满足 reserve requirement。 |
+| `temBAD_AMOUNT` | 交易的 `Amount` 字段无效。金额不能为零或负数。 |
+| `temBAD_EXPIRATION` | `Expiration` 字段无效。 |

@@ -1,0 +1,218 @@
+---
+title: 安装 xahaud
+description: >-
+  Xahau 背后的软件是开源的，任何人都可以在本地运行一个节点。用户可以运行 Docker 容器、本地实例或二进制文件。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+运行节点时，用户需要根据节点运行在测试网络还是主网络来配置不同设置。当把一个节点从一个网络切换到另一个网络时，必须清除数据库文件，但包含服务器身份凭据的 `wallet.db` 应保留。
+
+安装 `xahaud` 最常见的方式，是使用 `systemd` 在本地安装，或者在 Docker 等容器中运行。
+
+<Aside type="tip">
+本页的安装文档是在 [xahaud GitHub 仓库](https://github.com/xahau/xahaud/blob/dev/docs/build/install.md) 中安装文档的基础上进行了扩展。
+</Aside>
+
+## Linux 安装流程
+
+无论 `xahaud` 是如何安装的（Docker 或系统级安装），Linux 上的整体流程都比较相似。下面的几个小节，[Docker 容器](#docker-container-install-script) 和 [本地安装](#local-install-script)，都利用了 bash 脚本来自动执行以下步骤：
+
+1. 获取 `xahaud` 二进制文件：
+    - 从 [https://build.xahau.tech](https://build.xahau.tech) 下载已编译的二进制镜像
+    - [从源码构建](/docs/infrastructure/build-xahaud/)
+2. 获取配置文件：
+    - [xahaud.cfg](https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/xahaud-example.cfg)
+    - [validators-xahau.txt](https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/validators-example.txt)
+3. 如果需要，创建 `xahaud` 用户和用户组，用于拥有二进制文件及其他相关文件：
+    - `sudo groupadd --system xahaud`
+    - `sudo useradd --system --gid xahaud --no-create-home xahaud`
+4. 决定并创建目录结构，用于存放：
+    - `xahaud` 二进制文件。默认通常为： `/opt/xahaud/bin/xahaud`
+    - 两个 `xahaud` 配置文件，`xahaud.cfg` 和 `validators-xahau.txt`。默认通常为： `/etc/xahaud/`，不过 `/opt/xahaud/etc/` 也常被使用。这两个位置可以通过符号链接连接。
+    - `xahaud` 数据库。默认通常为： `/opt/xahaud/db/`
+    - 日志文件位置，例如： `/var/log/xahaud/default.log`
+5. 将 `xahaud` 二进制文件和配置文件移动到目录结构中的对应位置。
+6. 编辑 `xahaud.cfg`，使配置中的路径与目录结构一致。
+7. 如有需要，更改所有权与权限。如果 `xahaud` 作为验证者运行，则限制 `xahaud.cfg` 的访问权限尤其重要，因为其中包含 validation token。
+    - `chown -R xahaud:xahaud /opt/xahaud /var/log/xahaud`
+    - `chmod -R 750 /opt/xahaud /var/log/xahaud`
+8. 创建一个 `systemd` 服务文件（如 [下面的示例](#example-systemd-service-file)），用于将 `xahaud` 作为守护进程运行。
+    - 文件位置： `/etc/systemd/system/xahaud.service`
+    - 创建或编辑该文件后，运行： `systemctl daemon-reload`
+    - 如需在系统启动时自动运行 `xahaud`： `systemctl enable --now xahaud`
+    - 如果不想使用 `systemd`，也可以直接运行： `/path/to/xahaud --conf=/path/to/xahaud.cfg`
+9. 创建一个 wrapper，让你在运行 `xahaud` 命令时无需输入完整路径。
+    - 通常放在 `/usr/local/bin/xahaud`
+	- 内容可类似： `exec ${XAHAUD_DIR}xahaud --conf=${CONF_DIR}xahaud.cfg "$@"`
+
+### 示例 systemd 服务文件
+
+下面的服务文件应根据用户选择的目录结构和所有权权限进行修改。
+```
+[Unit]
+Description=Xahaud Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/path/to/xahaud --silent --conf=/path/to/xahaud.cfg
+Restart=on-failure
+User=xahaud
+Group=xahaud
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 示例 Linux 安装脚本
+
+下面是一个用于安装 `xahaud` 的基础 bash 脚本。它遵循了本节前面给出的说明。
+```
+### VARIABLES ###
+
+#### Directory structure ####
+XAHAUD_DIR="/opt/xahaud/bin/"	# Path where xahaud binary will be stored
+CONF_DIR="/opt/xahaud/etc/"		# Path where the xahaud.cfg and validators-xahau.txt will be stored
+DB_DIR="/opt/xahaud/db/"		# Path where xahaud will store databases
+LOG_DIR="/var/log/xahaud/"		# Path where logfile(s) will be stored.
+
+#### Ownership ####
+XAHAUD_USER="xahaud"			# User that owns the xahaud process.
+
+#### Download links ####
+BINARY_URL="https://build.xahau.tech/2025.9.8-HEAD%2B2194"											# URL to the xahaud binary that will be downloaded.
+CFG_URL="https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/xahaud-example.cfg"		# This will be renamed to 'xahaud.cfg'
+VAL_URL="https://raw.githubusercontent.com/Xahau/xahaud/refs/heads/dev/cfg/validators-example.txt"	# This will be renamed to 'validators-xahau.txt'
+
+
+
+########## SCRIPT BEGINS HERE. DO NOT ADJUST VARIABLES BELOW THIS LINE ##########
+
+### CREATE DIRECTORIES ####
+echo "Checking directory structure."
+sudo mkdir -p ${XAHAUD_DIR} ${CONF_DIR} ${DB_DIR} ${LOG_DIR}
+
+### CREATE xahaud GROUP AND USER ###
+echo "Checking for user and group."
+if ! getent group ${XAHAUD_USER} > /dev/null; then
+	sudo groupadd --system ${XAHAUD_USER}
+fi
+
+if ! getent passwd ${XAHAUD_USER} > /dev/null; then
+	sudo useradd --system --gid ${XAHAUD_USER} --no-create-home ${XAHAUD_USER}
+fi
+
+### DOWNLOAD CONFIGURATION FILES ###
+echo "Downloading files."
+if [[ ! -f "${CONF_DIR}xahaud.cfg" ]]; then
+	curl -fsSL ${CFG_URL} -o ${CONF_DIR}xahaud.cfg
+fi
+if [[ ! -f "${CONF_DIR}validators-xahau.txt" ]]; then
+	curl -fsSL ${VAL_URL} -o ${CONF_DIR}validators-xahau.txt
+fi
+
+### DOWNLOAD xahaud ###
+if [[ ! -f "${XAHAUD_DIR}xahaud" ]]; then
+	curl -fsSL ${BINARY_URL} -o ${XAHAUD_DIR}xahaud
+elif [[ -f "${XAHAUD_DIR}xahaud" ]]; then
+	echo "Existing xahaud binary found. It will be renamed to 'xahaud.old'."
+	mv ${XAHAUD_DIR}xahaud ${XAHAUD_DIR}xahaud.old
+	curl -fsSL ${BINARY_URL} -o ${XAHAUD_DIR}xahaud
+fi
+
+### CHANGE OWNERSHIP AND PERMISSIONS ###
+echo "Checking ownership and permissions."
+sudo chown -R ${XAHAUD_USER}:${XAHAUD_USER} ${XAHAUD_DIR} ${CONF_DIR} ${DB_DIR} ${LOG_DIR}
+sudo chmod -R 0750 ${XAHAUD_DIR} ${CONF_DIR} ${DB_DIR} ${LOG_DIR}
+
+### Install systemd SERVICE FILE ###
+if [[ ! -f "/etc/systemd/system/xahaud.service" ]]; then
+echo "Installing system service file."
+sudo cat > /etc/systemd/system/xahaud.service <<EOF
+[Unit]
+Description=Xahaud Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=${XAHAUD_DIR}xahaud --silent --conf=${CONF_DIR}xahaud.cfg
+Restart=on-failure
+User=${XAHAUD_USER}
+Group=${XAHAUD_USER}
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+fi
+
+### RUN COMMANDS AS 'xahaud' WITHOUT SPECIFYING FULL PATHS ###
+if [[ ! -f "/usr/local/bin/xahaud" ]]; then
+echo "Creating xahaud wrapper."
+sudo cat > /usr/local/bin/xahaud <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec ${XAHAUD_DIR}xahaud --conf=${CONF_DIR}xahaud.cfg "\$@"
+EOF
+fi
+
+sudo chmod 0755 /usr/local/bin/xahaud
+
+### ENABLE AND START xahaud ###
+sudo systemctl daemon-reload
+sudo systemctl stop xahaud
+sudo systemctl enable --now xahaud
+sudo systemctl status xahaud
+echo "The install script completed successfully."
+```
+
+## Docker 容器安装脚本
+
+若要在 Docker 容器中运行 `xahaud`：
+
+1. 使用下表中的 URL 克隆相应（Mainnet 或 Testnet）的 Xahau Docker GitHub 仓库： `<code>git clone [repository-url]</code>`
+2. 进入仓库目录： `<code>cd [repository-name]</code>`
+3. 运行： `<code>./build</code>`
+4. 运行： `<code>./up</code>`
+5. 命令和更多信息位于 Docker 仓库中的 `README.md` 文件。配置文件和数据库位于 Docker 目录中的 `store` 目录下。
+
+## 本地安装脚本
+
+Xahau 的 Docker 仓库（Mainnet 和 Testnet）都包含一个脚本，用于自动化本地安装流程，使 `xahaud` 能在 Docker 之外运行。这些脚本与 [Linux 安装流程](#linux-install-process) 类似，因为它们会创建 `systemd` 文件、`xahaud` 用户以及默认配置文件。脚本 URL 位于本页底部的表格中。若要本地安装：
+
+1. 下载并运行安装脚本： `<code>curl -sL [https://link-to-script] | bash</code>`
+2. 编辑配置文件： `<code>/opt/xahahud/etc/xahaud.cfg</code>`
+3. 检查并在需要时编辑受信任验证者文件： `<code>/opt/xahaud/etc/validators-xahau.txt</code>`
+4. 启动并启用 `xahaud` 自动运行： `<code>systemctl enable --now xahaud</code>`
+5. 验证 `xahaud` 是否正在运行： `<code>/opt/xahaud/bin/xahaud server_info</code>`
+
+## 资源、对等连接与配置
+
+以下对等连接信息同时适用于 Docker 容器和本地安装。
+
+<table style="width: 100%; table-layout: fixed;">
+<thead><tr><th>资源</th><th>Main Network</th><th>Test Network</th></tr></thead>
+<tbody>
+<tr><td>文档与资源</td><td><a href="https://xahau.network/">https://xahau.network/</a></td><td>与 Mainnet 相同</td></tr>
+<tr><td>Hooks 智能合约文档</td><td><a href="https://xahau.network/docs/hooks/">https://xahau.network/docs/hooks/</a></td><td>与 Mainnet 相同</td></tr>
+<tr><td>浏览器</td><td><a href="https://explorer.xahau.network/">https://explorer.xahau.network/</a></td><td><a href="https://explorer.xahau-test.net/">https://explorer.xahau-test.net</a></td></tr>
+<tr><td>公共 WebSocket URL</td><td><a href="wss://xahau.network">wss://xahau.network</a></td><td><a href="wss://xahau-test.net">wss://xahau-test.net</a></td></tr>
+<tr><td>Network ID 与 Peer 监听端口</td><td>21337 <a href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=21337">IANA assigned port</a></td><td>21338</td></tr>
+<tr>
+<td>对等连接与 Bootstrap 服务器</td>
+<td>bacab.alloy.ee 21337<br></br>hubs.xahau.as16089.net 21337</td>
+<td>79.110.60.122 21338<br></br>79.110.60.124 21338<br></br>79.110.60.125 21338<br></br>79.110.60.121 21338<br></br><br></br>2a0c:3bc0::1c74 21338<br></br>2a0c:3bc0::169d 21338<br></br>2a0c:3bc0::1aaf 21338<br></br>2a0c:3bc0::1d78 21338</td>
+</tr>
+<tr><td>Docker 容器</td><td><a href="https://github.com/Xahau/mainnet-docker">https://github.com/Xahau/mainnet-docker</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker">https://github.com/Xahau/Xahau-Testnet-Docker</a></td></tr>
+<tr><td>本地安装脚本</td><td><a href="https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh">https://raw.githubusercontent.com/Xahau/mainnet-docker/refs/heads/main/xahaud-install-update.sh</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/xahaud-install-update.sh</a></td></tr>
+<tr><td>二进制发布</td><td><a href="https://build.xahau.tech">https://build.xahau.tech</a></td><td>与 Mainnet 相同</td></tr>
+<tr><td>示例配置文件</td><td><a href="https://github.com/Xahau/xahaud/blob/dev/cfg/xahaud-example.cfg">https://github.com/Xahau/xahaud/blob/dev/cfg/xahaud-example.cfg</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/xahaud.cfg</a></td></tr>
+<tr><td>示例受信任验证者（UNL）文件</td><td><a href="https://github.com/Xahau/xahaud/blob/dev/cfg/validators-example.txt">https://github.com/Xahau/xahaud/blob/dev/cfg/validators-example.txt</a></td><td><a href="https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt">https://github.com/Xahau/Xahau-Testnet-Docker/blob/main/store/etc/validators-xahau.txt</a></td></tr>
+<tr><td>已文档化的配置文件</td><td><a href="https://github.com/Xahau/xahaud/tree/dev/cfg">https://github.com/Xahau/xahaud/tree/dev/cfg</a></td><td>与 Mainnet 相同</td></tr>
+<tr><td>Github Build Actions（release numbers）</td><td style="word-break: break-all;"><a href="https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker">https://github.com/Xahau/xahaud/actions?query=branch%3Arelease+is%3Asuccess+build+using+docker</a></td><td>与 Mainnet 相同</td></tr>
+</tbody>
+</table>

@@ -1,0 +1,76 @@
+---
+title: 返回码
+sidebar:
+  order: 2
+---
+
+Hooks API 中的所有函数都返回带符号整数。
+
+- 负数表示错误
+- `0` 或正数表示成功
+
+当返回成功值时，其具体语义由对应 API 决定。例如，有些函数返回写入字节数，有些返回布尔风格的 `1`。
+
+## 通用约定
+
+以下规则适用于所有 Hook API：
+
+- `< 0` 表示错误
+- `>= 0` 表示成功
+
+## 错误码
+
+| 名称 | 值 | 含义 |
+| --- | --- | --- |
+| `OUT_OF_BOUNDS` | `-1` | 提供的读写范围超出允许边界 |
+| `INTERNAL_ERROR` | `-2` | 内部错误 |
+| `TOO_BIG` | `-3` | 输入过大 |
+| `TOO_SMALL` | `-4` | 输入过小 |
+| `DOESNT_EXIST` | `-5` | 请求的数据不存在 |
+| `NO_FREE_SLOTS` | `-6` | 没有可用槽位 |
+| `INVALID_ARGUMENT` | `-7` | 参数无效 |
+| `ALREADY_SET` | `-8` | 目标已设置 |
+| `PREREQUISITE_NOT_MET` | `-9` | 未满足前置条件 |
+| `FEE_TOO_LARGE` | `-10` | 费用过高 |
+| `EMISSION_FAILURE` | `-11` | 发射交易失败 |
+| `TOO_MANY_NONCES` | `-12` | nonce 数量过多 |
+| `TOO_MANY_EMITTED_TXN` | `-13` | 发射交易过多 |
+| `NOT_IMPLEMENTED` | `-14` | 尚未实现 |
+| `INVALID_ACCOUNT` | `-15` | 账户无效 |
+| `GUARD_VIOLATION` | `-16` | 触发 guard 限制 |
+| `INVALID_FIELD` | `-17` | 字段无效 |
+| `PARSE_ERROR` | `-18` | 解析失败 |
+| `RC_ROLLBACK` | `-19` | 回滚返回码 |
+| `RC_ACCEPT` | `-20` | 接受返回码 |
+| `NO_SUCH_KEYLET` | `-21` | 不存在对应 keylet |
+| `NOT_AN_ARRAY` | `-22` | 目标不是数组 |
+| `NOT_AN_OBJECT` | `-23` | 目标不是对象 |
+| `INVALID_FLOAT` | `-10024` | 浮点值无效 |
+| `DIVISION_BY_ZERO` | `-25` | 除以零 |
+| `MANITSSA_OVERSIZED` | `-26` | 尾数过大 |
+| `MANTISSA_UNDERSIZED` | `-27` | 尾数过小 |
+| `EXPONENT_OVERSIZED` | `-28` | 指数过大 |
+| `EXPONENT_UNDERSIZED` | `-29` | 指数过小 |
+| `OVERFLOW` | `-30` | 溢出 |
+| `NOT_IOU_AMOUNT` | `-31` | 不是 IOU 金额 |
+| `NOT_AN_AMOUNT` | `-32` | 不是金额类型 |
+| `CANT_RETURN_NEGATIVE` | `-33` | 不能返回负值 |
+| `NOT_AUTHORIZED` | `-34` | 未授权 |
+| `PREVIOUS_FAILURE_PREVENTS_RETRY` | `-35` | 先前失败阻止重试 |
+| `TOO_MANY_PARAMS` | `-36` | 参数过多 |
+| `INVALID_TXN` | `-37` | 交易无效 |
+| `RESERVE_INSUFFICIENT` | `-38` | 储备不足 |
+| `COMPLEX_NOT_SUPPORTED` | `-39` | 不支持复合值 |
+| `DOES_NOT_MATCH` | `-40` | 不匹配 |
+| `INVALID_KEY` | `-41` | 键无效 |
+| `NOT_A_STRING` | `-42` | 不是字符串 |
+| `MEM_OVERLAP` | `-43` | 内存区域重叠 |
+| `TOO_MANY_STATE_MODIFICATIONS` | `-44` | 状态修改次数过多 |
+| `TOO_MANY_NAMESPACES` | `-45` | 命名空间过多 |
+
+## 说明
+
+部分错误码只会在特定 API 或特定数据类型中出现。  
+例如，XFL 相关函数更可能返回与浮点表示有关的错误码。
+
+在阅读单个 API 页面时，应将该页面列出的错误作为第一参考。

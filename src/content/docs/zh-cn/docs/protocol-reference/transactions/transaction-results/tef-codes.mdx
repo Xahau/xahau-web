@@ -1,0 +1,32 @@
+---
+title: TEF Codes
+---
+这些代码表示交易失败，且没有被包含到账本中，但在某个理论上的账本里它本来可能成功。通常这意味着它在未来账本中已不可能再成功。其数值范围为 -199 到 -100。具体数值可能变化，因此不要依赖数值本身。
+
+**注意：** 带有 `tef` 代码的交易不会被应用到账本中，也不会引发任何 Xahau 状态变化。不过，一笔暂时失败的交易在重新应用后，仍可能成功或以其他代码失败。
+
+| 代码 | 说明 |
+| --- | --- |
+| `tefALREADY` | 完全相同的一笔交易已经被应用过。 |
+| `tefBAD_ADD_AUTH` | **已弃用。** |
+| `tefBAD_AUTH` | 用于签名该账户的密钥没有被授权修改该账户。 |
+| `tefBAD_AUTH_MASTER` | 用来授权此交易的单签名并不匹配 master key，而且该地址也没有 regular key。 |
+| `tefBAD_LEDGER` | 处理交易时，账本处于意外状态。 |
+| `tefBAD_QUORUM` | 交易是多重签名的，但所有签名权重总和未达到 quorum。 |
+| `tefBAD_SIGNATURE` | 交易是多重签名的，但其中包含不属于发送账户 SignerList 的地址签名。 |
+| `tefCREATED` | **已弃用。** |
+| `tefEXCEPTION` | 处理交易时，服务器进入意外状态，可能由异常输入导致。 |
+| `tefFAILURE` | 应用交易时发生未指定失败。 |
+| `tefINTERNAL` | 应用交易时服务器进入了意外状态。 |
+| `tefINVARIANT_FAILED` | 在尝试收取交易成本时 invariant check 失败。 |
+| `tefMASTER_DISABLED` | 交易使用账户的 master key 签名，但该账户启用了 `lsfDisableMaster`。 |
+| `tefMAX_LEDGER` | 交易包含 `LastLedgerSequence`，但当前账本序列号已经高于该值。 |
+| `tefNFTOKEN_IS_NOT_TRANSFERABLE` | 交易试图把一个不可转让的非同质化代币发送给其他账户。 |
+| `tefNO_AUTH_REQUIRED` | [TrustSet transaction][] 试图把 trust line 标记为 authorized，但对应账户并未启用 `lsfRequireAuth`。 |
+| `tefNO_TICKET` | 交易试图使用某个 Ticket，但指定的 `TicketSequence` 在账本中不存在，且未来也不可能再被创建。 |
+| `tefNOT_MULTI_SIGNING` | 交易是多重签名的，但发送账户没有定义 SignerList。 |
+| `tefPAST_SEQ` | 交易的 sequence number 低于发送账户当前的 sequence number。 |
+| `tefTOO_BIG` | 该交易会影响账本中过多对象。 |
+| `tefWRONG_PRIOR` | 交易包含 `AccountTxnID` 字段（或已弃用的 `PreviousTxnID`），但其中指定的交易与该账户上一笔交易不匹配。 |
+| `tefPAST_IMPORT_SEQ` | 导入 sequence number 已经被使用过。 |
+| `tefPAST_IMPORT_VL_SEQ` | 导入 validator list 的 sequence number 已经被使用过。 |

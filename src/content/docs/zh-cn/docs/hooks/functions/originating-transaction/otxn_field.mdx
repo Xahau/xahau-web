@@ -1,0 +1,96 @@
+---
+title: otxn_field
+description: 序列化并输出原始交易中的一个字段
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 在原始交易中查找指定的 `sf` 字段
+* 将该字段的序列化版本写入输出缓冲区
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取原始交易中指定字段的值。
+* 成功时返回该字段值的数字数组，查找失败时返回 ErrorCode。
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_field (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t field_id
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_field(field_id: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t account_field_len = 
+    otxn_field(account_field, 20, sfAccount);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const account_field = otxn_field(sfAccount)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 指向用于存储输出的合适缓冲区 |
+| write_len | uint32_t | 输出缓冲区长度 |
+| field_id  | uint32_t | <p>要查找字段的 <code>sf</code> 编码。<br /><br />若要手动计算，可将序列化后的 <code>type</code> 放入 uint32_t 的高 16 位，再将 <code>field</code> 放入低 16 位。<br /><br />例如：<br /><code>sfEmitNonce</code> 的 <code>type</code> 为 5，<code>field</code> 为 11，因此其值为 <code>0x050BU</code></p> |
+
+<Aside type="caution" title="重要">
+输出缓冲区中不会写入字段代码本身，只会写入该字段的负载内容。
+
+在撰写本文时，对 Hooks Public Testnet 而言，像 `sfAccount` 这样的 `STI_ACCOUNT` 字段返回时不包含前导可变长度字节。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name      | Type   | Description |
+| --------- | ------ | ----------- |
+| field_id | number | 成功时返回指定字段值的数字数组，失败时返回错误。 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入的字节数<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_SMALL</code><br />- 输出缓冲区不足以容纳序列化字段<br /><br /><code>INVALID_FIELD</code><br />- <code>sf</code> `field_id` 无效<br /><br /><code>DOESNT_EXIST</code><br />- 在原始交易中未找到该字段</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ByteArray or ErrorCode | 成功时返回指定字段值的数字数组，失败时返回 ErrorCode。 |
+</TabItem>
+</Tabs>

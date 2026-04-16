@@ -1,0 +1,45 @@
+---
+title: float_exponent
+description: 获取 XFL 封装数的指数部分
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Tabs>
+<TabItem label="C">
+<Aside type="caution" title="已被宏替代">
+该函数已被宏替代。请在代码中改用下方宏。
+要检查 XFL 的有效性，请将此宏与 `float_mantissa` 结合使用。
+</Aside>
+</TabItem>
+</Tabs>
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 以带符号整数形式返回 XFL 的指数部分
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+由于指数可能为负，而负数被保留给错误状态，因此无法通过普通函数返回指数，所以此接口改为如下宏：
+
+```c
+#define float_exponent(f)\
+        (((int32_t)(((f) >> 54U) & 0xFFU)) - 97)
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
+```
+</TabItem>
+</Tabs>

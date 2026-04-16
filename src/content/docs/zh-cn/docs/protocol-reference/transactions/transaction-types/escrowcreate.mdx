@@ -1,0 +1,42 @@
+---
+title: EscrowCreate
+description: 将 XAH 或 IOU 暂时托管，直到 escrow 完成或被取消。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_由 [Escrow amendment][] 引入。_
+
+### 示例
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCreate",
+    "Amount": {
+       "currency": "USD",
+       "value": "1",
+       "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+    },
+    "Destination": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+    "CancelAfter": 533257958,
+    "FinishAfter": 533171558,
+    "Condition": "A0258020E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855810100",
+    "DestinationTag": 23480,
+    "SourceTag": 11747
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 要从发送方余额中扣除并托管的金额。进入 escrow 后，该 `Amount` 只能在 `FinishAfter` 之后发送到 `Destination`，或在 `CancelAfter` 之后退回给发送方。 |
+| `Destination` | String | AccountID | 接收托管金额的地址。 |
+| `CancelAfter` | Number | UInt32 | _(可选)_ 该 escrow 到期的时间，以 [seconds since the Ripple Epoch][] 表示。该值不可变；只有在此时间之后，资金才能退回给发送方。 |
+| `FinishAfter` | Number | UInt32 | _(可选)_ 可将托管金额释放给接收方的时间，以 [seconds since the Ripple Epoch][] 表示。该值不可变；在达到此时间前资金不能移动。 |
+| `Condition` | String | Blob | _(可选)_ 表示 [PREIMAGE-SHA-256 crypto-condition](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1) 的十六进制值。只有在满足此条件时，资金才能交付给接收方。 |
+| `DestinationTag` | Number | UInt32 | _(可选)_ 任意标签，用于进一步指定该托管付款的接收目标，例如目标地址上的托管收款人。 |
+
+必须指定 `CancelAfter` 或 `FinishAfter` 其中之一。如果两者都包含，则 `FinishAfter` 时间必须早于 `CancelAfter`。
+
+如果启用了 [fix1571 amendment][]，则你必须提供 `FinishAfter`、`Condition` 或二者同时提供。[New in: rippled 1.0.0][]

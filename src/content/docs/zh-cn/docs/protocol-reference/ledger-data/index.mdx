@@ -1,0 +1,32 @@
+---
+title: 账本数据
+---
+XRP Ledger 中的每一个账本版本由三部分组成：
+
+* **Ledger Header**：关于该账本版本本身的元数据。
+* **Transaction Set**：所有为创建该账本版本而执行的交易。
+* **State Data**：截至该账本版本时，用于表示账户、设置和余额的完整对象记录。（这也称为 “account state”。）
+
+### 状态数据
+
+每一个账本版本的状态数据都是一组 **ledger objects**，有时也称为 _ledger entries_。它们共同表示某一时刻的所有设置、余额和关系。要在状态数据中存储或检索某个对象，协议会使用该对象唯一的 [**Ledger Object ID**](/docs/protocol-reference/ledger-data/ledger-object-ids)。
+
+在 peer protocol 中，ledger objects 使用[规范二进制格式](/docs/protocol-reference/binary-format)。在 `xahaud` APIs 中，ledger objects 则表示为 JSON 对象。
+
+Ledger object 的数据字段取决于对象类型；Xahau Network 支持以下类型：
+
+* [Ledger Header](/docs/protocol-reference/ledger-data/ledger-header)
+* [Ledger Entry Common Fields](/docs/protocol-reference/ledger-data/ledger-object-ids)
+* [Ledger Entry Types](/docs/protocol-reference/ledger-data/ledger-objects-types/)
+
+### 扩展账本
+
+Xahau 支持 expanded ledgers，这使账本可以突破传统限制，容纳更大的账本规模。Expanded ledgers 让网络能够在维持性能和共识稳定性的同时，处理更高交易量以及更复杂的状态数据。
+
+启用 expanded ledgers 后，账本可以容纳：
+
+- 每个账本中更多的交易
+- 更大的状态数据集
+- 更高复杂度的 Hook 执行
+
+当网络根据交易量和状态数据规模判断有必要时，会自动使用 expanded ledgers。节点参与 expanded ledgers 无需任何特殊配置。

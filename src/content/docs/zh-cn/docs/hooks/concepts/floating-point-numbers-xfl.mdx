@@ -1,0 +1,97 @@
+---
+title: Floating Point Numbers (XFL)
+description: 高精度计算是 Hooks 的原生能力。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 背景
+
+[Floating point numbers](https://en.wikipedia.org/wiki/Floating-point_arithmetic) 在计算机科学中被广泛用于进行“精度有限但尺度任意”的数值计算。
+
+大多数现代 CPU 都可以用 [IEEE binary floating point standard](https://en.wikipedia.org/wiki/Double-precision_floating-point_format) 快速执行浮点运算，但 `xahaud` **不**使用这一格式。相反，Xahau 使用一种[定制的十进制浮点标准](/docs/protocol-reference/binary-format)。
+
+这种自定义格式有三个基本特性：
+
+1. 它天然是十进制格式，由十进制 `mantissa` 乘以 `10` 的某个 `exponent` 次幂构成
+2. 所有值都以 16 位有效十进制数字表示
+3. exponent 的取值范围为 `-96` 到 `+80`
+
+在序列化时，mantissa 占 54 位，exponent 占 8 位，再加一个 sign bit，总大小为 63 位。
+
+### 什么是 XFL？
+
+[XLS-17d](https://github.com/XRPLF/XRPL-Standards/discussions/39) 是一项 XRPL 标准提案，用于定义一种高效打包与存储 xrpld 浮点数的方法。
+
+XFL 会把浮点数的位存放在一个 _enclosing number_ 里，这个 enclosing number 始终是 `int64_t`。负数 enclosing number 表示无效的 XFL（例如除零结果）。
+
+<Aside type="tip">
+  你可以在 <a href="https://richardah.github.io/xfl-tools/" target="_blank" rel="noopener">这里</a> 使用 XFL 工具，在浏览器中组合和分解 XFL。
+</Aside>
+
+部分 XFL 示例：
+
+| 浮点值 | Enclosing Number | 表示形式 |
+| --- | --- | --- |
+| -1 | 1478180677777522688 | -1000000000000000 * 10^(-15) |
+| 0 | 0 | 0（_canonical zero_） |
+| 1 | 6089866696204910592 | +1000000000000000 * 10^(-15) |
+| _PI_ | 6092008288858500385 | +3141592653589793 * 10^(-15) |
+| -_PI_ | 1480322270431112481 | -3141592653589793 * 10^(-15) |
+
+这种格式对 Hooks 很方便，因为 Hooks 只能通过_整数_与 xrpld 交换值。通过把浮点数以严格定义的方式“包进”一个整数里，就可以在 Hook 中完成复杂浮点计算，这对汇率计算尤其有用。
+
+### Canonical Zero
+
+浮点体系通常可以用多种方式表示零，而这会让“判断是否为零”变得麻烦。例如 `0 x 10 ^ 1` 是零，`0 x 10 ^ 2` 也是零。因此，标准与 Hook API 都强制规定了 canonical zero。canonical zero 的 enclosing number 也是零（`0`）。
+
+### Hook Float API
+
+当你拿到一个 XFL 后，就可以通过 Float API 执行各种计算。Float API 如下表所示。每个 API 都接收一个或多个 XFL enclosing number，并返回一个 XFL enclosing number。负返回值**始终**表示计算错误（例如除以零）；不存在合法的负 enclosing number。
+
+| Hook API | 作用 |
+| --- | --- |
+| [float_set](/docs/hooks/functions/float/float_set) | 根据 exponent 与 mantissa 创建一个 float |
+| [float_multiply](/docs/hooks/functions/float/float_multiply) | 将两个 XFL 相乘 |
+| [float_mulratio](/docs/hooks/functions/float/float_mulratio) | 用非 XFL 的分子/分母对一个 XFL 浮点数做比例乘法 |
+| [float_negate](/docs/hooks/functions/float/float_negate) | 对 XFL 浮点数取负 |
+| [float_compare](/docs/hooks/functions/float/float_compare) | 比较两个 XFL 浮点数 |
+| [float_sum](/docs/hooks/functions/float/float_sum) | 将两个 XFL 相加 |
+| [float_sto](/docs/hooks/functions/float/float_sto) | 把 XFL 输出为序列化对象 |
+| [float_sto_set](/docs/hooks/functions/float/float_sto_set) | 从序列化 amount 中读取出 XFL |
+| [float_invert](/docs/hooks/functions/float/float_invert) | 计算 1 除以某个 XFL |
+| [float_divide](/docs/hooks/functions/float/float_divide) | 用一个 XFL 除以另一个 XFL |
+| [float_one](/docs/hooks/functions/float/float_one) | 返回 XFL 表示的数字 1 |
+| [float_exponent](/docs/hooks/functions/float/float_exponent) | 获取 XFL 的 exponent |
+| [float_mantissa](/docs/hooks/functions/float/float_mantissa) | 获取 XFL 的 mantissa |
+| [float_sign](/docs/hooks/functions/float/float_sign) | 获取 XFL 的符号 |
+| `float_exponent_set` | 设置 XFL 的 exponent |
+| `float_mantissa_set` | 设置 XFL 的 mantissa |
+| `float_sign_set` | 设置 XFL 的符号 |
+| [float_int](/docs/hooks/functions/float/float_int) | 把 XFL 转成向下取整整数 |
+| [float_root](/docs/hooks/functions/float/float_root) | 计算 XFL 的 n 次根 |
+| [float_log](/docs/hooks/functions/float/float_log) | 计算 XFL 的十进制对数 |
+
+<Aside type="caution">
+  你永远不应该直接对 _enclosing number_ 本身做数学运算或比较，这几乎总会得出错误结果。
+
+  唯一的例外是检查它是否等于 canonical zero。
+</Aside>
+
+### 示例
+
+下面示例先执行一次汇率转换，然后再做一次高精度分数乘法：
+
+```c
+int64_t max_vault_pusd =
+    float_multiply(vault_xrp, exchange_rate);
+
+max_vault_pusd =
+    float_mulratio(max_vault_pusd, 0,
+        NEW_COLLATERALIZATION_NUMERATOR, NEW_COLLATERALIZATION_DENOMINATOR);
+```
+
+<Aside type="tip">
+  如果某个 float API 返回负值，而你又没有检查，就继续把这个负值传给其他 float API，那么之后也会继续得到负值。错误会像其他语言中的 `NaN` 一样传播。
+
+  只要你最终得到负的 enclosing number，就说明你的浮点计算链路中某处发生了错误。
+</Aside>

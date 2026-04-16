@@ -1,0 +1,36 @@
+---
+title: Import VL Sequence
+---
+_(由 [Import amendment][] 引入。)_
+
+`ImportVLSequence` 用于在导入过程中跟踪并验证操作顺序。它可确保事件按正确顺序发生，并处理 “burning” 账本上 dUNL 的任何差异或更新。
+
+### JSON 示例
+
+```json
+{
+  "LedgerEntryType": "ImportVLSequence",
+  "Flags": 0,
+  "ImportSequence": 2023102101,
+  "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### 字段
+
+`ImportVLSequence` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0049`，映射为字符串 `ImportVLSequence`，表示这是一个 ImportVLSequence 对象。 |
+| `Flags` | Number | UInt32 | 是 | 布尔标志位图。`ImportVLSequence` 对象类型没有定义任何标志，因此该值始终为 `0`。 |
+| `ImportSequence` | Number | UInt32 | 是 | “burning” 账本上 dUNL 列表的当前序列号。 |
+| `PublicKey` | String | Blob | 是 | 来自 “burning” 账本的 Import Validator List 的 `PublicKey`。 |
+
+#### Import VL Sequence ID 格式
+
+`ImportVLSequence` 对象的 ID 是按以下顺序连接下列值后，对结果执行 [SHA-512Half][] 得到的：
+
+* Import VL Sequence 空间键（`0x0049`）
+* Import Validator List 的 Public Key

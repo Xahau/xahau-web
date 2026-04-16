@@ -1,0 +1,68 @@
+---
+title: 余额调整
+description: 如何在 Xahau 上领取余额调整
+---
+### 选择加入 + 领取
+
+选择加入余额调整与领取调整使用的是同一笔交易。您必须先执行这一步，之后才能继续领取。
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}
+```
+
+### 选择退出
+
+如果要退出余额调整，请省略 `Issuer` 字段，并将 `Flags` 设为 `1`。这样做会删除您的平均余额统计数据，且不会恢复。如果之后重新选择加入，这些统计会从初始状态重新开始。
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "NetworkID": 21337,
+    "Flags": 1
+}
+```
+
+### 技术细节
+
+余额调整由以下两部分代码共同实现：
+
+1. `BalanceRewards` amendment（原生代码）
+2. 创世账户的 Reward Hook（Hook 代码）
+
+`BalanceRewards` 会收集已启用该功能账户的平均余额统计数据。当用户希望领取奖励时，这些统计会被传递给目标 Hook。
+
+与该 amendment 的所有交互都通过 `ClaimReward` 交易完成：
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}
+```
+
+当 `ClaimReward` 交易成功提交并返回 **tesSUCCESS** 时，账户的平均余额统计会被重置。除此之外，这个 amendment 唯一会做的事情，就是调用指定 `Issuer` 账户上的 Hooks。
+
+`Issuer` 字段表示负责兑现领取请求的账户。根据该账户上安装的内容，可能会发生以下几种情况：
+
+* 如果 `Issuer` 账户上没有安装 Hook，则不会发生任何额外动作，只会重置 `BalanceRewards` 统计数据。
+* 如果 `Issuer` 账户上安装了 Hook，并且该 Hook 执行了 rollback，则交易失败，统计数据**不会**被重置。
+* 如果 `Issuer` 账户上安装了 Hook，并且该 Hook 执行了 accept，则交易成功，统计数据会被重置。在这种情况下，该 Hook 也应向用户账户发出一笔包含奖励的交易。
+
+在实际的 Xahau 网络中，`Issuer` 很可能始终是创世账户 **rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh**。
+
+除非：
+
+* 网络治理决定改用其他账户来处理 `BalanceAdjustments`。
+* 非治理方运行了自己的 `BalanceRewards` 奖励计划，而用户希望参与其中。需要注意的是，成功领取后平均余额统计会被重置，因此每次重置周期内只能领取一种奖励。
+
+平均余额统计作为 `AccountRoot` 对象中的一组新字段存在，分别为：
+
+<table><thead><tr><th width="240">字段</th><th width="95.33333333333331">类型</th><th>说明</th></tr></thead><tbody><tr><td><code>sfRewardAccumulator</code></td><td>UINT64</td><td>自上一次 <code>ClaimReward</code> 交易以来，您账户余额-时间曲线下的面积。</td></tr><tr><td><code>sfRewardLgrFirst</code></td><td>UINT32</td><td>上一次 <code>ClaimReward</code> 交易的账本编号。</td></tr><tr><td><code>sfRewardLgrLast</code></td><td>UINT32</td><td>您账户最近一笔流入或流出交易的账本序号。</td></tr><tr><td><code>sfRewardTime</code></td><td>UINT32</td><td>上一次领取奖励时的账本时间。</td></tr></tbody></table>

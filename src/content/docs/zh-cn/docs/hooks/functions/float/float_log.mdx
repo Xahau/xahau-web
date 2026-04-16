@@ -1,0 +1,61 @@
+---
+title: float_log
+description: 计算 XFL 的十进制对数
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 计算 XFL 数值的十进制对数
+* 返回新的 XFL
+
+<Aside type="caution">
+出于性能限制，`float_log` 会先将参数转换为 IEEE 二进制双精度浮点，再应用以 10 为底的对数，因此返回结果的精度通常低于预期。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 计算浮点表示的对数
+* 返回错误码或对数结果 bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_log (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_log(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>计算得到的对数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- 参数为负值，结果会变成复数</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| bigint or ErrorCode | 返回错误码或对数 bigint。 |
+</TabItem>
+</Tabs>

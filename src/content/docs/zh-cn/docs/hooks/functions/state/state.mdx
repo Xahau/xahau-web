@@ -1,0 +1,79 @@
+---
+title: state
+description: 读取 Hook State 键对应的数据并写入输出缓冲区
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 从 `kread_ptr` 读取一个 32 字节 Hook State 键
+* 将该键对应的值写入 `write_ptr` 指向的缓冲区
+</TabItem>
+
+<TabItem label="JavaScript">
+* 获取指定键对应的 Hook State 值
+* 成功时返回该值，失败时返回错误码
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state(key: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 用于写入 Hook State 数据的缓冲区 |
+| write_len | uint32_t | 写缓冲区长度 |
+| kread_ptr | uint32_t | 包含 Hook State 键的缓冲区指针 |
+| kread_len | uint32_t | Hook State 键长度（应为 32） |
+
+<Aside type="tip">
+请务必检查返回值。状态查询可能因为多种原因失败，而缓冲区将保留调用前内容（通常是全零）。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type                   | Description |
+| ---- | ---------------------- | ----------- |
+| key  | ByteArray or HexString | 要读取的 Hook State 键 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入写缓冲区的字节数。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>DOESNT_EXIST</code><br />- 指定 Hook State 键在当前账本中没有对应值。<br /><br /><code>TOO_BIG</code><br />- 指定的键长度大于 32 字节。<br /><br /><code>TOO_SMALL</code><br />- 输出缓冲区不足以容纳 Hook State 数据。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ByteArray or ErrorCode | 返回错误码或该键对应的 Hook State 值。 |
+</TabItem>
+</Tabs>

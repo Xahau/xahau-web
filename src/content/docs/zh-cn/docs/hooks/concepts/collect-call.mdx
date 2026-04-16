@@ -1,0 +1,27 @@
+---
+title: Collect Call
+---
+import { Card, Aside } from '@astrojs/starlight/components';
+
+<Card title="Hook Design Philosophy">
+_每个受到交易影响的一方，都应该有机会让自己的 hooks 得到执行。_
+</Card>
+
+当 hooks 不是以 Strongly Executed 方式运行时，让原始交易来承担它们的执行费用并不公平。例如，一笔 _OfferCreate_ 如果在 DEX 上穿过了 20 个 offers，就不应被迫支付那 20 个账户各自 Hooks 的执行费用。
+
+因此，在典型的 weak execution 中，执行费用会从 Hook 的所有者那里收取。要启用这一机制：
+
+* Hook 所有者必须先通过 AccountSet 交易在其 Xahau 账户上设置 `asfTshCollect`
+* Hook 所有者还必须在自己希望以 Weak TSH 被调用的那个具体 Hook 上设置 `hsfCollect`
+
+### 费用责任表
+
+| Weak Execution 类型 | 费用 |
+| --- | --- |
+| **Again As Weak**：当 Strongly Executed Hook 调用了 [hook_again](/docs/hooks/functions/hook-context/hook_again) 时发生 | 免费（已经由 Strong Execution 支付） |
+| **Callback**：当某个 emitted transaction 被接受进账本，或被标记为永远无法进入账本时发生 | 免费（已经在 Emission 时支付） |
+| **Weak Transactional Stakeholder**：某笔交易在某种程度上影响了你的账户 | 仅当你的账户带有 `asfTshCollect` 且你的 Hook 带有 `hsfCollect` 时，费用才由你的账户承担，而不是由原始交易承担 |
+
+<Aside type="caution">
+这是一项高级功能，大多数 Hook 开发者很可能并不会用到。
+</Aside>

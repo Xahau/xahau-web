@@ -1,0 +1,27 @@
+---
+title: hook_pos
+sidebar:
+  order: 6
+---
+
+`hook_pos` 返回当前 Hook 在 Hook 链中的位置。
+
+## C
+
+```c
+int64_t hook_pos(void);
+```
+
+## JavaScript
+
+```javascript
+function hook_pos(): number
+```
+
+## 返回值
+
+成功时返回当前 Hook 在链中的位置编号。
+
+## 说明
+
+该函数常用于在多 Hook 链执行时判断当前执行上下文所处的位置。

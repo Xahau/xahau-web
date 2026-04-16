@@ -1,0 +1,58 @@
+---
+title: float_multiply
+description: 将两个 XFL 数值相乘
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 计算两个 XFL（xls17）浮点数的乘积
+* 返回新的 XFL `int64_t`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 计算两个 XFL 的乘积
+* 返回错误码或新的 XFL bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_multiply (
+    int64_t float1,
+    int64_t float2
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_multiply(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>XFL（xls17）封装数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL<br /><br /><code>OVERFLOW</code><br />- 结果过大，无法存入 XFL。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type               | Description |
+| ------------------ | ----------- |
+| ErrorCode or bigint | 返回错误码或 XFL（xls17）封装数。 |
+</TabItem>
+</Tabs>

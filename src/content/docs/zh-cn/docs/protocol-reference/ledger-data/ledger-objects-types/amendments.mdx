@@ -1,0 +1,60 @@
+---
+title: Amendments
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L138-L144)
+
+`Amendments` 对象类型包含当前已启用的 Amendments 列表。每一个账本版本中 **最多只包含一个** `Amendments` 对象。
+
+### 示例 JSON
+
+```json
+{
+    "Majorities": [
+        {
+            "Majority": {
+                "Amendment": "1562511F573A19AE9BD103B5D6B9E01B3B46805AEC5D3C4805C902B514399146",
+                "CloseTime": 535589001
+            }
+        }
+    ],
+    "Amendments": [
+        "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE",
+        "4C97EBA926031A7CF7D7B36FDE3ED66DDA5421192D63DE53FFB46E43B9DC8373",
+        "6781F8368C4771B83E8B821D88F580202BCB4228075297B19E4FDC5233F1EFDC",
+        "740352F2412A9909880C23A559FCECEDA3BE2126FED62FC7660D628A06927F11"
+    ],
+    "Flags": 0,
+    "LedgerEntryType": "Amendments",
+    "index": "7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4"
+}
+```
+
+### 字段
+
+| 字段名 | JSON 类型 | \[Internal Type]\[] | 必填？ | 说明 |
+| ------ | --------- | ------------------- | ------ | ---- |
+| `Amendments` | Array | Vector256 | No | 当前所有已启用 amendments 的 256 位 amendment IDs 数组。如果省略，表示当前没有已启用 amendments。 |
+| `Flags` | Number | UInt32 | Yes | 该对象启用的一组布尔位标志。当前协议未为 `Amendments` 对象定义任何 flags，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | Yes | 值 `0x0066`，映射到字符串 `Amendments`，表示该对象描述的是 Xahau 中 amendments 的状态。 |
+| `Majorities` | Array | STArray | No | 一组对象数组，用于描述那些已获得多数支持但尚未启用的 amendments 状态。如果省略，表示当前没有获得多数支持的待启用 amendments。 |
+
+若 `Majorities` 字段存在，则其中的每个成员都是一个只包含单一字段 `Majority` 的对象，而 `Majority` 本身是一个嵌套对象，字段如下：
+
+| 字段名 | JSON 类型 | \[Internal Type]\[] | 说明 |
+| ------ | --------- | ------------------- | ---- |
+| `Amendment` | String | Hash256 | 待启用 amendment 的 Amendment ID。 |
+| `CloseTime` | Number | UInt32 | 该 amendment 最近一次获得多数支持时所在账本版本的 `close_time` 字段。 |
+
+在 amendment 流程中，当 80% 或更多验证者支持某个 amendment 时，验证者共识会通过带有 `tfGotMajority` 标志的 \[EnableAmendment]\[] pseudo-transaction，将该 amendment 加入 `Majorities` 字段。如果某个待启用 amendment 的支持率跌破 80%，则带有 `tfLostMajority` 标志的 \[EnableAmendment]\[] pseudo-transaction 会将其从 `Majorities` 数组中移除。如果某个 amendment 在 `Majorities` 字段中持续保留至少 2 周，则一个不带任何标志的 \[EnableAmendment]\[] pseudo-transaction 会将其从 `Majorities` 中移除，并永久加入 `Amendments` 字段。
+
+**注意：** 从技术上说，账本中的所有交易，都是基于其前一个账本版本中已经启用的 amendments 来处理的。也就是说，在某个 amendment 被启用的账本版本中处理交易时，规则不会在账本处理中途改变。账本关闭之后，下一个账本才会开始使用新 amendment 所定义的新规则。
+
+### Amendments ID 格式
+
+`Amendments` 对象的 ID 是仅对 `Amendments` space key（`0x0066`）做哈希得到的。这意味着，账本中 `Amendments` 对象的 ID 始终是：
+
+```
+7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4
+```
+
+（不要把 `Amendments` ledger object type 的 ID 与某个单独 amendment 的 Amendment ID 混淆。）

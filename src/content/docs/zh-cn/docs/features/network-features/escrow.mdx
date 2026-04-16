@@ -1,0 +1,28 @@
+---
+title: Escrow
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Escrow 功能是 Xahau 网络的重要组成部分。它为参与方之间的交易提供了一种安全且无需信任的方式。Escrow 能确保交易中涉及的资产在满足所有条件之前被安全托管。
+
+### 交易类型
+
+Escrow 功能包含三种交易类型：
+
+#### EscrowCreate
+
+`EscrowCreate` 交易用于创建一项新的托管协议。该交易会指定托管条款，包括相关参与方、被托管的资产，以及资产在何种条件下被释放。
+
+<LinkCard title="EscrowCreate" href="/docs/protocol-reference/transactions/transaction-types/escrowcreate" />
+
+#### EscrowFinish
+
+`EscrowFinish` 交易用于完成一项托管协议。当托管条件全部满足时，就会执行这笔交易。执行后，托管中的资产会释放给对应方。
+
+<LinkCard title="EscrowFinish" href="/docs/protocol-reference/transactions/transaction-types/escrowfinish" />
+
+#### EscrowCancel
+
+`EscrowCancel` 交易用于取消一项托管协议。如果在指定时间内未满足托管条件，就可以执行该交易。取消后，被托管的资产会返还给最初发起托管的一方。
+
+<LinkCard title="EscrowCancel" href="/docs/protocol-reference/transactions/transaction-types/escrowcancel" />

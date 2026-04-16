@@ -1,0 +1,21 @@
+---
+title: 账本对象类型
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## Ledger Entry 通用字段 <a href="#ledger-entry-common-fields" id="ledger-entry-common-fields"></a>
+
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp)
+
+账本状态数据中的每一项条目都拥有相同的一组通用字段，此外还会根据 ledger entry 类型拥有额外字段。字段名区分大小写。所有 ledger entries 的通用字段如下：
+
+| 字段 | JSON 类型 | Internal Type | 必填？ | 说明 |
+| ---- | --------- | ------------- | ------ | ---- |
+| `index` or `LedgerIndex` | String | Hash256 | No | 该 ledger entry 的唯一 ID。在 JSON 中，该字段的名称会因上下文和 API 方法不同而不同。（注意，尽管代码里将它标为 “optional”，但除非是 XRP Ledger 历史极早期留下的遗留数据，否则每个 ledger entry 都应当有这个字段。） |
+| `LedgerEntryType` | String | UInt16 | Yes | ledger entry 的类型。有效类型包括 `AccountRoot`、`Offer`、`RippleState` 等。 |
+| `Flags` | Number | UInt32 | Yes | 该 ledger entry 的一组位标志。 |
+| `Remarks` | Array | STArray | No | 用于设置、更新或删除的 remark 对象数组（见 Remarks Format） |
+
+<Aside type="caution">
+注意：在 JSON 中，ledger entry ID 位于 `index` 或 `LedgerIndex` 字段。这与 `ledger_index` 字段中的 ledger index 不是同一个概念。
+</Aside>

@@ -1,0 +1,38 @@
+---
+title: PaymentChannelCreate
+description: 创建一个 payment channel 并用指定 Amount 为其注资。
+---
+[\[Source\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_由 [PayChan amendment][] 引入。_
+
+### 示例
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "PaymentChannelCreate",
+    "Amount": {
+       "currency": "USD",
+       "value": "1",
+       "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+    },
+    "Destination": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+    "SettleDelay": 86400,
+    "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A",
+    "CancelAfter": 533171558,
+    "DestinationTag": 23480,
+    "SourceTag": 11747
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 要从发送方余额中扣除并划入该通道的金额。通道开启期间，这部分金额只能发送给 `Destination` 地址。当通道关闭时，任何未领取的金额都会退回 source address 的余额。 |
+| `Destination` | String | AccountID | 接收此通道付款 claim 的地址，也称为通道的 “destination address”。不能与发送方（`Account`）相同。 |
+| `SettleDelay` | Number | UInt32 | 如果通道中仍有未领取金额，source address 在关闭通道前必须等待的时间。 |
+| `PublicKey` | String | Blob | source 将用于对该通道 claim 进行签名的密钥对的 33 字节公钥，以十六进制表示。可以是任意 secp256k1 或 Ed25519 公钥。更多信息参见 Key Derivation。 |
+| `CancelAfter` | Number | UInt32 | _(可选)_ 通道到期的时间，以 [seconds since the Ripple Epoch][] 表示。此时间之后，任何试图修改通道的交易都会直接关闭通道，而不执行其原本操作。该值不可变；通道可以早于此时间关闭，但不能在此时间之后继续保持开启。 |
+| `DestinationTag` | Number | UInt32 | _(可选)_ 任意标签，用于进一步指定该 payment channel 的接收目标，例如目标地址上的托管收款人。 |
+
+如果 `Destination` 账户阻止传入 payment channels，则该交易以结果码 `tecNO_PERMISSION` 失败。_(需要 [DisallowIncoming amendment][]。)_

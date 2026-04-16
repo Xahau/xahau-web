@@ -1,0 +1,290 @@
+---
+title: Burn 2 Mint (B2M)
+description: >-
+  Burn2Mint 是一种底层的跨链原语，面向企业用户，便于其按照自身需求为自己的用途自给流动性。
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+由于 `ZeroB2M` amendment 已在 Xahau 上通过投票启用，Burn 2 Mint（B2M）已不能再用于铸造新资产。B2M 仍然可用，但仅用于 **key 同步** 或激活基于账户的场景，因此下方的信息与流程仍然适用。
+
+[https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0](https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0)
+</Aside>
+
+## Burn2Mint 技术手册（Xahau Testnet）
+
+<Aside type="caution">
+**这个流程被有意设计得不简单，并不面向终端用户。** 一旦操作出错，就可能导致 burn 无法转换为 mint。
+
+这是一条将在本文档生产版本中出现的警告。由于这里烧毁的是免费的 testnet XRP，所以在这个示例中你可以忽略这点。
+</Aside>
+
+Burn2Mint 是一种底层跨链原语，面向企业用户，便于其按自身需求自行提供流动性。运行你自己的节点并在这些节点上亲自执行这个操作，意味着你将独自承担整个流程结果的责任。
+
+XPOP 的生成与收集，本质上依赖于在 overlay 网络上收集验证消息，而这些消息天然是瞬时的。如果你的节点连接不稳定，或者硬件、网络连接或操作系统在错误的时间点发生故障，那么某笔 Burn Transaction 的 XPOP 可能无法生成，或者生成不正确。这可能导致资金损失，因为该 Burn Transaction 的 XPOP 未能及时捕获，并且这些验证消息也可能永久丢失，从而使得即使 Burn Transaction 已成功，Mint Transaction 仍然无法进行。
+
+如果你无法接受这些技术风险、不清楚自己在做什么，或者你并非企业用户，那么请通过其他更友好的替代方式获取流动性。
+
+### 设置
+
+要执行 B2M，用户应运行 _两个_ XRPL 协议节点：
+
+1. **从 burn 获取 xPOP**
+
+<Tabs>
+<TabItem label="xPOP Collector & Server（更简单）">
+运行以下内容（例如使用 Docker Compose；参见仓库文档）\
+[**https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP**](https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP)
+
+* 该服务会监听 XRPL 验证消息、已关闭账本和交易。
+* 它会将这些数据存储到有组织的文件系统中。
+* 它对于生成 xPOPs 至关重要，因为 XRPL 的验证消息是瞬时的；如果不把它们存起来，一笔 transaction burn 就无法转化为 mint。
+* **工作方式**：
+  * 一个 watcher 会连接到多个 XRPL 节点并监听特定数据。
+  * 捕获的数据随后会被保存、整理，并用于生成 xPOPs。
+
+现在只需从以下地址获取 xPOP：\
+`http[s]://{your-host}:{your-port}/xpop/{tx-hash}`
+
+你还可以通过上面的仓库，配合这个 NPM 包轻松从节点获取/创建 xPOPs：
+
+[**https://www.npmjs.com/package/xpop**](https://www.npmjs.com/package/xpop)
+</TabItem>
+
+<TabItem label='或：专用 "Burning Node"'>
+**Burn Node**，包括：
+
+* 一个修改过的 Rippled 实例（已修改为记录 XPOPs）
+* 通用 Linux 二进制文件地址： [https://tvntezq.dlvr.cloud/rippled_with_xpop](https://tvntezq.dlvr.cloud/rippled_with_xpop)
+* [https://github.com/RichardAH/rippled/tree/proof-of-burn](https://github.com/RichardAH/rippled/tree/proof-of-burn)
+* 运行时使用的 `rippled.cfg` 需要包含：
+  * 一个 **\[xpop_dir]** 配置段，用于指定生成 XPOPs 的输出目录。
+  * 一个 **\[network_id]** 配置段，用于指定 `network_id: 1`
+    * （在生产环境中这里应为 network 0）
+  * 一个包含以下内容的 `validators.txt`：\\
+
+      ```
+      [validator_list_sites]
+      https://vl.altnet.rippletest.net
+      [validator_list_keys]
+      ED264807102805220DA0F312E71FC2C69E1552C9C5790F6C25E3729DEB573D5860
+      ```
+</TabItem>
+</Tabs>
+
+2. **Mint**
+
+* 在这个测试场景中，你将直接连接到 Xahau，因此不需要自己运行节点。而在生产场景中，你需要运行一个 Mint node，也就是目标网络的标准节点。这是因为公共节点很可能会因法律风险而选择不接受 `Import` 交易。
+  * 连接到 **wss://xahau-test.net**
+  * 或下载并运行： [**https://github.com/Xahau/Xahau-Testnet-Docker**](https://github.com/Xahau/Xahau-Testnet-Docker)
+
+## 示例（nodejs）
+
+这个示例会创建一个 testnet 账户，烧毁 10 XRP，然后在 Xahau Testnet 上导入这笔 burn，使用前文提到工具所获取的 xPOP。
+
+```js
+import { derive, utils, signAndSubmit } from 'xrpl-accountlib'
+import { TxData } from 'xrpl-txdata'
+import { XrplClient } from 'xrpl-client'
+import { xpop, setEndpoints as xpopEndpoints } from 'xpop'
+import fetch from 'node-fetch'
+
+// The above needs:
+//   npm install xrpl-accountlib xrpl-txdata xrpl-client xpop node-fetch 
+
+console.log('Obtaining XRPL Testnet account (faucet)')
+const faucet = await (await fetch('https://faucet.altnet.rippletest.net/accounts', { method: 'POST' })).json()
+console.log(' -->', faucet.account.address)
+const account = derive.familySeed(faucet.account.secret)
+
+xpopEndpoints((await (await fetch('https://xrpl.ws-stats.com/xpop/list?json=true')).json()).bestguess)
+
+const nodes = {
+  testnet: [
+    new XrplClient('wss://s.altnet.rippletest.net:51233'),
+    new XrplClient('wss://testnet.xrpl-labs.com'),
+  ],
+  xahau: [
+    new XrplClient('wss://xahau-test.net'),
+  ]
+}
+
+console.log('Waiting for network connections to be ready')
+await Promise.all(Object.keys(nodes).map(k => Promise.race(nodes[k].map(n => n.ready()))))
+
+console.log('Waiting for faucet account funding & obtaining network values...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // Wait till ledger is closed
+
+const [
+  testnetParams,
+  xahauParams,
+] = await Promise.all([
+  Promise.race(nodes.testnet.map(n => utils.accountAndLedgerSequence(n, account))),
+  Promise.race(nodes.xahau.map(n => utils.accountAndLedgerSequence(n, account))),
+])
+
+const testnetTx = {
+  ...testnetParams.txValues,
+  TransactionType: 'AccountSet',
+  Fee: String(10_000_000),
+  OperationLimit: xahauParams.txValues.NetworkID,
+  NetworkID: undefined, // Testnet has a NetworkID < 1024, so none should be provided
+}
+
+console.log('Submitting burn...', testnetTx)
+const testnetSubmitted = await Promise.race(nodes.testnet.map(n => signAndSubmit(testnetTx, n, account)))
+console.log('Submitted burn to testnet')
+console.log(' -->', 'https://testnet.xrpl.org/transactions/' + testnetSubmitted.tx_id)
+
+console.log('Obtaining burn tx data...')
+
+const txdata = new TxData(nodes.testnet.map(n => n.getState().server.uri), {
+  AllowNoFullHistory: true,
+  EndpointTimeoutMs: 2_000,
+  OverallTimeoutMs: 10_000,
+})
+
+const appliedtx = await txdata.getOne(testnetSubmitted.tx_id)
+console.log(' -->', 'Burn validated in ledger', appliedtx?.result?.ledger_index)
+
+console.log('Waiting for closed ledger before fetching xPOP...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // Wait till ledger is closed
+
+console.log('Fetching xPOP...')
+
+const Blob = await xpop(testnetSubmitted.tx_id, appliedtx?.result?.ledger_index, 1)
+
+console.log(' -->', 'xPOP fetched, hex strlen:', Blob.length)
+
+const hooksTx = {
+  ...xahauParams.txValues,
+  TransactionType: 'Import',
+  Fee: '0',
+  Blob,
+}
+
+console.log('Submitting for mint of xPOP...')
+
+const b2mSubmitted = await Promise.race(nodes.xahau.map(n => signAndSubmit(hooksTx, n, account)))
+
+console.log(' -->', 'B2M submitted! TX on Xahau Testnet:')
+console.log(' -->', 'https://test.xahauexplorer.com/explorer/' + b2mSubmitted?.tx_id)
+console.log('     -->', b2mSubmitted.response.engine_result, b2mSubmitted.response.engine_result_message)
+
+// Closing connections
+Object.keys(nodes).map(k => nodes[k].map(n => n.close()))
+```
+[Source](https://gist.github.com/WietseWind/cd8a7a8c88f218fe7b768f59a665685d)
+
+## B2M 流程技术摘要
+
+#### 新交易类型：`Import`
+
+Xahau Testnet（_network_id=21338_）引入了一种名为 _**Import**_ 的新交易类型，它接受来自 Ripple testnet 链（_network_id=1_）的 XPOP，并提供一种“burn-to-mint”的单向价值转移，以及 key / 账户同步能力。
+
+### Burn Transaction
+
+_**Burn Transaction**_ 是指在源 XRPL 链上烧毁 XRP 的交易，该交易将作为证明（XPOP）用于在目标 XRPL 链上执行 mint。
+
+当前支持的交易类型如下：
+
+* `AccountSet`
+* `SetRegularKey`
+* `SignerListSet`
+
+<Aside type="caution">
+任何 Burn Transaction **都不接受** `Ticket`。如果使用了 `Ticket`，该 Burn Transaction 将无法用于 mint。为了防止垃圾交易，交易必须使用真实、自然递增的 sequence number 进行验证。
+</Aside>
+
+请注意，其他交易类型目前尚不支持，因此不能用于在 Xahau Testnet 上执行 mint。（不过这未来可能会改变。）
+
+上述三种交易类型都可以用于 mint。这意味着，只要 `Import` 成功，Burn Transaction 中被烧毁的 _**Fee**_ 随后就会在 Xahau Testnet 上被铸造出来。
+
+如果使用的是 `SetRegularKey` 或 `SignerListSet`，则 key 同步会按照该交易类型的标准规则发生。如果使用的是 `AccountSet`，则目标 XRPL 链（Xahau Testnet）上不会发生 key 同步。
+
+Burn Transaction 中必须存在一个名为 _**OperationLimit**_ 的字段，其值应为目标链的 Network ID。这个字段用于防止在其他已集成 B2M 的链上发生重放攻击。
+
+如果 Burn Transaction 的交易结果代码为 **tesSUCCESS**，或者为 _任意_ **tec** 代码，则该 Burn Transaction 都可以用于 Minting。也就是说，只要手续费确实被烧毁，这笔交易就可以用于 mint。但 key 同步 **只有** 在 Burn Transaction 结果为 `tesSUCCESS` 时才会发生。
+
+示例 Burn Transaction：
+
+```json
+{
+	"TransactionType": "AccountSet",
+	"Fee": 10000000,
+	"OperationLimit": 21338
+}
+```
+
+### XPOP 收集
+
+在提交 Burn Transaction 之前，请确保你的 Burn Node 已与 testnet 链（Network ID: `1`）完成同步。
+
+确认 Burn Node 状态后，将已签名的 Burn Transaction 提交到该 Burn Node。
+
+Burn Node 会监视已关闭账本中带有 **OperationLimit** 字段的交易，并使用收集到的验证消息生成一个 XPOP（Proof Of Burn）。这些内容会被写入 Burn Node 的 `rippled.cfg` 中 **\[xpop_dir]** 配置段所指定目录下的文件中。
+
+等待账本关闭后，根据 Burn Transaction 的 TXID，在 `xpop_dir` 中查找对应的 XPOP。该文件中包含一个 JSON 文档，这就是你接下来要转发到目标 XRPL 链（HooksV3）的 XPOP。
+
+将该文件的原始内容编码为 HEX，这会成为 `Import` 交易中 _**Blob**_ 字段的内容。
+
+### Mint Transaction
+
+你的 binary codec 里可能缺少构造 `Import`（Mint）交易所需的字段。如果你使用的是 `ripple-binary-codec`，可以按以下方式更新其 `definitions.json` 文件：
+
+1. 进入 `node_modules` 目录
+2. 运行 `find . | grep 'dist/enums/definitions.json'` 定位需要更新的文件
+3. 连接到 **wss://hooks-testnet-v3.xrpl-labs.com**
+4. 请求： `{"command":"server_definitions"}`
+5. 将返回结果中 `"result"` 键的内容写入步骤 2 找到的 `definitions.json`
+
+`Import` 交易类型只接受一个非常规字段，即 _**Blob**_。其内容必须是来自 XPOP 收集阶段的 HEX 编码 XPOP。
+
+* 你可以使用 `cat xpopjsonfile | xxd -p | tr -d '\n'` 来完成此操作
+
+Burn Transaction 与 Mint Transaction 中的 `Account` 和 `SigningPubKey` 字段（或 `Signers` 数组）必须**完全一致**。用户只能将 mint 执行到与 burn 时相同的账户上。
+
+如果 `Account` 字段所指定的账户在 Xahau Testnet 上尚不存在，则会为其创建账户。在这种情况下，Mint Transaction 的 `Sequence` 字段应使用 `0`。如果该账户在 Xahau Testnet 上已经存在，则应使用该账户在 Xahau Testnet 上的下一个可用 `Sequence` 值。
+
+示例 Import：
+
+```json
+{
+	"Account": "<same as it was in the Burn Transaction>",
+	"TransactionType": "Import",
+	"Blob": "<hex encoded (upper case) XPOP>",
+	"Sequence": 0
+} 
+```
+
+重要： **Mint Transaction 的签名方式以及签名账户必须与 Burn Transaction 完全相同！**
+
+请正确编码并签名该交易，生成一个已签名的交易 blob（hex）。
+
+如果你没有运行自己的 Mint node：
+
+* 连接到 **wss://xahau-testn.et**
+* 向节点提交该交易：
+
+```json
+{
+	"command": "submit",
+	"tx_blob": "<HEX ENCODED IMPORT TXN>"
+}
+```
+
+或者，如果你正在运行自己的 Mint node：
+
+* 确保 Mint Node 正在运行，并且已同步到 Network ID 21338。
+* 使用 `submit` RPC 调用提交 Mint Transaction。
+  * 你可以通过命令行使用 `./hooksv3d submit <hex here>` 来完成
+
+### 注意事项
+
+如果某个账户需要在 Xahau Testnet 上被创建，但从 Burn Transaction 的上下文中无法清晰判断该账户应使用什么 key 配置，那么该账户将以 blackholed 模式创建。之后仍可使用两种 key 相关交易类型中的任意一种重新设置 key。
+
+如果 Burn Transaction 是 `SignerListSet` 或 `SetRegularKey`，并且它在源 XRPL 链（testnet）上的结果是 `tesSUCCESS`，那么同样的 key 配置操作也会被应用到目标 XRPL 链（Xahau Testnet）上的同一账户。
+
+在测试期间，Xahau Testnet 上的账户 _可以_ 被删除；但在生产环境下启用 Hooks 的链上，这些账户将无法被删除。
+
+Xahau Testnet 上的账户在 `AccountRoot` 中有一个可选字段 _**ImportSequence**_。如果该账户曾在 Xahau Testnet 上使用过 **Import**，则该字段会存在，并记录最近一次被导入的 Burn Transaction 的 `Sequence` 编号。这样做是为了防止重放攻击，但这也意味着你绝对不应该乱序提交 Burn2Mints，否则被跳过的交易将永远不会再被接受用于 Minting。

@@ -1,0 +1,65 @@
+---
+title: hook_param_set
+sidebar:
+  order: 5
+---
+
+`hook_param_set` 用于在同一账户的 Hook 链中，按指定 Hook 哈希为后续 Hook 设置或删除参数。
+
+## C
+
+```c
+int64_t hook_param_set(
+  uint32_t read_ptr,
+  uint32_t read_len,
+  uint32_t kread_ptr,
+  uint32_t kread_len,
+  uint32_t hread_ptr,
+  uint32_t hread_len
+);
+```
+
+## JavaScript
+
+```javascript
+function hook_param_set(val, key, hash): number
+```
+
+## 参数
+
+### `read_ptr`
+
+指向参数值的指针。
+
+### `read_len`
+
+参数值长度。
+
+### `kread_ptr`
+
+指向参数名的指针。
+
+### `kread_len`
+
+参数名长度。
+
+### `hread_ptr`
+
+指向目标 Hook 哈希的指针。
+
+### `hread_len`
+
+目标 Hook 哈希长度。
+
+## 返回值
+
+- 成功时返回设置的值长度
+- 失败时可能返回：
+  - `OUT_OF_BOUNDS`
+  - `TOO_SMALL`
+  - `TOO_BIG`
+
+## 说明
+
+这个函数适合在同一 Hook 链内部动态传递配置。  
+若值为空，通常可用于删除参数。

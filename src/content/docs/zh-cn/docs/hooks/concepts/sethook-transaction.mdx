@@ -1,0 +1,154 @@
+---
+title: SetHook Transaction
+---
+### SetHook Transaction
+
+Hook 的 WebAssembly 字节码通过 `SetHook` 交易安装到某个 Xahau 账户上。
+
+示例如下：
+
+```js
+{
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [
+        {
+            Hook: {
+                CreateCode: fs.readFileSync('accept.wasm').toString('hex').toUpperCase(),
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                HookApiVersion: 0
+            }
+        }
+    ]
+}
+```
+
+这笔交易表面上很简单，但实际上隐藏了相当多复杂性。
+
+### Hooks Array
+
+SetHook 交易的主体是 hooks array：
+
+```js
+{
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Hooks:                         // 这就是 Hooks Array
+    [
+          { Hook: { ... } },       // HookSet Object（位置 0）
+          { Hook: { ... } },
+          { Hook: { ... } },
+          { Hook: { ... } }        // HookSet Object（位置 3）
+    ]
+}
+```
+
+这个数组会 _映射_ 到该账户上安装的 [Hook Chain](/docs/hooks/concepts/chaining)：
+
+* 数组中的位置 0 _对应_ Hook Chain 中的位置 0
+* 数组中的位置 3 _对应_ Hook Chain 中的位置 3，依此类推
+
+### HookSet Object 与 Corresponding Hook
+
+Hooks Array（SetHook 交易中的数组）里的每个条目都叫作一个 _HookSet Object_，而它在账户 Hook Chain 中对应的 hook 则叫作 _Corresponding Hook_。
+
+<figure>
+![Example: A user performs an operation on each Hook in his/her Hook chain with a SetHook transaction.](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_NbV5W3McCRKkL4eJeF6v_cdf692e-sethook.png)
+<figcaption>*示例：用户通过一笔 SetHook 交易，对其 Hook chain 中的每个 Hook 执行操作。*</figcaption>
+</figure>
+
+### HookDefinition
+
+每个 Corresponding Hook 都是一个对象，其中包含一个指向 `HookDefinition` 对象的 _reference_（指针）。
+
+HookDefinition 是账本上的一种无主、带引用计数的对象，用于对相同 WebAssembly 字节码做去重。两个用户如果使用完全相同的 hook，那么它们都会指向同一个 HookDefinition。
+
+<figure>
+![Example: Hook Definitions on Xahau](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)
+<figcaption>*示例：Xahau 上的 Hook Definitions*</figcaption>
+</figure>
+
+更多信息参见：[Reference Counting](/docs/hooks/concepts/reference-counted-hook-definitions)
+
+### Hook Defaults
+
+当一个 `HookDefinition` 被创建时，它会包含用户最初提供的 [Parameters](/docs/hooks/concepts/parameters)、[Namespace](/docs/hooks/concepts/namespaces) 与 [Grants](/docs/hooks/concepts/grants)。这些值会成为 Hook Defaults。任何引用该 Hook Definition 的 Hook 都会使用这些默认值，_除非_ 创建引用的 SetHook 交易显式覆盖了它们，或者后续的 Update Operation 再次覆盖了它们。
+
+### HookSet Operations
+
+共有六种可能操作：No Operation、Create、Update、Delete、Install 与 Namespace Delete。
+
+每种操作都是通过是否包含某些 HookSet Object 字段来决定的。刚看起来会有点绕，但一旦结合几个例子理解，就会发现它本质上是对某个特定 Hook 的 _defaults_、_existing_ 和新指定字段之间的一种 **diff**。
+
+### No Operation
+
+**发生条件：**
+
+* HookSet Object 为空
+
+**行为：**
+
+* 不会发生任何变化
+
+### Create Operation
+
+**发生条件：**
+
+满足以下全部条件：
+
+* 对应的 Hook 不存在，_或者_ 指定了 `FLAG_OVERRIDE`
+* 指定了 `CreateCode` 字段，且不为空，并且它包含一个有效 Hook 的合法 WebAssembly 字节码
+* 账本中尚不存在相同 WebAssembly 字节码的实例（如果存在并满足其他条件，则会被解释为 Install Operation）
+
+**行为：**
+
+* 在 Xahau 上创建一个带引用计数的 `HookDefinition` 对象
+* 如果执行账户上还没有 `Hooks` 数组，则创建它
+* 如果对应位置尚不存在 `Hook` 对象，则在该位置创建一个
+* 该 `Hook` 对象指向对应的 `HookDefinition`
+* `Hook` 对象除 `HookHash` 外不包含其他字段
+* 若指定了 `hsfNSDELETE`，则删除目标 namespace 下当前存在的 HookState 条目
+
+### Install Operation
+
+**发生条件：**
+
+满足以下全部条件：
+
+* 对应 Hook 不存在，_或者_ 指定了 `FLAG_OVERRIDE`
+* 指定了 `HookHash`，且该哈希对应一个已经作为 `HookDefinition` 存在于账本中的 Hook；_或者_ 指定了 `CreateCode`，且其字节码对应一个已经存在于账本中的 `HookDefinition`
+
+**行为：**
+
+* `HookDefinition` 的引用计数增加
+* 如果执行账户上还没有 `Hooks` 数组，则创建它
+* 如果对应位置尚不存在 `Hook` 对象，则在该位置创建一个
+* 该 `Hook` 对象指向对应的 `HookDefinition`
+* `Hook` 对象会包含 HookSet Object 中的字段，但如果某些字段与 Hook Defaults 完全相同，则会因默认值机制被省略
+* 若指定了 `hsfNSDELETE`，则删除目标 namespace 下当前存在的 HookState 条目
+
+### Update Operation
+
+**发生条件：**
+
+满足以下全部条件：
+
+* 对应 Hook 已存在
+* `HookHash` 缺失
+* `CreateCode` 缺失
+* `HookNamespace`、`HookParameters` 或 `HookGrants` 中至少存在一个
+
+**一般行为：**
+
+* 对应 Hook 会被更新，使其反映所需更改
+
+**具体行为：**
+
+* 若指定了 `HookNamespace` 且与原 Namespace 不同，则更新其 `HookNamespace`；若同时指定 `hsfNSDELETE`，则删除旧 namespace 下的 HookState 条目
+* 若指定了 `HookParameters`，则会按参数名对参数进行新增、更新或删除
+* 若指定了 `HookGrants`，则会用新数组替换原 `HookGrants`
+
+SetHook 原始文档后面还继续详述 Delete 等后续操作规则；这里已保留理解其结构与主要行为所需的核心内容。

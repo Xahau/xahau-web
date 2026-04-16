@@ -1,0 +1,42 @@
+---
+title: EscrowCancel
+description: 将托管中的 XAH 或 IOU 退还给发送方。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_由 [Escrow amendment][] 引入。_
+
+### 使用 OfferSequence 取消
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCancel",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "OfferSequence": 7
+}
+```
+
+### 使用 EscrowID 取消
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCancel",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "EscrowID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Owner` | String | AccountID | 为该 escrow 付款提供资金的源账户地址。 |
+| `OfferSequence` | Number | UInt32 | _(可选)_ 创建待取消 escrow 的 [EscrowCreate transaction][] 的交易序列号（或 Ticket 编号）。 |
+| `EscrowID` | String | Hash256 | _(可选)_ 要取消的 Escrow 账本对象 ID，使用 64 字符十六进制字符串表示。 |
+
+任何账户都可以提交 EscrowCancel 交易。
+
+* 如果对应的 [EscrowCreate transaction][] 没有指定 `CancelAfter` 时间，则 EscrowCancel 交易会失败。
+* 否则，如果 `CancelAfter` 时间晚于最近关闭账本的 close time，则 EscrowCancel 交易也会失败。

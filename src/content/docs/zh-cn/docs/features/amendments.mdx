@@ -1,0 +1,184 @@
+---
+title: Amendments
+---
+Amendments 表示新的功能，或其他对交易处理方式的变更。
+
+Amendment 系统使用共识流程来批准所有会影响 Xahau 交易处理的变更。完整可用的交易处理变更会以 amendment 的形式引入，随后由验证者对这些变更进行投票。如果某个 amendment 在五天内持续获得超过 80% 的支持，它就会通过，并永久应用于之后的所有账本版本。若要禁用一个已经通过的 amendment，则必须再通过一个新的 amendment 来完成。
+
+**注意：** 会改变交易处理逻辑的 bug 修复同样需要通过 amendment。
+
+### Amendment 流程
+
+“Contributing Code to Xahau” 主题介绍了一个 amendment 从想法到在 Xahau 上激活的完整开发流程。
+
+当某个 amendment 的代码被构建进软件发布版本后，启用流程将在 Xahau 网络内部发生。网络会在每一个 _flag_ ledger 检查 amendments 的状态（通常间隔约 15 分钟）。
+
+每第 256 个账本被称为一个 **flag** ledger。flag ledger 本身没有特殊内容，但 amendment 流程会围绕它进行。
+
+1. **Flag Ledger -1：** 当 `xahaud` 验证者发送验证消息时，也会一并提交它们对 amendments 的投票。
+2. **Flag Ledger：** 服务器根据受信任验证者的投票结果进行解释。
+3. **Flag Ledger +1：** 服务器会根据其判断结果插入一笔 `EnableAmendment` pseudo-transaction，并设置对应标志：
+
+    * `tfGotMajority` 标志表示该 amendment 获得了超过 80% 的支持。
+    * `tfLostMajority` 标志表示该 amendment 的支持率下降到了 80% 或以下。
+    * 没有任何标志则表示该 amendment 已启用。
+
+    **注意：** 某个 amendment 可能会在达到启用所需五天门槛的同一账本上又失去 80% 支持。在这种情况下，会为这两种情况都添加 `EnableAmendment` pseudo-transactions，但最终该 amendment 仍会被启用。
+4. **Flag Ledger +2：** 从该账本开始，已启用的 amendments 会对交易生效。
+
+### Amendment 投票
+
+每一个 `xahaud` 版本在编译时都会包含一份已知 amendments 列表，以及实现这些 amendments 的代码。`xahaud` 验证者的运营者可以配置服务器对每个 amendment 的投票立场，并可随时更改。如果运营者没有显式选择投票，服务器将使用源代码中定义的默认投票。
+
+**注意：** 默认投票可能会随着软件版本变更而变化。\[Updated in: rippled 1.8.1]\[]
+
+要启用某个 amendment，它必须持续五天获得超过 80% 的受信任验证者支持。如果支持率降到 80% 以下，该 amendment 会被暂时拒绝，而为期两周的周期会重新开始。在 amendment 被永久启用之前，它可以多次获得多数支持，也可以多次失去多数支持。
+
+如果某个 amendment 的源代码已被移除，但它从未被启用，那么网络会将其视为 **Vetoed**。
+
+### Amendment Blocked 服务器
+
+Amendment blocking 是一种安全机制，用来保护 Xahau 数据的准确性。当某个 amendment 被启用时，如果服务器运行的是较旧版本的 `xahaud`，且不包含该 amendment 的源代码，那么这些服务器将不再理解当前网络规则。与其靠猜测去误解账本数据，这些服务器会进入 **amendment blocked** 状态，并且不能：
+
+* 判断某个账本是否有效。
+* 提交或处理交易。
+* 参与共识流程。
+* 对未来的 amendments 投票。
+
+`xahaud` 服务器的投票配置并不会影响它是否会变成 amendment blocked。`xahaud` 服务器总是跟随网络其余部分已启用的 amendments，因此是否被阻塞只取决于它是否拥有理解这些规则变化所需的代码。这也意味着，如果你把服务器连接到一个启用了不同 amendments 的平行网络，你同样可能变成 amendment blocked。例如，Xahau Testnet 通常会启用实验性 amendments。如果你使用的是最新的生产版本，那么你的服务器很可能并不包含这些实验性 amendments 的代码。
+
+你可以通过升级到最新版本的 `xahaud` 来解除 amendment blocked 状态。
+
+### 退役 Amendments
+
+当 amendments 被启用后，`xahaud` 中仍然会保留 amendment 启用前行为对应的源代码。虽然保留旧代码在某些场景下有实际用途，例如为了验证而重建历史账本结果，但随着时间推移，跟踪 amendments 与遗留代码会不断增加复杂度。
+
+[XRP Ledger Standard 11d](https://github.com/XRPLF/XRPL-Standards/discussions/19) 定义了退役旧 amendments 及其相关旧行为代码的流程。当某个 amendment 在 Mainnet 上启用满两年后，就可以被退役。退役意味着它将无条件成为核心协议的一部分；它不再被单独追踪，也不再被视作 amendment，所有 amendment 启用前的旧代码也会被移除。
+
+### 已知 Amendments
+
+以下 amendments 已经在 Xahau 上实现，或正在启用过程中：
+
+#### 功能型 Amendments
+
+##### XahauGenesis
+
+允许创世账户铸造 XAH，并通过 [GenesisMint transactions](/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn) 进行分发。
+
+##### MultiSign
+
+启用多重签名功能，允许账户要求多重签名后才能执行交易。此 amendment 引入了 [SignerListSet transactions](/docs/protocol-reference/transactions/transaction-types/signerlistset) 和 [SignerList ledger objects](/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list) 以支持多签。
+
+##### DepositAuth
+
+启用入账授权功能，允许账户在接收付款前要求预授权。此 amendment 引入了 [DepositPreauth transactions](/docs/protocol-reference/transactions/transaction-types/depositpreauth) 和 [DepositPreauth ledger objects](/docs/protocol-reference/ledger-data/ledger-objects-types/deposit-pre-auth) 来管理预授权。
+
+##### Hooks
+
+启用 Xahau 上 Hook 智能合约功能的核心 amendment。_(Added by the [Hooks amendment][].)_
+
+##### HooksUpdate1
+
+对 Hooks 系统的更新与改进。
+
+##### Remit
+
+实现了 [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156)。这是一种新的、简单但强大的所见即所得（what-you-see-is-what-you-get）推送支付交易类型。它启用了 [Remit transactions](/docs/protocol-reference/transactions/transaction-types/remit)，允许在同一笔交易中向同一目标地址支付多种货币和 URITokens。该交易会自动为缺失的 trustline 付款创建、自动支付被转移代币所需的 reserve，并在目标账户不存在时自动支付创建目标账户所需成本。你还可以在交易内联铸造一张收据型或奖励型 URIToken，也可以选择通知第三方 Hook 关于该交易。该交易不支持 partial payments，也不做 pathing。
+
+##### ZeroB2M
+
+禁用了从 XRP 到 XAH 的 burn-to-mint 路径。`Import` 交易的正常行为仍然保留，但被烧毁的 XRP 不再被记入。B2M 仍然可用于 key synchronisation 或激活账户，但不能再用于铸造新资产。
+
+##### Remarks
+
+Remarks amendment 允许对象所有者在对象上存储键值对（类似 hook state）。这有点像把文档翻过来，在背面手写一段备注。Remarks 可以是任意内容，并且对不同参与方可能有不同含义。Remarks 还可以被设为不可变。Remarks 会随着对象所有权变化一同转移，可用于实现诸如动态 NFT 之类的新颖场景，也能简化某些原本非常复杂的 hook state 操作。它启用了 [SetRemarks transactions](/docs/protocol-reference/transactions/transaction-types/setremarks)。
+
+##### Touch
+
+该 amendment 确保交易中涉及的所有账户（所有交易利益相关方）即使账户本身没有发生其他变化，也会通过递增一个 “touch counter” 出现在其 metadata 中。其命名来自 Unix 文件工具 `touch`。这能提供更好的审计一致性，并让自动化工具的编程更容易。
+
+##### HookCanEmit
+
+该 amendment 为 HookSet 对象新增了一个字段：`HookCanEmit`。它在语法上与 `HookOn` 字段完全一致，但其作用不是控制哪些交易类型会触发 Hook，而是控制该 Hook 被允许发出哪些交易类型。请注意，它与 `HookOn` 一样采用 active-low 语义，而 `SetHook` 则是 active high。不过，如果该字段缺失，则默认表示该 Hook 可以发出任意交易，包括 `SetHook`。它会向 [HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition) 对象新增 `HookCanEmit` 字段。
+
+##### Clawback
+
+启用 [Clawback transactions](/docs/protocol-reference/transactions/transaction-types/clawback)，允许发行方撤销此前由其账户发行出去的代币。这一功能是从 XRPL 移植过来的。_(Introduced in 2025.7.9-release+1951)_
+
+##### DeepFreeze
+
+启用 trustline 与资产的 deep freeze 功能。这一功能是从 XRPL 移植过来的。_(Introduced in 2025.7.9-release+1951)_
+
+##### IOUIssuerWeakTSH
+
+使 IOU 发行方在某些交易类型中成为 weak transactional stakeholders（TSH）。如果货币发行方选择加入 weak execution，那么当第三方交易触及或提及其货币时，它们的 hooks 也会执行。详见 [Weak and Strong](/docs/hooks/concepts/weak-and-strong)。_(Introduced in 2025.7.9-release+1951)_
+
+##### Cron
+
+通过 [CronSet transactions](/docs/protocol-reference/transactions/transaction-types/cronset) 和 [Cron ledger objects](/docs/protocol-reference/ledger-data/ledger-objects-types/cron) 启用计划式 Hook 执行。这项功能允许 Hooks 安排一系列未来的自我调用（类似 Linux 系统中的 cronjob），从而帮助 Hook 开发者构建复杂的治理结构、游戏等。最大重复次数为 256，不过当重复次数下降到某个期望的最小阈值后，可以再发起新的 `CronSet` 交易继续延长。_(Introduced in 2025.10.27-release+2405)_
+
+##### ExtendedHookState
+
+扩展 Hook 状态管理能力，包括为 [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) 对象新增 `HookStateScale` 字段，用于控制 Hook state 条目何时会变为 stale。这项功能扩展了 Hooks 可存储在其 Hook State（Hooks 的键值系统）中的数据量，使 Hooks 在需要时能拥有更丰富的数据存储。scale 值最高可达 16，它既影响单个 hook state value 的最大大小，也影响该键值对消耗多少个 reserve 单位。scale 为 1（默认）时，每个 Hook State 最多可存储 256 字节，消耗 1 个 reserve；scale 为 4 时，每个 Hook State 最多可存储 1024 字节，消耗 4 个 reserve。需要特别注意的是，即使你的所有 Hook State 都只存了 1 个字节，你仍然要按这个 scale 比率付费。你可以在 Hook 已经存有状态后提高 scale，但不能降低它。若要降低 scale，必须先删除全部 HookState。_(Introduced in 2025.10.27-release+2405)_
+
+#### Bug 修复型 Amendments
+
+##### fixXahauV1
+
+将每个账户的 namespace 数量上限限制为 256。修复了与 URIToken 逻辑相关的多个 bug。确保默认值为 0 的 STAmounts 也会被记录进 metadata。确保取消 offer 时可以使用 `OfferID` 替代 `OfferSequence`。修复了某些 hooks 无法删除的问题。修复了 `ttIMPORT` 所需 quorum 被错误设置得过高的问题。允许账户在一笔 `GenesisMint` 交易中出现多次。当某个 URIToken 被烧毁时，会把其 Issuer 从 strong TSH 改为 weak TSH。确保由 emitted transactions 创建的 escrows 上的 TSHes 能被正确触发。并为所有 txns 增加 hook parameters 大小手续费（每字节 1 drop）。_(Introduced in 2024.9.11-release+985)_
+
+##### fixXahauV2
+
+清理 TSH 逻辑并移除旧的冗余表。为 `sfHookExecutions` 中的每个成员新增信息标志，用于描述 weak、strong 等执行方式。为 `sfHookEmissions` 中的每个成员新增 `sfEmitNonce`，以便更好地区分 emitted txns。还增加了对 emitted txns 的额外一致性检查，以确保它们被放入正确的账本。
+
+##### fixXahauV3
+
+进一步修复 Xahau 协议实现中的问题。该 amendment 旨在确保各种边界场景下的一致性和合理结果。此 amendment 的默认投票设置为：_yes_。如果验证者希望对该 amendment 投反对票，则必须手动将投票改为 no。_(Introduced in 2025.2.6-release+1299)_
+
+##### fixNSDelete
+
+修复 Hook State namespace 删除行为，以确保账本一致性。该 amendment 引入了一个新的 `tes` 代码：`tesPARTIAL`。当交易已成功，但用户应使用新的 sequence number 重新提交交易，以继续完成分摊式工作直到返回 `tesSUCCESS` 时，就会返回 `tesPARTIAL`。
+
+##### fix240819
+
+2024 年 8 月 19 日的 bug 修复 amendment。
+
+##### fixPageCap
+
+修复与 page capacity 限制相关的问题。
+
+##### fix240911
+
+2024 年 9 月 11 日的 bug 修复 amendment。
+
+##### fixFloatDivide
+
+修复 Hooks 中浮点除法运算相关的问题。该 amendment 确保 `float_divide` 函数能正确处理除以零以及其他边界情况。它还修正了 `float_divide` hook API 中的一个小错误。此 amendment 的默认投票设置为：_yes_。详见 [float_divide](/docs/hooks/functions/float/float_divide)。_(Introduced in 2024.11.18-release+1141)_
+
+##### fixReduceImport
+
+修复与 `Import` 交易处理相关的问题。该 amendment 旨在确保各种边界情况下的一致性和合理结果。此 amendment 的默认投票设置为：_yes_。如果验证者希望投反对票，则必须手动将投票改为 no。_(Introduced in 2025.2.6-release+1299)_
+
+##### fix20250131
+
+2025 年 1 月 31 日的 bug 修复 amendment。该 amendment 旨在确保各种边界情况下的一致性和合理结果。此 amendment 的默认投票设置为：_yes_。如果验证者希望投反对票，则必须手动将投票改为 no。_(Introduced in 2025.2.6-release+1299)_
+
+##### fixRewardClaimFlags
+
+修复 reward claim 交易标志相关的问题。
+
+##### fixProvisionalDoubleThreading
+
+修复交易处理过程中 provisional double threading 相关问题。确保在 double threading 场景中，`PreviousTxnID` 和交易 metadata 均能被正确维护。_(Introduced in 2025.7.9-release+1951)_
+
+##### fixInvalidTxFlags
+
+修复当前某些交易允许传入无效 flags 的 bug。虽然这些无效 flags 当前不会产生任何效果，但实际上它们应该返回 malformed error。应用该修复后，无效 flags 将按预期产生 malformed error。_(Introduced in 2025.10.27-release+2405)_
+
+##### fixCronStacking
+
+修复 Cron 交易堆叠行为相关的问题。
+
+### Amendment 状态
+
+如需查看 amendments 的最新状态（已启用、投票中或被 vetoed），请查阅 [xahaud 仓库](https://github.com/Xahau/xahaud)，或使用 `feature` 命令查询正在运行的 `xahaud` 服务器。

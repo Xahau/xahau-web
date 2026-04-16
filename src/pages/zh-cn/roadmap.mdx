@@ -1,0 +1,69 @@
+---
+title: 路线图
+description: 今年，Xahau Network 计划在可扩展性、可访问性、安全性和创新方面迎来多项重要更新
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import PageSection from '../../components/PageSection.astro';
+import roadmap from '../../assets/roadmap_2025.jpeg'
+import { Image } from 'astro:assets';
+
+
+<PageLayout frontmatter={frontmatter} wide="true">
+<PageSection align="center">
+<Image src={roadmap} alt="Xahau 路线图 2025" />
+
+# 2025 上半年
+
+## 1. 项目 “L10K”
+
+提升核心技术效率，将每个账本的交易处理能力提高到 10,000 笔，以进一步增强效率和安全性。
+
+这将成为 Xahau 生态性能上的一个重要里程碑。
+
+## 2. 改进 UDP 监控与 RPC
+
+面向节点运营者的无连接监控和 RPC 功能将提升整个网络的性能和可扩展性。
+
+这使单节点或多节点环境都能实现高效、被动式监控，大幅降低运维开销。
+
+## 3. 新功能最终定版（Remarks、Touch、Blackhole、DataMonitor）
+
+完成这些前沿功能的开发与集成，提升开发者以及终端用户通过开发者构建产品与 Xahau 交互的体验。
+
+## 4. Ledger 硬件钱包对 Xahau 的全面支持
+
+通过兼容 Ledger 硬件钱包，为 Xahau 提供更安全、更顺畅的交易体验，进一步提升全球范围内的可访问性。
+
+## 5. 交易所与出入金通道接入
+
+Xahau 致力于通过交易所和法币出入金平台变得更易获取，从而支持更广泛的参与和生态整合。
+
+## 6. Ledger Live 支持
+
+将 Xahau 集成进 Ledger Live，使用户能够通过这一广受欢迎的产品轻松访问和管理 Xahau。
+
+## 7. 通用可嵌入的 Hook 解释框架
+
+让任何钱包都能轻松集成针对 Hooks 对交易影响的清晰说明（适用于 Web、移动端和桌面端），并为 HookSet 交易提供清晰直观的可视化说明，以促进更容易的采用。
+
+# 2025 下半年
+
+## 8. JavaScript Hooks 实现
+
+在审计通过后，把基于 JavaScript 的 Hooks 和工具链带给全球数千万开发者，使他们能够使用 Xahau 开发高级链上逻辑和可编程交易能力。
+
+## 9. 全面审计与安全检查
+
+完成 2025 年所有主要功能的审计，以证明网络的安全性与稳定性，并在迈向 2026 年时向世界提供可验证的保障。
+
+## 10. 更佳的用户体验
+
+在用户反馈的指导下，Xahau 生态将致力于在所有钱包和应用之间实现更顺畅的集成与使用体验。
+
+## 11. Batch 实现
+
+实现高效的多交易验证，确保交易要么全部执行、要么全部不执行，同时允许服务提供商将特定工作流操作无缝整合进交易流程。
+
+**2025 年将是 Xahau 更易访问、更易使用、更易利用、更易构建的一年，同时也会变得更聪明、更快速、更强大。**
+</PageSection>
+</PageLayout>

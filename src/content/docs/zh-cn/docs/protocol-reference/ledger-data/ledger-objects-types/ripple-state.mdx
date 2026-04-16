@@ -1,0 +1,120 @@
+---
+title: Ripple State
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L70)
+
+`RippleState` 对象类型以单一货币连接两个账户。从概念上讲，一个 `RippleState` 对象表示这两个账户之间的两条 trust lines，每个方向各一条。每个账户都可以修改该 `RippleState` 对象中属于自己一侧的设置，但余额是一个双方共享的单一数值。完全处于默认状态的 trust line 会被视为与不存在的 trust line 等价，因此当 `RippleState` 对象的属性全部回到默认值时，`rippled` 会将其删除。
+
+### High 与 Low 账户
+
+对于任意一对账户及某一种货币，只能存在一个 `RippleState` 对象。由于在 Xahau 中不存在特权账户，`RippleState` 对象会按数值大小对账户地址进行排序，以保证其规范形式。解码后数值较小的地址被视为 “low account”，另一个则是 “high account”。Trust line 的净余额以 low account 的视角存储。
+
+Trust line 中余额的 “issuer” 取决于余额是正数还是负数。如果某个 `RippleState` 对象显示为正余额，则 high account 是 issuer；如果余额为负，则 low account 是 issuer。通常 issuer 的 limit 会设为 0，而另一侧账户则设为正 limit，但这并不绝对可靠，因为 limits 可以在不影响现有余额的前提下发生变化。
+
+### 示例 JSON
+
+```json
+{
+    "Balance": {
+        "currency": "USD",
+        "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+        "value": "-10"
+    },
+    "Flags": 393216,
+    "HighLimit": {
+        "currency": "USD",
+        "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+        "value": "110"
+    },
+    "HighNode": "0000000000000000",
+    "LedgerEntryType": "RippleState",
+    "LowLimit": {
+        "currency": "USD",
+        "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+        "value": "0"
+    },
+    "LowNode": "0000000000000000",
+    "PreviousTxnID": "E3FE6EA3D48F0C2B639448020EA4F03D4F4F8FFDB243A852A0F59177921B4879",
+    "PreviousTxnLgrSeq": 14090896,
+    "LockCount": 1,
+    "LockedBalance": {
+        "currency": "USD",
+        "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+        "value": "10"
+    }
+    "index": "9CA88CDEDFF9252B3DE183CE35B038F57282BC9503CDFA1923EF9A95DF0D6F7B"
+}
+```
+
+### 字段
+
+`RippleState` 对象包含以下字段：
+
+| 字段名 | JSON 类型 | Internal Type | 必填？ | 说明 |
+| ------ | --------- | ------------- | ------ | ---- |
+| `Balance` | Object | Amount | Yes | Trust line 的余额，从 low account 的视角表示。负余额表示 high account 持有由 low account 发行的 tokens。该字段中的 issuer 始终被设为中性值 `ACCOUNT_ONE`。 |
+| `Flags` | Number | UInt32 | Yes | 为该对象启用的一组布尔位选项。 |
+| `HighLimit` | Object | Amount | Yes | High account 在该 trust line 上设置的 limit。`issuer` 是设置该 limit 的 high account 地址。 |
+| `HighNode` | String | UInt64 | Yes | （某些历史账本中会省略）一个提示值，指示如果 high account 的 owner directory 由多页组成，则链接到该对象的是哪一页。 |
+| `HighQualityIn` | Number | UInt32 | No | High account 设置的入站 quality，以 `HighQualityIn:1,000,000,000` 的隐含比率表示。特殊情况下，值 `0` 等价于 10 亿，即 face value。 |
+| `HighQualityOut` | Number | UInt32 | No | High account 设置的出站 quality，以 `HighQualityOut:1,000,000,000` 的隐含比率表示。特殊情况下，值 `0` 等价于 10 亿，即 face value。 |
+| `LedgerEntryType` | String | UInt16 | Yes | 值 `0x0072`，映射为字符串 `RippleState`，表示该对象是一个 RippleState 对象。 |
+| `LowLimit` | Object | Amount | Yes | Low account 在该 trust line 上设置的 limit。`issuer` 是设置该 limit 的 low account 地址。 |
+| `LowNode` | String | UInt64 | Yes | （某些历史账本中会省略）一个提示值，指示如果 low account 的 owner directory 由多页组成，则链接到该对象的是哪一页。 |
+| `LowQualityIn` | Number | UInt32 | No | Low account 设置的入站 quality，以 `LowQualityIn:1,000,000,000` 的隐含比率表示。特殊情况下，值 `0` 等价于 10 亿，即 face value。 |
+| `LowQualityOut` | Number | UInt32 | No | Low account 设置的出站 quality，以 `LowQualityOut:1,000,000,000` 的隐含比率表示。特殊情况下，值 `0` 等价于 10 亿，即 face value。 |
+| `PreviousTxnID` | String | Hash256 | Yes | 最近一次修改该对象的交易的标识性哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | Yes | 包含最近一次修改该对象交易的 \[账本索引]\[Ledger Index]。 |
+| `LockCount` | Number | UInt32 | No | 此 RippleState ledger object 上 lock balances 的总数。 |
+| `LockedBalance` | Object | Amount | No | 某条特定 trustline 上当前被锁定的 token 数量。 |
+
+### RippleState Flags
+
+对于 trust line，有若干选项可以启用或禁用。这些选项可通过 \[TrustSet transaction]\[] 修改。在账本中，flags 以二进制值表示，并可通过按位 OR 组合。账本中的位值，与交易中用于启用或禁用这些 flags 的值并不相同。账本 flags 的名称以 **`lsf`** 开头。
+
+RippleState 对象可拥有以下 flag 值：
+
+| Flag 名称 | 十六进制值 | 十进制值 | 对应的 TrustSet Flag | 说明 |
+| --------- | ---------- | -------- | -------------------- | ---- |
+| `lsfLowReserve` | `0x00010000` | 65536 | (None) | 该 RippleState 对象计入 low account 的 owner reserve。 |
+| `lsfHighReserve` | `0x00020000` | 131072 | (None) | 该 RippleState 对象计入 high account 的 owner reserve。 |
+| `lsfLowAuth` | `0x00040000` | 262144 | `tfSetAuth` | low account 已授权 high account 持有 low account 发行的 tokens。 |
+| `lsfHighAuth` | `0x00080000` | 524288 | `tfSetAuth` | high account 已授权 low account 持有 high account 发行的 tokens。 |
+| `lsfLowNoRipple` | `0x00100000` | 1048576 | `tfSetNoRipple` | low account 已禁用该 trust line 上的 rippling。 |
+| `lsfHighNoRipple` | `0x00200000` | 2097152 | `tfSetNoRipple` | high account 已禁用该 trust line 上的 rippling。 |
+| `lsfLowFreeze` | `0x00400000` | 4194304 | `tfSetFreeze` | low account 已冻结该 trust line，阻止 high account 转移该资产。 |
+| `lsfHighFreeze` | `0x00800000` | 8388608 | `tfSetFreeze` | high account 已冻结该 trust line，阻止 low account 转移该资产。 |
+| `lsfLowDeepFreeze` | `0x02000000` | 33554432 | `tfSetDeepFreeze` | low account 已对该 trust line 执行 deep-freeze，阻止 high account 发送和接收该资产。_(Requires the \[DeepFreeze amendment]\[])_ |
+| `lsfHighDeepFreeze` | `0x04000000` | 67108864 | `tfSetDeepFreeze` | high account 已对该 trust line 执行 deep-freeze，阻止 low account 发送和接收该资产。_(Requires the \[DeepFreeze amendment]\[])_ |
+
+### 对 Owner Reserve 的贡献
+
+如果某个账户修改了一条 trust line，使其进入非默认状态，那么该 trust line 就会计入该账户的 owner reserve。在 RippleState 对象中，`lsfLowReserve` 和 `lsfHighReserve` 标志用于表示由哪一方账户负责 owner reserve。`rippled` 在修改 trust line 时会自动设置这些标志。
+
+会导致 trust line 进入非默认状态的值包括：
+
+| 若满足以下条件，则由 high account 负责... | 若满足以下条件，则由 low account 负责... |
+| ---------------------------------------- | --------------------------------------- |
+| `Balance` 为负（high account 持有该货币） | `Balance` 为正（low account 持有该货币） |
+| `HighLimit` 不为 `0` | `LowLimit` 不为 `0` |
+| `LowQualityIn` 不为 `0` 且不为 `1000000000` | `HighQualityIn` 不为 `0` 且不为 `1000000000` |
+| `LowQualityOut` 不为 `0` 且不为 `1000000000` | `HighQualityOut` 不为 `0` 且不为 `1000000000` |
+| `lsfHighNoRipple` 标志不处于其默认状态 | `lsfLowNoRipple` 标志不处于其默认状态 |
+| `lsfHighFreeze` 标志已启用 | `lsfLowFreeze` 标志已启用 |
+
+**`lsfLowAuth`** 与 **`lsfHighAuth`** 标志不计入默认状态，因为它们一旦启用后就不能被关闭。
+
+两个 No Ripple 标志的默认状态取决于其对应 AccountRoot 对象中的 `lsfDefaultRipple` 标志状态。如果 Default Ripple 被禁用（默认情况），那么账户所有 trust lines 上 `lsfNoRipple` 的默认状态就是 _启用_。如果账户启用了 Default Ripple，则 `lsfNoRipple` 标志在该账户 trust lines 上的默认状态就是 _禁用_（即 rippling 默认开启）。
+
+**注意：** 在 `rippled` 0.27.3 版本（2015 年 3 月 10 日）引入 Default Ripple 标志之前，所有 trust lines 的默认状态都是两侧 No Ripple flags 都被禁用（即 rippling 开启）。
+
+幸运的是，`rippled` 使用延迟求值（lazy evaluation）来计算 owner reserve。这意味着，即使某个账户通过修改 Default Ripple 标志而改变了其全部 trust lines 的默认状态，该账户的 reserve 起初也不会立刻变化。只有当某账户修改某条具体 trust line 时，`rippled` 才会重新评估该条 trust line 是否处于默认状态，以及是否应计入 owner reserve。
+
+### RippleState ID 格式
+
+`RippleState` 对象的 ID 是对以下值按顺序拼接后计算得到的 \[SHA-512Half]\[]：
+
+* RippleState space key（`0x0072`）
+* low account 的 AccountID
+* high account 的 AccountID
+* trust line 所对应货币的 160 位 currency code

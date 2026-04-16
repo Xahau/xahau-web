@@ -1,0 +1,62 @@
+---
+title: float_sum
+description: 将两个 XFL 数值相加
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 计算两个 XFL（xls17）浮点数的和
+* 返回新的 XFL `int64_t`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 对两个浮点表示求和
+* 返回错误码或和的 bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sum (
+    int64_t float1,
+    int64_t float2
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sum(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+<Aside type="tip">
+若要做减法，可以先对第二个浮点数使用 `float_negate`，再调用 `float_sum`。
+</Aside>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>XFL（xls17）封装数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 参数不是合法 XFL<br /><br /><code>OVERFLOW</code><br />- 相加结果过大，无法存入 XFL。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode or bigint | 返回错误码或和的 bigint。 |
+</TabItem>
+</Tabs>

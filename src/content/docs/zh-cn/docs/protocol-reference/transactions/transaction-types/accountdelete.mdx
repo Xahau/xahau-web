@@ -1,0 +1,57 @@
+---
+title: AccountDelete
+description: 如果条件允许，AccountDelete 交易会删除一个账户及其在 Xahau 中拥有的对象，并把剩余 XAH 发送到指定目标账户。
+sidebar:
+  badge:
+    text: Disabled
+    variant: danger
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/DeleteAccount.cpp)]
+
+_由 DeletableAccounts amendment 引入_
+
+<Aside type="danger" title="Not enabled">
+_DeletableAccounts_ amendment 当前尚未启用。
+</Aside>
+
+### 示例
+
+```json
+{
+    "TransactionType": "AccountDelete",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "DestinationTag": 13,
+    "Fee": "2000000",
+    "Sequence": 2470665,
+    "Flags": 2147483648
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Destination` | String - [Address][] | AccountID | 删除发送账户后，用于接收剩余 XAH 的账户地址。该账户必须是在账本中已注资的账户，并且不能是发送账户本身。 |
+| `DestinationTag` | Number | UInt32 | _(可选)_ 任意 destination tag，用于标识已删除账户剩余 XAH 的托管接收者或其他信息。 |
+
+### 特殊交易费用
+
+为进一步抑制账本垃圾，AccountDelete 交易要求远高于平常的交易费用：不是标准最小值 `0.00001 XAH`，而是至少销毁 owner reserve 金额。这样可防止通过大量创建新账户再删除来回收全部 reserve。
+
+只要交易被纳入已验证账本，就会始终收取该费用，即使交易最终未能删除账户也是如此。若要大幅降低账户无法删除时仍支付高额费用的概率，请在提交交易时启用 `fail_hard`。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，AccountDelete 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temDISABLED` | DeletableAccounts amendment 未启用。 |
+| `temDST_IS_SRC` | `Destination` 与交易发送方（`Account` 字段）相同。 |
+| `tecDST_TAG_NEEDED` | `Destination` 账户要求 destination tag，但未提供 `DestinationTag`。 |
+| `tecNO_DST` | `Destination` 账户不是账本中已注资账户。 |
+| `tecNO_PERMISSION` | `Destination` 账户要求 deposit authorization，且发送方未被预授权。 |
+| `tecTOO_SOON` | 发送方的 `Sequence` 过高。交易的 `Sequence` 加 256 必须小于当前 [Ledger Index][]。这样可防止账户被删除后又重新创建时，旧交易被重放。 |
+| `tecHAS_OBLIGATIONS` | 待删除账户仍关联着无法在账本中删除的对象。（包括其他账户创建的对象，例如 escrows，以及某些已铸造的 NFT/URIToken 等。） |
+| `tefTOO_BIG` | 发送账户在账本中关联了超过 1000 个对象。如果先单独删除其中一些对象，重试后交易可能成功。 |

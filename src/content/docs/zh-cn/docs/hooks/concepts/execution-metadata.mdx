@@ -1,0 +1,18 @@
+---
+title: Execution Metadata
+description: 当你的 Hook 运行时，可以期待看到什么。
+---
+
+当 Hooks 执行时，它们会留下关于执行状态的信息。这些信息会出现在 Originating Transaction 的元数据中，作为一个 `sfHookExecutions` 块。该块包含以下字段：
+
+| 字段 | 说明 |
+| --- | --- |
+| `sfHookResult` | Hooks 有三种结束方式：`accept`、`rollback` 与 `error`。这与 `sfHookReturnCode` **不是同一回事** |
+| `sfHookHash` | Hook 在执行时对应的 SHA512H |
+| `sfHookAccount` | 执行该 Hook 的账户 |
+| `sfHookReturnCode` | `accept` 或 `rollback` 的第三个参数所返回的整数 |
+| `sfHookReturnString` | `accept` 或 `rollback` 的前两个参数所返回的字符串（如果有） |
+| `sfHookInstructionCount` | Hook 执行时总共运行的 WebAssembly 指令数量 |
+| `sfHookEmitCount` | Hook 产生的 [Emitted Transactions](/docs/hooks/concepts/emitted-transactions) 总数 |
+| `sfHookExecutionIndex` | 该 Hook 在同一笔 Originating Transaction 的多个 Hook Executions 中的执行顺序 |
+| `sfHookStateChangeCount` | Hook 在执行过程中对 [Hook State](/docs/hooks/concepts/state-management) 造成的状态变更数量 |

@@ -1,0 +1,87 @@
+---
+title: float_compare
+description: 对两个 XFL 浮点数执行比较
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 对两个 XFL 浮点数执行比较
+* 将比较结果作为编码在 `int64_t` 中的布尔值返回
+</TabItem>
+
+<TabItem label="JavaScript">
+* 对两个 XFL 浮点数执行比较
+* 返回错误码或比较结果数值
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_compare (
+    int64_t float1,
+    int64_t float2,
+    uint32_t mode
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_compare(
+    f1: bigint,
+    f2: bigint,
+    mode: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type      | Description |
+| ------ | --------- | ----------- |
+| float1 | int64_t  | 参与比较的第一个 XFL 封装数 |
+| float2 | int64_t  | 参与比较的第二个 XFL 封装数 |
+| mode   | uint32_t | 比较位标志，可用值包括 `COMPARE_EQUAL`、`COMPARE_LESS`、`COMPARE_GREATER` 及其合法组合 |
+
+<Aside type="caution">
+请始终检查函数返回值是否等于 `1`，而不是只检查“非零”，因为负错误码同样属于非零。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description |
+| ---- | ------ | ----------- |
+| f1   | bigint | 第一个待比较浮点数 |
+| f2   | bigint | 第二个待比较浮点数 |
+| mode | number | 比较模式 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <code>0</code> 表示比较逻辑为假。<br /><code>1</code> 表示比较逻辑为真。<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 某个参数不是合法 XFL 封装数<br /><br /><code>INVALID_ARGUMENT</code><br />- 比较标志组合无效。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode or number | 返回错误码或比较结果。 |
+</TabItem>
+</Tabs>

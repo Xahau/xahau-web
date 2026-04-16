@@ -1,0 +1,31 @@
+---
+title: 账本头
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/ledger/ReadView.h#L71)
+
+每一个账本版本都有一个唯一的 header，用来描述其内容。你可以通过 \[ledger method]\[] 查询账本的 header 信息。账本头部包含以下内容：
+
+| 字段 | JSON 类型 | \[Internal Type]\[] | 说明 |
+| ---- | --------- | ------------------- | ---- |
+| `ledger_index` | String | UInt32 | 该账本的 \[ledger index]\[Ledger Index]。有些 API 方法将它显示为带引号的整数，有些则显示为原生 JSON number。 |
+| `ledger_hash` | String | Hash256 | 该账本版本的 \[SHA-512Half]\[]。它作为该账本及其全部内容的唯一标识符。 |
+| `account_hash` | String | Hash256 | 该账本状态树信息的 \[SHA-512Half]\[]。 |
+| `close_time` | Number | UInt32 | 该账本版本关闭的大致时间，以自 Ripple Epoch（2000-01-01 00:00:00）以来的秒数表示。该值会依据 `close_time_resolution` 进行舍入。 |
+| `closed` | Boolean | Boolean | 若为 `true`，表示该账本版本不再接受新交易。（不过如果该账本尚未被验证，它仍可能被另一份包含不同交易集的账本版本替换。） |
+| `parent_hash` | String | Hash256 | 直接前驱账本版本的 `ledger_hash` 值。如果上一账本索引存在不同版本，这个值指明当前账本是从哪一个派生而来。 |
+| `total_coins` | String | UInt64 | 账本中由账户持有的 \[drops of XAH]\[] 总数。这个值不包含已被交易费用销毁的 XAH。实际流通中的 XAH 更少，因为有些账户是 “black holes”，其密钥无人知晓。 |
+| `transaction_hash` | String | Hash256 | 本账本中包含的交易的 \[SHA-512Half]\[]。 |
+| `close_time_resolution` | Number | Uint8 | 位于 \[2,120] 范围内的整数，表示 `close_time` 可能被舍入的最大秒数。 |
+| `closeFlags` | (Omitted) | UInt8 | 与该账本关闭过程有关的一组位标志。 |
+
+### 账本索引
+
+### Close Flags
+
+账本目前只为 `closeFlags` 定义了一个标志：**`sLCF_NoConsensusTime`**（值为 `1`）。如果该标志启用，意味着验证者对该账本的 close time 并不一致，但在其他方面构建出的账本完全相同，因此它们是在 “同意彼此不同意 close time” 的情况下宣布达成共识。在这种情况下，账本的官方 `close_time` 值会被设为其父账本 `close_time` 加 1 秒。
+
+`closeFlags` 字段不会包含在账本的任何 JSON 表示中，但会包含在账本的二进制表示中，并且是决定账本哈希的字段之一。
+
+### 另见
+
+有关账本基础知识，请参见 Ledgers。

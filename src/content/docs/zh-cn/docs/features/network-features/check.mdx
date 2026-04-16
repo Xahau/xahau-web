@@ -1,0 +1,26 @@
+---
+title: Check
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Xahau 网络中的 Check 功能是一种延迟支付系统，支持在账本中创建、取消和兑现支票。该功能旨在促进参与方之间安全且高效的交易。
+
+### 交易类型
+
+#### CheckCreate
+
+`CheckCreate` 交易用于在账本中创建一个 Check 对象。它表示一笔延后支付，目标接收方之后可以对其进行兑现。
+
+<LinkCard title="CheckCreate" href="/docs/protocol-reference/transactions/transaction-types/checkcreate" />
+
+#### CheckCancel
+
+`CheckCancel` 交易用于取消一张已经创建但尚未兑现的 Check。这使得发送方在必要时可以阻止该笔支付继续执行。
+
+<LinkCard title="CheckCancel" href="/docs/protocol-reference/transactions/transaction-types/checkcancel" />
+
+#### CheckCash
+
+`CheckCash` 交易用于兑现一张已经创建的 Check。这使得接收方能够收到此前被延后支付的资金。
+
+<LinkCard title="CheckCash" href="/docs/protocol-reference/transactions/transaction-types/checkcash" />

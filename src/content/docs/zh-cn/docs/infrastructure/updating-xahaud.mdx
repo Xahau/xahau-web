@@ -1,0 +1,58 @@
+---
+title: 更新 xahaud
+---
+更新 `xahaud` 的流程取决于你使用的安装方式，不过三种方式都依赖发布在 [https://build.xahau.tech](https://build.xahau.tech) 上的版本。在更新 validator、hub 或其他“关键”基础设施时，请在重启服务器安装更新前先检查网络健康状态。虽然可以通过 `crontab` 项和更新脚本自动化更新流程，但并不鼓励管理员这样做，因为自动更新可能会在网络不稳定时触发重启。相应地，由人工值守可以让运维人员确认更新是否成功，从而尽量减少停机时间。
+
+## 备份
+
+用户应始终对以下内容保留备份：
+
+1. 主配置文件： `xahaud.cfg`
+    - 位置取决于安装方式。
+2. 受信任验证者文件： `validators-xahau.txt`
+    - 路径在 `xahaud.cfg` 中指定。
+3. 服务器身份凭据： `wallet.db`
+    - 位于 `xahaud.cfg` 所定义的数据库目录中。
+4. Validators 必须将其 validation private key 备份到安全的离线位置。
+
+## 更新 Docker 容器
+
+在 Docker 容器中更新 `xahaud`，意味着将当前运行的二进制替换为从 [https://build.xahau.tech](https://build.xahau.tech) 下载的新版本。这可以通过替换容器内的 `xahaud` 二进制文件，或者直接更新整个容器来完成。
+<br></br>
+若要更新正在运行的 Docker 容器中的 `xahaud` 二进制：
+
+1. 下载 [脚本](https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh)： `wget https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh`
+2. 编辑脚本，并将第一行改为你希望安装的 [发布版本](https://build.xahau.tech)。
+3. 运行脚本： `bash ./update.sh`
+4. 验证 `xahaud` 是否正在运行： `docker exec xahaud-[mainnet/testnet] xahaud server_info`
+<br></br>
+若要替换当前 Docker 镜像为新版本，并且不覆盖数据库与配置文件（这些通常会通过 `.gitignore` 被忽略）：
+
+1. 进入仓库目录： `cd [/path/to/docker-repo]`
+2. 更新到最新版本： `git pull`
+3. 列出正在运行的 Docker 容器，并记下 `xahaud` 容器名： `docker ps`
+4. 停止旧的 `xahaud` 实例： `docker stop xahaud-[mainnet/testnet]`
+5. 删除旧实例： `docker rm xahaud-[mainnet/testnet]`
+6. 启动新实例： `./build && ./up`
+
+## 更新本地安装
+
+若要更新本地安装的 `xahaud`，只需用新二进制替换当前二进制：
+
+1. 从以下地址下载新二进制： [https://build.xahau.tech](https://build.xahau.tech)
+2. 将新二进制标记为可执行： `chmod +x [/path/to/download]`
+3. 停止当前运行的 `xahaud` 实例： `/opt/xahaud/bin/xahaud stop`
+4. 用新文件替换旧二进制： `mv [/path/to/download] /opt/xahaud/bin/xahaud`
+5. 启动 `xahaud`： `systemctl start xahaud`
+6. 验证 `xahaud` 是否正在运行： `/opt/xahaud/bin/xahaud server_info`
+<br></br>
+另有一个[脚本](https://gist.githubusercontent.com/WietseWind/9480a4fc95e904e54524406005c8c963/raw/2b200fdc2e5b471ae4f6625674aff1765d63e744/update.sh)可以自动化以上步骤。
+
+## 更新二进制文件
+
+更新 `xahaud` 二进制文件本质上与最初安装说明相同：
+
+1. 删除当前运行版本： `rm [/path/to/xahaud]`
+2. 下载新版本： [https://build.xahau.tech](https://build.xahau.tech)
+3. 将下载文件标记为可执行： `chmod 500 [/path/to/xahaud]`
+4. 启动 `xahaud`： `./[path/to/xahud] --net --conf [/path/to/xahaud.cfg]`

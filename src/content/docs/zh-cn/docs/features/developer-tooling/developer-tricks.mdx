@@ -1,0 +1,29 @@
+---
+title: 开发者技巧
+---
+## Wildcard signing
+
+为了更方便地进行测试和重放，可以将 `NetworkID` 设为 `65535`（配置项：`[network_id]`），以禁用签名校验。
+
+Added: [https://github.com/Xahau/xahaud/pull/201](https://github.com/Xahau/xahaud/pull/201)
+
+## Server Definitions
+
+可以很方便地从公共节点获取 server definitions。这些 definitions 包含 binary codec 信息，以及交易序列化与反序列化所需的其他网络特定数据。
+
+### Mainnet
+- [`https://xahau.network/server_definitions.json`](https://xahau.network/server_definitions.json)
+
+### Testnet
+- [`https://xahau-test.net/server_definitions.json`](https://xahau-test.net/server_definitions.json)
+
+### JSHooks-Testnet
+- [`https://jshooks.xahau-test.net/server_definitions.json`](https://jshooks.xahau-test.net/server_definitions.json)
+
+这些 server definitions 对以下场景至关重要：
+- Binary codec 操作
+- 交易序列化
+- 字段类型定义
+- 网络特定常量
+
+你可以在自己的应用中使用这些 definitions，以正确地为 Xahau 网络编码和解码交易。

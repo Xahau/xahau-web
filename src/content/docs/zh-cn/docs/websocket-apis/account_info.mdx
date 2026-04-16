@@ -1,0 +1,44 @@
+---
+title: account_info
+---
+### 新特性
+
+`account_info` API 现在除了原有行为外，还会额外提供：
+
+* 当前至少被一个 Hook State Object 使用的命名空间列表
+* 该账户拥有的全部 Hook State Object 总数
+
+示例查询：
+
+JSON
+
+```json
+{
+  "command": "account_info",
+  "account": "raaFre81618XegCrzTzVotAmarBcqNSAvK"
+}
+```
+
+例如：
+
+JSON
+
+```json
+{
+  "result": {
+    "account_data": {
+      "Account": "raaFre81618XegCrzTzVotAmarBcqNSAvK",
+      ...,
+      "HookNamespaces": [
+        "01EAF09326B4911554384121FF56FA8FECC215FDDE2EC35D9E59F2C53EC665A0"
+      ],
+      "HookStateCount": 49,
+      ...
+    },
+    "ledger_current_index": 5555046,
+    "validated": false
+  },
+  "status": "success",
+  "type": "response"
+}
+```

@@ -1,0 +1,24 @@
+---
+title: Base 58 编码
+---
+Xahau APIs 经常使用带校验和的 “base58” 编码（有时称为 “Base58Check”）来表示账户地址及其他与加密密钥有关的值。这种编码与[比特币地址所使用的方式](https://en.bitcoin.it/wiki/Base58Check_encoding)相同，只是 Xahau 使用的是以下字典： `rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz`。
+
+Xahau 在编码前，会为不同类型的值加上特定的 8 位前缀，以区分不同数据类型。配合 Xahau 的 base58 字典字符排列后，不同编码类型的 base58 表示通常会以特定字母开头。
+
+下表列出了 Xahau 使用的所有编码：
+
+| 数据类型 | 起始字符 | 类型前缀 | 内容大小¹ | 最大字符数 |
+| -------- | -------- | -------- | --------- | ---------- |
+| 账户地址 | r | `0x00` | 20 bytes | 35 |
+| 账户公钥 | a | `0x23` | 33 bytes | 53 |
+| Seed 值（secret key） | s | `0x21` | 16 bytes | 29 |
+| Validation 公钥或节点公钥 | n | `0x1C` | 33 bytes | 53 |
+
+¹ 内容大小不包括 1 字节类型前缀。
+
+### 另见
+
+* Address Encoding - 地址编码的详细信息
+* Cryptographic Keys - Xahau 中加密密钥的类型及其用途
+* \[wallet_propose Reference]\[wallet_propose method] - 用于生成账户密钥的 API 方法
+* \[validation_create Reference]\[validation_create method] - 用于生成 validator 密钥的 API 方法

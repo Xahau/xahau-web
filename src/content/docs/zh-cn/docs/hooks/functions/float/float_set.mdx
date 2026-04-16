@@ -1,0 +1,84 @@
+---
+title: float_set
+description: 用指数和尾数创建浮点数
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 根据提供的指数和尾数计算 XFL（xls17）浮点数
+* 返回对应 XFL `int64_t`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 为浮点表示设置指数与尾数
+* 返回错误码或新的 XFL bigint
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_set (
+    int32_t exponent,
+    int64_t mantissa
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_set(exponent: number, mantissa: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type     | Description |
+| -------- | -------- | ----------- |
+| exponent | int32_t | 范围在 `-96` 到 `80` 之间的指数 |
+| mantissa | int64_t | 尾数；若为负，则该浮点数为负数 |
+
+<Aside type="caution">
+如果尾数位数大于或小于 16 位十进制数，指数会自动调整以保证尾数恰为 16 位，这在某些情况下会触发 `INVALID_FLOAT`。
+</Aside>
+
+<Aside type="tip" title="特殊情况">
+XFL 的 canonical 0 在封装数中也是 0，因此无需调用 `float_set(0,0);`
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name     | Type   | Description |
+| -------- | ------ | ----------- |
+| exponent | bigint | 范围在 `-96` 到 `80` 之间的指数 |
+| mantissa | bigint | 尾数；若为负，则该浮点数为负数 |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>XFL（xls17）封装数<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 将尾数调整到 16 位时发生下溢或上溢</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| ErrorCode \| bigint | 返回错误码或 XFL（xls17）封装数。 |
+</TabItem>
+</Tabs>

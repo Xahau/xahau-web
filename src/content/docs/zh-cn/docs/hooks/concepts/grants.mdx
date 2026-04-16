@@ -1,0 +1,92 @@
+---
+title: Grants
+description: Hook Grants
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+大多数 Hook 开发者很少需要使用 HookGrants；在向外部 Hooks 或外部账户授予状态修改权限时，应格外谨慎。
+
+虽然 HookGrant 不能被直接用来盗取资金，但对某个 Hook 的 State 进行有意的外部修改，可能会导致该 Hook 以非预期方式运行，而在某些情况下，这种非预期行为可能间接造成损失。
+
+如果你认为自己需要使用 Grant，请先重新检查设计，确认这是否真的是必需的。
+</Aside>
+
+### Grants
+
+Grant 为 Hook Installer 提供了一种方式，用来把 [State Management](/docs/hooks/concepts/state-management) 权限授予其他 Xahau 账户上的 _foreign_ Hook。
+
+[SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 可以在其 `Hooks` 数组中任意 `Hook` 对象内指定一个 `HookGrants` 数组。该数组包含一个或多个 `HookGrant` 对象（最多 8 个）。
+
+与 [Parameters](/docs/hooks/concepts/parameters) 不同，`HookGrants` 数组总是会完全按照 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 中提供的内容被设置。因此，如果你想更新某一个 `HookGrant`，同时保留原先其他多个 `HookGrant`，你必须先获取旧的 `HookGrants` 数组，修改后再通过一次 [_Update_ Operation](/docs/hooks/concepts/sethook-transaction) 重新提交整个数组。
+
+如果想删除所有 Grants，只需提交一个空的 `HookGrants` 数组。
+
+<Aside type="caution">
+与 [Parameters](/docs/hooks/concepts/parameters) 不同，`HookGrants` 数组总是严格按 [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) 中提供的内容整体设置。
+</Aside>
+
+Grant 允许某个外部 XRPL/Xahau 账户或 Hook，修改为其定义该 Grant 的特定 Hook 所属 namespace 内的 Hook State。
+
+一个 HookGrant 至少必须指定：
+
+* `HookHash`
+
+并且也可以额外指定一个账户：
+
+* `Authorize`
+
+只有由 `HookHash` 指定的那个 Hook，才可以修改该 HookGrant 所属 Hook 的 namespace 内的 Hook State。如果还指定了 `Authorize`，那么权限会进一步收紧：只有当该 `HookHash` 对应的 Hook 安装在 `Authorize` 指定账户上运行时，才拥有该权限。
+
+<Aside type="tip">
+Grants 只适用于外部 Hooks，不会限制账户自身已安装 Hooks 对该账户 Hook State 的正常操作。
+</Aside>
+
+### 示例
+
+```json
+Account: "rALicebv3hMYNBWtu1VEEWkToArgYsYERs",
+TransactionType: "SetHook",
+Hooks:
+[
+    {
+        Hook: {
+            ...,
+            HookNamespace: "3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8",
+            HookGrants:
+            [
+                {
+                    HookGrant:
+                    {
+                        HookHash:  "78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8"
+                    },
+                    HookGrant:
+                    {
+                        Authorize: "rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9",
+                        HookHash:  "A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6"
+                    }
+                }
+            ]
+        }
+    }
+],
+...
+```
+
+上面的 _第一个 grant_ 允许：
+
+* 任何代码哈希为 `78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8` 的 Hook 实例
+* 在 **任意账户** 上执行时
+* 修改账户 `rALicebv3hMYNBWtu1VEEWkToArgYsYERs` 的 Hook State
+* 其范围限定在 Namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8` 内
+
+上面的 _第二个 grant_ 允许：
+
+* 任何代码哈希为 `A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6` 的 Hook 实例
+* 但仅当它运行在账户 `rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9` 上时
+* 修改账户 `rALicebv3hMYNBWtu1VEEWkToArgYsYERs` 的 Hook State
+* 同样限定在 Namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8` 内
+
+### 使用 Grant
+
+若要使用 grant，Hook 可以通过调用 [state_foreign_set](/docs/hooks/functions/state/state_foreign_set) 来修改外部账户上的 State 对象。

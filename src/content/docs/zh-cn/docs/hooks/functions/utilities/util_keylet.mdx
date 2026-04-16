@@ -1,0 +1,65 @@
+---
+title: util_keylet
+description: 计算指定类型的序列化 keylet
+---
+import { Tabs, TabItem, Aside, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/slots-and-keylets">Slots 与 Keylets</LinkButton>
+
+<Aside type="tip">
+并非所有 Keylet 类型都受此工具函数支持。如果你需要其他 Keylet 类型，可以结合 [util_sha512h](https://xrpl-hooks.readme.io/reference/util_sha512h) 与 [Indexes.cpp](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/Indexes.cpp) 自行推导。也可参考额外的 [Keylet 工具](https://richardah.github.io/xrpl-keylet-tools/)。
+</Aside>
+
+### 行为
+
+* 根据 `keylet_type` 以及 `a` 到 `f` 参数计算 keylet
+* 将序列化后的 34 字节 keylet 写入 `write_ptr`
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_keylet (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t keylet_type,
+    uint32_t a,
+    uint32_t b,
+    uint32_t c,
+    uint32_t d,
+    uint32_t e,
+    uint32_t f
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_keylet(
+    keylet_type: number,
+    accountid: ByteArray | HexString,
+    statekey: ByteArray | HexString,
+    namespace: ByteArray | HexString
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入的字节数，应始终为 34。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>INVALID_ARGUMENT</code><br />- 调用方式不符合上表规则。<br /><br /><code>TOO_SMALL</code><br />- 写入缓冲区小于 34 字节。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 创建失败时返回 ErrorCode，成功时返回生成的 keylet 字节数组。 |
+</TabItem>
+</Tabs>

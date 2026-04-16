@@ -1,0 +1,20 @@
+---
+title: Balance Rewards
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Balance Rewards 功能是 Xahau 网络的一个独特特性，它允许用户基于账户余额累积并领取奖励。该功能通过原生代码（BalanceRewards Amendment）与 hook 代码（Genesis 账户上的 Reward Hook）共同实现。
+
+### 交易类型
+
+#### ClaimReward
+
+`ClaimReward` 交易允许账户领取其已经累积的奖励。奖励可以由账户所有者领取，也可以由指定 issuer 领取。账户还可以通过把 Flags 字段设为 `1` 来选择退出奖励机制。
+
+<LinkCard title="ClaimReward" href="/docs/protocol-reference/transactions/transaction-types/claimreward" />
+
+#### GenesisMint
+
+`GenesisMint` 交易类型同样与 Balance Rewards 功能相关。这是一种 Emitted transaction，会在用户领取 balance rewards 时由 Reward Hook 执行。
+
+<LinkCard title="GenesisMint - (Emitted Txn)" href="/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn" />

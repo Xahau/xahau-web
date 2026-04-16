@@ -1,0 +1,123 @@
+---
+title: sto_emplace
+description: 将一个字段按规范位置插入现有 STObject
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">序列化对象</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 解析 `sread_ptr` 指向的 STObject `S`（源对象）
+* 解析 `fread_ptr` 指向的 STObject `F`（待插入对象）
+* 向 `write_ptr` 写入新的 STObject，并将 `F` 放入 `S` 中 `field_id` 的规范位置
+
+<Aside type="caution" title="Field ID 编码">
+`sto_` API 接收的 `field_id` 编码方式为：`(type << 16U) + field`\
+因此 type 1、field 2 会写作 `0x10002U`。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 通过参数 `sto` 提供 STO 对象
+* 通过参数 `field_bytes` 提供要添加字段的字节内容
+* 通过参数 `field_id` 提供字段 ID
+* 成功时返回更新后的二进制账本数据格式 STO 对象，失败时返回错误码
+</TabItem>
+</Tabs>
+
+### 定义
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_emplace (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t fread_ptr,
+    uint32_t fread_len,
+    uint32_t field_id
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_emplace(
+    sto: ByteArray | HexString,
+    field_bytes: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t tx_out[1024];
+
+int64_t tx_len =
+    sto_emplace(tx_out, sizeof(tx_out),
+                tx_in, tx_len,
+                sequence_field, 5, sfSequence);
+
+if (tx_len <= 0)
+    rollback("Emplacing failed.", 17, 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_emplace(tx_in, sequence_field, sfSequence)
+if (typeof tx_out === 'number')
+    rollback("Emplacing failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 用于写入修改后 STObject 的缓冲区 |
+| write_len | uint32_t | 输出缓冲区长度 |
+| sread_ptr | uint32_t | 用于读取源 STObject 的缓冲区 |
+| sread_len | uint32_t | 源对象长度 |
+| fread_ptr | uint32_t | 用于读取待插入字段的缓冲区 |
+| fread_len | uint32_t | 待插入字段长度 |
+| field_id  | uint32_t | 用于插入的 `sf` 代码（位置）。如果源对象中已存在该字段，则会覆盖；否则会插入 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name         | Type                   | Description |
+| ------------ | ---------------------- | ----------- |
+| sto          | ByteArray \| HexString | 要添加字段的 STO 对象（二进制账本数据） |
+| field_bytes | ByteArray \| HexString | 要添加字段对应的字节 |
+| field_id    | number                 | 要添加字段的 ID |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>写入 <code>write_ptr</code> 的字节数<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_SMALL</code><br />- 输出缓冲区至少必须和源对象加插入字段一样大，即使该字段只是覆盖。<br /><br /><code>TOO_BIG</code><br />- 待插入字段过大<br /><br /><code>PARSE_ERROR</code><br />- 提供的 STObject 格式错误，或并非 STObject。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>返回更新后的二进制账本数据格式 STO 对象，或返回错误码。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

@@ -1,0 +1,44 @@
+---
+title: 账户管理
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Xahau 网络中的账户管理功能是帮助用户有效管理账户的重要组成部分。
+
+这部分包含多种交易类型，使用户能够对自己的账户执行不同操作。
+
+### 交易类型
+
+#### AccountSet
+
+`AccountSet` 交易类型允许用户修改其账户属性。这包括 transfer rate、账户标志等设置。
+
+<LinkCard title="AccountSet" href="/docs/protocol-reference/transactions/transaction-types/accountset" />
+
+#### AccountDelete
+
+`AccountDelete` 交易类型允许用户从 Xahau 网络中删除自己的账户。此操作不可逆，因此应谨慎使用。
+
+<LinkCard title="AccountDelete" href="/docs/protocol-reference/transactions/transaction-types/accountdelete" />
+
+#### SetRegularKey
+
+`SetRegularKey` 交易类型允许用户为账户设置一对 regular key。该密钥对可以作为主密钥对的替代，用于签名交易。
+
+<LinkCard title="SetRegularKey" href="/docs/protocol-reference/transactions/transaction-types/setregularkey" />
+
+#### SignerListSet
+
+`SignerListSet` 交易类型允许用户为账户设置签名者列表。它特别适用于多重签名账户，即需要多个参与方共同签署交易的场景。
+
+<LinkCard title="SignerListSet" href="/docs/protocol-reference/transactions/transaction-types/signerlistset" />
+
+#### Import
+
+`Import` 交易类型用于从其他网络导入交易。这个功能对需要为资产持有人导入交易的发行方尤其有用。建议在尝试导入交易前，先完成账户的 key 配置。
+
+请注意，面向发行方的导入过程涉及特定交易类型，并且需要谨慎配置。务必确保 hooks 已正确设置，并且这些交易对于目标操作是有效的。
+
+<LinkCard title="Import" href="/docs/protocol-reference/transactions/transaction-types/import" />
+
+这些交易类型为用户提供了一整套用于管理 Xahau 网络账户的工具。与所有操作一样，用户在使用前都应确保理解每种交易类型所带来的影响。

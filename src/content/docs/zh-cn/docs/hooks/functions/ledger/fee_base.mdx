@@ -1,0 +1,66 @@
+---
+title: fee_base
+description: 获取当前账本的 fee base
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/hook-fees">Hook Fees</LinkButton>
+
+### 行为
+
+* 返回当前账本的 fee base
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee_base();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function fee_base(): number
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee =
+    fee_base();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const fee = fee_base()
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+此 API 无参数。
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | 当前账本的 fee base |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description |
+| ------ | ----------- |
+| number | 当前账本的 fee base |
+</TabItem>
+</Tabs>

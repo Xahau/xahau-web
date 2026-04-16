@@ -1,0 +1,176 @@
+---
+title: SetHook
+description: SetHook 交易允许用户在 Xahau 中安装、更新、删除或执行其他 Hook 操作。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetHook.cpp)]
+
+_(由 [Hooks amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "TransactionType": "SetHook",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 0,
+    "Hooks": [
+        {
+            "Hook": {
+                "HookHash": "610F33B8EBF7EC795F822A454FB852156AEFE50BE0CB8326338A81CD74801864",
+                "CreateCode": "697066733A2F2F4445414442454546697066733A2F2F44454144424545467878",
+                "HookGrants": [],
+                "HookNamespace": "0000000000000000000000000000000000000000000000000000000000000000",
+                "HookParameters": [],
+                "HookOn": "0000000000000000000000000000000000000000000000000000000000000000",
+                "HookApiVersion": 0,
+                "Flags": 0
+            }
+        }
+    ]
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 将拥有该 hook 的账户地址。 |
+| `Hooks` | Array | Array | 要设置的 hooks 数组。 |
+
+### 特殊交易费用
+
+SetHook 交易具有标准交易费用，也就是所有交易都需要满足的最低交易成本。
+
+### 错误场景
+
+除所有交易都可能出现的错误外，SetHook 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `tecDUPLICATE` | 已存在相同哈希的 hook。 |
+| `tecDIR_FULL` | 所有者目录已满，无法容纳新的 hook。 |
+| `terNO_ACCOUNT` | 发送账户不存在。 |
+| `terNO_HOOK` | 不存在指定哈希的 hook。 |
+| `temDISABLED` | Hooks amendment 未启用。 |
+| `temMALFORMED` | 交易格式错误。 |
+
+### SetHook 操作
+
+共有六种可能的操作：No Operation、Create、Update、Delete、Install 与 Namespace Delete。
+
+每种操作都通过是否包含某些 HookSet Object 字段来指定。刚开始看可能会有些绕，但通过几个例子后会比较直观；本质上，HookSet 操作是一种针对特定 Hook 的 **diff**，比较的是该 Hook 的 _defaults_、_existing_ 与新指定字段之间的差异。
+
+下面各小节解释了如何实现不同类型的操作。
+
+### No Operation
+
+**发生条件：**
+
+* HookSet Object 为空
+
+**行为：**
+
+* 不产生任何变化。
+
+**示例：**
+
+```json
+{
+    "Account": "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    "TransactionType": "SetHook",
+    "Fee": "2000000",
+    "Hooks": [
+        {
+            "Hook": {}
+        }
+    ]
+}
+```
+
+### Create Operation
+
+**发生条件：**
+
+满足以下全部条件：
+
+* 对应的 Hook 不存在，_或者_ 指定了 `FLAG_OVERRIDE`
+* 指定了 `CreateCode` 字段，且该字段非空，并包含有效 Hook 的有效 WebAssembly 字节码
+* 账本上尚不存在完全相同的 WebAssembly 字节码实例（如果已存在且其他条件也满足，则会被解释为 Install Operation）
+
+**行为：**
+
+* 在 XRPL 上创建一个带引用计数的 `HookDefinition` 对象，其中包含 HookSet Object 中的字段；所有已指定字段（Namespace、Parameters、HookOn）都会成为默认值（但 Grants 不会）
+* 如果执行账户上尚不存在 `Hooks` 数组，则创建一个
+* 如果对应位置尚不存在 `Hook` 对象，则在该位置创建一个
+* 该 `Hook` 对象指向新建的 `HookDefinition`
+* `Hook` 对象本身除 `HookHash` 外不包含其他字段，`HookHash` 指向新建的 `HookDefinition`
+* 如果指定了 `hsfNSDELETE` 标志，则会删除目标命名空间中当前存在的任何 HookState 条目
+
+### Install Operation
+
+**发生条件：**
+
+满足以下全部条件：
+
+* 对应的 Hook 不存在，_或者_ 指定了 `FLAG_OVERRIDE`
+* 指定了 `HookHash` 字段且非空，并且该哈希对应的 Hook 已作为 `HookDefinition` 存在于账本中；_或者_ 指定了 `CreateCode` 字段且非空，并且其 WebAssembly 字节码对应的有效 hook 已作为 `HookDefinition` 存在于账本中
+
+**行为：**
+
+* `HookDefinition` 对象的引用计数增加
+* 如果执行账户上尚不存在 `Hooks` 数组，则创建一个
+* 如果对应位置尚不存在 `Hook` 对象，则在该位置创建一个
+* 该 `Hook` 对象指向对应的 `HookDefinition`
+* `Hook` 对象包含 HookSet Object 中的所有字段，但以下情况除外：
+* 如果某个字段或字段中的键值对与 `HookDefinition` 上设定的 Hook Defaults 相同，则因默认值机制而省略
+* 如果指定了 `hsfNSDELETE` 标志，则删除目标命名空间中当前存在的任何 HookState 条目
+
+### Update Operation
+
+**发生条件：**
+
+满足以下全部条件：
+
+* 对应的 Hook 已存在
+* `HookHash` 缺失
+* `CreateCode` 缺失
+* `HookNamespace`、`HookParameters`、`HookGrants` 中至少存在一个
+
+**一般行为：**
+
+* 更新对应的 Hook，使其反映所需更改。
+
+**具体行为：**
+
+如果指定了 `HookNamespace` 且其值与对应 Hook 当前 Namespace 不同：
+
+* 更新对应 Hook 的 `HookNamespace`
+* 如果指定了 `hsfNSDELETE` 标志，则删除旧命名空间中的全部 HookState 条目
+
+如果指定了 `HookParameters`，则对每个条目：
+
+* 若存在 `HookParameterName` 但缺少 `HookParameterValue`，且对应 Hook 的 Parameters（显式或通过默认值）中包含该 `HookParameterName`，则该参数会在对应 Hook 上被标记为删除
+* 若同时存在 `HookParameterName` 与 `HookParameterValue`，则更新对应 Hook 的 Parameters，使其包含新的或更新后的参数
+
+如果指定了 `HookGrants`：
+
+* 对应 Hook 的 `HookGrants` 数组会被该数组替换
+
+### Delete Operation
+
+**发生条件：**
+
+满足以下全部条件：
+
+* 对应的 Hook 已存在
+* 指定了 `hsfOVERRIDE`
+* 可选地还可同时指定 `hsfNSDELETE`
+* `HookHash` 缺失
+* `CreateCode` 存在但为空
+
+**行为：**
+
+* `HookDefinition` 对象的引用计数减少
+* 若引用计数变为零，则从账本中移除该 `HookDefinition`
+* 删除对应 Hook 位置上的 `Hook` 对象，留下一个空位
+* 若指定 `hsfNSDELETE`，则该命名空间及其全部 HookState 条目也会被删除
+
+SetHook 文档原文后续还包含更长的示例与细节说明；此处保留了核心操作语义，便于中文参考快速使用。

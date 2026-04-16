@@ -1,0 +1,41 @@
+---
+title: Namespaces
+description: 使用正确的 namespace 来避免 state 相互覆盖
+---
+### Namespaces
+
+为了避免安装在同一账户上的两个或更多 Hooks 意外互相覆盖彼此的 [Hook State](/docs/hooks/concepts/state-management)，在创建或安装每个 Hook 时，都必须提供一个 32 字节的 namespace。
+
+这个 namespace 可以是开发者自行选择的任意 32 字节值。只要它在同一个 Hook chain 中保持唯一，就不会发生 state clobbering。
+
+我们强烈建议使用 Hook 工作名称的 `SHA256` 作为 namespace。SHA256 是 Xahau 地址派生过程里使用的两个哈希算法之一，因此开发者通常都能方便获取它。
+
+`HookNamespace` 字段是在 [执行 SetHook transaction](/docs/hooks/concepts/sethook-transaction) 时，作为每个 `Hook` 对象中的一个 32 字节 _hex_ blob 提供的。
+
+某个 Hook 所配置的 Namespace，会影响其 [Keylets](/docs/hooks/concepts/slots-and-keylets) 与 [State](/docs/hooks/concepts/state-management) 的存储位置。因此，安装在同一个 Xahau 账户上、但使用不同 Namespace 的两个 Hooks，可以使用同一个 state key 来指向不同的 state 对象。反过来，如果两个不同 Hooks 在同一账户上使用了相同 Namespace，那么它们就能通过同样的 state keys 访问并修改彼此的 state 对象。
+
+### 示例
+
+在 JavaScript 中，导入 `ripple-address-codec` 后即可使用 SHA256。
+（也可以在浏览器中用 `crypto.subtle`，或在 Node 中用 `crypto.createHash` 来获得该哈希算法。）
+
+```js
+HookNamespace: addr.codec.sha256('carbon').toString('hex')
+```
+
+### Default Namespace
+
+第一个 [设置某个新 Hook](/docs/hooks/concepts/sethook-transaction) 的用户，会定义一个 `HookNamespace`，它随后就会成为该 Hook 的 _Default Namespace_。这意味着，后续其他引用同一 [_HookDefinition_](/docs/hooks/concepts/reference-counted-hook-definitions) 的用户，默认会得到这个最初设定的 Namespace。
+
+后续用户也可以提供自己的 Namespace，仅覆盖自己这次安装所使用的默认值。
+
+### 受影响的 Hook APIs
+
+HookNamespace 的选择会影响以下 Hook APIs 的行为：
+
+* [state](/docs/hooks/functions/state/state)
+* [state_set](/docs/hooks/functions/state/state_set)
+
+### Namespace API Helper
+
+关于如何在账本中查询 namespace，请参见 [account_info](/docs/hooks/functions/websocket-apis/account_info) 与 [account_namespace](/docs/hooks/functions/websocket-apis/account_namespace)。

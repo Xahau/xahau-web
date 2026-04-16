@@ -1,0 +1,64 @@
+---
+title: Fee Settings
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L115-L120)
+
+`FeeSettings` 对象类型包含当前的基础交易成本和储备金数值，这些值由费用投票决定。每个账本版本 **最多只包含一个** `FeeSettings` 对象。
+
+### JSON 示例
+
+`FeeSettings` 对象示例：
+
+```json
+{
+   "BaseFee": "000000000000000A",
+   "Flags": 0,
+   "LedgerEntryType": "FeeSettings",
+   "ReferenceFeeUnits": 10,
+   "ReserveBase": 20000000,
+   "ReserveIncrement": 5000000,
+   "XahauActivationLgrSeq": 0,
+   "NetworkID": 21337,
+   "AccountCount": 0,
+   "index": "4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651"
+}
+```
+
+### 字段
+
+`FeeSettings` 对象包含以下字段：
+
+| 名称 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `BaseFee` | String | UInt64 | 是 | “参考交易”的交易成本，以 XAH 的 drops 表示，并采用十六进制编码。 |
+| `Flags` | Number | UInt32 | 是 | 此对象启用的布尔标志位图。目前协议没有为 `FeeSettings` 对象定义任何标志，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0073`，映射为字符串 `FeeSettings`，表示此对象包含账本的费用设置。 |
+| `ReferenceFeeUnits` | Number | UInt32 | 是 | 将 `BaseFee` 换算成的“fee units”。 |
+| `ReserveBase` | Number | UInt32 | 是 | Xahau 中账户的基础储备金，以 XAH 的 drops 表示。 |
+| `ReserveIncrement` | Number | UInt32 | 是 | 持有对象时所需的增量所有者储备金，以 XAH 的 drops 表示。 |
+| `XahauActivationLgrSeq` | Number | UInt32 | 否 | Xahau 创世激活所在的账本索引。 |
+| `AccountCount` | Number | UInt32 | 否 | Xahau 网络上已创建账户的数量。 |
+| `NetworkID` | Number | UInt32 | 否 | 网络 ID。 |
+
+**警告：** 这种账本对象的 JSON 格式比较特殊。`BaseFee`、`ReserveBase` 和 `ReserveIncrement` 表示 XAH 的 drops，但格式_**不是**_通常用于[指定 XAH][Currency Amount]的格式。
+
+如果启用了 _[XAHFees amendment][]_，则 `FeeSettings` 对象改为包含以下字段：
+
+| 名称 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `BaseFeeDrops` | String | Amount | 是 | “参考交易”的交易成本，以 XAH 的 drops 表示。 |
+| `Flags` | Number | UInt32 | 是 | 此对象启用的布尔标志位图。目前协议没有为 `FeeSettings` 对象定义任何标志，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | 是 | 值为 `0x0073`，映射为字符串 `FeeSettings`，表示此对象包含账本的费用设置。 |
+| `ReserveBaseDrops` | String | Amount | 是 | XAH Ledger 中账户的基础储备金，以 XAH 的 drops 表示。 |
+| `ReserveIncrementDrops` | String | Amount | 是 | 持有对象时所需的增量所有者储备金，以 XAH 的 drops 表示。 |
+| `XahauActivationLgrSeq` | Number | UInt32 | 否 | Xahau 创世激活所在的账本索引。 |
+| `AccountCount` | Number | UInt32 | 否 | Xahau 网络上已创建账户的数量。 |
+| `NetworkID` | Number | UInt32 | 否 | 网络 ID。 |
+
+### FeeSettings ID 格式
+
+`FeeSettings` 对象的 ID 仅由 `FeeSettings` 空间键（`0x0065`）的哈希构成。因此，账本中 `FeeSettings` 对象的 ID 始终是：
+
+```
+4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651
+```

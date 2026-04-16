@@ -1,0 +1,51 @@
+---
+title: util_verify
+description: 验证密码学签名
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+验证密码学签名
+
+* 如果公钥以 `0xED` 开头，则使用 `ED25519`
+* 否则默认使用 `SECP256k1`
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_verify (
+    uint32_t dread_ptr,
+    uint32_t dread_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_verify(
+    signedData: ByteArray | HexString,
+    signature: ByteArray | HexString,
+    pubkey: ByteArray | HexString
+  ): 0 | 1
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="126">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td><code>0</code> - 验证失败，签名无效。<br /><code>1</code> - 验证成功，签名有效。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="126">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td><code>0</code> - 验证失败，签名无效。<br /><code>1</code> - 验证成功，签名有效。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

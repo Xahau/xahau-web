@@ -1,0 +1,61 @@
+---
+title: Emitted Txn
+---
+_(由 [Hooks amendment][] 引入。)_
+
+`EmittedTxn` 对象描述一笔由 hook 发射出来的交易。该对象包含原始交易的全部字段，以及与发射行为相关的附加细节。
+
+### JSON 示例
+
+```json
+{
+  "Account": "rMPwD1b8dJUaqZHaBgEvFx4ENhtpPVvDsv",
+  "Amount": "999999",
+  "Destination": "rfCarbonVNTuXckX6x2qTMFmFSnm6dEWGX",
+  "DestinationTag": 0,
+  "EmitDetails": {
+    "EmitBurden": "1",
+    "EmitCallback": "rMPwD1b8dJUaqZHaBgEvFx4ENhtpPVvDsv",
+    "EmitGeneration": 1,
+    "EmitHookHash": "A9B5411F4A4368008B4736EEE47A34B0EFCBE74016B9B94CC6208FBC0BF5C0C2",
+    "EmitNonce": "6B2A27D6864903A479614581A79D18E8C8ADCE01E3440C6E993BE07298ADC2A4",
+    "EmitParentTxnID": "9763EB6B74AEF0F55F642243AD51F48490594434439002A6142E545E47318D56"
+  },
+  "Fee": "31",
+  "FirstLedgerSequence": 7186113,
+  "Flags": 2147483648,
+  "LastLedgerSequence": 7186117,
+  "Sequence": 0,
+  "SigningPubKey": "000000000000000000000000000000000000000000000000000000000000000000",
+  "SourceTag": 0,
+  "TransactionType": "Payment"
+}
+```
+
+### 字段
+
+`EmittedTxn` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `EmitDetails` | Object | Object | 是 | 包含发射相关细节。包括发射代次、发射负担、回调地址、发射该交易的 hook 的哈希、发射 nonce，以及父交易的 ID。 |
+| `TransactionType` | String | UInt16 | 是 | 被发射的交易类型。 |
+| `Account` | String | Account | 是 | 发射该交易的账户。 |
+| `Fee` | String | Amount | 是 | 为此交易支付的费用。 |
+| `Sequence` | Number | UInt32 | 是 | 此交易的序列号。 |
+| `SigningPubKey` | String | Blob | 是 | 为此交易签名的公钥。 |
+
+`EmittedTxn` 对象还包含原始交易的所有字段。
+
+### EmitDetails 字段
+
+`EmitDetails` 对象包含以下字段：
+
+| 字段 | JSON 类型 | [内部类型][] | 必填？ | 说明 |
+| --- | --- | --- | --- | --- |
+| `EmitGeneration` | Number | UInt32 | 是 | 用于跟踪发射交易链条的代次，这些交易又可能进一步触发其他交易的发射。 |
+| `EmitBurden` | String | UInt64 | 是 | 用于检测 forkbomb 的启发式指标。费用会基于 burden 计算，并在链式反应开始时指数级增加，以防网络被自我强化的发射交易淹没。 |
+| `EmitParentTxnID` | String | Hash256 | 是 | 发射该交易的 Hook Execution 与源交易相连，因此该字段始终必需，用于高效追踪行为链路。 |
+| `EmitNonce` | String | Hash256 | 是 | 如果不使用 nonce，那么字段完全相同的 Emitted Transactions 会具有相同的交易哈希。然而网络中的每个节点都必须就 nonce 达成一致，因此系统提供了专门的 Hook API 来生成确定性的 nonce。 |
+| `EmitCallback` | String | AccountID | 否 | 当 xahld 需要发起回调时使用该字段，以便知道应在哪个 Hook 和账户上执行回调。当某笔发射交易被账本接受时，就会发生回调。 |
+| `EmitHookHash` | String | Hash256 | 是 | Hook 执行时该 Hook 的 SHA512H。 |

@@ -1,0 +1,44 @@
+---
+title: Clawback
+description: 撤回此前由你的账户发行的代币。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Clawback.cpp)]
+
+_(由 [Clawback amendment][] 引入。)_
+
+Clawback 用于撤回此前由你的账户发行的代币。**Clawback** 功能默认是关闭的。若要使用它，你必须先提交一笔 **AccountSet** 交易以启用 *Allow Trust Line Clawback*。如果你的账户已经发行过代币，则之后无法再启用 Clawback。只有当你的 owner directory 完全为空时，才能激活 *Allow Trust Line Clawback*，也就是在创建 trust lines、offers、escrows、payment channels、checks 或 signer lists 之前。一旦启用，Clawback 就成为账户的永久能力，无法撤销。
+
+## 示例
+
+```json
+{
+  "TransactionType": "Clawback",
+  "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Amount": {
+    "currency": "USD",
+    "issuer": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+    "value": "123.45"
+  }
+}
+```
+
+### 字段
+
+Clawback 交易包含：
+
+| 字段 | JSON 类型 | 说明 |
+| --- | --- | --- |
+| `Amount` | *Currency Amount* | 要撤回的数量，以及从哪个对手方处扣回。`value` 不能为零。若大于持有者余额，则会撤回其全部余额。在 `issuer` 子字段中，应填写持有者地址，而不是发行者地址。 |
+
+在 Xahau 中，trust line 上的 IOU/非 XAH 代币总有发行方，但 trust line 是双向的，在某些设置下两边都可能充当发行方。在此交易中，发行方地址写在 `Account` 字段中，而持有者地址写在 `Amount` 的 `issuer` 子字段中。
+
+## 错误场景
+
+除标准交易错误外，Clawback 还可能因以下原因失败：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `temDISABLED` | Xahau 上未启用 **Clawback** amendment。 |
+| `temBAD_AMOUNT` | 持有者余额为零。（若指定金额超过持有者余额并不算错误，此时会撤回全部可用余额。）若 `Amount` 中的对手方与提交交易的账户相同，也会出现此错误。 |
+| `tecNO_LINE` | 与指定对手方之间不存在 trust line，或该 trust line 余额为零。 |
+| `tecNO_PERMISSION` | 如果你尝试在 `lsfNoFreeze` 已启用时启用 `lsfAllowTrustLineClawback`，或反过来，也会发生。 |

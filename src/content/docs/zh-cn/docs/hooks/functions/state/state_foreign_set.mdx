@@ -1,0 +1,71 @@
+---
+title: state_foreign_set
+description: 在其他账户的指定键、值和命名空间上设置 Hook State
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 从 `kread_ptr` 读取 32 字节 Hook State 键
+* 从 `read_ptr` 读取任意数据作为值
+* 从 `nread_ptr` 读取 32 字节命名空间
+* 从 `aread_ptr` 读取 20 字节 Account ID
+* 在指定账户、指定命名空间中更新对应 Hook State 键
+* 但前提是目标账户上的 [Grant](https://xrpl-hooks.readme.io/docs/grants) 允许此操作
+* 如果 `aread_ptr` 指向的是 Hook 自身账户，则行为接近 `state_set`，但依然允许通过 `nread_ptr` 指定命名空间
+</TabItem>
+
+<TabItem label="JavaScript">
+* 使用指定值、键、命名空间和账户 ID 设置 Foreign Hook State
+* 此操作需要授权以及对应 Grant
+* 成功时返回写入长度，失败时返回负错误码
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_foreign_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t nread_ptr,
+    uint32_t nread_len,
+    uint32_t aread_ptr,
+    uint32_t aread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_foreign_set(
+    value: ByteArray | HexString | undefined | null,
+    key: ByteArray | HexString,
+    namespace: ByteArray | HexString | undefined | null,
+    accountid: ByteArray | HexString | undefined | null
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入 Hook State 的字节数。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_BIG</code><br />- <code>kread_len</code> 大于 32，或 <code>read_len</code> 大于最大 Hook 数据大小。<br /><br /><code>TOO_SMALL</code><br />- <code>kread_len</code> 为 0。<br /><br /><code>NOT_AUTHORIZED</code><br />- 外部账户上不存在允许此次状态变更的 HookGrant。<br /><br /><code>PREVIOUS_FAILURE_PREVENTS_RETRY</code><br />- 本次执行中先前某次 <code>state_foreign_set</code> 已因 NOT_AUTHORIZED 失败，因此本次执行中后续调用也不再允许。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| number or ErrorCode | 返回写入 Hook State 的字节数，失败时返回错误码。 |
+</TabItem>
+</Tabs>

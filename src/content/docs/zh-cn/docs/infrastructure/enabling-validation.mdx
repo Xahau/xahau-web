@@ -1,0 +1,61 @@
+---
+title: 在 xahaud 中启用验证
+---
+import { Aside } from '@astrojs/starlight/components';
+
+
+Validators 是配置了额外公私钥对的 `xahaud` 节点，这对密钥用于对每一个提议账本进行签名。因此，validators 是 Xahau Network 就交易按何种顺序应用达成共识的核心机制。
+
+## 背景考虑
+
+把 `xahaud` 服务器作为 validating server 运行，看起来可能很直接，但对于生产环境节点运营者来说，还涉及 uptime 与安全等多方面考虑。下面的介绍性章节将为这些问题提供背景说明。
+
+### 安全性与可用性
+
+当 `xahaud` 作为 validator 运行时，系统安全性和可用性至关重要。Validator 运营者应当主动监控其服务器，并对故障快速响应。一些 validator 运营者会在不同数据中心部署备用机器，以便在故障时快速恢复。虽然理论上也可以在家中托管一个可靠的 validator，但这样的部署通常难以提供足够稳定性与安全性，从而难以获得更广泛的信任（例如被纳入公开发布的 UNL）。同样地，也强烈不建议在用作 `xahaud` validator 的机器上运行除 `xahaud` 之外的其他软件，因为这会增加资源耗尽或暴露安全漏洞的概率。若系统管理员需要 websocket 或 RPC 访问能力，建议使用其他机器专门处理查询工作，以避免占用验证账本这一关键任务所需的资源。
+<br></br>
+验证私钥 / 公钥对应被保存在安全的离线环境中并做好备份。任何获得受信任 validator 密钥访问权的人，都有可能对网络造成伤害。在将 validation token 写入 `xahaud.cfg` 后，建议限制该文件的读取权限（`chmod 400 xahaud.cfg`），并将文件所有者改为 `"root"` 或 `"xahaud"`，具体取决于你的安装方式（`chown root:root xahaud.cfg`）。
+
+### 身份证明
+
+为了防止 [Sybil attack](https://en.wikipedia.org/wiki/Sybil_attack) 并建立信任，validating `xahaud` 节点会使用其 validation keys 对一个域名进行加密签名，以证明身份。随后，这个签名会以 [TOML 格式文件](/docs/infrastructure/identity) 的形式托管在同一域名下。除了验证 validator 的身份外，这个 TOML 文件还可以用于验证 Xahau Network 上单个账户持有人的身份，只需提供由账户私钥而非验证私钥签名的证明即可。该 TOML 文件应通过启用了 TLS 加密的 Web 服务器托管在：<br></br><code>https://[your-domain.com]/.well-known/xahau.toml</code><br></br>
+
+### 对等连接
+
+为了维持高安全性，被配置为 validators 的 `xahaud` 节点应只与已知且受信任的 peers 建立连接。在 `xahaud.cfg` 中启用 `peer_private` 设置，并显式定义 `ips_fixed`，可以强制服务器只连接到指定 peers。操作系统与硬件层的保护，例如防火墙，也能进一步确保服务器只与指定 peers 通信。不过这也带来挑战，因为 peers 太少的 validator（通常少于约五个）会面临与网络其他部分失去同步的风险。
+
+### 治理与信任
+
+Xahau Network 使用 [Governance Game](/docs/features/governance-game) 作为管理网络的民主机制。此外，每个参与网络的 `xahaud` 实例都必须安装一份受信任验证服务器列表，称为 Unique Node List（UNL）。因此，现有治理参与者可以通过投票让一个新的 validator 进入治理桌席位。与此同时，受信任的 UNL 发布者，例如 [InFTF](https://inftf.org)，也可以选择将某个 validator 纳入其推荐的受信任验证者列表。运行一个 validator 并不保证它会被纳入 Governance Game 或任何 UNL。通常，被选入治理流程的 validating servers 会具备以下特征：
+
+1. 高可用性
+    - 有效的 24/7/365 监控，并能对故障快速响应
+2. 与网络其余部分保持较高一致性
+3. 有明确的所有者 / 运营者和清晰的地理位置
+4. 对 [amendments](/docs/features/amendments) 和费用更新、投票保持主动参与
+    - 这要求运营者花时间关注网络正在开发的内容
+
+## 启用验证
+
+将一个 stock `xahaud` 服务器切换为 validator 的过程比较直接。本质上，用户需要生成一对公私钥，再通过从主密钥派生出的临时密钥来生成 token。随后把该 token 安装到 `xahaud.cfg` 文件中，从而指示 `xahaud` 向网络提出 validations。
+
+### 构建 Validation Keys Tool
+
+目前，用于生成 validation keys 的软件还没有官方二进制发布版本。因此，用户可以选择从源码构建该工具，或依赖非官方构建版本。该工具的构建说明与 [构建 xahaud](../build-xahaud) 的说明一致，并可在 [Xahau/validator-keys-tool](https://github.com/Xahau/validator-keys-tool) 仓库页面找到。某些非官方仓库中也有一些[打包好的二进制文件](https://github.com/jscottbranson/xahau-examples/)。若你要为生产环境 validator 生成密钥，建议在安全的 air-gapped 机器上自行从源码构建该工具。
+
+虽然 `xahaud` 提供了 `validation_create` [Admin API method](/docs/features/http-websocket-apis/admin-api-methods)，但这个方法**不能**生成所需的 validation token，也无法用于域名验证。因此，尽管名字如此，`validation_create` 方法主要是用来生成用于广义识别服务器的公私钥，例如当你在 [对多个服务器进行 clustering](/docs/infrastructure/advanced-configuration) 时。
+
+### 生成并安装 Validation Keys
+
+建议使用离线机器来生成 validation keys 和 validation token。
+
+1. 进入 validation keys tool 所在目录： `cd [/path/to/tool]`
+2. 生成新的密钥对： `./validator-keys create_keys`
+3. 新生成的密钥对会保存在 `/home/[username]/[.ripple or .xahaud]/validator-keys.json` 中。具体存储路径取决于你使用的是哪个版本的 validator-keys-tool。
+4. 理想情况下，validators 应提供身份证明。要做到这一点，可在 `validator-keys.json` 文件中设置你的域名： `./validator-keys set_domain [example.com]`
+    - 如果你不想提供标识性域名，则可以在不设置域名的情况下生成 validation token： `./validator-keys create_token --keyfile /home/[username]/.xahaud/validator-keys.json`
+5. 检查上一步命令的输出。记下 `[validator_token]`，因为它需要被安装进 `xahaud.cfg` 以启用验证。如果设置了域名，也请记下 `attestation=""` 这一行，因为它需要被加入到托管在你域名下的 TOML 文件中。
+    - 每当使用该工具生成新的 `validator_token` 时，`validator-keys.json` 文件中的 `token_sequence` 字段都会递增。网络会忽略任何 token 序号低于已观测到的最高序号的服务器所发出的 validations。例如，如果你的 validation token 序号是 “3”，而你又生成了一个新 token，但它的序号是 “2”，那么使用这个较低序号新 token 的机器所发出的 validations 会被忽略。这个特性使得服务器运营者在发生安全事件或其他事故时，可以通过生成新 token 来恢复，而不必重新生成主验证密钥。
+6. 打开 `xahaud.cfg` 并粘贴 `[validation_token]`，然后重启 `xahaud` 服务。
+7. 将 `attestation=""` 粘贴到你的 [TOML](/docs/infrastructure/identity) 文件中，以证明你的 validator 身份。
+8. 确保 validation 私钥被安全保存，理想情况下应与 validator 分开存储。

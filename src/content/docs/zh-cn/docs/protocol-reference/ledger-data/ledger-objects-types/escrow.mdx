@@ -1,0 +1,67 @@
+---
+title: Escrow
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/c6b6d82a754fe449cc533e18659df483c10a5c98/src/ripple/protocol/impl/LedgerFormats.cpp#L90-L101)
+
+_(Added by the \[Escrow amendment]\[].)_
+
+`Escrow` 对象类型表示一笔被托管（held）的 XAH 或 IOU 支付，等待执行或取消。一个 \[EscrowCreate transaction]\[] 会在账本中创建一个 `Escrow` 对象。成功的 \[EscrowFinish]\[] 或 \[EscrowCancel]\[] 交易会删除该对象。
+
+如果 `Escrow` 对象带有 [_crypto-condition_](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02)，则支付只有在 EscrowFinish 交易提供满足该条件的对应 _fulfillment_ 时才能成功。（当前唯一支持的 crypto-condition 类型是 [PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1)。）如果 `Escrow` 对象带有 `FinishAfter` 时间，则该 held payment 只能在该时间之后执行。
+
+一个 `Escrow` 对象关联两个地址：
+
+* owner，即创建 `Escrow` 对象时提供 XAH 或 IOU 的一方。如果 held payment 被取消，XAH 或 IOU 会退还给 owner。
+* destination，即 held payment 成功时实际接收 XAH 或 IOU 的地址。destination 也可以与 owner 相同。
+
+### 示例 JSON
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Amount": "10000",
+    "CancelAfter": 545440232,
+    "Condition": "A0258020A82A88B2DF843A54F58772E4A3861866ECDB4157645DD9AE528C1D3AEEDABAB6810120",
+    "Destination": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "DestinationTag": 23480,
+    "FinishAfter": 545354132,
+    "Flags": 0,
+    "LedgerEntryType": "Escrow",
+    "OwnerNode": "0000000000000000",
+    "DestinationNode": "0000000000000000",
+    "PreviousTxnID": "C44F2EB84196B9AD820313DBEBA6316A15C9A2D35787579ED172B87A30131DA7",
+    "PreviousTxnLgrSeq": 28991004,
+    "SourceTag": 11747,
+    "index": "DC5F3851D8A1AB622F957761E5963BC5BD439D5C24AC6AD7AC4523F0640244AC"
+}
+```
+
+### 字段
+
+`Escrow` 对象包含以下字段：
+
+| 字段名 | JSON 类型 | \[Internal Type]\[] | 必填？ | 说明 |
+| ------ | --------- | ------------------- | ------ | ---- |
+| `Account` | String | AccountID | Yes | 该 held payment 的 owner（发送方）地址。也就是最初提供金额、并在 held payment 被取消时接回该金额的账户。 |
+| `Amount` | String or Object | Amount | Yes | 该 held payment 要交付的金额。 |
+| `CancelAfter` | Number | UInt32 | No | 只有当该字段存在，且其指定时间已经过去时，该 held payment 才可以被取消。更准确地说，它以 \[seconds since the Ripple Epoch]\[] 表示，而 “已经过去” 是指它早于前一个已验证账本的 close time。 |
+| `Condition` | String | Blob | No | 一个十六进制表示的 [PREIMAGE-SHA-256 crypto-condition](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1)。若存在，则 \[EscrowFinish transaction]\[] 必须包含满足该条件的 fulfillment。 |
+| `Destination` | String | AccountID | Yes | 如果该 held payment 成功执行，将收到金额的目标地址。 |
+| `DestinationNode` | String | UInt64 | No | 一个提示值，用于指示如果目标地址的 owner directory 由多页组成，则链接到此对象的是哪一页。在启用 \[fix1523 amendment]\[] 之前创建的 escrows 会省略该字段。 |
+| `DestinationTag` | Number | UInt32 | No | 一个任意标签，用于进一步指定该 held payment 的目标，例如目标地址上的托管子账户。 |
+| `FinishAfter` | Number | UInt32 | No | 该 held payment 可以被完成的时间点，以 \[seconds since the Ripple Epoch]\[] 表示。任何早于该时间的 \[EscrowFinish transaction]\[] 都会失败。（更准确地说，是与前一个已验证账本的 close time 比较。） |
+| `Flags` | Number | UInt32 | Yes | 为该对象启用的一组布尔位标志。当前协议未为 `Escrow` 对象定义任何 flags，因此该值始终为 `0`。 |
+| `LedgerEntryType` | String | UInt16 | Yes | 值 `0x0075`，映射为字符串 `Escrow`，表示该对象是一个 `Escrow` 对象。 |
+| `OwnerNode` | String | UInt64 | Yes | 一个提示值，用于指示如果 owner directory 由多页组成，则链接到此对象的是哪一页。**注意：** 该对象本身不直接包含 owner directory 的链接，因为该值可从 `Account` 推导。 |
+| `PreviousTxnID` | String | Hash256 | Yes | 最近一次修改该对象的交易的标识性哈希。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | Yes | 包含最近一次修改该对象交易的 \[账本索引]\[Ledger Index]。 |
+| `SourceTag` | Number | UInt32 | No | 一个任意标签，用于进一步指定该 held payment 的来源，例如 owner 地址上的托管子账户。 |
+| `TransferRate` | Number | UInt32 | No |  |
+
+### Escrow ID 格式
+
+`Escrow` 对象的 ID 是对以下值按顺序拼接后计算得到的 \[SHA-512Half]\[]：
+
+* Escrow space key（`0x0075`）
+* 创建该 `Escrow` 对象的 \[EscrowCreate transaction]\[] 的发送方 AccountID
+* 创建该 `Escrow` 对象的 \[EscrowCreate transaction]\[] 的 Sequence number。如果 EscrowCreate 交易使用了 Ticket，则应改用 `TicketSequence` 值。

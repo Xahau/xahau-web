@@ -1,0 +1,47 @@
+---
+title: hook_hash
+sidebar:
+  order: 3
+---
+
+`hook_hash` 获取当前 Hook 或 Hook 链中指定位置 Hook 的 32 字节、带命名空间偏置的 `SHA512H` 哈希。
+
+## C
+
+```c
+int64_t hook_hash(uint32_t write_ptr, uint32_t write_len, int32_t hook_no);
+```
+
+## JavaScript
+
+```javascript
+function hook_hash(hookno: number): ErrorCode | ByteArray
+```
+
+## 参数
+
+### `write_ptr`
+
+指向输出缓冲区的指针。
+
+### `write_len`
+
+输出缓冲区长度，应足以容纳 32 字节哈希。
+
+### `hook_no`
+
+要读取的 Hook 在链中的位置。
+
+- `-1` 表示当前 Hook
+- 其他值表示链中的指定位置
+
+## 返回值
+
+- 成功时返回写入的字节数
+- 失败时可能返回：
+  - `OUT_OF_BOUNDS`
+  - `DOESNT_EXIST`
+
+## 说明
+
+该函数常用于在链内识别某个具体 Hook，并与如 `hook_skip`、`hook_param_set` 之类的 API 配合使用。

@@ -1,0 +1,102 @@
+---
+title: Payment
+description: 支付交易表示从一个账户向另一个账户转移价值。
+---
+[\[Source\]](https://github.com/ripple/rippled/blob/5425a90f160711e46b2c1f1c93d68e5941e4bfb6/src/ripple/app/transactors/Payment.cpp)
+
+### 示例
+
+```json
+{
+  "TransactionType": "Payment",
+  "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Destination": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+  "Amount": {
+     "currency": "USD",
+     "value": "1",
+     "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+  },
+  "Fee": "12",
+  "Flags": 2147483648,
+  "Sequence": 2
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Amount` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | 要交付的货币金额。对于非 XAH 金额，嵌套字段名必须使用小写。如果设置了 `tfPartialPayment` 标志，则表示最多交付该金额。 |
+| `Destination` | String | AccountID | 接收付款账户的唯一地址。 |
+| `DestinationTag` | Number | UInt32 | _(可选)_ 任意标签，用于向目标方标识付款原因，或标识托管收款人。 |
+| `InvoiceID` | String | Hash256 | _(可选)_ 任意 256 位哈希，可表示此付款的特定原因或标识符。 |
+| `Paths` | Array of path arrays | PathSet | （可选，可自动补全）此交易要使用的付款路径数组。XAH 到 XAH 的交易必须省略此字段。 |
+| `SendMax` | [Currency Amount](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount | _(可选)_ 允许本交易花费的源货币最高金额，包括转账费、汇率与 [slippage](http://en.wikipedia.org/wiki/Slippage_\(finance\))，但不包括提交交易时销毁的 XAH 费用。对于跨币种或跨发行方支付必须提供；XAH 到 XAH 的支付必须省略。 |
+| `DeliverMin` | [Currency Amount][] | Amount | _(可选)_ 目标货币的最小交付金额。仅在部分支付中有效。对于非 XAH 金额，嵌套字段名使用小写。 |
+
+### 支付类型
+
+Payment 交易是一种通用工具，可以表示多种不同的抽象动作。你可以根据交易字段判断其类型，如下表所示：
+
+| 支付类型 | `Amount` | `SendMax` | `Paths` | `Address` = `Destination`? | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 直接 XAH 到 XAH 支付 | String (XAH) | Omitted | Omitted | No | 直接将 XAH 从一个账户转给另一个账户。始终交付精确金额。除基础交易费外没有其他费用。 |
+| 创建或赎回代币 | Object | Object (optional) | Optional | No | 增加或减少 Xahau 中跟踪的某种非 XAH 货币或资产数量。直接发送与赎回时，不适用转账费与冻结限制。 |
+| 跨币种支付 | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Usually required | No | 将代币从一个持有人发送给另一个持有人。`Amount` 或 `SendMax` 可以是 XAH 或代币，但二者不能同时是 XAH。这类支付会经由发行方 ripple，并可沿着多个中介路径前进。发行方设置的转账费会适用。 |
+| 部分支付 | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Usually required | No | 发送任意货币的“最多”指定金额。使用 `tfPartialPayment` 标志。可搭配 `DeliverMin` 指定最低交付金额。 |
+| 货币转换 | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Required | Yes | 在去中心化交易所中消耗挂单，把一种货币换成另一种货币，也可能利用 [arbitrage](https://en.wikipedia.org/wiki/Arbitrage) 机会。也称为 _circular payment_，因为款项最终回到发送方。 |
+
+### SendMax 与 Amount 中 issuer 的特殊规则
+
+大多数情况下，非 XAH [Currency Amount][] 中的 `issuer` 字段表示某种代币的发行方。但在描述支付时，`Amount` 与 `SendMax` 字段中的 `issuer` 具有一些特殊规则：
+
+* 同一货币代码在两个地址之间始终只有一条余额关系。因此有时金额中的 `issuer` 实际上指的是交易对手方，而不是发行该代币的地址。
+* 当目标 `Amount` 字段中的 `issuer` 与 `Destination` 地址相同，这表示一个特殊情况：“目标地址接受的任意发行方”。这包括目标地址对其设有正向信任上限的所有地址，以及目标地址自己发行的同币种代币。
+* 当 `SendMax` 字段中的 `issuer` 与源账户地址相同时，这表示另一个特殊情况：“源账户可使用的任意发行方”。这包括在其他账户给予源账户的信任线上创建新代币，以及发送源账户持有的其他发行方代币。
+
+### 创建账户
+
+Payment 交易可以通过向一个未注资地址发送足够的 XAH 来创建新账户。发送到未注资地址的其他交易都会失败。
+
+更多信息请参见 Accounts。
+
+### Paths
+
+如果提供 `Paths` 字段，它必须是一个 _path set_，也就是“路径数组的数组”。每条路径表示价值从发送方经由若干中介账户与订单簿流向接收方的一种方式。单笔交易可能使用多条路径，例如为了获得最佳汇率而同时通过多个订单簿兑换货币。
+
+以下直接支付必须省略 `Paths` 字段：
+
+* XAH 到 XAH 的转账。
+* 在直接连接发送方与接收方的 trust line 上进行的直接转账。
+
+如果提供了 `Paths` 字段，服务器会在处理交易时，从提供的路径集合以及 _default path_（连接指定账户的最直接路径）中决定实际使用哪些路径。这个决策是确定性的，并且会尝试最小化成本，但不保证完美。
+
+`Paths` 字段不能是空数组，也不能是成员全为空数组的数组。
+
+更多信息请参见 Paths。
+
+### Payment Flags
+
+Payment 类型交易支持以下附加 `Flags` 值：
+
+| 标志名 | 十六进制值 | 十进制值 | 说明 |
+| --- | --- | --- | --- |
+| `tfNoDirectRipple` | `0x00010000` | 65536 | 不使用默认路径，只使用 `Paths` 字段中提供的路径。该标志通常用于强制交易利用套利路径。多数客户端不需要它。 |
+| `tfPartialPayment` | `0x00020000` | 131072 | 如果在不超过 `SendMax` 的前提下无法发送指定 `Amount`，则减少接收金额而不是直接失败。 |
+| `tfLimitQuality` | `0x00040000` | 262144 | 仅采用那些所有兑换都满足输入:输出比率不差于 `Amount`:`SendMax` 比率的路径。 |
+
+### Partial Payments
+
+部分支付允许一笔支付通过减少实际收到的金额来成功。它在退款等场景中很有用，但也可能被用来利用那些错误地假设成功交易的 `Amount` 字段总是等于实际到账金额的集成系统。
+
+只要 [Payment transaction][] 启用了 `tfPartialPayment` 标志，它就是一笔部分支付。如果该交易在不超过 `SendMax` 的情况下，能够交付任意正金额，且该金额大于或等于 `DeliverMin`（若未指定 `DeliverMin`，则只需大于 0），它就可以成功。
+
+支付元数据中的 `delivered_amount` 字段表示目标账户实际收到的货币数量。
+
+### Limit Quality
+
+Xahau 将货币兑换的 “quality” 定义为输入数值金额与输出数值金额之比。例如，花费 2 USD 得到 1 GBP，则该兑换的 quality 为 `0.5`。
+
+`tfLimitQuality` 标志允许你设置一个可接受的最低兑换质量。该限制质量定义为目标 `Amount` 除以 `SendMax`（仅比较数值金额，不考虑币种）。启用后，支付处理引擎会避免使用那些 quality 低于该限制的路径。
+
+单独使用 `tfLimitQuality` 会减少交易成功的场景。具体来说，即使支付整体平均兑换质量满足要求，只要其中某一部分路径使用了不利汇率，交易仍会被拒绝，此时结果码为 `tecPATH_DRY`。
+
+当 `tfPartialPayment` 与 `tfLimitQuality` 同时启用时，交易会在不使用任何低于质量下限的兑换路径的前提下，尽可能多地交付目标 `Amount`。

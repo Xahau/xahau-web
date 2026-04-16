@@ -1,0 +1,45 @@
+---
+title: xpop_slot
+description: 序列化并输出 xpop 交易 blob 与元数据
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+* 在 `Import` 交易中定位 xpop blob
+* 将对应的 tx 和 meta 对象放入指定槽位
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t xpop_slot (
+    uint32_t slot_no_tx,
+    uint32_t slot_no_meta
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function xpop_slot(slotno_tx: number, slotno_meta: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p><code>PREREQUISITE_NOT_MET</code><br /><br />- 原始交易类型不是 <code>Import</code>。<br /><br /><code>NO_FREE_SLOTS</code><br /><br />- 需要分配新槽位，但 Hook 已达到最大槽位数。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description |
+| ------------------- | ----------- |
+| number or ErrorCode | 返回错误码或 pop 操作结果。 |
+</TabItem>
+</Tabs>

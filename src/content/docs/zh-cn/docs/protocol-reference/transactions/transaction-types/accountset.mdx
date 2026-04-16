@@ -1,0 +1,123 @@
+---
+title: AccountSet
+description: AccountSet 交易用于修改 Xahau 账户的属性。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetAccount.cpp)]
+
+### 示例
+
+```json
+{
+    "TransactionType": "AccountSet",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "Sequence": 5,
+    "Domain": "6578616D706C652E636F6D",
+    "SetFlag": 5,
+    "MessageKey": "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB",
+    "HookStateScale": 10
+}
+```
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `ClearFlag` | Number | UInt32 | _(可选)_ 要为该账户关闭的标志的唯一标识符。 |
+| `Domain` | String | Blob | _(可选)_ 拥有该账户的域名，以十六进制字符串表示，对应域名的小写 ASCII。 [长度不能超过 256 字节。](https://github.com/Xahau/xahaud/blob/55dc7a252e08a0b02cd5aa39e9b4777af3eafe77/src/ripple/app/tx/impl/SetAccount.h#L34) |
+| `EmailHash` | String | Hash128 | _(可选)_ 任意 128 位值。通常客户端会将其视为某个邮箱地址的 md5 哈希，用于显示 [Gravatar](http://en.gravatar.com/site/implement/hash/) 图像。 |
+| `MessageKey` | String | Blob | _(可选)_ 用于向该账户发送加密消息的公钥。设置时必须正好为 33 字节，首字节表示密钥类型：`0x02` 或 `0x03` 对应 secp256k1，`0xED` 对应 Ed25519。要移除此密钥，可使用空值。 |
+| `NFTokenMinter` | String | Blob | _(可选)_ 可代表你铸造 NFTokens 的另一个账户。_(由 [NonFungibleTokensV1_1 amendment][] 引入。)_ |
+| `SetFlag` | Number | UInt32 | _(可选)_ 要为该账户启用的整型标志。 |
+| `TransferRate` | Number | UInt32 | _(可选)_ 当用户转移该账户发行的代币时收取的费用，以十亿分之一单位表示。不能大于 `2000000000`，也不能小于 `1000000000`，特殊值 `0` 表示不收取费用。 |
+| `TickSize` | Number | UInt8 | _(可选)_ 涉及此地址发行货币的挂单所使用的 tick size。相关挂单的汇率会被舍入为这么多有效数字。有效值为 `3` 到 `15`，或 `0` 表示禁用。_(由 [TickSize amendment][] 引入。)_ |
+| `WalletLocator` | String | Hash256 | _(可选)_ 任意 256 位值。若指定，则该值会作为账户数据的一部分存储，但本身没有固有含义或要求。 |
+| `WalletSize` | Number | UInt32 | _(可选)_ 未使用。该字段在 AccountSet 交易中合法，但不会产生任何作用。 |
+| `HookStateScale` | Number | UInt16 | _(可选)_ 用于判定 Hook state 条目何时过期的缩放因子。有效值为 `1` 到 `16`。_(由 [ExtendedHookState amendment][] 引入。)_ |
+
+如果上述选项一个都没有提供，则 AccountSet 交易不会产生任何效果（除了销毁交易费用）。更多信息参见 Cancel or Skip a Transaction。
+
+### Domain
+
+`Domain` 字段表示为域名小写 ASCII 的十六进制字符串。例如，域名 _example.com_ 表示为 `"6578616D706C652E636F6D"`。
+
+若要从账户中移除 `Domain` 字段，可发送一个将 `Domain` 设为空字符串的 AccountSet。
+
+你可以在账户的 `Domain` 字段中填写任意域名。若要证明某个账户与某个域名属于同一人或企业，则需要建立“双向链接”：
+
+* 你拥有的账户应在 `Domain` 字段中填写你拥有的域名。
+* 在该域名下托管一个 [xahau.toml](/docs/infrastructure/identity) 文件，列出你拥有的账户，并可选地包含其他你如何使用 Xahau 的信息。
+
+### AccountSet Flags
+
+账户有若干可启用或禁用的选项。根据场景不同，这些账户选项由不同类型的 flags 表示：
+
+* `AccountSet` 交易类型有若干 “AccountSet Flags”（前缀 **`asf`**），当作为 `SetFlag` 传入时可启用某个选项，作为 `ClearFlag` 传入时可禁用某个选项。较新的选项只有这种风格的 flag。每笔交易最多可启用一个 `asf` 标志，也最多可禁用一个 `asf` 标志。
+* `AccountSet` 交易类型还有若干交易标志（前缀 **`tf`**），可通过 `Flags` 参数启用或禁用特定账户选项。你可以在一笔交易中组合多个 `tf` 标志来同时切换多个设置，但并非所有设置都有 `tf` 标志。
+* `AccountRoot` 账本对象类型包含若干账本状态标志（前缀 **`lsf`**），用于表示某个具体账本中账户选项的状态。这些设置会一直生效，直到被后续交易修改。
+
+若要启用或禁用 Account Flags，请使用 AccountSet 交易的 `SetFlag` 与 `ClearFlag` 参数。AccountSet flags 的名称以 **`asf`** 开头。
+
+所有 flags 默认均为禁用状态。
+
+可用的 AccountSet flags 如下：
+
+| 标志名 | 十进制值 | 对应账本标志 | 说明 |
+| --- | --- | --- | --- |
+| `asfAccountTxnID` | 5 | (None) | 跟踪该账户最近一笔交易的 ID。`AccountTxnID` 需要它。 |
+| `asfAllowTrustLineClawback` | 17 | `lsfAllowTrustLineClawback` | 允许账户回收其发行的代币。只有当账户的 owner directory 为空时才能启用（没有 trust lines、offers、escrows、payment channels、checks 或 signer lists）。一旦设置，无法撤销。 |
+| `asfAuthorizedNFTokenMinter` | 10 | (None) | 允许另一个账户代表此账户铸造非同质化代币（NFTokens）。被授权账户在 AccountRoot 对象的 `NFTokenMinter` 字段中指定。要移除授权铸造者，可启用此标志并省略 `NFTokenMinter` 字段。 |
+| `asfDefaultRipple` | 8 | `lsfDefaultRipple` | 默认在该账户的 trust lines 上启用 rippling。 |
+| `asfDepositAuth` | 9 | `lsfDepositAuth` | 为该账户启用 Deposit Authorization。 |
+| `asfDisableMaster` | 4 | `lsfDisableMaster` | 禁止使用主密钥对。只有当账户已配置其他签名方式时才能启用，例如 Regular Key 或 Signer List。 |
+| `asfDisallowIncomingCheck` | 13 | `lsfDisallowIncomingCheck` | 阻止收到 Check。 |
+| `asfDisallowIncomingNFTokenOffer` | 12 | `lsfDisallowIncomingNFTokenOffer` | 阻止收到 NFTokenOffer。 |
+| `asfDisallowIncomingPayChan` | 14 | `lsfDisallowIncomingPayChan` | 阻止收到 Payment Channel。 |
+| `asfDisallowIncomingTrustline` | 15 | `lsfDisallowIncomingTrustline` | 阻止收到 trust line。 |
+| `asfDisallowIncomingRemit` | 16 | `lsfDisallowIncomingRemit` | 阻止收到 Remit 交易。 |
+| `asfDisallowXRP` | 3 | `lsfDisallowXRP` | 不应向该账户发送 XAH。（仅建议性，不由 Xahau 协议强制执行。） |
+| `asfGlobalFreeze` | 7 | `lsfGlobalFreeze` | 冻结该账户发行的所有资产。 |
+| `asfNoFreeze` | 6 | `lsfNoFreeze` | 永久放弃冻结单条 trust line 或关闭 Global Freeze 的能力。启用后永远无法禁用。 |
+| `asfRequireAuth` | 2 | `lsfRequireAuth` | 要求用户在持有此地址发行的余额前先获得授权。只有当该地址尚无任何 trust line 连接时才能启用。 |
+| `asfRequireDest` | 1 | `lsfRequireDestTag` | 要求向该账户发送交易时必须提供 destination tag。 |
+| `asfTshCollect` | 11 | `lsfTshCollect` | TSH 为其自身的 Hook Chain 执行付费。 |
+
+若要启用 `asfDisableMaster` 或 `asfNoFreeze`，必须使用主密钥对为交易签名，不能使用 regular key 或 multi-signature。要禁用 `asfDisableMaster`（即重新启用主密钥对），则可以使用 regular key 或 multi-signature。
+
+以下专属于 AccountSet 交易类型的 Transaction flags（`tf` flags）起到相同作用。由于空间有限，并非所有设置都有对应的 `tf` 标志，而且新的 `tf` 标志也不再添加到 AccountSet 交易类型中。你可以组合 `tf` 与 `asf` 标志，在单笔交易里启用多个设置。
+
+| Flag Name | Hex Value | Decimal Value | Replaced by AccountSet Flag |
+| --- | --- | --- | --- |
+| `tfRequireDestTag` | `0x00010000` | 65536 | `asfRequireDest` (`SetFlag`) |
+| `tfOptionalDestTag` | `0x00020000` | 131072 | `asfRequireDest` (`ClearFlag`) |
+| `tfRequireAuth` | `0x00040000` | 262144 | `asfRequireAuth` (`SetFlag`) |
+| `tfOptionalAuth` | `0x00080000` | 524288 | `asfRequireAuth` (`ClearFlag`) |
+| `tfDisallowXRP` | `0x00100000` | 1048576 | `asfDisallowXRP` (`SetFlag`) |
+| `tfAllowXRP` | `0x00200000` | 2097152 | `asfDisallowXRP` (`ClearFlag`) |
+
+**注意：** 交易中的 `tf` 与 `asf` 标志数值，并不等同于它们在账本中账户静态状态里的数值。若要读取账本里账户的 flags，请参见 `AccountRoot` flags。
+
+#### 阻止传入交易
+
+用途不明确的传入交易可能会给金融机构带来不便，因为它们需要识别客户是否操作失误，并可能因此退款或调整余额。`asfRequireDest` 与 `asfDisallowXRP` 标志就是为了减少这种模糊情况。
+
+例如，destination tag 通常用于标识金融机构收到付款后应记入哪一个托管余额。如果缺少该标签，就可能无法确定该付款应计入哪个账户。通过使用 `asfRequireDest`，你可以确保每一笔传入付款都有 destination tag，从而降低别人误向你发送含义不清的付款的概率。
+
+若要防止收到非 XAH 币种的不需要付款，可以不为这些币种建立 trust lines。由于 XAH 不需要 trust，因此使用 `asfDisallowXRP` 来劝阻用户向某账户发送 XAH。不过这个标志不由 Xahau 协议强制执行，因为那样可能导致账户在耗尽 XAH 后变得不可用。相反，客户端应用应禁止或劝阻向启用了 `asfDisallowXRP` 的账户发送 XAH。
+
+如果你想阻止_所有_传入付款，可以启用 Deposit Authorization。这样除非你的账户余额低于储备要求，否则任何交易都不能向你发送资金，连 XAH 也不行。
+
+如果启用了 [DisallowIncoming amendment][]，你还可以选择阻止所有传入的 Checks、NFTokenOffers、Payment Channels 与 trust lines。接收这类对象通常本身无害，但它们可能阻止你删除账户，也会让你的对象列表中混入你未预期创建的条目。要阻止传入对象，可使用以下账户标志：
+
+* `asfDisallowIncomingCheck`
+* `asfDisallowIncomingNFTOffer`
+* `asfDisallowIncomingPayChan`
+* `asfDisallowIncomingTrustline`
+
+当某笔交易将要创建这些账本条目之一时，如果目标账户启用了对应标志，则该交易会以 `tecNO_PERMISSION` 失败。与 Deposit Authorization 不同，这些设置不会阻止你一般意义上的收款。同时，启用这些设置也不会阻止你自己创建这些类型的对象。
+
+### TransferRate
+
+`TransferRate` 字段指定当交易对手转移你发行的货币时应收取的费用。
+
+在 HTTP 与 WebSocket API 中，转账费表示为一个整数，含义是“为了让 10 亿个单位到账，必须发送多少单位”。例如，20% 的转账费表示为 `1200000000`。该值不能小于 `1000000000`。你也可以使用 `0` 作为 `1000000000` 的简写，表示不收取费用。
+
+更多信息请参见 Transfer Fees。

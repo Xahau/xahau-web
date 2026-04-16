@@ -1,0 +1,32 @@
+---
+title: URITokenCancelSellOffer
+description: URITokenCancelSellOffer 交易用于取消某个 URIToken 的卖出挂单。
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(由 [URIToken amendment][] 引入。)_
+
+### 示例
+
+```json
+{
+    "TransactionType": "URITokenCancelSellOffer",
+    "Account": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA"
+}
+```
+
+### 字段
+
+| 字段 | JSON 类型 | [内部类型][] | 说明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | 拥有待取消卖单的账户地址。 |
+| `URITokenID` | String | Hash256 | 要取消卖单的 URIToken 的 ID。 |
+
+### 错误场景
+
+除所有交易都可能出现的错误外，URITokenCancelSellOffer 还可能返回以下结果码：
+
+| 错误码 | 说明 |
+| --- | --- |
+| `tecNO_PERMISSION` | 执行该交易的账户不是该代币所有者。 |

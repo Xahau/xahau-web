@@ -1,0 +1,105 @@
+---
+title: ledger_keylet
+description: 在当前账本的指定范围内搜索 keylet
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 从 `lread_ptr` 读取一个 34 字节 Keylet
+* 从 `hread_ptr` 读取一个 32 字节 Keylet
+* 在账本中搜索该范围内此类型的第一个（最小）Keylet
+* 如果找到匹配 Keylet，则将其写入 `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* 此函数会在给定范围内搜索该类型的第一个（`lowest`）Keylet。
+* 成功时返回写入的字节数（34 字节），出错时返回错误码。
+</TabItem>
+</Tabs>
+
+### 定义
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_keylet (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t lread_ptr,
+    uint32_t lread_len,
+    uint32_t hread_ptr,
+    uint32_t hread_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_keylet(
+    low: ByteArray | HexString,
+    high: ByteArray | HexString
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 示例
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+//TODO
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+ledger_keylet(low, high)
+```
+</TabItem>
+</Tabs>
+
+### 参数
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| write_ptr | uint32_t | 指向用于存储输出序列化 Keylet 的缓冲区 |
+| write_len | uint32_t | 输出缓冲区长度，必须为 34 字节 |
+| lread_ptr | uint32_t | 指向 34 字节序列化 Keylet 的指针，表示搜索范围下界 |
+| lread_len | uint32_t | 固定为 34 字节 |
+| hread_ptr | uint32_t | 指向 34 字节序列化 Keylet 的指针，表示搜索范围上界 |
+| hread_len | uint32_t | 固定为 34 字节 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type                   | Description |
+| ---- | ---------------------- | ----------- |
+| low  | ByteArray \| HexString | 表示搜索范围下界的 34 字节序列化 Keylet |
+| high | ByteArray \| HexString | 表示搜索范围上界的 34 字节序列化 Keylet |
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>成功时为写入的字节数（34 字节）。<br /><br />若为负数，则表示错误：<br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>TOO_SMALL</code> / <code>TOO_BIG</code><br />- <code>write_len</code>、<code>lread_len</code> 或 <code>hread_len</code> 不是 34 字节<br /><br /><code>INVALID_ARGUMENT</code><br />- 提供的一个或多个 Keylet 不是合法的序列化 Keylet<br /><br /><code>DOES_NOT_MATCH</code><br />- 提供的两个 Keylet 不属于同一 Keylet 类型。<br /><br /><code>DOESNT_EXIST</code><br />- 在指定范围内未找到匹配的 Keylet。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ErrorCode \| ByteArray | 成功时返回写入的字节数（34 字节），出错时返回错误码。 |
+</TabItem>
+</Tabs>

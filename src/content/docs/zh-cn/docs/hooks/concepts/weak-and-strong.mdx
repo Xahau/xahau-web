@@ -1,0 +1,99 @@
+---
+title: Weak and Strong
+description: 哪些 Hooks 可以运行，以及何时运行？
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip" title="Hook Design Philosophy">
+  每个会受到交易影响的一方，都应当有机会让自己的 Hooks 得到执行。
+</Aside>
+
+Transactional Stake Holders（TSH）指的是在某种程度上与一笔交易存在利益关系，或者会受到该交易影响的参与方。他们与交易之间的联系可能是 _weak_，也可能是 _strong_。这种联系强弱决定了该参与方是否有权让自己的 Hooks 被执行，以及谁来支付执行费用。
+
+例如：
+
+* 在普通直接 XAH **Payment** 交易中，两个 TSH 是 _originating account_ 与 _destination account_
+* 在 **SetSignerList** 交易中，TSH 是 _originating account_ 以及 signer list 中出现的、且在账本中处于激活状态的各账户
+* 在 **OfferCreate** 交易中，被原始交易撮合到的其他账户 offers 都属于 weak TSH，并且可以选择 weak execution
+* 在启用 **IOUIssuerWeakTSH** amendment 后，如果某个第三方交易涉及或提到了某种货币，那么其发行方如果选择了 weak execution，其 hooks 也会被执行
+
+由于 Xahau 上的交易类型非常多样，TSH 也会呈现出各种不同甚至不直观的形式。随着账本支持更多交易类型，这种情况会更明显。
+
+### Weak 与 Strong
+
+每个 TSH 与交易之间，都存在 weak 或 strong 两种连接之一。
+
+**Strong** connection 意味着：
+
+1. 原始交易必须支付该 TSH 的 Hook Chain 执行费用
+2. 该 TSH 有权在执行期间从其 Hook 中调用 `rollback()`，从而回滚整笔交易
+
+**Weak** connection 意味着：
+
+1. 原始交易**不会**支付该 TSH 的 Hook Chain 执行费用
+2. TSH 通过 [Collect Call Hooks](/docs/hooks/concepts/collect-call) 机制自己支付其 Hook Chain 的执行费用
+3. TSH 必须在原始交易执行之前先设置账户标志 `asfTshCollect`
+4. TSH **无权**在执行期间通过 `rollback()` 回滚整笔交易（但仍然可以修改自己的 Hook state 并发射交易）
+
+### Before or After
+
+Strong TSH 的 hooks 会在原始交易被应用到账本_之前_执行。这意味着它们有能力对交易执行 [rollback](/docs/hooks/functions/control/rollback)（因为交易尚未真正落账）。因此，strongly executed hooks 可以完全阻止某笔交易发生。
+
+Weak TSH 的 hooks 会在原始交易已经被应用到账本_之后_执行。这意味着它们可以访问 [transaction metadata](/docs/hooks/functions/originating-transaction/meta_slot)，但不能阻止交易发生。
+
+<Aside type="tip">
+  以 strong 模式执行的 hook 还可以调用 <a href="ref:hook_again">hook_again</a>，在原始交易落账后再以 weak 模式执行一次。
+</Aside>
+
+### 执行上下文
+
+`hook(uint32_t)` 与 `cbak(uint32_t)` 中的 `uint32_t` 参数，会把 Hooks Amendment 提供的重要上下文信息传递给你的 Hook。
+
+在执行 `hook` 时：
+
+* `0` 表示该 Hook 正在以 _strong_ 模式执行
+* `1` 表示该 Hook 正在以 _weak_ 模式执行
+* `2` 表示该 Hook 先前已经以 _strong_ 模式执行过，并因调用了 [hook_again](/docs/hooks/functions/hook-context/hook_again) 而再次以 _weak_ 模式执行
+
+在执行 `cbak` 时：
+
+* `0` 表示该 Hook 所发射的交易已成功被某个账本接受，因此正在回调
+* `1` 表示该 Hook 所发射的交易被标记为永远无法被任何账本应用（EmitFailure），因此正在回调
+
+### 参考表
+
+如果某个 Transaction Type 没有出现在下表中，那么它的 TSH **只有 originating account 本身。**
+
+| Transaction Type | TSH Type | 谁是 TSH |
+| --- | --- | --- |
+| AccountDelete | Strong | 删除后接收资金的 Destination 账户 |
+| AccountSet | None | N/A |
+| CheckCancel | Weak | Destination 账户 |
+| CheckCash | None | N/A |
+| CheckCreate | Strong | Destination 账户 |
+| ClaimReward | Strong | Issuer 账户 |
+| DepositPreauth | Strong | Authorized 账户 |
+| EscrowCancel | Weak | Destination 账户 |
+| EscrowCreate | Strong | Destination 账户 |
+| EscrowFinish | Strong | Destination 账户 |
+| GenesisMint | Weak | GenesisMints 数组中的每个 Destination |
+| Import | Strong | Issuer 账户 |
+| Invoke | Strong | Destination 账户 |
+| OfferCancel | None | N/A |
+| OfferCreate | Weak | 被该操作撮合到的其他账户 offers |
+| Payment | Strong + Weak | Strong: Destination 账户；Weak: 支付路径经过的任意非发行方 |
+| PaymentChannelClaim | Weak | Destination 账户 |
+| PaymentChannelCreate | Strong | Destination 账户 |
+| PaymentChannelFund | Weak | Destination 账户 |
+| SetHook | None | N/A |
+| SetRegularKey | Strong | 被设置为该 key 的那个账户 |
+| SignerListSet | Strong | 被设置为签名键的那些账户（若它们存在且安装了 Hooks） |
+| TicketCreate | None | N/A |
+| TrustSet | Weak | Issuer 账户 |
+| URITokenCancelSellOffer | None | N/A |
+| URITokenCreateSellOffer | Strong | Destination 账户；若设置 tfBurnable，则还包括 Issuer |
+| URITokenBurn | Strong | 若设置 tfBurnable，则为 Issuer |
+| URITokenBuy | Strong | Owner 账户；若设置 tfBurnable，则还包括 Issuer |
+| URITokenMint | None | N/A |
+
+其余更细的矩阵表（如 AccountDelete、Check、Escrow、Payment、URIToken 等的完整 OTXN/TSH 组合）与英文原文保持一致，核心判断规则以上述总表为准。

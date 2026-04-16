@@ -1,0 +1,367 @@
+---
+title: Linux 构建说明
+---
+import { Aside } from '@astrojs/starlight/components';
+
+
+这些说明适用于 Debian（例如 Ubuntu 22.04 与 24.04）以及基于 Red Hat Enterprise Linux（9 或 10）的发行版。许多步骤是共通的，不过文中也会标出不同操作系统间的差异。虽然我们会尽力在不同操作系统上测试构建过程，但 Ubuntu 仍然是构建和运行 `xahaud` 时测试最充分、支持最完善的环境。
+
+如需更多说明，请参阅 Xahau/xahaud GitHub 仓库中的 [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md) 文件。
+
+<Aside type="caution">
+创建用于构建 `xahaud` 的环境可能对系统造成永久性损害。本页中的 [Build Environments](#build-environments-for-beginners) 部分介绍了一些将构建环境与底层操作系统隔离的技术。请自行承担对系统做出修改的风险。
+</Aside>
+
+## 安装依赖项
+
+Debian/Ubuntu 用户可以使用以下命令安装所需依赖：
+```
+sudo apt install -y git curl wget python3-pip python3-venv python3-dev ca-certificates gcc g++ build-essential cmake ninja-build libc6-dev libssl-dev libsqlite3-dev
+```
+
+同样，RHEL 9 或 RHEL 10 用户可以这样安装依赖：
+```
+sudo dnf install epel-release && sudo dnf update -y
+sudo dnf config-manager --set-enabled crb -y
+sudo dnf groupinstall "Development Tools" -y
+sudo dnf install curl wget git ca-certificates cmake glibc-headers glibc-devel ninja-build perl-interpreter perl perl-FindBin sqlite-devel libstdc++ libstdc++-devel libstdc++-static gcc-c++ -y
+```
+
+## 克隆 Xahau/xahaud GitHub 仓库
+
+在构建之前，先获取一份本地 `xahaud` GitHub 仓库副本：
+
+`git clone https://github.com/Xahau/xahaud.git`
+
+你也可以从其他 fork 仓库构建，只需根据需要调整上面的 URL。
+
+### 选择仓库分支
+
+`xahaud` 开发使用的主分支是 `dev`。如果你希望从其他分支构建，也可以这么做：
+
+`git checkout [branch name]`
+
+### 准备 build 目录
+
+在 `xahaud` 仓库中创建一个目录，用于存放构建过程中生成的文件：
+
+`mkdir [/path/to/xahaud_github_repo]/.build`
+
+## 安装并配置 Conan2
+
+1. 确保你位于 build 目录中： `cd [/path/to/xahaud_github_repo]/.build`
+
+2. 在 `env` 目录中创建一个 Python3 虚拟环境（venv）： `python3 -m venv env`
+
+3. 激活虚拟环境： `source ./env/bin/activate`
+
+4. 更新 pip，以便使用最新软件版本： `pip install --upgrade pip`
+
+5. 安装 Conan2： `pip install conan`
+
+6. 创建一个新的 Conan2 profile（如果此前尚未创建）： `conan profile detect`
+
+7. 为 `xahaud` GitHub 仓库中内置的 Snappy、SOCI 和 WasmEdge 依赖安装 Conan recipes：
+```
+conan export external/snappy --version 1.1.10 --user xahaud --channel stable
+conan export external/soci --version 4.0.3 --user xahaud --channel stable
+conan export external/wasmedge --version 0.11.2 --user xahaud --channel stable
+```
+8. 检查你的 Conan2 profile，位置通常在： `/home/[username]/.conan2/profiles/default`。如果有需要，添加：
+```
+[settings]
+compiler.cppstd=20
+compiler.libcxx=libstdc++11
+```
+9. 在某些情况下，还需要在 Conan2 profile 末尾加入以下内容：
+```
+[conf]
+tools.build:cxxflags=['-Wno-restrict']
+```
+
+## 构建 xahaud
+
+1. 在 `.build` 目录中，并保持 Python3 虚拟环境已激活，将 `build_type` 调整为 `Release` 或 `Debug`，然后运行以下命令。也可以运行两次该命令，以分别为不同 `build_type` 生成文件。
+```
+conan install .. --output-folder . --build missing --settings build_type=["Release" or "Debug"] -c tools.build:verbosity=verbose -c tools.compilation:verbosity=verbose
+```
+
+2. 如有需要，也可以向 Conan2 传递额外选项：
+```
+conan install .. --output-folder . --build missing --settings build_type=["Release" or "Debug"] -s compiler=gcc -s compiler.version=12 -s compiler.libcxx=libstdc++11 -s compiler.cppstd=20 -c tools.build:verbosity=verbose -c tools.compilation:verbosity=verbose -g VirtualBuildEnv -g VirtualRunEnv
+```
+
+3. Conan2 完成后，运行 `cmake`。如果你要同时构建多个配置（例如同时构建 `Release` 和 `Debug`），则不要指定 `DCMAKE_BUILD_TYPE`。
+
+```
+cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+	-DCMAKE_BUILD_TYPE=["Release" or "Debug"] \
+	-DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake \
+	..
+```
+
+4. 最后，使用 `cmake` 完成构建流程： `cmake --build . [add '--config Release' or '--config Debug' if multiple build types were generated]`。
+
+输出文件名为 `rippled`，位于 `.build` 目录中。如果你同时构建了多个 build type（例如 `Release` 和 `Debug`），最终产物会位于： `.build/["Release" or "Debug"]/rippled`。请将该文件重命名为 `xahaud`，然后移动到最终位置（注意不要覆盖 `xahaud` GitHub 仓库本身）。将最终文件标记为可执行，并根据需要下载配置文件与 validators 文件。
+
+## 测试构建结果
+
+若要运行单元测试： `./xahaud --unittest`
+
+
+## 面向初学者的构建环境
+
+维护不同的构建环境（Python3 venv、Conan2 profiles 等）本身就是一项复杂任务，而底层操作系统通常又会依赖或期望使用特定软件版本。因此，对构建流程还不熟悉的用户，可以考虑使用容器，或在每次重启后重置状态的虚拟机中运行 bash 脚本。
+
+下列小节介绍了配置易失性环境与容器式构建环境的基本方法。
+
+### 容器
+
+可以使用 [Docker](https://docker.com) 或其他容器化环境（Podman、Kubernetes 等）来封装构建过程，从而保持底层系统整洁。使用容器的另一个优势，是可以非常方便地在多个环境中测试构建。例如，你可以配置基于 RHEL、Debian 等不同发行版的容器，并搭配不同版本的编译器。另外，诸如多阶段 Dockerfile 之类的特性，也允许用户使用一个 Dockerfile 完成 `xahaud` 的构建与部署（运行）。用户还可以利用 Docker 的 `buildx` 插件，以并发方式为多个平台进行构建。
+
+#### 安装 Docker
+```
+# Debian/Ubuntu:
+sudo apt update && sudo apt install docker.io docker-compose-v2 docker-buildx
+
+# RHEL (requires adding the docker.com repository):
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+安装完成后，你可以把本地用户加入 Docker 用户组，这样与 Docker 交互时就不必再使用 root / sudo： `sudo usermod -aG docker $USER`。要使更改生效，你需要退出当前用户会话并重新登录。
+
+#### 示例 Dockerfile
+
+为了方便与一致性，可以使用 Dockerfile 脚本（例如结合 `buildx`、多阶段构建、docker-compose v2 等）来配置构建环境并完成构建流程。
+
+例如，你可以在 Ubuntu 24.04 Docker 容器中编译 `xahaud`，通过 Dockerfile 描述容器、下载并安装依赖，然后构建最终产物。请注意，下面的代码遵循了本页前面 Linux 通用构建流程中的相同步骤，只是这些步骤是在隔离容器中完成的。你也可以继续添加变量或调整代码，以定制构建过程。
+
+```
+# ~~~~ Arguments used to customize the container and build ~~~~
+ARG BASE_IMAGE=ubuntu:24.04                     # Operating system for the build container
+ARG REPO_URL=https://github.com/Xahau/xahaud    # URL for the repository with the code to be compiled
+ARG REPO_BRANCH=dev                             # Repository branch that will be used for the build 
+ARG RELEASE_TYPE=Release                        # Set to "Release" or "Debug"
+ARG BASE_DIR=/build                             # Directory to build xahaud in
+
+# ~~~~ Initiate a container ~~~~
+FROM --platform=$BUILDPLATFORM ${BASE_IMAGE} AS builder
+
+ARG REPO_URL
+ARG REPO_BRANCH
+ARG RELEASE_TYPE
+ARG BASE_DIR
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    CONAN2_DIR=/root/.conan2
+
+# ~~~~ Install build dependencies ~~~~
+RUN set -ex; \
+    if [ -f /etc/os-release ]; then . /etc/os-release; fi; \
+    case " $ID $ID_LIKE " in \
+        *debian*|*ubuntu*) \
+            apt-get update && apt-get install -y -qq \
+                git curl wget python3-pip python3-venv python3-dev ca-certificates \
+                gcc g++ build-essential cmake ninja-build \
+                libc6-dev libssl-dev libsqlite3-dev \
+            && rm -rf /var/lib/apt/lists/* \
+            ;; \
+        *rhel*|*fedora*|*centos*|*rocky*|*alma*) \
+            dnf install -y config-manager epel-release && dnf update -y && \
+            dnf config-manager --set-enabled crb -y && \
+            dnf groupinstall -y "Development Tools" && \
+            dnf install -y curl wget git ca-certificates cmake glibc-headers glibc-devel \
+                ninja-build perl-interpreter perl perl-FindBin sqlite-devel \
+                libstdc++ libstdc++-devel libstdc++-static gcc-c++ python3-pip python3-devel \
+            && dnf clean all \
+            ;; \
+        *) echo "Unsupported OS"; exit 1 ;; \
+    esac
+
+# ~~~~ Clone the xahaud GitHub repository and create a '.build' directory ~~~~
+WORKDIR ${BASE_DIR}
+RUN git clone ${REPO_URL} xahaud && \
+    cd xahaud && \
+    git checkout ${REPO_BRANCH} && \
+    mkdir -p .build
+
+# ~~~~ Create a Python3 virtual environment and install Conan2 ~~~~
+RUN python3 -m venv ${BASE_DIR}/env && \
+    . ${BASE_DIR}/env/bin/activate && \
+    pip install --upgrade pip && \
+    pip install conan
+
+# ~~~~ Configure Conan2 profile (the following assumes the user wishes to use cppstd version 20) ~~~~
+RUN . ${BASE_DIR}/env/bin/activate && \
+    conan profile detect && \
+    CONAN2_PROFILE="${CONAN2_DIR}/profiles/default" && \
+    if grep -q '^compiler\.cppstd=' "$CONAN2_PROFILE"; then \
+        sed -i 's/^compiler\.cppstd=.*/compiler.cppstd=20/' "$CONAN2_PROFILE"; \
+    else \
+        echo 'compiler.cppstd=20' >> "$CONAN2_PROFILE"; \
+    fi && \
+    if ! grep -Fqx "[conf]" "$CONAN2_PROFILE"; then \
+        printf "[conf]\ntools.build:cxxflags=['-Wno-restrict']\n" >> "$CONAN2_PROFILE"; \
+    fi
+
+# ~~~~ Export Conan recipies for snappy, soci, and wasmedge ~~~~
+RUN . ${BASE_DIR}/env/bin/activate && \
+    cd ${BASE_DIR}/xahaud && \
+    conan export external/snappy --version 1.1.10 --user xahaud --channel stable && \
+    conan export external/soci --version 4.0.3 --user xahaud --channel stable && \
+    conan export external/wasmedge --version 0.11.2 --user xahaud --channel stable
+
+# ~~~~ Build xahaud ~~~~
+RUN . ${BASE_DIR}/env/bin/activate && \
+    cd ${BASE_DIR}/xahaud/.build && \
+    conan install .. --output-folder . \
+        --settings build_type=${RELEASE_TYPE} \
+        --options *:shared=False \
+        --build missing \
+        -c tools.build:verbosity=verbose \
+        -c tools.compilation:verbosity=verbose \
+        -g VirtualBuildEnv \
+        -g VirtualRunEnv && \
+    cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+        -DCMAKE_BUILD_TYPE=${RELEASE_TYPE} \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++" \
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake \
+        .. && \
+    cmake --build . --parallel $(nproc)
+
+# ~~~~ Copy the config files to the BASE_DIR ~~~~
+RUN cp ${BASE_DIR}/xahaud/cfg/xahaud-example.cfg ${BASE_DIR}/xahaud.cfg && \
+    cp ${BASE_DIR}/xahaud/cfg/validators-example.txt ${BASE_DIR}/validators-xahau.txt && \
+    cp ${BASE_DIR}/xahaud/.build/rippled ${BASE_DIR}/rippled
+
+
+
+# ~~~~ Copy the xahaud.cfg and validators-xahau.txt files into the host OS ~~~~
+FROM scratch AS export
+ARG BASE_DIR
+
+COPY --from=builder ${BASE_DIR}/rippled /xahaud
+COPY --from=builder ${BASE_DIR}/xahaud.cfg /xahaud.cfg
+COPY --from=builder ${BASE_DIR}/validators-xahau.txt /validators-xahau.txt
+
+
+
+# ~~~~ Create a Docker image with xahaud and configuration files ~~~~
+FROM ${BASE_IMAGE} AS runtime
+ARG BASE_DIR
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ~~~~ Install runtime dependencies ~~~~
+RUN set -ex; \
+    if [ -f /etc/os-release ]; then . /etc/os-release; fi; \
+    case " $ID $ID_LIKE " in \
+        *debian*|*ubuntu*) \
+            apt-get update && apt-get install -y -qq \
+                libssl3 libsqlite3-0 ca-certificates \
+            && update-ca-certificates \
+            && rm -rf /var/lib/apt/lists/* \
+            ;; \
+        *rhel*|*fedora*|*centos*|*rocky*|*alma*) \
+            dnf install -y openssl-libs sqlite-libs ca-certificates \
+            && dnf clean all && update-ca-trust \
+            ;; \
+    esac
+
+# ~~~~ Copy built binary and configs from builder ~~~~
+RUN mkdir -p /opt/xahaud/etc /opt/xahaud/bin /opt/xahaud/db /var/log/xahaud
+COPY --from=builder ${BASE_DIR}/rippled /opt/xahaud/bin/xahaud
+COPY --from=builder ${BASE_DIR}/xahaud.cfg /opt/xahaud/etc/xahaud.cfg
+COPY --from=builder ${BASE_DIR}/validators-xahau.txt /opt/xahaud/etc/validators-xahau.txt
+
+# ~~~~ Create dicrectories and copy required shared libraries from builder ~~~~
+RUN --mount=type=bind,from=builder,source=/root/.conan2,target=/tmp/conan \
+    find /tmp/conan -name "*.so*" -type f -exec cp {} /usr/local/lib/ \; && \
+    ldconfig
+
+# ~~~~ Set permissions ~~~~
+RUN chmod -R 755 /opt/xahaud /var/log/xahaud
+
+WORKDIR /opt/xahaud
+
+# ~~~~ Expose ports ~~~~
+EXPOSE 5009 6009 50051 21337 21338
+
+# ~~~~ Run xahaud ~~~~
+ENTRYPOINT ["/opt/xahaud/bin/xahaud"]
+CMD ["--conf", "/opt/xahaud/etc/xahaud.cfg"]
+```
+
+上述 “multistage” Dockerfile 可通过以下命令用于构建 `xahaud`：
+
+`docker buildx build -t xahaud-builder --target builder --load .`
+
+该命令会基于 Dockerfile 创建一个名为 `xahaud-builder` 的 Docker 镜像。`--target builder` 参数表示在 build 阶段结束，`--load` 参数则会把生成的镜像导入到本地 Docker 中。
+
+构建出的产物也可以导出到宿主操作系统（包括配置文件）：
+
+`docker buildx build --target export --output type=local,dest=$HOME .`
+
+如果要运行该多阶段构建文件，并创建一个带有 `xahaud` 及所需配置文件的新 Docker 镜像：
+
+`docker buildx build --target runtime --load -t xahaud:latest .`
+
+生成后的镜像可以通过 `docker images` 查看，并通过以下方式运行：
+
+`docker run --rm -d --name xahaud -p 5009:5009 -p 6009:6009 -p 21337:21337 -v /home/$USER/xahaud/opt:/opt/xahaud -v /home/$USER/xahaud/log:/var/log/xahaud xahaud:latest`
+
+在上述命令中，你可以调整 `-d` 参数来决定是否以 detached mode 运行；调整 `-p xxxx:xxxx` 参数来定义端口映射；调整 `--name xahaud` 参数来修改容器名称；以及调整 `-v /path/on/host:/path/in/container` 参数来改变持久化数据在宿主系统上的存储位置。如果以 detached mode 运行，则可使用 `docker logs -f xahaud` 查看日志。
+
+### 易失性操作系统
+
+将 Linux 系统配置为在运行时彻底遗忘所有安装或修改的软件，是一种从构建错误中快速恢复的简便方式。通常，这类易失性操作系统会作为虚拟机运行，并拥有非常大的可用内存，因为所有更改都会写入内存而不是磁盘。如果所有软件依赖 / 要求都安装在基于内存的 overlay 文件系统中，构建 `xahaud` 可能会占用超过 20 GB 内存。通常也可以在让系统变为易失性之前，先用 `apt` 或 `dnf` 安装大部分软件依赖，从而降低后续所需内存。
+
+#### 使用基于 Debian 的虚拟机配置易失性操作系统
+```
+# Install the 'overlayroot' software package
+apt update && apt install overlayroot
+
+# Update the configuration file (/etc/overlayroot.conf) to enable an in-memory overlay file system.
+sudo sed -i 's/^overlayroot=.*/overlayroot="tmpfs:swap=1,recurse=0"/' /etc/overlayroot.conf
+
+# Rebuild initramfs
+update-initramfs -u
+
+# Reboot into the overlay
+reboot
+
+# After rebooting, it is possible to remount the overlay filesystem with more memory, as only 50% of available memory is dedicated to the overlayfs by default.
+# When resizing memory, ensure some memory remains available for system use. The following will remount with the overlayfs set to use 30G of memory, adjust as needed.
+# It is also possible to use a systemd file to enable persistent changes to the overlayfs size.
+sudo mount -o remount,size=30G /media/root-rw
+```
+
+#### 使用基于 RHEL 的虚拟机配置易失性操作系统
+```
+# Ensure dracut is installed
+dnf install dracut -y
+
+# Configure dracut to support the overlay
+printf 'add_drivers+=" overlay "\n' > /etc/dracut.conf.d/overlay.conf # Use this line for RHEL 9
+printf 'add_drivers+=" overlay "\nadd_dracutmodules+=" overlayfs "\n' > /etc/dracut.conf.d/overlay.conf # Use this line for RHEL 10
+
+# Rebuild
+dracut -f
+
+# Update the boot image to use a systemd volatile overlay
+grubby --update-kernel=ALL --args="systemd.volatile=overlay"
+```
+
+#### 构建 xahaud
+一旦你创建好具有足够内存的易失性虚拟机，就可以按照[本页前文](#_top)中的说明来构建 `xahaud`。
+
+#### 关闭易失性模式
+如果你要安装软件更新或执行其他应当保留的任务，则需要关闭易失性模式。可以暂时关闭，也可以永久关闭。有些软件更新在重启后还需要进一步配置，因此通常建议在软件更新后的下一次重启中再次关闭一次易失性模式。
+
+在基于 Debian 的系统上关闭易失性模式：
+1. 按 `e` 编辑 Ubuntu 启动项。
+2. 在以 `linux...` 开头的那一行中，编辑或增加 `overlayroot=` 参数，使其变为 `overlayroot=disabled`。这样可以临时启动到使用持久化存储的系统。
+3. 若要永久关闭易失性模式，运行 `sudo sed -i '/^overlayroot=/c\overlayroot="disabled"' /etc/overlayroot.conf`，将 `/etc/overlayroot.conf` 中的 `overlayroot` 改为 `"disabled"`。之后再更新 initramfs： `sudo update-initramfs -u`。

@@ -1,0 +1,70 @@
+---
+title: float_sto
+description: 将 XFL 输出为序列化对象
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">浮点数（XFL）</LinkButton>
+<LinkButton href="/docs/hooks/concepts/serialized-objects">序列化对象</LinkButton>
+
+### 行为
+
+<Tabs>
+<TabItem label="C">
+* 读取一个 XFL 浮点数，以及可选的字段代码和货币代码
+* 根据参数向 `write_ptr` 写入序列化金额
+</TabItem>
+
+<TabItem label="JavaScript">
+* 将浮点表示写入指定字段
+* 返回错误码或更新后的字节数组
+</TabItem>
+</Tabs>
+
+### 定义
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sto (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t cread_ptr,
+    uint32_t cread_len,  
+    uint32_t iread_ptr,
+    uint32_t iread_len,  
+    int64_t float1,
+    uint32_t field_code
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sto(
+    currency: ByteArray | HexString | undefined,
+    issuer: ByteArray | HexString | undefined,
+    f1: bigint,
+    field_code: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 返回码
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description |
+| -------- | ----------- |
+| int64_t | <p>写入输出缓冲区的字节数。<br /><br />若为负数，则表示错误：<br /><code>INVALID_FLOAT</code><br />- 提供的浮点数不是合法 XFL<br /><br /><code>OUT_OF_BOUNDS</code><br />- 指针或长度超出 Hook 内存范围。<br /><br /><code>INVALID_ARGUMENT</code><br />- 若要求输出为 <code>XRP</code> 或不带 <code>field code</code>，则所有非写入指针与长度都应为 0。<br /><br /><code>TOO_SMALL</code><br />- 输出缓冲区不足以接收序列化对象。<br /><br /><code>XFL_OVERFLOW</code><br />- 规范化输出时溢出。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description |
+| ---------------------- | ----------- |
+| ErrorCode \| ByteArray | 返回错误码或更新后的字节数组。 |
+</TabItem>
+</Tabs>

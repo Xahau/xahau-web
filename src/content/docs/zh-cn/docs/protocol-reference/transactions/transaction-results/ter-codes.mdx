@@ -1,0 +1,22 @@
+---
+title: TER Codes
+---
+这些代码表示交易失败了，但它在未来仍有可能成功，通常前提是先有其他某些交易被应用。其数值范围为 -99 到 -1。具体数值可能变化，因此不要依赖数值本身。
+
+**注意：** 带有 `ter` 代码的交易不会被应用到当前账本，也不会对 Xahau 状态造成变化。不过，一笔暂时失败的交易在自动重新应用后，仍可能成功或以其他代码失败。
+
+| 代码 | 说明 |
+| --- | --- |
+| `terFUNDS_SPENT` | **已弃用。** |
+| `terINSUF_FEE_B` | 发送账户没有足够 XAH 来支付交易中指定的 `Fee`。 |
+| `terLAST` | 仅内部使用，不应返回。 |
+| `terNO_ACCOUNT` | 发送交易的地址在账本中尚未注资。 |
+| `terNO_AUTH` | 交易会导致某项由启用了 `lsfRequireAuth` 的账户发行的货币被加入到一个未授权的 trust line。 |
+| `terNO_LINE` | 仅内部使用，不应返回。 |
+| `terNO_RIPPLE` | 仅内部使用，不应返回。 |
+| `terOWNERS` | 该交易要求发送账户拥有非零的 owners count，因此当前无法成功。 |
+| `terPRE_SEQ` | 当前交易的 `Sequence` 高于发送账户当前 sequence number。 |
+| `terPRE_TICKET` | 交易试图使用某个 Ticket，但该 `TicketSequence` 当前在账本中不存在；不过未来可能由其他交易创建。 |
+| `terRETRY` | 未指定的可重试错误。 |
+| `terQUEUED` | 交易满足了负载缩放后的 transaction cost，但没有达到 open ledger requirement，因此已被放入未来账本的队列中。 |
+| `terNO_HOOK` | 交易试图使用账本中不存在的 `HookHash`。 |
