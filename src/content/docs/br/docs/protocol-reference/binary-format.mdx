@@ -1,0 +1,302 @@
+---
+title: Formato Binário
+---
+[\[Fonte\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/STObject.cpp#L696-L718)
+
+Esta página descreve o formato binário canônico do Xahau para transações e outros dados. Esse formato binário é necessário para criar e verificar assinaturas digitais do conteúdo das transações, e também é usado em outros contextos, incluindo as comunicações peer-to-peer entre servidores. As APIs do `xahaud` tipicamente usam JSON para comunicação com aplicações clientes. Porém, o JSON é inadequado como formato para serializar transações a serem assinadas digitalmente, pois pode representar os mesmos dados de diversas formas equivalentes diferentes.
+
+O processo de serialização de uma transação do JSON (ou qualquer outra representação) para seu formato binário canônico pode ser resumido nas seguintes etapas:
+
+1.  Certifique-se de que todos os campos obrigatórios estejam presentes, incluindo os campos obrigatórios "auto-preenchíveis".
+
+    A Referência de Formatos de Transação define os campos obrigatórios e opcionais para transações Xahau.
+
+    **Nota:** O `SigningPubKey` também deve ser fornecido nesta etapa. Ao assinar, você pode derivar esta chave a partir da chave secreta usada na assinatura.
+2. Converta os dados de cada campo para seu formato binário "interno".
+3. Ordene os campos em ordem canônica.
+4. Prefixe cada campo com um Field ID.
+5. Concatene os campos (incluindo prefixos) na ordem classificada.
+
+O resultado é um único blob binário que pode ser assinado usando algoritmos de assinatura bem conhecidos, como ECDSA (com a curva elíptica secp256k1) e Ed25519. Para fins do Xahau, você também deve fazer o \[hash]\[Hash] dos dados com o prefixo apropriado (`0x53545800` para assinatura simples, ou `0x534D5400` para multi-assinatura). Após assinar, você deve re-serializar a transação com o campo `TxnSignature` incluído.
+
+**Nota:** O Xahau usa o mesmo formato de serialização para representar outros tipos de dados, como objetos de ledger e transações processadas. Porém, apenas determinados campos são adequados para inclusão em uma transação a ser assinada. (Por exemplo, o campo `TxnSignature`, que contém a própria assinatura, não deve estar presente no blob binário que você assina.) Assim, alguns campos são designados como "Signing" (incluídos quando os objetos são assinados) e "non-signing" (não incluídos nos dados a serem assinados).
+
+#### Exemplos
+
+Tanto transações assinadas quanto não assinadas podem ser representadas em formato JSON e binário. Os exemplos a seguir mostram a mesma transação assinada nos dois formatos:
+
+**JSON:**
+
+```json
+
+<div data-gb-custom-block data-tag="include" data-0='_code-samples/tx-serialization/py/test-cases/tx1.json'></div>
+
+```
+
+**Binário (representado em hexadecimal):**
+
+```
+
+<div data-gb-custom-block data-tag="include" data-0='_code-samples/tx-serialization/py/test-cases/tx1-binary.txt'></div>
+
+```
+
+### Código de Exemplo
+
+Os processos de serialização descritos aqui estão implementados em vários lugares e linguagens de programação:
+
+* Em C++ [na base de código do `rippled`](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/STObject.cpp).
+* Em JavaScript na seção de exemplos de código deste repositório.
+* Em Python 3 na seção de exemplos de código deste repositório.
+
+Além disso, muitas bibliotecas clientes fornecem suporte à serialização sob licenças de código aberto permissivas, para que você possa importar, usar ou adaptar o código conforme suas necessidades.
+
+### Formato Interno
+
+Cada campo tem um formato binário "interno" usado no código-fonte do `xahaud` para representar esse campo ao assinar (e na maioria dos outros casos). Os formatos internos de todos os campos são definidos no código-fonte de [`SField.cpp`](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/impl/SField.cpp). (Este arquivo também inclui campos além dos campos de transação.) A Referência de Formato de Transação também lista os formatos internos para todos os campos de transação.
+
+Por exemplo, o campo comum de transação `Flags` se torna um UInt32 (inteiro sem sinal de 32 bits).
+
+#### Arquivo de Definições
+
+O seguinte arquivo JSON define as constantes importantes necessárias para serializar dados do Xahau para o formato binário e desserializá-los do binário:
+
+[**https://github.com/Xahau/xahau.js/tree/main-xahau/packages/xahau-binary-codec/src/enums/definitions.json**](https://github.com/Xahau/xahau.js/tree/main-xahau/packages/xahau-binary-codec/src/enums/definitions.json)
+
+A tabela a seguir define os campos de nível superior do arquivo de definições:
+
+| Campo                 | Conteúdo                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TYPES`               | Mapa de tipos de dados para seus "códigos de tipo" usados na construção de IDs de campo e na ordenação de campos em ordem canônica. Códigos abaixo de 1 não devem aparecer em dados reais; códigos acima de 10000 representam tipos "de alto nível" especiais, como "Transaction", que não podem ser serializados dentro de outros objetos. Consulte a Lista de Tipos para detalhes sobre como serializar cada tipo. |
+| `LEDGER_ENTRY_TYPES`  | Mapa de objetos de ledger para seu tipo de dados. Aparecem nos dados de estado do ledger e na seção de "nós afetados" dos metadados de transações processadas.                                                                                                                                                                                           |
+| `FIELDS`              | Um array ordenado de tuplas representando todos os campos que podem aparecer em transações, objetos de ledger ou outros dados. O primeiro membro de cada tupla é o nome do campo em string e o segundo é um objeto com as propriedades desse campo. (Consulte a tabela "Propriedades de campo" abaixo para definições desses campos.)                     |
+| `TRANSACTION_RESULTS` | Mapa de códigos de resultado de transação para seus valores numéricos. Tipos de resultado não incluídos nos ledgers têm valores negativos; `tesSUCCESS` tem valor numérico 0; códigos da classe `tec` representam falhas incluídas nos ledgers.                                                                                                           |
+| `TRANSACTION_TYPES`   | Mapa de todos os tipos de transação para seus valores numéricos.                                                                                                                                                                                                                                                                                          |
+
+Para fins de serialização de transações para assinatura e envio, os campos `FIELDS`, `TYPES` e `TRANSACTION_TYPES` são necessários.
+
+Os objetos de definição de campo no array `FIELDS` têm os seguintes campos:
+
+| Campo            | Tipo    | Conteúdo                                                                                                                                                                                              |
+| ---------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nth`            | Number  | O código de campo deste campo, usado na construção do seu Field ID e na ordenação junto a outros campos do mesmo tipo de dado.                                                                        |
+| `isVLEncoded`    | Boolean | Se `true`, este campo tem prefixo de comprimento.                                                                                                                                                     |
+| `isSerialized`   | Boolean | Se `true`, este campo deve ser codificado em dados binários serializados. Quando `false`, o campo é tipicamente reconstruído sob demanda em vez de armazenado.                                        |
+| `isSigningField` | Boolean | Se `true`, este campo deve ser serializado ao preparar uma transação para assinatura. Se `false`, este campo deve ser omitido dos dados a serem assinados. (Pode não fazer parte das transações.)    |
+| `type`           | String  | O tipo de dado interno deste campo. Mapeia para uma chave no mapa `TYPES`, que fornece o código de tipo do campo.                                                                                     |
+
+#### IDs de Campo
+
+[\[Fonte - Codificação\]](https://github.com/seelabs/rippled/blob/cecc0ad75849a1d50cc573188ad301ca65519a5b/src/ripple/protocol/impl/Serializer.cpp#L117-L148) [\[Fonte - Decodificação\]](https://github.com/seelabs/rippled/blob/cecc0ad75849a1d50cc573188ad301ca65519a5b/src/ripple/protocol/impl/Serializer.cpp#L484-L509)
+
+Ao combinar o código de tipo e o código de campo, obtém-se o identificador único do campo, que é prefixado antes do campo no blob serializado final. O tamanho do Field ID é de um a três bytes, dependendo dos códigos de tipo e campo que combina. Veja a tabela abaixo:
+
+|                      | Código de Tipo < 16 | Código de Tipo >= 16 |
+| -------------------- | -------------- | --------------- |
+| **Código de Campo < 16**  |                |                 |
+| **Código de Campo >= 16** |                |                 |
+
+Ao decodificar, você pode saber quantos bytes tem o Field ID verificando quais bits **do primeiro byte** são zeros. Isso corresponde aos casos na tabela acima:
+
+|                            | 4 bits superiores não são zero                                                                                        | 4 bits superiores são zero                                                              |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **4 bits inferiores não são zero** | 1 byte: os 4 bits superiores definem o tipo; os 4 bits inferiores definem o campo.                             | 2 bytes: os 4 bits inferiores do primeiro byte definem o campo; o próximo byte define o tipo |
+| **4 bits inferiores são zero**    | 2 bytes: os 4 bits superiores do primeiro byte definem o tipo; os 4 bits inferiores do primeiro byte são 0; o próximo byte define o campo | 3 bytes: o primeiro byte é `0x00`, o segundo byte define o tipo; o terceiro byte define o campo |
+
+**Atenção:** Embora o Field ID seja composto pelos dois elementos usados para ordenar campos, você não deve ordenar pelo Field ID serializado em si, pois a estrutura de bytes do Field ID altera a ordem de classificação.
+
+#### Prefixação de Comprimento
+
+Alguns tipos de campos de comprimento variável são prefixados com um indicador de comprimento. Campos do tipo `Blob` (contendo dados binários arbitrários) são um exemplo desse tipo. Para saber quais tipos têm prefixo de comprimento, consulte a tabela Lista de Tipos.
+
+**Nota:** Alguns tipos de campos de comprimento variável não têm prefixo de comprimento. Esses tipos têm outras formas de indicar o fim de seu conteúdo.
+
+O prefixo de comprimento consiste em um a três bytes indicando o comprimento do campo imediatamente após o prefixo de tipo e antes do conteúdo.
+
+* Se o campo contém de 0 a 192 bytes de dados, o primeiro byte define o comprimento do conteúdo; em seguida, esse número de bytes de dados segue imediatamente após o byte de comprimento.
+*   Se o campo contém de 193 a 12480 bytes de dados, os primeiros dois bytes indicam o comprimento do campo com a seguinte fórmula:
+
+    ```
+      193 + ((byte1 - 193) * 256) + byte2
+    ```
+*   Se o campo contém de 12481 a 918744 bytes de dados, os primeiros três bytes indicam o comprimento do campo com a seguinte fórmula:
+
+    ```
+      12481 + ((byte1 - 241) * 65536) + (byte2 * 256) + byte3
+    ```
+* Um campo com prefixo de comprimento não pode conter mais de 918744 bytes de dados.
+
+Ao decodificar, você pode saber pelo valor do primeiro byte de comprimento se há 0, 1 ou 2 bytes de comprimento adicionais:
+
+* Se o primeiro byte de comprimento tem valor de 192 ou menos, é o único byte de comprimento e contém o tamanho exato do conteúdo do campo em bytes.
+* Se o primeiro byte de comprimento tem valor de 193 a 240, há dois bytes de comprimento.
+* Se o primeiro byte de comprimento tem valor de 241 a 254, há três bytes de comprimento.
+
+### Ordem Canônica de Campos
+
+Todos os campos em uma transação são ordenados em uma ordem específica baseada primeiro no tipo do campo (especificamente, um "código de tipo" numérico atribuído a cada tipo) e depois no próprio campo (um "código de campo"). (Pense como uma ordenação por sobrenome e depois por nome, onde o sobrenome é o tipo do campo e o nome é o próprio campo.)
+
+#### Códigos de Tipo
+
+Cada tipo de campo tem um código de tipo arbitrário, com códigos menores sendo classificados primeiro. Esses códigos são definidos em [`SField.h`](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/SField.h#L57-L74).
+
+Por exemplo, [UInt32 tem código de tipo 2](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/SField.h#L59), então todos os campos UInt32 vêm antes de todos os [campos Amount, que têm código de tipo 6](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/SField.h#L63).
+
+O arquivo de definições lista os códigos de tipo para cada tipo no mapa `TYPES`.
+
+#### Códigos de Campo
+
+Cada campo tem um código de campo, usado para ordenar campos do mesmo tipo, com códigos menores sendo classificados primeiro. Esses campos são definidos em [`SField.cpp`](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/impl/SField.cpp#L72-L266).
+
+Por exemplo, o campo `Account` de uma \[transação Payment]\[] [tem código de ordenação 1](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/impl/SField.cpp#L219), portanto vem antes do campo `Destination`, que [tem código de ordenação 3](https://github.com/Xahau/xahaud/blob/72e6005f562a8f0818bc94803d222ac9345e1e40/src/ripple/protocol/impl/SField.cpp#L221).
+
+Os códigos de campo são reutilizados para campos de diferentes tipos, mas campos do mesmo tipo nunca têm o mesmo código de campo. Ao combinar o código de tipo com o código de campo, obtém-se o Field ID único do campo.
+
+### Lista de Tipos
+
+As instruções de transação podem conter campos de qualquer um dos seguintes tipos:
+
+| Nome do Tipo | Código de Tipo | Comprimento em Bits | Com Prefixo de Comprimento? | Descrição                                                                                                                                                                                                    |
+| ------------ | -------------- | ------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| AccountID    | 8              | 160                 | Sim                         | O identificador único de uma conta.                                                                                                                                                                          |
+| Amount       | 6              | 64 ou 384           | Não                         | Um valor em XAH ou tokens. O comprimento é de 64 bits para XAH ou 384 bits (64+160+160) para tokens.                                                                                                        |
+| Blob         | 7              | Variável            | Sim                         | Dados binários arbitrários. Um campo importante desse tipo é `TxnSignature`, a assinatura que autoriza uma transação.                                                                                        |
+| Hash128      | 4              | 128                 | Não                         | Um valor binário arbitrário de 128 bits. O único campo desse tipo é `EmailHash`, destinado a armazenar o hash MD-5 do e-mail do proprietário de uma conta para busca de [Gravatar](https://www.gravatar.com/). |
+| Hash160      | 17             | 160                 | Não                         | Um valor binário arbitrário de 160 bits. Pode definir um código de moeda ou emissor.                                                                                                                        |
+| Hash256      | 5              | 256                 | Não                         | Um valor binário arbitrário de 256 bits. Normalmente representa o hash "SHA-512Half" de uma transação, versão de ledger ou objeto de dados de ledger.                                                       |
+| PathSet      | 18             | Variável            | Não                         | Um conjunto de possíveis caminhos de pagamento para um pagamento entre moedas diferentes.                                                                                                                    |
+| STArray      | 15             | Variável            | Não                         | Um array contendo um número variável de membros, que podem ser de tipos diferentes dependendo do campo. Dois exemplos incluem memos e listas de signatários usadas em multi-assinatura.                      |
+| STIssue      | 24             | 160 ou 320          | Não                         | Uma definição de ativo, XAH ou token, sem quantidade.                                                                                                                                                        |
+| STObject     | 14             | Variável            | Não                         | Um objeto contendo um ou mais campos aninhados.                                                                                                                                                              |
+| UInt8        | 16             | 8                   | Não                         | Um inteiro sem sinal de 8 bits.                                                                                                                                                                              |
+| UInt16       | 1              | 16                  | Não                         | Um inteiro sem sinal de 16 bits. O `TransactionType` é um caso especial deste tipo, com strings específicas mapeando para valores inteiros.                                                                  |
+| UInt32       | 2              | 32                  | Não                         | Um inteiro sem sinal de 32 bits. Os campos `Flags` e `Sequence` em todas as transações são exemplos desse tipo.                                                                                              |
+
+Além de todos os tipos de campo acima, os seguintes tipos podem aparecer em outros contextos, como objetos de ledger e metadados de transação:
+
+| Nome do Tipo | Código de Tipo | Com Prefixo de Comprimento? | Descrição                                                                                                                                                                  |
+| ------------ | -------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Transaction  | 10001          | Não                         | Um tipo "de alto nível" contendo uma transação completa.                                                                                                                   |
+| LedgerEntry  | 10002          | Não                         | Um tipo "de alto nível" contendo um objeto de ledger completo.                                                                                                             |
+| Validation   | 10003          | Não                         | Um tipo "de alto nível" usado em comunicações peer-to-peer para representar um voto de validação no processo de consenso.                                                  |
+| Metadata     | 10004          | Não                         | Um tipo "de alto nível" contendo metadados de uma transação.                                                                                                               |
+| UInt64       | 3              | Não                         | Um inteiro sem sinal de 64 bits. Este tipo não aparece em instruções de transação, mas vários objetos de ledger usam campos deste tipo.                                    |
+| Vector256    | 19             | Sim                         | Este tipo não aparece em instruções de transação, mas o campo `Amendments` do objeto de ledger Amendments usa este tipo para representar quais emendas estão habilitadas.   |
+
+#### Campos AccountID
+
+Campos deste tipo contêm o identificador de 160 bits de uma conta do XRP Ledger. Em JSON, esses campos são representados como endereços \[base58]\[] do XRP Ledger, com dados de checksum adicionais para que erros de digitação dificilmente resultem em endereços válidos. (Essa codificação, às vezes chamada de "Base58Check", evita o envio acidental de dinheiro para o endereço errado.) O formato binário para esses campos não contém dados de checksum nem o prefixo de tipo `0x00` usado na codificação base58 de endereços. (Porém, como o formato binário é usado principalmente para transações assinadas, um erro de digitação ou transcrição em uma transação assinada invalidaria a assinatura, impedindo o envio.)
+
+AccountIDs que aparecem como campos independentes (como `Account` e `Destination`) têm prefixo de comprimento apesar de terem exatamente 160 bits. Como resultado, o indicador de comprimento para esses campos é sempre o byte `0x14`. AccountIDs que aparecem como filhos de campos especiais (campo `issuer` de Amount e `account` de PathSet) _não_ têm prefixo de comprimento.
+
+#### Campos Amount
+
+O tipo "Amount" é um tipo especial de campo que representa um valor de moeda, seja XAH ou um token. Este tipo consiste em dois subtipos:
+
+*   XAH
+
+    O XAH é serializado como um inteiro sem sinal de 64 bits (ordem big-endian), exceto que o bit mais significativo é sempre 0 para indicar que é XAH, e o segundo bit mais significativo é `1` para indicar que é positivo. Como o valor máximo de XAH (10¹⁷ drops) requer apenas 57 bits, você pode calcular o formato serializado de XAH pegando um inteiro sem sinal padrão de 64 bits e realizando uma operação bitwise-OR com `0x4000000000000000`.
+*   **Tokens**
+
+    Tokens consistem em três segmentos em ordem:
+
+    1. 64 bits indicando o valor no formato de valor de token. O primeiro bit é `1` para indicar que não é XAH.
+    2. 160 bits indicando o código de moeda. A API padrão converte códigos de 3 caracteres como "USD" em códigos de 160 bits usando o formato padrão de código de moeda, mas códigos personalizados de 160 bits também são possíveis.
+    3. 160 bits indicando o AccountID do emissor. (Veja também: Codificação de Endereço de Conta)
+
+Você pode identificar qual dos dois subtipos é pelo primeiro bit: `0` para XAH; `1` para tokens.
+
+**Formato de Valor de Token**
+
+[\[Fonte\]](https://github.com/Xahau/xahaud/blob/35fa20a110e3d43ffc1e9e664fc9017b6f2747ae/src/ripple/protocol/impl/STAmount.cpp)
+
+O Xahau usa 64 bits para serializar o valor numérico de um token (fungível). (No formato JSON, o valor numérico é o campo `value` de um objeto de valor em moeda.) No formato binário, o valor numérico consiste em um bit "not XAH", um bit de sinal, dígitos significativos e um expoente, nesta ordem:
+
+1. O primeiro bit (mais significativo) de um valor de token é `1` para indicar que não é um valor XAH. (Valores XAH sempre têm o bit mais significativo definido como `0` para distingui-los deste formato.)
+2. O bit de sinal indica se o valor é positivo ou negativo. Ao contrário dos inteiros padrão em [complemento de dois](https://en.wikipedia.org/wiki/Two's_complement), `1` indica **positivo** no formato Xahau, e `0` indica negativo.
+3. Os próximos 8 bits representam o expoente como um inteiro sem sinal. O expoente indica a escala (a que potência de 10 os dígitos significativos devem ser multiplicados) no intervalo de -96 a +80 (inclusivo). Porém, ao serializar, adicionamos 97 ao expoente para permitir a serialização como inteiro sem sinal. Assim, um valor serializado de `1` indica expoente `-96`, um valor serializado de `177` indica expoente 80, e assim por diante.
+4. Os 54 bits restantes representam os dígitos significativos (às vezes chamados de _mantissa_) como um inteiro sem sinal. Ao serializar, esse valor é normalizado para o intervalo de 10¹⁵ (`1000000000000000`) a 10¹⁶-1 (`9999999999999999`) inclusive, exceto no caso especial do valor 0. No caso especial de 0, o bit de sinal, o expoente e os dígitos significativos são todos zeros, portanto o valor de 64 bits é serializado como `0x8000000000000000000000000000000000000000`.
+
+O valor numérico é serializado junto com o código de moeda e o emissor para formar um valor de token completo.
+
+**Códigos de Moeda**
+
+No nível de protocolo, os códigos de moeda no Xahau são valores arbitrários de 160 bits, exceto pelos seguintes valores que têm significado especial:
+
+* O código de moeda `0x0000000000000000000000005852500000000000` é **sempre proibido**. (Este é o código "XAH" no "formato padrão".)
+* O código de moeda `0x0000000000000000000000000000000000000000` (todos zeros) é **geralmente proibido**. Normalmente, valores XAH não são especificados com códigos de moeda. Porém, este código é usado para indicar XAH em casos raros em que um campo deve especificar um código de moeda para XAH.
+
+As APIs do `xahaud` suportam um **formato padrão** para traduzir códigos ASCII de três caracteres para valores hexadecimais de 160 bits da seguinte forma:
+
+1. Os primeiros 8 bits devem ser `0x00`.
+2. Os próximos 88 bits são reservados e devem ser todos `0`.
+3. Os próximos 24 bits representam 3 caracteres ASCII. Recomenda-se usar códigos [ISO 4217](https://www.xe.com/iso4217.php) ou pseudo-ISO 4217 populares como "BTC". Porém, qualquer combinação dos seguintes caracteres é permitida: todas as letras maiúsculas e minúsculas, dígitos e os símbolos `?`, `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `<`, `>`, `(`, `)`, `{`, `}`, `[`, `]` e `|`. O código de moeda XAH (todo maiúsculo) é reservado para XAH e não pode ser usado por tokens.
+4. Os próximos 40 bits são reservados e devem ser todos `0`.
+
+O **formato não padrão** é qualquer dado de 160 bits desde que os primeiros 8 bits não sejam `0x00`.
+
+#### Campos Array
+
+Alguns campos de transação, como `SignerEntries` (em \[transações SignerListSet]\[]) e `Memos`, são arrays de objetos (chamados de tipo "STArray").
+
+Arrays contêm vários campos de objeto em seu formato binário nativo em uma ordem específica. Em JSON, cada membro do array é um objeto JSON "wrapper" com um único campo, que é o nome do campo do objeto membro. O valor desse campo é o próprio objeto ("interno").
+
+No formato binário, cada membro do array tem um prefixo de Field ID (baseado na única chave do objeto wrapper) e conteúdo (composto pelo objeto interno serializado como objeto). Para marcar o fim de um array, adicione um item com um "Field ID" de `0xf1` (o código de tipo para array com código de campo 1) e sem conteúdo.
+
+#### Campos Blob
+
+O tipo Blob é um campo com prefixo de comprimento e dados arbitrários. Dois campos comuns que usam esse tipo são `SigningPubKey` e `TxnSignature`, que contêm (respectivamente) a chave pública e a assinatura que autorizam a execução de uma transação.
+
+Campos Blob não têm mais estrutura em seu conteúdo, portanto consistem exatamente na quantidade de bytes indicada na codificação de comprimento variável, após o Field ID e os prefixos de comprimento.
+
+#### Campos Hash
+
+O Xahau tem vários tipos "hash": Hash128, Hash160 e Hash256. Esses campos contêm dados binários arbitrários do número especificado de bits, que podem ou não representar o resultado de uma operação de hash.
+
+Todos esses campos são serializados com o número específico de bits, sem indicador de comprimento, na ordem big-endian de bytes.
+
+#### Campos Issue
+
+Alguns campos especificam um _tipo_ de ativo, que pode ser XAH ou um token fungível, sem quantidade. Esses campos consistem em um ou dois segmentos de 160 bits em ordem:
+
+1. Os primeiros 160 bits são o código de moeda do ativo. Para XAH, são todos 0.
+2. Se os primeiros 160 bits forem todos 0 (o ativo é XAH), o campo termina aí. Caso contrário, o ativo é um token e os próximos 160 bits são o AccountID do emissor do token.
+
+#### Campos Object
+
+Alguns campos, como `SignerEntry` (em \[transações SignerListSet]\[]) e `Memo` (em arrays `Memos`), são objetos (chamados de tipo "STObject"). A serialização de objetos é muito similar à de arrays, com uma diferença: **os membros do objeto devem ser colocados em ordem canônica** dentro do campo objeto, enquanto campos de array já têm uma ordem explícita.
+
+A ordem canônica de campos de objetos é a mesma que a ordem canônica de todos os campos de nível superior, mas os membros do objeto devem ser ordenados dentro do objeto. Após o último membro, há um Field ID de "fim de objeto" de `0xe1` sem conteúdo.
+
+#### Campos PathSet
+
+O campo `Paths` de uma \[transação Payment]\[] entre moedas é um "PathSet", representado em JSON como um array de arrays. Para mais informações sobre o uso de caminhos, consulte Paths.
+
+Um PathSet é serializado como **1 a 6** caminhos individuais em sequência[\[Fonte\]](https://github.com/Xahau/xahaud/blob/4cff94f7a4a05302bdf1a248515379da99c5bcd4/src/ripple/app/tx/impl/Payment.h#L35-L36). Cada caminho completo é seguido por um byte que indica o que vem a seguir:
+
+* `0xff` indica que outro caminho segue
+* `0x00` indica o fim do PathSet
+
+Cada caminho consiste em **1 a 8** etapas de caminho em ordem[\[Fonte\]](https://github.com/Xahau/xahaud/blob/4cff94f7a4a05302bdf1a248515379da99c5bcd4/src/ripple/app/tx/impl/Payment.h#L38-L39). Cada etapa começa com um byte de **tipo**, seguido por um ou mais campos descrevendo a etapa do caminho. O tipo indica quais campos estão presentes naquela etapa do caminho por meio de flags bitwise. (Por exemplo, o valor `0x30` indica mudança tanto de moeda quanto de emissor.) Se mais de um campo estiver presente, os campos são sempre colocados em uma ordem específica.
+
+A tabela a seguir descreve os possíveis campos e os flags bitwise a definir no byte de tipo para indicá-los:
+
+| Flag de Tipo | Campo Presente | Tipo de Campo   | Tamanho em Bits | Ordem |
+| ------------ | -------------- | --------------- | --------------- | ----- |
+| `0x01`       | `account`      | AccountID       | 160 bits        | 1º    |
+| `0x10`       | `currency`     | Código de Moeda | 160 bits        | 2º    |
+| `0x20`       | `issuer`       | AccountID       | 160 bits        | 3º    |
+
+Algumas combinações são inválidas; consulte Especificações de Caminho para detalhes.
+
+Os AccountIDs nos campos `account` e `issuer` são apresentados _sem_ prefixo de comprimento. Quando a `currency` é XRP, o código de moeda é representado como 160 bits de zeros.
+
+Cada etapa é seguida diretamente pela próxima etapa do caminho. Como descrito acima, a última etapa de um caminho é seguida por `0xff` (se outro caminho segue) ou `0x00` (se este encerra o último caminho).
+
+#### Campos UInt
+
+O Xahau tem vários tipos de inteiro sem sinal: UInt8, UInt16, UInt32 e UInt64. Todos são inteiros sem sinal binários big-endian padrão com o número especificado de bits.
+
+Ao representar esses campos em objetos JSON, a maioria é representada como números JSON por padrão. Uma exceção é UInt64, que é representado como uma string porque alguns decodificadores JSON podem tentar representar esses inteiros como números de ponto flutuante de "precisão dupla" de 64 bits, que não podem representar todos os valores UInt64 distintos com precisão total.
+
+Outro caso especial é o campo `TransactionType`. Em JSON, este campo é convencionalmente representado como uma string com o nome do tipo de transação, mas em binário é um UInt16. O objeto `TRANSACTION_TYPES` no arquivo de definições mapeia essas strings para valores numéricos específicos.

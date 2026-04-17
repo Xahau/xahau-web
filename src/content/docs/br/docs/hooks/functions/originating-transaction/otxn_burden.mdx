@@ -1,0 +1,78 @@
+---
+title: otxn_burden
+description: Get the burden of the originating transaction
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Return the burden of the originating transaction or `1` if no burden field is present.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retrieve the burden of the originating transaction.
+* Returns the burden as a number, or an ErrorCode if the retrieval fails.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_burden (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_burden(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t burden = 
+  otxn_burden();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const burden = otxn_burden()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+None
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                |
+| -------- | ---------------------------------------------------------------------------------------------------------- |
+| int64_t | The burden of the originating transaction, or `1` if no burden was present on the originating transaction. |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                                             |
+| ------------------- | ----------------------------------------------------------------------- |
+| number or ErrorCode | Returns the burden as a number, or an ErrorCode if the retrieval fails. |
+</TabItem>
+</Tabs>
+

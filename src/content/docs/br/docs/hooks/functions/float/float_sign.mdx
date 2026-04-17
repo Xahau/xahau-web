@@ -1,0 +1,102 @@
+---
+title: float_sign
+description: Get the sign of an XFL enclosing number
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Return `1` if the XFL is negative, otherwise return 0
+</TabItem>
+
+<TabItem label="JavaScript">
+* Return 1 if the XFL is negative, otherwise return 0
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sign (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sign(f1: bigint): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sign =
+    float_sign(float_one());
+```
+
+<Aside type="tip">
+The sign bit inside the XFL is the `0` when the XFL is negative, however this function follows the standard computing convention to return `1` if it is negative.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const sign =
+   float_sign(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type     | Description                            |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | An XFL floating point enclosing number |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name | Type   | Description                              |
+| ---- | ------ | ---------------------------------------- |
+| f1   | bigint | The float to retrieve the mantissa from. |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The sign of the XFL:<br /><code>0</code> if positive, <code>1</code> if negative.<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                |
+| ------------------- | ------------------------------------------ |
+| bigint or ErrorCode | An error code or the mantissa as a bigint. |
+</TabItem>
+</Tabs>
+

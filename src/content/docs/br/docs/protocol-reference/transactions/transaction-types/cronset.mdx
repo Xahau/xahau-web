@@ -1,0 +1,101 @@
+---
+title: CronSet
+description: >-
+  A CronSet transaction enables Hooks to schedule recurring self-invocations at
+  regular intervals, similar to Linux cronjobs. This facilitates complex
+  governance structures and automated processes within Hook frameworks.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/CronSet.cpp)]
+
+_(Added by the CronSet amendment.)_
+
+### Example
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "StartTime": 816348759,
+  "RepeatCount": 3,
+  "DelaySeconds": 120
+}
+```
+
+| Field          | JSON Type | \[Internal Type]\[] | Description                                                                                                                                                                      |
+| -------------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`      | String    | AccountID           | The Hook account initiating the cron. This is the account that will be invoked when the cron executes.                                                                           |
+| `StartTime`    | Number    | UInt32              | _(Optional)_ Ripple Epoch timestamp when the first execution should occur. Use `0` for immediate execution. If omitted when deleting a cron, the transaction removes the cron.   |
+| `RepeatCount`  | Number    | UInt32              | _(Optional)_ Number of times the cron should execute (maximum 256 per transaction). Can be extended via subsequent CronSet transactions. Omit when deleting a cron.              |
+| `DelaySeconds` | Number    | UInt32              | _(Optional)_ Time interval in seconds between each execution. Omit when deleting a cron.                                                                                         |
+
+### How CronSet Works
+
+CronSet transactions enable scheduled, automated Hook execution on the Xahau blockchain at regular intervals, eliminating the need for external services or manual triggers.
+
+The workflow involves four key steps:
+
+1. Install a Hook with the `hsfCOLLECT` flag enabled
+2. Enable Transaction Signature Hook Collection `asfTshCollect` on your account (SetFlag: 11)
+3. Create a CronSet transaction with scheduling parameters
+4. Let Xahau handle automatic execution
+
+### Execution Mechanism
+
+When a cron is ready to execute, the Cron engine inserts a pseudo-transaction of type `Cron` into the ledger, containing an `Owner` field referencing the originating Hook account. Hook developers must enable collect calls, as the Owner constitutes a weak transactional stakeholder.
+
+The scheduled Hook will be invoked automatically at the specified intervals without requiring external triggers.
+
+### Time Format
+
+Xahau uses Ripple Epoch time (seconds since January 1, 2000), not Unix time. To convert from JavaScript Date:
+
+```javascript
+const rippleEpochTime = Math.floor(Date.now() / 1000) - 946684800;
+```
+
+### Deleting a Cron
+
+To remove an existing Cron, omit `StartTime`, `RepeatCount`, and `DelaySeconds` while setting `Flags: 1` (tfCronUnset):
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "Flags": 1
+}
+```
+
+### Extending Repeat Count
+
+Upon reaching a minimum threshold, a subsequent CronSet transaction can extend the repeat count beyond the initial 256 execution limit by submitting a new CronSet transaction with an updated `RepeatCount`.
+
+### CronSet Flags
+
+Transactions of the CronSet type support additional values in the `Flags` field, as follows:
+
+| Flag Name     | Hex Value    | Decimal Value | Description                                                                      |
+| ------------- | ------------ | ------------- | -------------------------------------------------------------------------------- |
+| `tfCronUnset` | `0x00000001` | 1             | Removes an existing Cron. All scheduling fields must be omitted when this is set. |
+
+### Limitations and Constraints
+
+- CronSet cannot currently be delegated to another account
+- Hooks must self-emit CronSet transactions or operate under joint management arrangements
+- `RepeatCount`: Must be greater than 0 and cannot exceed 256 per transaction (extendable via subsequent transactions)
+- `DelaySeconds`: Maximum of 31,536,000 seconds (365 days)
+- `StartTime`: Must be current time or future; cannot exceed 365 days ahead
+- Cannot combine `tfCronUnset` flag with `DelaySeconds`, `RepeatCount`, or `StartTime` fields
+- When creating a cron, `DelaySeconds` and `RepeatCount` must both exist or both be absent
+
+### Error Cases
+
+Besides errors that can occur for all transactions, CronSet transactions can result in the following transaction result codes:
+
+| Error Code         | Description                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| `temDISABLED`      | Occurs if the Cron feature is not enabled.                                                         |
+| `temINVALID_FLAG`  | Occurs if invalid flags are set in the transaction.                                                |
+| `temMALFORMED`     | Occurs if the transaction is malformed with invalid field combinations.                            |
+| `tecEXPIRED`       | Occurs if `StartTime` is in the past or more than 365 days in the future.                          |
+| `tefINTERNAL`      | Occurs if the account ledger entry is missing.                                                     |
+| `tefBAD_LEDGER`    | Occurs if the Cron object is missing, points to a non-cron entry, or owner directory removal fails. |

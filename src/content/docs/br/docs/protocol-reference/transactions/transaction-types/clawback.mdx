@@ -1,0 +1,52 @@
+---
+title: Clawback
+description: >-
+  Revoke tokens that were previously issued by your account.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Clawback.cpp)]
+
+_(Added by the \[Clawback amendment]\[].)_
+
+Revoke tokens that were previously issued by your account. The **Clawback** feature is disabled by default. To use it, you must first submit an **AccountSet** transaction that enables *Allow Trust Line Clawback*. If your account has already issued tokens, you cannot enable Clawback afterward. You can only activate *Allow Trust Line Clawback* if your owner directory is completely empty — meaning before creating trust lines, offers, escrows, payment channels, checks, or signer lists. Once enabled, Clawback becomes a permanent capability of your account and cannot be undone.
+
+---
+
+## Example
+
+```json
+{
+  "TransactionType": "Clawback",
+  "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Amount": {
+    "currency": "USD",
+    "issuer": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+    "value": "123.45"
+  }
+}
+````
+
+---
+
+### Fields
+
+A **Clawback** transaction includes:
+
+| Field    | JSON Type                     | Description                                                                                                                                                                                                                                                    |
+| -------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Amount` | *Currency Amount*             | The quantity to be revoked, as well as the counterparty from which it is taken. The `value` must not be zero. If greater than the holder’s balance, the entire balance is revoked. In the `issuer` sub-field, specify the holder’s address (not the issuer’s). |
+
+In Xahau, an IOU/Non-XAH token on a trust line always has an issuer, but trust lines are bidirectional and under certain settings both sides may act as issuers. In this transaction, the issuer’s address goes in the `Account` field, while the holder’s address goes in the `issuer` sub-field of `Amount`.
+
+---
+
+## Error Cases
+
+Besides the standard transaction errors, Clawback may fail with:
+
+| Error Code         | Description                                                                                                                                                                                                                                                |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`      | The **Clawback** amendment is not enabled on Xahau.                                                                                                                                                                                                   |
+| `temBAD_AMOUNT`    | The holder’s balance is zero. (It is not an error if the specified amount exceeds the holder’s balance — in that case, the full available balance is revoked). Also occurs if the counterparty in `Amount` is the same account submitting the transaction. |
+| `tecNO_LINE`       | No trust line exists with the specified counterparty, or the trust line has a balance of zero.                                                                                                                                                             |
+| `tecNO_PERMISSION` | Happens if you try to enable `lsfAllowTrustLineClawback` while `lsfNoFreeze` is already enabled, or vice versa.                                                                                                                                            |
+

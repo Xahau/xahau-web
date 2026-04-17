@@ -1,0 +1,79 @@
+---
+title: ledger_last_time
+description: Fetch the last closed ledger's timestamp
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+* Return the Xahau Timestamp from the last closed ledger.
+
+<Aside type="tip">
+Xahau timestamps are identical to a unix timestamps except that they are offset by `-946684800`.
+
+The equivalent unix timestamp is: `ledger_last_time() + 946684800;`
+</Aside>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_time();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_time(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ts =
+    ledger_last_time();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const ts = ledger_last_time()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+This API takes no parameters.
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                  |
+| -------- | -------------------------------------------- |
+| int64_t | The XRPL timestamp of the last closed ledger |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Type   | Description                                                                                          |
+| ------ | ---------------------------------------------------------------------------------------------------- |
+| number | Returns an error code if an error occurs, or a number representing the timestamp of the last ledger. |
+</TabItem>
+</Tabs>
+

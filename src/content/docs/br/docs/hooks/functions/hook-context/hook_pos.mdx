@@ -1,0 +1,60 @@
+---
+title: hook_pos
+description: Returns the position in the hook chain the currently executing hook occupies
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+* Returns the position in the hook chain the currently executing hook occupies.
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_pos(void);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+hook_pos()
+```
+</TabItem>
+</Tabs>
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t pos = 
+  	hook_pos();
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const pos = hook_pos()
+```
+</TabItem>
+</Tabs>
+
+### Parameters
+
+This API has no parameters
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                               |
+| -------- | ----------------------------------------------------------------------------------------- |
+| int64_t | The position in the chain the currently executing hook occupies. The first position is 0. |
+</TabItem>
+<TabItem label="JavaScript">
+| Type   | Description                                                                              |
+| ------ | ---------------------------------------------------------------------------------------- |
+| number | Returns the current position in the hook chain, or an error code if the retrieval fails. |
+</TabItem>
+</Tabs>
+

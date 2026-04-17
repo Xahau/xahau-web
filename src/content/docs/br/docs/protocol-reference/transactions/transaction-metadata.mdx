@@ -1,0 +1,175 @@
+---
+title: Metadados de Transação
+---
+Os metadados de transação são uma seção de dados adicionada a uma transação após o seu processamento. Qualquer transação que seja incluída em um ledger tem metadados, independentemente de ter sido bem-sucedida ou não. Os metadados de transação descrevem o resultado da transação em detalhes.
+
+:::caution
+As mudanças descritas nos metadados de transação só são definitivas se a transação estiver em uma versão de ledger validada.
+:::
+
+<details>
+
+<summary>Exemplo de Metadados</summary>
+
+O seguinte objeto JSON mostra os metadados de [um pagamento complexo entre moedas](https://xrpcharts.ripple.com/#/transactions/8C55AFC2A2AA42B5CE624AEECDB3ACFDD1E5379D4E5BF74A8460C5E97EF8706B):&#x20;
+
+```json
+{
+  "AffectedNodes": [
+    {
+      "ModifiedNode": {
+        "FinalFields": {
+          "Account": "r9ZoLsJHzMMJLpvsViWQ4Jgx17N8cz1997",
+          "Balance": "77349986",
+          "Flags": 0,
+          "OwnerCount": 2,
+          "Sequence": 9
+        },
+        "LedgerEntryType": "AccountRoot",
+        "LedgerIndex": "1E7E658C2D3DF91EFAE5A12573284AD6F526B8F64DD12F013C6F889EF45BEA97",
+        "PreviousFields": {
+          "OwnerCount": 3
+        },
+        "PreviousTxnID": "55C11248ACEFC2EFD59755BF88867783AC18EA078517108F942069C2FBE4CF5C",
+        "PreviousTxnLgrSeq": 35707468
+      }
+    },
+    {
+      "ModifiedNode": {
+        "FinalFields": {
+          "Balance": {
+            "currency": "USD",
+            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+            "value": "2298.927882138068"
+          },
+          "Flags": 1114112,
+          "HighLimit": {
+            "currency": "USD",
+            "issuer": "rLEsXccBGNR3UPuPu2hUXPjziKC3qKSBun",
+            "value": "0"
+          },
+          "HighNode": "000000000000006B",
+          "LowLimit": {
+            "currency": "USD",
+            "issuer": "rpvvAvaZ7TXHkNLM8UJwCTU6yBU2jDTJ1P",
+            "value": "1000000000"
+          },
+          "LowNode": "0000000000000007"
+        },
+        "LedgerEntryType": "RippleState",
+        "LedgerIndex": "220DDA7164F3F41F3C5223FA3125D4CD368EBB4FB954B5FBFFB6D1EA6DACDD5E",
+        "PreviousFields": {
+          "Balance": {
+            "currency": "USD",
+            "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+            "value": "2297.927882138068"
+          }
+        },
+        "PreviousTxnID": "1DB2F9C67C3F42F7B8AB02BA2264254A78A201EC8A9974A1CACEFD51545B1263",
+        "PreviousTxnLgrSeq": 43081739
+      }
+    },
+    {
+      "DeletedNode": {
+        "FinalFields": {
+          "Account": "r9ZoLsJHzMMJLpvsViWQ4Jgx17N8cz1997",
+          "BookDirectory": "A6D5D1C1CC92D56FDDFD4434FB10BD31F63EB991DA3C756653071AFD498D0000",
+          "BookNode": "0000000000000000",
+          "Flags": 0,
+          "OwnerNode": "0000000000000000",
+          "PreviousTxnID": "DB028A461E98B0398CAD65F2871B381A6D0B9A21662CA5B033438D83C518C0F2",
+          "PreviousTxnLgrSeq": 35686129,
+          "Sequence": 7,
+          "TakerGets": {
+            "currency": "EUR",
+            "issuer": "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq",
+            "value": "2.5"
+          },
+          "TakerPays": {
+            "currency": "ETH",
+            "issuer": "rcA8X3TVMST1n3CJeAdGk1RdRCHii7N2h",
+            "value": "0.05"
+          }
+        },
+        "LedgerEntryType": "Offer",
+        "LedgerIndex": "6AA7E5121FEB456F0A899E3D6F25D62ABB408BB67B91C9270E13714401ED72B5"
+      }
+    }
+  ],
+  "DeliveredAmount": {
+    "currency": "GCB",
+    "issuer": "rHaans8PtgwbacHvXAL3u6TG28gTAtCwr8",
+    "value": "2.788706"
+  },
+  "TransactionIndex": 38,
+  "TransactionResult": "tesSUCCESS",
+  "delivered_amount": {
+    "currency": "GCB",
+    "issuer": "rHaans8PtgwbacHvXAL3u6TG28gTAtCwr8",
+    "value": "2.788706"
+  }
+}
+```
+
+
+
+</details>
+
+### AffectedNodes
+
+O array `AffectedNodes` contém uma lista completa dos objetos no ledger que esta transação modificou de alguma forma. Cada entrada neste array é um objeto com um campo de nível superior indicando qual tipo é:
+
+* `CreatedNode` indica que a transação criou um novo objeto no ledger.
+* `DeletedNode` indica que a transação removeu um objeto do ledger.
+* `ModifiedNode` indica que a transação modificou um objeto existente no ledger.
+
+O valor de cada um desses campos é um objeto JSON que descreve as alterações feitas no objeto de ledger.
+
+#### Campos de CreatedNode
+
+Um objeto `CreatedNode` contém os seguintes campos:
+
+| Campo             | Valor               | Descrição                                                                                                                                                    |
+| ----------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `LedgerEntryType` | String              | O tipo de objeto de ledger que foi criado.                                                                                                                   |
+| `LedgerIndex`     | String - \[Hash]\[] | O ID deste objeto de ledger na árvore de estado do ledger. **Nota:** Isso **não é o mesmo** que um índice de ledger, mesmo que o nome do campo seja similar. |
+| `NewFields`       | Object              | Os campos de conteúdo do objeto de ledger recém-criado. Quais campos estão presentes depende do tipo de objeto de ledger que foi criado.                    |
+
+#### Campos de DeletedNode
+
+Um objeto `DeletedNode` contém os seguintes campos:
+
+| Campo             | Valor               | Descrição                                                                                                                                                    |
+| ----------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `LedgerEntryType` | String              | O tipo de objeto de ledger que foi excluído.                                                                                                                 |
+| `LedgerIndex`     | String - \[Hash]\[] | O ID deste objeto de ledger na árvore de estado do ledger. **Nota:** Isso **não é o mesmo** que um índice de ledger, mesmo que o nome do campo seja similar. |
+| `FinalFields`     | Object              | Os campos de conteúdo do objeto de ledger imediatamente antes de ser excluído. Quais campos estão presentes depende do tipo de objeto de ledger que foi criado. |
+
+#### Campos de ModifiedNode
+
+Um objeto `ModifiedNode` contém os seguintes campos:
+
+| Campo               | Valor                       | Descrição                                                                                                                                                                                                                                                                              |
+| ------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LedgerEntryType`   | String                      | O tipo de objeto de ledger que foi modificado.                                                                                                                                                                                                                                         |
+| `LedgerIndex`       | String - \[Hash]\[]         | O ID deste objeto de ledger na árvore de estado do ledger. **Nota:** Isso **não é o mesmo** que um índice de ledger, mesmo que o nome do campo seja similar.                                                                                                                           |
+| `FinalFields`       | Object                      | Os campos de conteúdo do objeto de ledger após a aplicação de quaisquer alterações desta transação. Quais campos estão presentes depende do tipo de objeto de ledger. Isso omite os campos `PreviousTxnID` e `PreviousTxnLgrSeq`, mesmo que a maioria dos tipos de objetos de ledger os tenha. |
+| `PreviousFields`    | Object                      | Os valores anteriores de todos os campos do objeto que foram alterados como resultado desta transação. Se a transação _apenas adicionou_ campos ao objeto, este campo é um objeto vazio.                                                                                               |
+| `PreviousTxnID`     | String - \[Hash]\[]         | _(Pode ser omitido)_ O \[hash identificador]\[] da transação anterior que modificou este objeto de ledger. Omitido para tipos de objetos de ledger que não têm um campo `PreviousTxnID`.                                                                                              |
+| `PreviousTxnLgrSeq` | Number - \[Ledger Index]\[] | _(Pode ser omitido)_ O \[Índice de Ledger]\[] da versão de ledger que contém a transação anterior que modificou este objeto de ledger. Omitido para tipos de objetos de ledger que não têm um campo `PreviousTxnLgrSeq`.                                                              |
+
+**Nota:** Se o objeto de ledger modificado tiver campos `PreviousTxnID` e `PreviousTxnLgrSeq`, a transação sempre os atualiza com o hash identificador da própria transação e o índice da versão de ledger que incluiu a transação, mas os novos valores desses campos não estão listados em `FinalFields` do objeto `ModifiedNode`, e seus valores anteriores estão listados no nível superior do objeto `ModifiedNode` em vez de no objeto `PreviousFields` aninhado.
+
+### delivered_amount
+
+O `Amount` de uma \[transação Payment]\[] indica o valor a entregar ao `Destination`, portanto, se a transação foi bem-sucedida, o destino recebeu esse valor -- **exceto se a transação foi um pagamento parcial**. Em vez de escolher se deve ou não confiar no campo `Amount`, você deve usar o campo `delivered_amount` dos metadados para ver quanto realmente chegou ao seu destino.
+
+O servidor `rippled` fornece um campo `delivered_amount` nos metadados de transação JSON para todas as transações de Pagamento bem-sucedidas. Este campo é formatado como um valor de moeda normal. No entanto, o valor entregue não está disponível para transações que atendam aos seguintes critérios:
+
+* É um pagamento parcial
+
+Se a transação for um pagamento parcial, `delivered_amount` contém o valor de string `unavailable` em vez de um valor real. Se isso acontecer, você só pode descobrir o valor realmente entregue lendo os `AffectedNodes` nos metadados da transação.
+
+**Nota:** O campo `delivered_amount` é gerado sob demanda para a solicitação e não está incluído no formato binário para metadados de transação, nem é usado ao calcular o hash dos metadados da transação.
+
+Consulte também: Pagamentos Parciais

@@ -1,0 +1,20 @@
+---
+title: Recompensas de Saldo
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+O recurso de Recompensas de Saldo é um aspecto único da rede Xahau que permite aos usuários acumular e reivindicar recompensas com base no saldo de sua conta. Esse recurso é implementado por meio de uma combinação de código nativo (Emenda BalanceRewards) e código de hook (Hook de Recompensa da Conta Gênesis).
+
+### Tipos de Transação
+
+#### ClaimReward
+
+Uma transação `ClaimReward` permite que uma conta reivindique as recompensas acumuladas. As recompensas podem ser reivindicadas pelo proprietário da conta ou por um emissor especificado. A conta também pode optar por não receber recompensas definindo o campo Flags como 1.
+
+<LinkCard title="ClaimReward" href="/docs/protocol-reference/transactions/transaction-types/claimreward" />
+
+#### GenesisMint
+
+O tipo de transação `GenesisMint` também está associado ao recurso de Recompensas de Saldo. Esta é uma transação Emitida que é executada por meio do Hook de Recompensa toda vez que um usuário reivindica recompensas de saldo.
+
+<LinkCard title="GenesisMint - (Txn Emitida)" href="/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn" />

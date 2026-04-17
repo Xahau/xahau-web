@@ -1,0 +1,31 @@
+---
+title: Cabeçalho de Ledger
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/ledger/ReadView.h#L71)
+
+Cada versão de ledger tem um cabeçalho único que descreve o conteúdo. Você pode consultar as informações do cabeçalho de um ledger com o \[método ledger]\[]. O conteúdo do cabeçalho do ledger é o seguinte:
+
+| Campo                   | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                                                          |
+| ----------------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ledger_index`          | String    | UInt32              | O \[índice de ledger]\[Índice de Ledger] do ledger. Alguns métodos de API exibem isso como um inteiro entre aspas; outros o exibem como um número JSON nativo.                                                                                                    |
+| `ledger_hash`           | String    | Hash256             | O \[SHA-512Half]\[] desta versão de ledger. Isso serve como um identificador único para este ledger e todo o seu conteúdo.                                                                                                                                        |
+| `account_hash`          | String    | Hash256             | O \[SHA-512Half]\[] das informações da árvore de estado deste ledger.                                                                                                                                                                                             |
+| `close_time`            | Number    | UInt32              | O tempo aproximado em que esta versão de ledger foi fechada, como o número de segundos desde a Época Ripple de 2000-01-01 00:00:00. Este valor é arredondado com base no `close_time_resolution`.                                                                 |
+| `closed`                | Boolean   | Boolean             | Se `true`, esta versão de ledger não aceita mais novas transações. (No entanto, a menos que esta versão de ledger seja validada, ela pode ser substituída por uma versão de ledger diferente com um conjunto diferente de transações.)                            |
+| `parent_hash`           | String    | Hash256             | O valor `ledger_hash` da versão de ledger anterior que é o predecessor direto desta. Se houver versões diferentes do índice de ledger anterior, isso indica de qual delas o ledger foi derivado.                                                                  |
+| `total_coins`           | String    | UInt64              | O número total de \[drops de XAH]\[] pertencentes a contas no ledger. Isso omite XAH que foi destruído por taxas de transação. A quantidade real de XAH em circulação é menor porque algumas contas são "buracos negros" cujas chaves não são conhecidas por ninguém. |
+| `transaction_hash`      | String    | Hash256             | O \[SHA-512Half]\[] das transações incluídas neste ledger.                                                                                                                                                                                                        |
+| `close_time_resolution` | Number    | Uint8               | Um inteiro no intervalo \[2,120] indicando o número máximo de segundos pelo qual o `close_time` pode ser arredondado.                                                                                                                                             |
+| `closeFlags`            | (Omitido) | UInt8               | Um mapa de bits de flags relacionados ao fechamento deste ledger.                                                                                                                                                                                                 |
+
+### Índice de Ledger
+
+### Flags de Fechamento
+
+O ledger tem apenas um flag definido para `closeFlags`: **`sLCF_NoConsensusTime`** (valor `1`). Se este flag estiver habilitado, significa que os validadores tiveram diferentes tempos de fechamento para o ledger, mas construíram o mesmo ledger, portanto declararam consenso enquanto "concordavam em discordar" sobre o tempo de fechamento. Neste caso, o valor oficial de `close_time` do ledger é 1 segundo após o do ledger pai.
+
+O campo `closeFlags` não está incluído em nenhuma representação JSON de um ledger, mas está incluído na representação binária de um ledger e é um dos campos que determinam o hash do ledger.
+
+### Veja Também
+
+Para conceitos básicos de ledger, consulte Ledgers.

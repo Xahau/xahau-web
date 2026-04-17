@@ -1,0 +1,65 @@
+---
+title: Assinatura de Transações
+description: >-
+  Como as redes habilitadas para Hooks exigem campos de transação específicos e
+  oferecem mais tipos de transação, nem todos os clientes funcionarão imediatamente.
+  `xrpl-accountlib`
+---
+## Principais Diferenças
+
+1. Redes habilitadas para Hooks permitem obter definições de rede dinamicamente. Isso permite que os clientes se adaptem aos tipos de transação, objetos de ledger, propriedades e tipos de valor disponíveis. Quando implementado corretamente, as bibliotecas de assinatura e codificação não precisam ser atualizadas quando a rede adiciona tipos/propriedades de transação/objeto. <mark style="color:blue;">**As bibliotecas abaixo implementam isso e cuidarão disso por você.**</mark>
+2. Redes habilitadas para Hooks exigem um **NetworkID** em cada transação para evitar a repetição de transações em outra cadeia. O **NetworkID** também será retornado por um comando RPC `server_info` no campo `network_id` (ex: **`21338`** para Hooks V3 testnet)
+3. Transações em uma rede habilitada para Hooks podem precisar de taxas mais altas para entregar uma transação a outra conta, com base nos Hooks que serão executados ao sair da conta de envio e ao receber na conta de destino. Uma taxa razoável para satisfazer a execução dos Hooks pode ser obtida dinamicamente de um nó emitindo o comando `fee` enquanto fornece uma transação como `tx_blob`. <mark style="color:blue;">**As bibliotecas abaixo implementam isso e cuidarão disso por você.**</mark>
+
+## JavaScript/Typescript
+
+O [**pacote npm `xrpl-accountlib`**](https://www.npmjs.com/package/xrpl-accountlib) pode assinar transações para redes habilitadas para Hooks, pois oferece suporte completo a recursos de rede dinâmicos, buscando definições de rede em tempo de execução.
+
+O [**pacote npm `xrpl-client`**](https://www.npmjs.com/package/xrpl-client) se integra perfeitamente com `xrpl-accountlib` (e vem como dependência) para buscar dinamicamente as definições de rede e valores de conta mencionados acima, auxiliando no envio da transação.
+
+### Exemplo de Código
+
+```javascript
+import {
+  derive,
+  utils,
+  signAndSubmit,
+} from "xrpl-accountlib"
+
+const wss = 'wss://xahau-test.net'
+const account = derive.familySeed("s...")
+
+const networkInfo = await utils.txNetworkAndAccountValues(wss, account)
+
+const tx = {
+  TransactionType: "SetHook",
+  Hooks: [ { Hook: {
+    CreateCode: "0061736D01000000011C0460057F7F7F7F7F017E60037F7F7E017E60027F7F017F60017F017E02230303656E76057472616365000003656E7606616363657074000103656E76025F670002030201030503010002062B077F0141B088040B7F004180080B7F0041A6080B7F004180080B7F0041B088040B7F0041000B7F0041010B07080104686F6F6B00030AC4800001C0800001017F230041106B220124002001200036020C41920841134180084112410010001A410022002000420010011A41012200200010021A200141106A240042000B0B2C01004180080B254163636570742E633A2043616C6C65642E00224163636570742E633A2043616C6C65642E22",
+    Flags: 1,
+    HookApiVersion: 0,
+    HookNamespace: "F".repeat(64),
+    HookOn: "F".repeat(58) + "BFFFFE",
+  }
+  }],
+  ...networkInfo.txValues,
+  // ^^ Isso adiciona valores buscados automaticamente para você:
+  // Sequence, Account, LastLedgerSequence,
+  // Fee (Hooks habilitado: detecção automática (do ledger))
+}
+
+/**
+ * Nota: o código acima e `signAndSubmit` resultam na busca e definição
+ * automática de uma taxa para você. Se quiser verificar a taxa
+ * para mín/máx/..., obtenha sua própria taxa (string em drops) usando:
+ *    utils.networkTxFee(wss, tx)
+ * 
+ * ex:
+ *    const Fee = await utils.networkTxFee(wss, tx)
+ *    assert(Number(Fee) < 50_000, "Taxa automática acima de 50k drops, abortar")
+ *    Object.assign(tx, { Fee, })
+ */
+
+const submitted = await signAndSubmit(tx, wss, account)
+
+console.log(submitted)
+```

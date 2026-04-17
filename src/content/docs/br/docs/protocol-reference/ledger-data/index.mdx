@@ -1,0 +1,31 @@
+---
+title: Dados de Ledger
+---
+Cada versão de ledger no Xahau é composta de três partes:
+
+* **Cabeçalho do Ledger**: Metadados sobre esta versão de ledger em si.
+* **Conjunto de Transações**: Todas as transações que foram executadas para criar esta versão de ledger.
+* **Dados de Estado**: O registro completo de objetos representando contas, configurações e saldos desta versão de ledger. (Isso também é chamado de "estado da conta".)
+
+### Dados de Estado
+
+Os dados de estado de cada versão de ledger são um conjunto de **objetos de ledger**, às vezes chamados de _entradas de ledger_, que coletivamente representam todas as configurações, saldos e relações em um determinado ponto no tempo. Para armazenar ou recuperar um objeto nos dados de estado, o protocolo usa o [**ID do Objeto de Ledger**](/docs/protocol-reference/ledger-data/ledger-object-ids) único desse objeto.
+
+No protocolo peer, os objetos de ledger têm um [formato binário canônico](/docs/protocol-reference/binary-format). Nas APIs do `xahaud`, os objetos de ledger são representados como objetos JSON.
+
+Os campos de dados de um objeto de ledger dependem do tipo de objeto; a Rede Xahau suporta os seguintes tipos:
+
+* [Cabeçalho de Ledger](/docs/protocol-reference/ledger-data/ledger-header)
+* [Campos Comuns de Entrada de Ledger](/docs/protocol-reference/ledger-data/ledger-object-ids)
+* [Tipos de Entrada de Ledger](/docs/protocol-reference/ledger-data/ledger-objects-types/)
+
+### Ledgers Expandidos
+
+O Xahau suporta ledgers expandidos, que permitem tamanhos de ledger maiores além dos limites tradicionais. Os ledgers expandidos permitem que a rede lide com volumes de transações aumentados e dados de estado mais complexos, mantendo desempenho e estabilidade de consenso.
+
+Quando os ledgers expandidos estão habilitados, o ledger pode acomodar:
+- Mais transações por ledger
+- Conjuntos de dados de estado maiores
+- Maior complexidade nas execuções de Hook
+
+Os ledgers expandidos são usados automaticamente quando a rede determina que são necessários com base no volume de transações e tamanho do estado. Nenhuma configuração especial é necessária para que os nós participem em ledgers expandidos.

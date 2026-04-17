@@ -1,0 +1,24 @@
+---
+title: Codificações Base 58
+---
+As APIs do Xahau frequentemente usam uma codificação "base58" com checksum (às vezes chamada de "Base58Check") para representar endereços de conta e outros tipos de valores relacionados a chaves criptográficas. Essa codificação é a mesma que [a usada para endereços Bitcoin](https://en.bitcoin.it/wiki/Base58Check_encoding), exceto que o Xahau usa o seguinte dicionário: `rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz`.
+
+O Xahau prefixa diferentes tipos de valores com um número específico de 8 bits antes de codificá-los para distinguir entre diferentes tipos de dados. Com o arranjo de caracteres no dicionário base58 do Xahau, o resultado é que as representações base58 para diferentes tipos de valores codificados começam com letras específicas por tipo.
+
+A tabela a seguir lista todas as codificações que o Xahau usa:
+
+| Tipo de Dado                                    | Começa Com | Prefixo de Tipo | Tamanho do Conteúdo¹ | Máximo de Caracteres |
+| ----------------------------------------------- | ---------- | --------------- | -------------------- | -------------------- |
+| Endereço de conta                               | r          | `0x00`          | 20 bytes             | 35                   |
+| Chave pública de conta                          | a          | `0x23`          | 33 bytes             | 53                   |
+| Valor de semente (para chaves secretas)         | s          | `0x21`          | 16 bytes             | 29                   |
+| Chave pública de validação ou chave pública de nó | n        | `0x1C`          | 33 bytes             | 53                   |
+
+¹ O tamanho do conteúdo exclui o prefixo de tipo de 1 byte.
+
+### Veja Também
+
+* Codificação de Endereços - informações detalhadas sobre codificação de endereços
+* Chaves Criptográficas - tipos de chaves criptográficas no Xahau e como são usadas
+* \[Referência wallet_propose]\[método wallet_propose] - método de API para gerar chaves de conta
+* \[Referência validation_create]\[método validation_create] - método de API para gerar chaves de validador

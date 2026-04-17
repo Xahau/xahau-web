@@ -1,0 +1,77 @@
+---
+title: float_exponent
+description: Get the exponent of an XFL enclosing number
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Tabs>
+<TabItem label="C">
+<Aside type="caution" title="Replaced by macro">
+This function was replaced by a macro. Please use the macro below in your code instead.
+To check the validity of the XFL please use float_mantissa in conjunction with this macro.
+</Aside>
+</TabItem>
+</Tabs>
+
+
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Return the exponent part of an XFL as a signed integer
+</TabItem>
+</Tabs>
+
+
+
+
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+Because exponents can be negative, and because negatives are reserved for error states, exponents cannot be returned from functions. Therefore this function has become a macro as shown below.
+
+```c
+#define float_exponent(f)\
+        (((int32_t)(((f) >> 54U) & 0xFFU)) - 97)
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t exponent =
+    float_exponent(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type     | Description                            |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | An XFL floating point enclosing number |
+</TabItem>
+</Tabs>
+

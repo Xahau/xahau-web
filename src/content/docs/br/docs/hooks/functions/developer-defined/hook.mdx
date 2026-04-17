@@ -1,0 +1,95 @@
+---
+title: hook
+description: The main function of your hook
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/compiling-hooks">Compiling Hooks</LinkButton>
+
+### Behaviour
+
+* `hook` is a user defined function called by `xahaud` in order to fire your hook.
+* Your `hook` function calls either `accept` or `reject` to pass or reject the originating transaction.
+* If execution reaches the end of the function it is implicitly an `accept`.
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook (
+    uint32_t reserved
+)
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+type Hook = (reserved: number) => number
+```
+
+
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook(uint32_t reserved)
+{
+  return 0;
+}
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const Hook = (reserved: number) => {
+    return 0
+}
+```
+</TabItem>
+</Tabs>
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="183">Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>reserved</td><td>uint32_t</td><td>Reserved for future use.</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="183">Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>reserved</td><td>number</td><td>Reserved for future use.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | An arbitrary return code you wish to return from your hook. This will be present in the metadata of the originating transaction. |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type   | Description                                                                                                                      |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| number | An arbitrary return code you wish to return from your hook. This will be present in the metadata of the originating transaction. |
+</TabItem>
+</Tabs>
+

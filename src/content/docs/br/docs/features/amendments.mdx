@@ -1,0 +1,184 @@
+---
+title: Amendments
+---
+Os amendments representam novos recursos ou outras mudanças no processamento de transações.
+
+O sistema de amendments usa o processo de consenso para aprovar quaisquer mudanças que afetem o processamento de transações no Xahau. Mudanças totalmente funcionais no processamento de transações são introduzidas como amendments; os validadores então votam nessas mudanças. Se um amendment receber mais de 80% de suporte por cinco dias, ele é aprovado e a mudança se aplica permanentemente a todas as versões subsequentes do ledger. Desabilitar um amendment aprovado requer um novo amendment para isso.
+
+**Nota:** Correções de bugs que alteram processos de transação também requerem amendments.
+
+### Processo de Amendment
+
+O tópico Contribuindo com Código para o Xahau percorre o fluxo de trabalho para desenvolver um amendment desde uma ideia até a ativação no Xahau.
+
+Após o código de um amendment ser incorporado a uma versão do software, o processo para habilitá-lo ocorre dentro da rede Xahau, que verifica o status dos amendments a cada ledger _flag_ (geralmente com cerca de 15 minutos de intervalo).
+
+Cada 256º ledger é chamado de ledger **flag**. O ledger flag não possui conteúdo especial, mas o processo de amendment ocorre em torno dele.
+
+1. **Flag Ledger -1:** Quando os validadores `xahaud` enviam mensagens de validação, eles também submetem seus votos de amendment.
+2. **Flag Ledger:** Os servidores interpretam os votos dos validadores confiáveis.
+3. **Flag Ledger +1:** Os servidores inserem uma pseudo-transação `EnableAmendment` e sinalizam com base no que acreditam ter acontecido:
+
+   * O sinalizador `tfGotMajority` significa que o amendment tem mais de 80% de suporte.
+   * O sinalizador `tfLostMajority` significa que o suporte ao amendment diminuiu para 80% ou menos.
+   * Nenhum sinalizador significa que o amendment está habilitado.
+
+   **Nota:** É possível que um amendment perca 80% de suporte no mesmo ledger em que atinge o período necessário de cinco dias para ser habilitado. Nesses casos, uma pseudo-transação `EnableAmendment` é adicionada para ambos os cenários, mas o amendment é habilitado de qualquer forma.
+4. **Flag Ledger +2:** Os amendments habilitados se aplicam às transações a partir deste ledger em diante.
+
+### Votação de Amendments
+
+Cada versão do `xahaud` é compilada com uma lista de amendments conhecidos e o código para implementá-los. Os operadores de validadores `xahaud` configuram seus servidores para votar em cada amendment e podem alterar isso a qualquer momento. Se o operador não escolher um voto, o servidor usa um voto padrão definido pelo código-fonte.
+
+**Nota:** O voto padrão pode mudar entre versões do software. \[Atualizado em: rippled 1.8.1]\[]
+
+Os amendments devem manter cinco dias de suporte de mais de 80% dos validadores confiáveis para serem habilitados. Se o suporte cair abaixo de 80%, o amendment é temporariamente rejeitado e o período de duas semanas é reiniciado. Os amendments podem ganhar e perder a maioria qualquer número de vezes antes de se tornarem permanentemente habilitados.
+
+Amendments cujo código-fonte foi removido sem serem habilitados são considerados **vetados** pela rede.
+
+### Servidores Bloqueados por Amendment
+
+O bloqueio por amendment é um recurso de segurança para proteger a precisão dos dados do Xahau. Quando um amendment é habilitado, os servidores que executam versões anteriores do `xahaud` sem o código-fonte do amendment não entendem mais as regras da rede. Em vez de adivinhar e interpretar incorretamente os dados do ledger, esses servidores ficam **bloqueados por amendment** e não podem:
+
+* Determinar a validade de um ledger.
+* Enviar ou processar transações.
+* Participar do processo de consenso.
+* Votar em futuros amendments.
+
+A configuração de votação de um servidor `xahaud` não tem impacto no bloqueio por amendment. Um servidor `xahaud` sempre segue os amendments habilitados pelo restante da rede, portanto, os bloqueios são baseados exclusivamente em ter o código para entender as mudanças de regras. Isso significa que você também pode ser bloqueado por amendment se conectar seu servidor a uma rede paralela com diferentes amendments habilitados. Por exemplo, a Testnet do Xahau geralmente tem amendments experimentais habilitados. Se você estiver usando a versão de produção mais recente, seu servidor provavelmente não terá o código para esses amendments experimentais.
+
+Você pode desbloquear servidores bloqueados por amendment atualizando para a versão mais recente do `xahaud`.
+
+### Aposentadoria de Amendments
+
+Quando os amendments são habilitados, o código-fonte para comportamentos anteriores ao amendment permanece no `xahaud`. Embora haja casos de uso para manter o código antigo, como reconstruir resultados de ledger para verificação, rastrear amendments e código legado adiciona complexidade ao longo do tempo.
+
+O [XRP Ledger Standard 11d](https://github.com/XRPLF/XRPL-Standards/discussions/19) define um processo para aposentar amendments antigos e o código pré-amendment associado. Após um amendment ter sido habilitado na Mainnet por dois anos, ele pode ser aposentado. Aposentar um amendment o torna parte do protocolo central de forma incondicional; ele não é mais rastreado ou tratado como um amendment, e todo o código pré-amendment é removido.
+
+### Amendments Conhecidos
+
+Os seguintes amendments foram implementados ou estão em processo de habilitação no Xahau:
+
+#### Amendments de Funcionalidade
+
+##### XahauGenesis
+
+Permite que a conta gênesis emita XAH e o distribua via [transações GenesisMint](/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn).
+
+##### MultiSign
+
+Habilita a funcionalidade de múltiplas assinaturas, permitindo que as contas exijam várias assinaturas para transações. Este amendment introduz [transações SignerListSet](/docs/protocol-reference/transactions/transaction-types/signerlistset) e [objetos de ledger SignerList](/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list) para suportar múltiplas assinaturas.
+
+##### DepositAuth
+
+Habilita a funcionalidade de autorização de depósito, permitindo que as contas exijam pré-autorização antes de receber pagamentos. Este amendment introduz [transações DepositPreauth](/docs/protocol-reference/transactions/transaction-types/depositpreauth) e [objetos de ledger DepositPreauth](/docs/protocol-reference/ledger-data/ledger-objects-types/deposit-pre-auth) para gerenciar pré-autorizações.
+
+##### Hooks
+
+Amendment principal que habilita a funcionalidade de contratos inteligentes Hook no Xahau. _(Adicionado pelo [amendment Hooks][].)_
+
+##### HooksUpdate1
+
+Atualizações e melhorias no sistema de Hooks.
+
+##### Remit
+
+Implementa o [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156). Um novo tipo de transação de pagamento push simples e poderoso do tipo "o que você vê é o que você obtém". Habilita [transações Remit](/docs/protocol-reference/transactions/transaction-types/remit) que permitem pagar múltiplas moedas e URITokens na mesma transação para o mesmo destino. A transação paga automaticamente para criar trustlines ausentes, paga automaticamente as reservas em tokens transferidos e paga automaticamente para criar a conta de destino caso ela não exista. Você pode cunhar um recibo ou URIToken bônus inline dentro da transação. Opcionalmente, informe um Hook de terceiros sobre a transação. Sem pagamentos parciais e sem roteamento.
+
+##### ZeroB2M
+
+Desabilita o caminho de queima para cunhagem de XRP para XAH. O comportamento normal da transação Import permanece, mas o XRP queimado não é creditado. O B2M ainda está disponível para sincronização de chaves ou para ativar uma conta, mas não pode ser usado para cunhar novos ativos.
+
+##### Remarks
+
+O amendment Remarks permite que pares chave-valor (semelhante ao estado de hook) sejam armazenados pelos proprietários de objetos nesses objetos. Isso é como virar um documento e escrever uma nota à mão nele. Os Remarks podem ser qualquer coisa e significar coisas diferentes para partes diferentes. Os Remarks também podem ser definidos como imutáveis. Os Remarks seguem um objeto ao longo das mudanças de propriedade e podem ser usados para alcançar casos de uso inovadores, como NFTs dinâmicos e simplificar algumas operações de estado de hook que de outra forma seriam muito complicadas. Habilita [transações SetRemarks](/docs/protocol-reference/transactions/transaction-types/setremarks).
+
+##### Touch
+
+Este amendment garante que todas as contas envolvidas em uma transação (todos os stakeholders transacionais) sejam forçadas a aparecer em seus metadados, incrementando um "contador de toque" mesmo que nada mais na conta tenha sido alterado. O nome é uma referência ao utilitário de arquivo unix `touch`. Isso proporciona melhor consistência de auditoria e facilidade de programação de ferramentas automatizadas.
+
+##### HookCanEmit
+
+Este amendment adiciona um novo campo aos objetos HookSet: `HookCanEmit` é sintaticamente idêntico ao campo `HookOn`, exceto que controla quais tipos de transação o Hook tem permissão para emitir, em vez de quais tipos de transação acionam o Hook. Observe que ele usa a mesma semântica active-low que `HookOn`, com `SetHook` sendo active-high. No entanto, se o campo estiver ausente, presume-se que o Hook pode emitir qualquer transação, incluindo `SetHook`. Adiciona o campo `HookCanEmit` aos objetos [HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition).
+
+##### Clawback
+
+Habilita [transações Clawback](/docs/protocol-reference/transactions/transaction-types/clawback) que permitem aos emissores revogar tokens que foram previamente emitidos por sua conta. Este é um recurso portado do XRPL. _(Introduzido em 2025.7.9-release+1951)_
+
+##### DeepFreeze
+
+Habilita a funcionalidade de congelamento profundo para trustlines e ativos. Este é um recurso portado do XRPL. _(Introduzido em 2025.7.9-release+1951)_
+
+##### IOUIssuerWeakTSH
+
+Torna os emissores de IOU stakeholders transacionais fracos (TSH) em certos tipos de transação. Garante que os Emissores de Moeda tenham seus hooks executados em transações de terceiros que tocam ou mencionam sua moeda, se optarem pela execução fraca. Consulte [Fraco e Forte](/docs/hooks/concepts/weak-and-strong) para detalhes. _(Introduzido em 2025.7.9-release+1951)_
+
+##### Cron
+
+Habilita a execução agendada de Hook via [transações CronSet](/docs/protocol-reference/transactions/transaction-types/cronset) e [objetos de ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron). Este recurso permite que os Hooks agendem uma série de auto-invocações futuras (semelhante a um cronjob em sistemas Linux), o que pode auxiliar os desenvolvedores de Hook a escrever estruturas de governança complexas, jogos e mais. O número máximo de repetições é 256, no entanto, emitir uma transação `CronSet` adicional pode estender esse limite quando o número de repetições ultrapassar um limite mínimo desejado. _(Introduzido em 2025.10.27-release+2405)_
+
+##### ExtendedHookState
+
+Estende as capacidades de gerenciamento de estado de Hook, incluindo o campo `HookStateScale` para objetos [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) para controlar quando as entradas de estado de Hook ficam obsoletas. Este recurso expande a quantidade de dados que os Hooks podem armazenar em seu Hook State (sistema chave-valor para Hooks) para permitir que os Hooks tenham armazenamento de dados mais rico quando necessário. A escala (até 16) afeta tanto o tamanho máximo do valor que você pode armazenar em um único estado de hook, quanto o número de unidades de reserva que esse par k-v consome. Uma escala de 1 (padrão) significa que você paga 1 reserva por até 256 bytes armazenados por Hook State. Uma escala de 4 significa que você paga 4 unidades de reserva por até 1024 bytes por Hook State. É importante notar que você paga essa taxa (a taxa de escala) mesmo que todos os seus Hook States contenham apenas um único byte. É possível aumentar a escala após seu Hook já ter armazenado estado, mas não diminuí-la. Diminuir a escala requer que todo o HookState seja primeiro excluído. _(Introduzido em 2025.10.27-release+2405)_
+
+#### Amendments de Correção de Bugs
+
+##### fixXahauV1
+
+Impõe um limite de 256 namespaces por conta. Várias correções de bugs com a lógica do URIToken. Garante que STAmounts padrão (0) sejam registrados nos metadados. Garante que OfferID possa ser usado em vez de OfferSequence ao cancelar uma oferta. Corrige um bug onde certos hooks não podem ser excluídos. Corrige um bug onde o quórum necessário para um `ttIMPORT` é acidentalmente muito alto. Permite que contas apareçam mais de uma vez em uma transação GenesisMint. Altera o Emissor de um URIToken de TSH forte para fraco quando um URIToken está sendo queimado. Garante que os TSHes em escrows criados por transações emitidas sejam acionados corretamente. Adiciona taxa de tamanho de parâmetros de hook a todas as transações (1 drop por byte). _(Introduzido em 2024.9.11-release+985)_
+
+##### fixXahauV2
+
+Limpa a lógica TSH e remove tabela redundante antiga. Adiciona sinalizadores informativos a cada membro de `sfHookExecutions`, descrevendo execução fraca, forte etc. Adiciona `sfEmitNonce` a cada membro de `sfHookEmissions`, para melhor desambiguação de transações emitidas. Verificações de sanidade adicionais em transações emitidas para garantir que sejam colocadas no ledger correto.
+
+##### fixXahauV3
+
+Correções adicionais para problemas de implementação do protocolo Xahau. Este amendment garante consistência e resultados sensatos para vários casos extremos. Este amendment está configurado com voto padrão: _sim_. Se os validadores desejarem votar contra este amendment, devem alterar manualmente seu voto para não. _(Introduzido em 2025.2.6-release+1299)_
+
+##### fixNSDelete
+
+Corrige o comportamento da exclusão de namespace de Hook State para garantir a consistência do ledger. Introduz um novo código tes: `tesPARTIAL`. `tesPARTIAL` é retornado se a transação foi bem-sucedida, mas deve ser reenviada pelo usuário com um novo número de sequência para concluir o trabalho amortizado até que `tesSUCCESS` seja retornado.
+
+##### fix240819
+
+Amendment de correção de bug de 19 de agosto de 2024.
+
+##### fixPageCap
+
+Corrige problemas relacionados aos limites de capacidade de página.
+
+##### fix240911
+
+Amendment de correção de bug de 11 de setembro de 2024.
+
+##### fixFloatDivide
+
+Corrige problemas com operações de divisão de ponto flutuante nos Hooks. Este amendment garante o tratamento adequado da divisão por zero e casos extremos na função `float_divide`. Altera o comportamento da API de hook `float_divide` para corrigir um pequeno erro. Este amendment está configurado com voto padrão: _sim_. Consulte [float_divide](/docs/hooks/functions/float/float_divide) para detalhes. _(Introduzido em 2024.11.18-release+1141)_
+
+##### fixReduceImport
+
+Corrige problemas relacionados ao processamento da transação Import. Este amendment garante consistência e resultados sensatos para vários casos extremos. Este amendment está configurado com voto padrão: _sim_. Se os validadores desejarem votar contra este amendment, devem alterar manualmente seu voto para não. _(Introduzido em 2025.2.6-release+1299)_
+
+##### fix20250131
+
+Amendment de correção de bug de 31 de janeiro de 2025. Este amendment garante consistência e resultados sensatos para vários casos extremos. Este amendment está configurado com voto padrão: _sim_. Se os validadores desejarem votar contra este amendment, devem alterar manualmente seu voto para não. _(Introduzido em 2025.2.6-release+1299)_
+
+##### fixRewardClaimFlags
+
+Corrige problemas com os sinalizadores da transação de reivindicação de recompensa.
+
+##### fixProvisionalDoubleThreading
+
+Corrige problemas com o encadeamento duplo provisório no processamento de transações. Garante que o PreviousTxnID correto e os metadados de transação sejam mantidos em cenários de encadeamento duplo. _(Introduzido em 2025.7.9-release+1951)_
+
+##### fixInvalidTxFlags
+
+Corrige um bug que atualmente permite que sinalizadores inválidos sejam fornecidos a algumas transações. Embora esses sinalizadores inválidos atualmente não façam nada, eles deveriam produzir um erro de malformação. Após a aplicação desta correção, sinalizadores inválidos produzirão um erro de malformação conforme esperado. _(Introduzido em 2025.10.27-release+2405)_
+
+##### fixCronStacking
+
+Corrige problemas com o comportamento de empilhamento de transações Cron.
+
+### Status dos Amendments
+
+Para o status mais atualizado dos amendments (habilitados, em votação ou vetados), verifique o [repositório xahaud](https://github.com/Xahau/xahaud) ou consulte um servidor `xahaud` em execução usando o comando `feature`.

@@ -1,0 +1,157 @@
+---
+title: sto_subarray
+description: >-
+  Index into a xahaud serialized array and return the location and length of an
+  index
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Parse a STArray pointed to by `read_ptr`
+* Find the array index specified by `array_id`
+* Return the byte offset and length of the serialized field within the STObject, if it is found
+
+<Aside type="caution" title="Field ID encoding">
+The `sto_` apis accept a `field_id` parameter encoded as follows: `(type << 16U) + field`
+Thus type 1 field 2 would be `0x10002U`.
+
+In the case of this array field ID is `array_id`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Ask for the STO object (binary encoded ledger data) from which to extract the subarray.
+* Find the array index specified by `array_id`
+* Return a subarray from an STO object.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_subarray (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t array_id
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_subarray(
+    sto: ByteArray | HexString,
+    array_id: number
+  ): bigint | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+
+  int64_t memo_lookup =
+    sto_subarray(memos, memos_len, 0);
+
+if (memo_lookup < 0)
+{
+    // sfMemo was not found in the STObject pointed at by memo_ptr
+}
+else
+{
+    // 0th index of the STArray was found and its location is as follows:
+    uint8_t*  memo_ptr = SUB_OFFSET(memo_lookup) + memos;
+    uint32_t  memo_len = SUB_LENGTH(memo_lookup);
+}
+```
+
+<Aside type="tip">
+hookmacro.h already contains the `SUB_OFFSET` and `SUB_LENGTH` macros.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const SUB_OFFSET = (x) => Number(x >> 32n)
+const SUB_LENGTH = (x) => Number(x & 0xFFFFFFFFn)
+
+const memo_lookup = sto_subarray(memos, 0)
+
+if (typeof memo_lookup === 'number')
+{
+    // sfMemo was not found in the STObject pointed at
+}
+else
+{
+    // 0th index of the STArray was found and its location is as follows:
+    const memo_start = SUB_OFFSET(memo_lookup)
+    const memo_len = SUB_LENGTH(memo_lookup)
+    const memo = memos.slice(memo_start, memo_len)
+}
+```
+</TabItem>
+</Tabs>
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type      | Description                                                               |
+| --------- | --------- | ------------------------------------------------------------------------- |
+| read_ptr | uint32_t | Pointer to the buffer containing the STArray                              |
+| read_len | uint32_t | Length of STArray                                                         |
+| array_id | uint32_t | The index of the entry within the STArray you are seeking. Starts from 0. |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Name      | Type                   | Description                                                                     |
+| --------- | ---------------------- | ------------------------------------------------------------------------------- |
+| sto       | ByteArray \| HexString | The STO object (binary encoded ledger data) from which to extract the subarray. |
+| array_id | number                 | The ID of the array to be extracted.                                            |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The location of the field within the specified buffer:<br />- The high 32 bits are the offset location.<br />- The low 32 bits are the length.<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Input buffer isn't large enough to possibly contain a valid STArray.<br /><br /><code>DOESNT_EXIST</code><br />- The searched for index isn't present in the supplied STArray.<br /><br /><code>PARSE_ERROR</code><br />- The supplied STArray is malformed or not an STArray.</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Type               | Description                                                                                                                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bigint / ErrorCode | <p>The location of the field within the specified buffer:<br />- The high 32 bits are the offset location.<br />- The low 32 bits are the length.<br /><br />or an error code if the extraction fails.</p> |
+</TabItem>
+</Tabs>
+

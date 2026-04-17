@@ -1,0 +1,57 @@
+---
+title: Configuração Avançada do xahaud
+---
+Há inúmeras opções de configuração disponíveis para operadores do xahaud. Esta seção abordará algumas das opções mais comumente usadas, incluindo aquelas necessárias para clusterização de servidores e configuração de bancos de dados.
+
+Para documentação completa sobre opções de configuração, consulte os arquivos de configuração de exemplo no [repositório GitHub do xahaud](https://github.com/Xahau/xahaud/tree/dev/cfg).
+
+## Executando Bancos de Dados em Memória
+Usuários que buscam maximizar o desempenho do xahaud podem optar por executar bancos de dados em memória, em vez de em mídia de armazenamento dedicada. Os bancos de dados em memória não são adequados para máquinas que armazenam histórico, pois os bancos de dados não são persistentes entre reinicializações do xahaud. Da mesma forma, a quantidade de histórico armazenado é contingente à memória do sistema disponível. Portanto, `online_delete` e `advisory_delete` são obrigatórios no `xahaud.cfg` para evitar erros de falta de memória. Ao usar um banco de dados em memória, é aconselhável desabilitar o SWAP, pois o SWAP grava o conteúdo da memória no disco, potencialmente anulando os benefícios obtidos ao armazenar o banco de dados em memória.
+
+Para habilitar o banco de dados em memória, edite o arquivo `xahaud.cfg`:
+
+```
+[relational_db]
+type=RWDB
+
+[node_db]
+type=RWDB # RWDB é o banco de dados em memória
+online_delete=256 # Este valor deve ser baixo em máquinas que usam bancos de dados em memória. '256' é o valor mínimo.
+advisory_delete=0 # Não requer intervenção humana para excluir histórico. Isso é necessário para evitar erros de falta de memória.
+```
+
+## Clusterização
+A clusterização permite que operadores do xahaud configurem múltiplos servidores xahaud para que confiem uns nos outros, reduzindo a carga de trabalho. Servidores corretamente clusterizados podem compartilhar informações sobre conexões websocket, rpc e peer maliciosas ou problemáticas, além de propagar automaticamente transações enviadas por todo o cluster. Assim, se uma transação for enviada em um servidor com carga maior do que a taxa da transação permite, a transação ainda se propagará para outros servidores no cluster, aumentando a probabilidade de a transação ser incluída em um ledger futuro.
+
+Administradores que operam validadores xahaud podem se beneficiar da clusterização, pois o cluster fornece conectividade para o validador altamente seguro, eliminando a necessidade do validador conectar-se a servidores desconhecidos ou não confiáveis.
+
+Operadores de servidores não devem clusterizar seus servidores com servidores fora de seu próprio controle. Da mesma forma, servidores clusterizados devem ter conexões de baixa latência, idealmente localizados no mesmo data center.
+
+A geração de seeds de cluster (chaves públicas/privadas) é feita por meio do [método de API](/docs/features/http-websocket-apis/admin-api-methods) `validation_create`. Embora o nome do método inclua o termo 'validation', esse método não é usado para [criar as chaves](/docs/infrastructure/enabling-validation) usadas para assinar mensagens de validação. Em vez disso, é usado para criar chaves para identificar qualquer servidor xahaud, seja validador ou não.
+
+Para criar um cluster:
+1. Em cada instância do xahaud que será incluída no cluster, gere uma chave pública e seed: `./xahaud validation_create`
+2. Abra o arquivo `xahaud.cfg` de cada servidor e adicione ou edite as seguintes seções:
+    * `[ips_fixed]` - Inclua os endereços IPv4/6 e portas de escuta de peer (ex.: `10.1.1.2 21337`) para outros servidores que estarão no cluster. A porta de escuta é definida na stanza `[port_peer]` no arquivo `xahaud.cfg` do servidor que escuta conexões de entrada. A porta de escuta padrão para a Rede Xahau principal é `21337`.
+    * `[node_seed]` - A saída no campo `validation_seed` do comando `validation_create`. Esta é uma chave privada e deve ser instalada no mesmo servidor em que foi gerada.
+    * `[cluster_nodes]` - A saída do campo `validation_public_key` do comando `validation_create`. Esta é uma chave pública e deve ser instalada em servidores pares, não no servidor em que foi gerada.
+3. Reinicie o xahaud em cada servidor do cluster: `systemctl restart xahaud`
+4. Faça backup do `xahaud.cfg` de cada servidor.
+5. Verifique a conectividade entre os pares clusterizados por meio do método de API [peers](/docs/features/http-websocket-apis/admin-api-methods): `./xahaud peers`
+
+A seção de cluster de um arquivo `xahaud.cfg` pode ser assim:
+```
+[ips_fixed]
+10.1.1.2 21337 # Par clusterizado 1
+10.1.1.3 21337 # Par clusterizado 2
+10.1.1.4 21337 # Par clusterizado 3
+
+[cluster_nodes]
+n9LzAHaB7ka318dAJWLQD1WkpGR86NyvaCzrtUAt4PuNtDCTCqxn # validation_public_key do par clusterizado 1
+n9KWNMsRdQ66jYHLCVgFBAQAzb16DwDioVdXSuV8pTcfEfaHkdvZ # validation_public_key do par clusterizado 2
+n9JFK8xUcy9S9TBmCcZKKmY28LEVjTurcpzC5XkXnyAAj1Svytee # validation_public_key do par clusterizado 3
+
+[node_seed]
+sn8QEFTpBM8nydnLD6FjxKN845uRG # validation_seed privado da instância xahaud local
+
+```

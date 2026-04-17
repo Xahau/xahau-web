@@ -1,0 +1,70 @@
+---
+title: etxn_burden
+description: Get the burden of a hypothetically emitted transaction
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+
+### Behaviour
+
+* Return the burden an emitted transaction will carry.
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_burden (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_burden(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t burden = etxn_burden();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const burden = etxn_burden()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+None
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="165">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The burden an emitted transaction will need in order to be successfully passed to <code>emit()</code></td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="165">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td>An ErrorCode if there is an error, or the current burden value on success.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+

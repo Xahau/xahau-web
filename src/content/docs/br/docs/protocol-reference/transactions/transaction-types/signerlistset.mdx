@@ -1,0 +1,55 @@
+---
+title: SignerListSet
+description: >-
+  A transação SignerListSet cria, substitui ou remove uma lista de signatários
+  que pode ser usada para assinar uma transação com múltiplas assinaturas. Este tipo de transação foi
+  introduzido pela [emenda MultiSign][].
+---
+[\[Fonte\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/SetSignerList.cpp)
+
+### Exemplo
+
+```json
+{
+    "Flags": 0,
+    "TransactionType": "SignerListSet",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "SignerQuorum": 3,
+    "SignerEntries": [
+        {
+            "SignerEntry": {
+                "Account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                "SignerWeight": 2
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "rUpy3eEg8rqjqfUoLeBnZkscbKbFsKXC3v",
+                "SignerWeight": 1
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "raKEEVSGnKSD9Zyvxu4z6Pqpm4ABH8FS6n",
+                "SignerWeight": 1
+            }
+        }
+    ]
+}
+```
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                                                                                                                                                                         |
+| --------------- | --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SignerQuorum`  | Number    | UInt32              | Um número alvo para os pesos dos signatários. Uma assinatura múltipla desta lista é válida apenas se a soma dos pesos das assinaturas fornecidas for maior ou igual a este valor. Para excluir uma lista de signatários, use o valor `0`.                                                                                                                                          |
+| `SignerEntries` | Array     | Array               | _(Omitido ao excluir)_ Array de objetos `SignerEntry`, indicando os endereços e pesos dos signatários nesta lista. Esta lista de signatários deve ter pelo menos 1 membro e no máximo 32 membros. Nenhum endereço pode aparecer mais de uma vez na lista, nem a `Account` que envia a transação pode aparecer na lista. _(Atualizado pela \[emenda ExpandedSignerList]\[].)_ |
+
+Uma transação SignerListSet bem-sucedida substitui o objeto `SignerList` da conta no ledger, ou adiciona um se não existia antes. Uma conta não pode ter mais de uma lista de signatários. Para excluir uma lista de signatários, você deve definir `SignerQuorum` como `0` _e_ omitir o campo `SignerEntries`. Caso contrário, a transação falha com o erro `temMALFORMED`. Uma transação para excluir uma lista de signatários é considerada bem-sucedida mesmo que não houvesse lista de signatários para excluir.
+
+Você não pode criar uma lista de signatários onde o `SignerQuorum` nunca possa ser atingido. O `SignerQuorum` deve ser maior que 0, mas menor ou igual à soma dos valores `SignerWeight` na lista. Caso contrário, a transação falha com o erro `temMALFORMED`.
+
+Você pode criar, atualizar ou remover uma lista de signatários usando a chave mestre, chave regular ou a lista de signatários atual, se esses métodos de assinatura de transações estiverem disponíveis.
+
+Você não pode remover o último método de assinatura de transações de uma conta. Se a chave mestre de uma conta estiver desabilitada (a conta tem o flag `lsfDisableMaster` habilitado) e a conta não tiver uma Chave Regular configurada, então você não pode excluir a lista de signatários da conta. Em vez disso, a transação falha com o erro `tecNO_ALTERNATIVE_KEY`.
+
+Criar ou substituir uma lista de signatários habilita o flag `lsfOneOwnerCount` no objeto SignerList. Listas criadas antes da \[emenda MultiSignReserve]\[] ser habilitada não têm este flag e têm uma reserva de proprietário mais alta. Você pode diminuir a reserva de proprietário dessas listas substituindo a lista pela mesma lista. Para mais informações, consulte Flags de SignerList.

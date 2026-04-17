@@ -1,0 +1,59 @@
+---
+title: URITokenMint
+description: >-
+  Uma transação URIToken Mint cunha um novo URIToken e atribui a propriedade à
+  conta especificada. O URIToken representa um ativo digital único que pode ser
+  usado em várias aplicações.
+---
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Adicionado pela \[emenda URIToken]\[].)_
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "URITokenMint",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 1,
+    "URI": "697066733A2F2F4445414442454546",
+    "Digest": "697066733A2F2F4445414442454546697066733A2F2F44454144424545467878",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "Amount": {
+      "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+      "currency": "USD",
+      "value": "100",
+    },
+}
+```
+
+| Campo         | Tipo JSON                                                                                                                                  | \[Tipo Interno]\[] | Descrição                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | --------------------------------------------------------------------------------------------- |
+| `Account`     | String                                                                                                                                     | AccountID           | O endereço da conta que será proprietária do URIToken cunhado.                                |
+| `URI`         | String                                                                                                                                     | String              | O URI associado ao URIToken cunhado. (máximo de 256 bytes)                                    |
+| `Digest`      | String                                                                                                                                     | Hash256             | _(Opcional)_ O digest do URIToken.                                                            |
+| `Destination` | String                                                                                                                                     | AccountID           | _(Opcional)_ O endereço da conta que pode comprar o URIToken cunhado.                         |
+| `Amount`      | [Valor em Moeda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(Opcional)_ O valor da moeda que a conta deseja receber em troca do URIToken.                |
+
+### Flags de URITokenMint
+
+Transações do tipo URITokenMint suportam valores adicionais no campo `Flags`, como segue:
+
+| Nome da Flag | Valor Hex    | Valor Decimal | Descrição                                                                                                                                    |
+| ------------ | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfBurnable` | `0x00000001` | 1             | Permite que o emissor (ou uma entidade autorizada pelo emissor) destrua o `URIToken` cunhado. (O proprietário do `URIToken` _sempre_ pode fazê-lo.) |
+
+### Custo Especial de Transação
+
+A transação URIToken Mint tem um custo de transação padrão, que é o custo mínimo de transação exigido para todas as transações.
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações URIToken Mint podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro    | Descrição                                                                         |
+| ----------------- | --------------------------------------------------------------------------------- |
+| `tecDUPLICATE`    | Ocorre se um URIToken com o mesmo URI do mesmo emissor já existir.                |
+| `tecDIR_FULL`     | Ocorre se o diretório do proprietário estiver cheio e não puder acomodar o novo URIToken. |
+| `temINVALID_FLAG` | Ocorre quando o usuário especificou um `Flag` incorreto.                          |
+| `terNO_ACCOUNT`   | Ocorre se a conta remetente não existir.                                          |

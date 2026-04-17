@@ -1,0 +1,28 @@
+---
+title: Escrow
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+O recurso Escrow é uma parte crucial da rede Xahau. Ele fornece um método seguro e sem necessidade de confiança para transações entre partes. O recurso Escrow garante que os ativos envolvidos em uma transação sejam mantidos em segurança até que todas as condições da transação sejam atendidas.
+
+### Tipos de Transação
+
+O recurso Escrow inclui três tipos de transação:
+
+#### EscrowCreate
+
+A transação `EscrowCreate` é usada para criar um novo acordo de escrow. Esta transação especifica os termos do escrow, incluindo as partes envolvidas, os ativos a serem mantidos em escrow e as condições sob as quais os ativos serão liberados.
+
+<LinkCard title="EscrowCreate" href="/docs/protocol-reference/transactions/transaction-types/escrowcreate" />
+
+#### EscrowFinish
+
+A transação `EscrowFinish` é usada para concluir um acordo de escrow. Esta transação é executada quando todas as condições do escrow são atendidas. Após a execução, os ativos mantidos em escrow são liberados para a parte apropriada.
+
+<LinkCard title="EscrowFinish" href="/docs/protocol-reference/transactions/transaction-types/escrowfinish" />
+
+#### EscrowCancel
+
+A transação `EscrowCancel` é usada para cancelar um acordo de escrow. Esta transação pode ser executada se as condições do escrow não forem atendidas dentro de um prazo especificado. Após o cancelamento, os ativos mantidos em escrow são devolvidos à parte que iniciou o escrow.
+
+<LinkCard title="EscrowCancel" href="/docs/protocol-reference/transactions/transaction-types/escrowcancel" />

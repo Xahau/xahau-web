@@ -1,0 +1,83 @@
+---
+title: float_one
+description: Return the number 1 represented in an XFL enclosing number
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Return one(`1`) as an XFL int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retrieves the float representation of a number.
+</TabItem>
+</Tabs>
+
+
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_one();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_one(): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t one =
+    float_one();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const one = float_one()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+This function has no parameters.
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                      |
+| -------- | -------------------------------- |
+| int64_t | The XFL (xls17) enclosing number |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                      |
+| ------------------- | -------------------------------- |
+| ErrorCode \| bigint | The XFL (xls17) enclosing number |
+</TabItem>
+</Tabs>
+

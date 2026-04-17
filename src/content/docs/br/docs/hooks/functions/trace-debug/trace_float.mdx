@@ -1,0 +1,63 @@
+---
+title: trace_float
+description: Write a XFL float to the Xahaud trace log
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+* Write a XFL floating point to the trace log along with a message (if any)
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t trace_float (
+    uint32_t mread_ptr,
+    uint32_t mread_len,
+    int64_t float1 
+);
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+trace_float(SBUF("This is a float"), float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description                                                                                               |
+| ---------- | --------- | --------------------------------------------------------------------------------------------------------- |
+| rmead_ptr | uint32_t | Pointer to a message to output before the hex-encoded serialized object found in the slot. _May be null._ |
+| mread_len | uint32_t | Length of the message. _May be null._                                                                     |
+| float1     | int64_t  | The enclosing XFL integer.                                                                                |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>0</code> if successful<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+</TabItem>
+</Tabs>
+

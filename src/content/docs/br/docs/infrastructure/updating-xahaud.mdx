@@ -1,0 +1,49 @@
+---
+title: Atualizar o xahaud
+---
+O processo de atualização do xahaud varia dependendo do método de instalação usado; porém, todos os três métodos dependem das versões publicadas em [https://build.xahau.tech](https://build.xahau.tech). Ao atualizar um validador, hub ou outra infraestrutura 'crítica', verifique a saúde da rede antes de reiniciar um servidor para instalar uma atualização. É possível automatizar o processo de atualização usando uma entrada de crontab e um script de atualização; no entanto, os administradores são desencorajados a fazê-lo, pois atualizações automáticas podem resultar em reinicializações em momentos em que a rede está instável. Da mesma forma, a presença humana permite que os operadores garantam que as atualizações sejam bem-sucedidas, minimizando o tempo de inatividade.
+
+## Backup
+Os usuários devem sempre manter backups de:
+1. O arquivo de configuração principal: `xahaud.cfg`
+    - A localização varia com base no tipo de instalação.
+2. O arquivo de validadores confiáveis: `validators-xahau.txt`
+    - A localização é especificada em 'xahaud.cfg'.
+3. As credenciais de identidade do servidor: `wallet.db`
+    - Localizado no diretório de banco de dados definido em 'xahaud.cfg'.
+4. Os validadores devem manter sua chave privada de validação com backup em um local seguro e offline.
+
+## Atualizando Contêineres Docker
+Atualizar o xahaud dentro de um contêiner Docker envolve substituir o binário em execução pela nova versão, baixada de [https://build.xahau.tech](https://build.xahau.tech). Isso pode ser feito substituindo o binário do xahaud dentro do contêiner ou atualizando o contêiner inteiro.
+<br></br>
+Para atualizar o binário do xahaud dentro de um contêiner Docker em execução:
+1. Baixe o [script](https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh): `wget https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh`
+2. Edite o script e altere a primeira linha para a [versão de lançamento](https://build.xahau.tech) que deseja instalar.
+3. Execute o script: `bash ./update.sh`
+4. Verifique se o xahaud está em execução: `docker exec xahaud-[mainnet/testnet] xahaud server_info`
+<br></br>
+Para substituir a imagem Docker atual por uma nova versão, sem sobrescrever bancos de dados ou arquivos de configuração (que são ignorados pelo arquivo .gitignore):
+1. Navegue até o repositório: `cd [/caminho/para/docker-repo]`
+2. Atualize para a versão mais recente: `git pull`
+3. Liste os contêineres Docker em execução e anote o nome do contêiner xahaud: `docker ps`
+4. Pare a instância antiga do xahaud: `docker stop xahaud-[mainnet/testnet]`
+5. Remova a instância antiga: `docker rm xahaud-[mainnet/testnet]`
+6. Inicie a nova instância: `./build && ./up`
+
+## Atualizando Instalações Locais
+Para atualizar uma versão instalada localmente do xahaud, basta substituir o binário atual por um novo:
+1. Baixe o novo binário de: [https://build.xahau.tech](https://build.xahau.tech)
+2. Marque o novo binário como executável: `chmod +x [/caminho/para/download]`
+3. Pare a instância do xahaud em execução: `/opt/xahaud/bin/xahaud stop`
+4. Substitua o binário antigo pelo novo: `mv [/caminho/para/download] /opt/xahaud/bin/xahaud`
+5. Inicie o xahaud: `systemctl start xahaud`
+6. Verifique se o xahaud está em execução: `/opt/xahaud/bin/xahaud server_info`
+<br></br>
+Um [script](https://gist.githubusercontent.com/WietseWind/9480a4fc95e904e54524406005c8c963/raw/2b200fdc2e5b471ae4f6625674aff1765d63e744/update.sh) que automatiza os passos acima está disponível.
+
+## Atualizando Arquivos Binários
+Atualizar os arquivos binários do xahaud é essencialmente o mesmo que as instruções de instalação originais:
+1. Remova a versão em execução: `rm [/caminho/para/xahaud]`
+2. Baixe a nova versão: [https://build.xahau.tech](https://build.xahau.tech)
+3. Marque o download como executável: `chmod 500 [/caminho/para/xahaud]`
+4. Inicie o xahaud: `./[caminho/para/xahaud] --net --conf [/caminho/para/xahaud.cfg]`

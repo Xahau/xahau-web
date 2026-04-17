@@ -1,0 +1,60 @@
+---
+title: Cron
+description: >-
+  A pseudo-transação Cron é automaticamente inserida pelo motor Cron quando
+  uma execução de Hook agendada está devida.
+---
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Cron.cpp)]
+
+_(Adicionado pela [emenda Cron][].)_
+
+A pseudo-transação `Cron` é automaticamente inserida no ledger pelo motor Cron quando uma execução de Hook agendada está devida. Esta pseudo-transação aciona a execução do Hook na conta especificada no campo `Owner`.
+
+### Exemplo
+
+```json
+{
+  "TransactionType": "Cron",
+  "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+  "Fee": "0",
+  "LedgerSequence": 21225473,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TxnSignature": "",
+  "Owner": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm"
+}
+```
+
+### Campos
+
+| Campo            | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                    |
+| ---------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Owner`          | String    | AccountID           | A conta que possui a execução de Hook agendada. Esta é a conta que será invocada quando o cron executar.                                                     |
+| `LedgerSequence` | Number    | UInt32              | O \[índice de ledger]\[] onde esta pseudo-transação aparece. Isso distingue a pseudo-transação de outras ocorrências da mesma mudança.                       |
+
+### Campos Comuns
+
+Como pseudo-transação, `Cron` usa os valores padrão de pseudo-transação para campos comuns:
+
+| Campo          | Valor                                          |
+| -------------- | ---------------------------------------------- |
+| `Account`      | `rrrrrrrrrrrrrrrrrrrrrhoLvTp` (`ACCOUNT_ZERO`) |
+| `Fee`          | `0`                                            |
+| `Sequence`     | `0`                                            |
+| `SigningPubKey`| `""` (string vazia)                            |
+| `TxnSignature` | `""` (string vazia)                            |
+
+### Comportamento de Execução
+
+Quando um [objeto de ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron) está pronto para executar (com base nos campos `StartTime`, `DelaySeconds` e `RepeatCount`), o motor Cron insere automaticamente uma pseudo-transação `Cron` no ledger.
+
+A pseudo-transação contém um campo `Owner` que referencia a conta com o Hook agendado. O Hook nessa conta será invocado automaticamente, e a conta é tratada como um **parte interessada transacional fraca (TSH)** durante a execução.
+
+**Importante:** Os desenvolvedores de Hook devem habilitar chamadas de coleta (flag `hsfCOLLECT`) em seus Hooks, pois o `Owner` constitui uma parte interessada transacional fraca quando a pseudo-transação Cron é executada. A conta também deve ter o flag `asfTshCollect` habilitado.
+
+### Documentação Relacionada
+
+* [Transação CronSet](/docs/protocol-reference/transactions/transaction-types/cronset): Cria, atualiza ou exclui execuções de Hook agendadas
+* [Objeto de ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron): O objeto de ledger que representa uma execução de Hook agendada
+* [Fraco e Forte](/docs/hooks/concepts/weak-and-strong): Entendendo partes interessadas transacionais
+* [Hooks de Chamada de Coleta](/docs/hooks/concepts/collect-call): Como Hooks de TSH fraco são executados

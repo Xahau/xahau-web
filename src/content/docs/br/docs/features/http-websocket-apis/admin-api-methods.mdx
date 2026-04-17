@@ -1,0 +1,67 @@
+---
+title: Métodos da API Administrativa
+---
+Esses métodos são destinados exclusivamente ao pessoal de confiança responsável pela manutenção das operações do servidor xahaud.
+
+### Métodos de Geração de Chaves
+
+
+
+| Método             | Descrição                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| validation_create | Gera um par de chaves formatado para nós xahaud. (Validadores devem usar tokens em vez de chaves geradas por este método.) |
+| wallet_propose    | Gera chaves para uma nova conta.                                                                                            |
+
+### Métodos de Registro e Gerenciamento de Dados
+
+
+
+| Método          | Descrição                                                              |
+| --------------- | ---------------------------------------------------------------------- |
+| can_delete     | Habilita a exclusão online de ledgers até um ledger especificado.      |
+| download_shard | Baixa um fragmento específico do histórico de ledgers.                 |
+| ledger_cleaner | Configura o limpador de ledger para detectar e resolver dados corrompidos. |
+| ledger_request | Consulta um servidor par para uma versão específica do ledger.         |
+| log_level      | Visualiza ou altera os níveis de verbosidade do log.                   |
+| logrotate       | Reabre o arquivo de log.                                               |
+| node_to_shard | Transfere dados do armazenamento de ledger para o armazenamento de fragmentos. |
+
+### Métodos de Controle do Servidor
+
+| Método         | Descrição                                                    |
+| -------------- | ------------------------------------------------------------ |
+| ledger_accept | Fecha e avança o ledger no modo autônomo.                    |
+| stop           | Desliga o servidor xahaud.                                   |
+
+### Métodos de Assinatura
+
+| Método    | Descrição                                      |
+| --------- | ---------------------------------------------- |
+| sign      | Assina criptograficamente uma transação.       |
+| sign_for | Contribui para uma assinatura múltipla.        |
+
+### Métodos de Gerenciamento de Pares
+
+| Método                   | Descrição                                                     |
+| ------------------------ | ------------------------------------------------------------- |
+| connect                  | Força o servidor a se conectar a um par específico.           |
+| peer_reservations_add  | Adiciona ou atualiza uma vaga reservada para um par específico. |
+| peer_reservations_del  | Remove uma vaga reservada para um par específico.             |
+| peer_reservations_list | Visualiza todas as vagas de pares reservadas.                 |
+| peers                    | Recupera informações sobre pares conectados.                  |
+
+### Métodos de Status/Depuração
+
+
+
+| Método                 | Descrição                                                          |
+| ---------------------- | ------------------------------------------------------------------ |
+| consensus_info        | Visualiza o estado atual do processo de consenso.                  |
+| feature                | Recupera informações sobre emendas de protocolo.                   |
+| fetch_info            | Verifica o status de sincronização do servidor com a rede.         |
+| get_counts            | Visualiza estatísticas sobre os internos do servidor e uso de memória. |
+| manifest               | Recupera detalhes de chave pública para um validador conhecido.    |
+| print                  | Acessa informações sobre subsistemas internos.                     |
+| validator_info        | Obtém os detalhes de configuração do validador do servidor.        |
+| validator_list_sites | Visualiza sites que publicam listas de validadores.                |
+| validators             | Recupera informações sobre os validadores atuais.                  |

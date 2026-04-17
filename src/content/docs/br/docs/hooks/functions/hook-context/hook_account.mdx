@@ -1,0 +1,94 @@
+---
+title: hook_account
+description: Retreive the 20 byte Account ID the Hook is executing on
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Write the 20 byte Account ID to the write_ptr
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retrieve the 20 byte Account ID the Hook is executing on.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_account (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+``JavaScript
+function hook_account(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hook_acc_id[20];
+int64_t bytes_written = 
+    hook_account(hook_acc_id, 20);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const hook_acc_id =hook_account()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description                                                                              |
+| ---------- | --------- | ---------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Pointer to a buffer of a suitable size to store the output. Should be at least 20 bytes. |
+| write_len | uint32_t | Length of the output buffer.                                                             |
+</TabItem>
+
+<TabItem label="JavaScript">
+No parameters
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                   | Description                                                                               |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| ErrorCode or ByteArray | Returns the Account ID the Hook is executing on, or an error code if the retrieval fails. |
+</TabItem>
+</Tabs>
+

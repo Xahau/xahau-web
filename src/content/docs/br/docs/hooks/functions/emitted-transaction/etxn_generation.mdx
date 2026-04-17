@@ -1,0 +1,79 @@
+---
+title: etxn_generation
+description: Get the generation of a hypothetically emitted transaction
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+
+### Behaviour
+
+* Return the generation an emitted transaction will carry.
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_generation (
+    void
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_generation(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t generation = 
+  etxn_generation();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const generation = etxn_generation()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+None
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------- |
+| int64_t | The generation an emitted transaction will need in order to be successfully passed to `emit()` |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Type   | Description                                                                                         |
+| ------ | --------------------------------------------------------------------------------------------------- |
+| number | Returns An ErrorCode if there is an error, or a number indicating the generation result on success. |
+</TabItem>
+</Tabs>
+

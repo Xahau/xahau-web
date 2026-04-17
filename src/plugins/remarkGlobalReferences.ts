@@ -5,55 +5,55 @@ const parseRules: {
   path: string
   parse: (content: string) => { label: string; url: string }[]
 }[] = [
-  {
-    path: 'src/content/references/global.md',
-    parse: (content: string) => {
-      const lines = content.split('\n')
-      const result: { label: string; url: string }[] = []
-      for (const line of lines) {
-        const match = line.match(/^\[([^\]]+)\]:\s*(.+)$/)
-        if (match) {
-          const [, label, url] = match
-          result.push({ label, url: url.trim() })
+    {
+      path: 'src/content/references/global.md',
+      parse: (content: string) => {
+        const lines = content.split('\n')
+        const result: { label: string; url: string }[] = []
+        for (const line of lines) {
+          const match = line.match(/^\[([^\]]+)\]:\s*(.+)$/)
+          if (match) {
+            const [, label, url] = match
+            result.push({ label, url: url.trim() })
+          }
         }
-      }
-      return result
+        return result
+      },
     },
-  },
-  {
-    path: 'src/content/references/transactions.md',
-    parse: (content: string) => {
-      const lines = content.split('\n')
-      const result: { label: string; url: string }[] = []
-      for (const line of lines) {
-        if (line.startsWith('//')) continue
-        if (line.length > 0) {
-          const url = `/docs/protocol-reference/transactions/transaction-types/${line.toLowerCase()}`
-          result.push({ label: `${line}`, url })
-          result.push({ label: `${line} transaction`, url })
-          result.push({ label: `${line} transactions`, url })
+    {
+      path: 'src/content/references/transactions.md',
+      parse: (content: string) => {
+        const lines = content.split('\n')
+        const result: { label: string; url: string }[] = []
+        for (const line of lines) {
+          if (line.startsWith('//')) continue
+          if (line.length > 0) {
+            const url = `/docs/protocol-reference/transactions/transaction-types/${line.toLowerCase()}`
+            result.push({ label: `${line}`, url })
+            result.push({ label: `${line} transaction`, url })
+            result.push({ label: `${line} transactions`, url })
+          }
         }
-      }
-      return result
+        return result
+      },
     },
-  },
-  {
-    path: 'src/content/references/pseudo-transactions.md',
-    parse: (content: string) => {
-      const lines = content.split('\n')
-      const result: { label: string; url: string }[] = []
-      for (const line of lines) {
-        if (line.length > 0) {
-          const url = `/docs/protocol-reference/transactions/pseudo-transaction-types/${line.toLowerCase()}`
-          result.push({ label: `${line}`, url })
-          result.push({ label: `${line} transaction`, url })
-          result.push({ label: `${line} transactions`, url })
+    {
+      path: 'src/content/references/pseudo-transactions.md',
+      parse: (content: string) => {
+        const lines = content.split('\n')
+        const result: { label: string; url: string }[] = []
+        for (const line of lines) {
+          if (line.length > 0) {
+            const url = `/docs/protocol-reference/transactions/pseudo-transaction-types/${line.toLowerCase()}`
+            result.push({ label: `${line}`, url })
+            result.push({ label: `${line} transaction`, url })
+            result.push({ label: `${line} transactions`, url })
+          }
         }
-      }
-      return result
+        return result
+      },
     },
-  },
-]
+  ]
 
 /**
  * Remark plugin to resolve reference-style links from global.md
@@ -82,7 +82,7 @@ export function remarkGlobalReferences() {
     }
   }
 
-  const NON_ROOT_LOCALES = ['es', 'ja']
+  const NON_ROOT_LOCALES = ['es', 'ja', 'br']
 
   return function transformer(tree: any, vfile: any) {
     const refs = loadGlobalReferences()

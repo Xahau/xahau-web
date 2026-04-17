@@ -1,0 +1,99 @@
+---
+title: trace
+description: Write the contents of a buffer to the Xahaud trace log
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+* Write a buffer from inside the Hook to the trace log along with a message (if any)
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t trace (
+    uint32_t mread_ptr,
+    uint32_t mread_len,
+    uint32_t dread_ptr,
+    uint32_t dread_len,
+    uint32_t as_hex
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function trace(
+    message: string | null,
+    data: any,
+    hex: boolean | 0 | 1
+  ): ErrorCode
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+trace(SBUF("Buffer conatained"), SBUF(some_buffer), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+trace("Buffer conatained", some_buffer, 1);
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description                                                                                         |
+| ---------- | --------- | --------------------------------------------------------------------------------------------------- |
+| mread_ptr | uint32_t | Pointer to a message to output before the buffer. _May be null._                                    |
+| mread_len | uint32_t | Length of the message. _May be null._                                                               |
+| dread_ptr | uint32_t | Pointer to the buffer to output.                                                                    |
+| dread_len | uint32_t | Length of the buffer to output.                                                                     |
+| as_hex    | uint32_t | <p>If <code>1</code> output the buffer as hex.<br />If <code>0</code> output the buffer as utf-8.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name    | Type    | Description                                                          |
+| ------- | ------- | -------------------------------------------------------------------- |
+| message | string  | The 'logging key', message to output before the buffer (can be null) |
+| data    | any     | The data to log                                                      |
+| hex     | boolean | <p>Should it log formatted in HEX?<br /><br />0 - NO<br />1 - YES</p>      |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>0</code> if successful<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type      | Description                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------- |
+| ErrorCode | <p>int64_t, value is 0 if successful</p><p></p><p> If negative, an error: OUT_OF_BOUNDS</p> |
+</TabItem>
+</Tabs>
+

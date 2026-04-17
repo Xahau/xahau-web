@@ -1,0 +1,81 @@
+---
+title: 'XRPL/Xahau: O que é Diferente?'
+description: Uma lista das principais diferenças entre o XRP Ledger e o Xahau.
+---
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+#### Escrow de Token IOU & PayChannels
+
+O Xahau introduz o Escrow de Token IOU e os PayChannels como funcionalidades exclusivas, aumentando a flexibilidade e a segurança das transações. Eles facilitam a retenção temporária de tokens IOU sob condições predefinidas (escrow) e o estabelecimento de canais de pagamento para transações eficientes fora do ledger.
+
+<LinkCard title="Pagamentos" href="/docs/features/network-features/payments" />
+
+#### URITokens, NÃO NFTokens
+
+Em vez de usar NFTokens como o XRPL, o Xahau emprega URITokens. Os URITokens são uma forma de ativos digitais não fungíveis com identificadores únicos e metadados, oferecendo uma abordagem inovadora para a representação de ativos na blockchain.
+
+<LinkCard title="URIToken" href="/docs/features/network-features/uritoken" />
+
+#### Repositório Diferente
+
+O Xahau e o XRPL operam a partir de repositórios diferentes, o que indica que são protocolos separados com suas próprias trajetórias de desenvolvimento e documentação. Essa distinção implica que o Xahau pode oferecer funcionalidades e otimizações únicas não encontradas no XRPL.
+
+[https://github.com/Xahau/xahaud](https://github.com/Xahau/xahaud)
+
+#### Processo de Build Diferente (WASM & LLVM)
+
+O processo de build do Xahau incorpora WebAssembly (WASM) e a Máquina Virtual de Baixo Nível (LLVM), o que não está descrito no processo de build do XRPL. O Xahau utiliza essas tecnologias para aprimorar as capacidades de contratos inteligentes e melhorar o desempenho e a compatibilidade entre plataformas de sua base de código.
+
+<LinkCard title="Compilar o Xahau" href="/docs/infrastructure/build-xahaud" />
+
+#### Prazo de Amendment Diferente (5 dias)
+
+O processo de amendment no Xahau tem um prazo especificado de 5 dias, diferindo do cronograma do XRPL. Os amendments são mudanças de protocolo, e o período de 5 dias refere-se à duração que os validadores têm para chegar a um consenso e implementar essas mudanças.
+
+<LinkCard title="Amendments" href="/docs/features/amendments" />
+
+#### Sequência Inicial Diferente
+
+O Xahau emprega uma sequência inicial diferente para contas em relação ao XRPL. A sequência inicial na conta é o tempo de época do Ripple quando a conta foi criada/importada para o Xahau.
+
+#### Import / Burn 2 Mint
+
+Importar do XRPL para o Xahau concede aos usuários 2 tokens XAH, indicando um mecanismo de incentivo para encorajar a migração de ativos ou a ponte do XRPL para o Xahau, potencialmente para aumentar a adoção da rede e a liquidez.
+
+<LinkCard title="Burn 2 Mint (B2M)" href="/docs/features/burn-2-mint" />
+
+#### Recompensas de Saldo (Recompensas por usar XAH)
+
+O Xahau oferece recompensas de saldo pela utilização do XAH, uma funcionalidade ausente no XRPL. Este é um sistema de recompensa por manter ou usar o token nativo do Xahau, XAH, para promover o engajamento e a estabilidade da rede.
+
+<LinkCard title="Recompensas de Saldo" href="/docs/features/network-features/balance-rewards" />
+
+#### Hooks
+
+Os Hooks no Xahau, que não estão presentes no XRPL, são scripts programáveis ou funções semelhantes a contratos inteligentes que podem ser anexados a contas. Eles adicionam uma camada de programabilidade e automação às operações da rede.
+
+<LinkCard title="Hooks" href="/docs/hooks/" />
+
+#### Estrutura de Governança
+
+A estrutura de governança do Xahau difere da do XRPL. O Xahau tem sua própria abordagem para tomada de decisões, sistemas de proposta ou papéis de validadores, o que pode influenciar a evolução da rede.
+
+<LinkCard title="Jogo de Governança" href="/docs/features/governance-game" />
+
+#### Requisitos de Nó
+
+Executar um nó Xahau tem requisitos diferentes em comparação a um nó XRPL. Essas diferenças estão relacionadas às especificações técnicas necessárias para suportar as funcionalidades únicas e as demandas de rede do Xahau.
+
+<LinkCard title="Requisitos do Sistema" href="/docs/infrastructure/system-requirements" />
+
+#### Token Nativo
+
+O token nativo do Xahau é o XAH, distinto do XRP do XRPL. Como a moeda principal dentro da rede Xahau, o XAH serve como o principal meio de troca e reserva de valor, central para o quadro econômico da rede.
+
+<LinkCard title="Formatos de Moeda" href="/docs/protocol-reference/data-types/currency-formats" />
+
+#### Versionamento (Usa Datas)
+
+O Xahau emprega um sistema de versionamento baseado em datas, diferente da abordagem de versionamento do XRPL. Esse método pode fornecer uma maneira mais intuitiva de acompanhar as atualizações e o desenvolvimento histórico da rede.
+
+<LinkCard title="Processo de Versionamento" href="/docs/features/versioning-process" />

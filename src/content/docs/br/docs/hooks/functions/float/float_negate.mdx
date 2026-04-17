@@ -1,0 +1,110 @@
+---
+title: float_negate
+description: Negate an XFL floating point number
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Multiply an XFL by `-1`
+* Return a new XFL as an int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Negates a float representation.
+* Returns an error code or the negated float as a bigint.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_negate (
+    int64_t float1
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_negate(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t negative_one =
+    float_negate(float_one());
+```
+
+<Aside type="tip" title="Special case">
+The negation of Canonical Zero is Canonical Zero. Unlike some floating point standards (such as IEEE) there is no "negative zero" in XFL.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const negative_one =
+    float_negate(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name   | Type     | Description                            |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | An XFL floating point enclosing number |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Name | Type   | Description          |
+| ---- | ------ | -------------------- |
+| f1   | bigint | The float to negate. |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                  |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The XFL (xls17) enclosing number<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                        |
+| ------------------- | -------------------------------------------------- |
+| ErrorCode or bigint | An error code or The XFL (xls17) enclosing number. |
+</TabItem>
+</Tabs>
+

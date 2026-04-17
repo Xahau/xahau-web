@@ -1,0 +1,44 @@
+---
+title: Gerenciamento de Conta
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Os recursos de Gerenciamento de Conta na rede Xahau são um componente crucial para que os usuários gerenciem suas contas de forma eficaz.
+
+Isso inclui vários tipos de transação que permitem aos usuários realizar diversas operações em suas contas.
+
+### Tipos de Transação
+
+#### AccountSet
+
+O tipo de transação `AccountSet` permite que os usuários modifiquem as propriedades de suas contas. Isso inclui configurações como taxa de transferência, flags de conta e muito mais.
+
+<LinkCard title="AccountSet" href="/docs/protocol-reference/transactions/transaction-types/accountset" />
+
+#### AccountDelete
+
+O tipo de transação `AccountDelete` permite que os usuários excluam suas contas da rede Xahau. Esta operação é irreversível e deve ser usada com cautela.
+
+<LinkCard title="AccountDelete" href="/docs/protocol-reference/transactions/transaction-types/accountdelete" />
+
+#### SetRegularKey
+
+O tipo de transação `SetRegularKey` permite que os usuários definam um par de chaves regular para sua conta. Este par de chaves pode ser usado como alternativa ao par de chaves mestre para assinar transações.
+
+<LinkCard title="SetRegularKey" href="/docs/protocol-reference/transactions/transaction-types/setregularkey" />
+
+#### SignerListSet
+
+O tipo de transação `SignerListSet` permite que os usuários definam uma lista de signatários para sua conta. Isso é particularmente útil para contas com múltiplas assinaturas, onde múltiplas partes precisam aprovar as transações.
+
+<LinkCard title="SignerListSet" href="/docs/protocol-reference/transactions/transaction-types/signerlistset" />
+
+#### Import
+
+O tipo de transação `Import` é usado para importar transações de outras redes. Esse recurso é especialmente útil para emissores que precisam importar transações para seus detentores de ativos. Recomenda-se configurar as chaves de suas contas antes de tentar importar transações.
+
+Observe que o processo de importação para o emissor envolve tipos de transação específicos e requer configuração cuidadosa. Sempre certifique-se de que os hooks estejam configurados corretamente e que as transações sejam válidas para as operações pretendidas.
+
+<LinkCard title="Import" href="/docs/protocol-reference/transactions/transaction-types/import" />
+
+Esses tipos de transação fornecem aos usuários um conjunto abrangente de ferramentas para gerenciar suas contas na rede Xahau. Como em todas as operações, os usuários devem garantir que compreendem as implicações de cada tipo de transação antes de usá-los.

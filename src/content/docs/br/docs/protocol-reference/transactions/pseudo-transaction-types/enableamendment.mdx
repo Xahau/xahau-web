@@ -1,0 +1,38 @@
+---
+title: EnableAmendment
+---
+Uma pseudo-transação `EnableAmendment` marca uma mudança no status de uma emenda proposta quando ela:
+
+* Obtém aprovação de supermaioria dos validadores.
+* Perde aprovação de supermaioria.
+* É habilitada no protocolo Xahau.
+
+### Exemplo de JSON
+
+```json
+{
+  "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+  "Amendment": "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE",
+  "Fee": "0",
+  "LedgerSequence": 21225473,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TransactionType": "EnableAmendment"
+}  
+```
+
+| Campo            | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                   |
+| ---------------- | --------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Amendment`      | String    | Hash256             | Um identificador único para a emenda. Não se destina a ser um nome legível por humanos. Consulte Emendas para uma lista de emendas conhecidas.              |
+| `LedgerSequence` | Number    | UInt32              | O \[índice de ledger]\[] onde esta pseudo-transação aparece. Isso distingue a pseudo-transação de outras ocorrências da mesma mudança.                      |
+
+### Flags de EnableAmendment
+
+O valor `Flags` da pseudo-transação EnableAmendment indica o status da emenda no momento do ledger que inclui a pseudo-transação.
+
+Um valor `Flags` de `0` (sem flags) ou um campo `Flags` omitido indica que a emenda foi habilitada e se aplica a todos os ledgers posteriores. Outros valores de `Flags` são os seguintes:
+
+| Nome do Flag     | Valor Hex    | Valor Decimal | Descrição                                                                                                              |
+| ---------------- | ------------ | ------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `tfGotMajority`  | `0x00010000` | 65536         | O suporte a esta emenda aumentou para pelo menos 80% dos validadores confiáveis a partir desta versão de ledger.       |
+| `tfLostMajority` | `0x00020000` | 131072        | O suporte a esta emenda diminuiu para menos de 80% dos validadores confiáveis a partir desta versão de ledger.         |

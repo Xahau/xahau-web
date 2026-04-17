@@ -1,0 +1,113 @@
+---
+title: float_sum
+description: Add two XFL numbers together
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Compute the addition of two XFL (xls17) floating point numbers
+* Return a new XFL as an int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Sums two float representations.
+* Returns an error code or the sum as a bigint.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sum (
+    int64_t float1,
+    int64_t float2
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sum(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t two =
+    float_sum(float_one(), float_one());
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const two =
+  float_sum(float_one(), float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+
+
+| Name   | Type     | Description                                                                            |
+| ------ | -------- | -------------------------------------------------------------------------------------- |
+| float1 | int64_t | An XFL floating point enclosing number representing the first operand to the addition  |
+| float2 | int64_t | An XFL floating point enclosing number representing the second operand to the addition |
+
+<Aside type="tip">
+To subtract two floats use `float_negate` on the second float then use `float_sum`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Name | Type   | Description              |
+| ---- | ------ | ------------------------ |
+| f1   | bigint | The first float to sum.  |
+| f2   | bigint | The second float to sum. |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                                                                                                 |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The XFL (xls17) enclosing number<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number<br /><br /><code>OVERFLOW</code><br />- the result of the addition was too large to store in an XFL.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                           |
+| ------------------- | ------------------------------------- |
+| ErrorCode or bigint | An error code or the sum as a bigint. |
+</TabItem>
+</Tabs>
+
