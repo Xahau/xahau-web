@@ -59,7 +59,7 @@
     "es": {
       "title": "Hoja de ruta de Xahau",
       "subtitle": "Red empresarial con adiciones mínimas de funciones, máxima fiabilidad",
-      "statement": "Xahau es una Blockchain Layer-1 de <em>Grado Empresarial</em>. Los cambios de protocolo son deliberados y escasos. La mayor parte del trabajo está en los <em>despliegues</em>: auditorías, integraciones y alianzas que ponen la red en manos de usuarios reales.",
+      "statement": "Xahau es una Blockchain Layer-1 de <em>Grado Empresarial</em>. Los cambios de protocolo son deliberados y escasos. La mayor parte del trabajo está en los <em>despliegues</em>: auditorías, integraciones y alianzas que ponen la red en manos de usuarios reales. Los elementos aquí listados son orientativos y están sujetos a cambios. Esta hoja de ruta cubre actualmente solo el desarrollo principal y las actividades compartidas por INFTF.",
       "kpis": {
         "features": "nuevas funciones de protocolo",
         "quarters": "trimestres por delante",
@@ -76,7 +76,7 @@
         },
         {
           "t": "Nuevas funciones",
-          "v": "Solo lo que usuarios/empresas realmente necesitan. Hoy: RNG y AMM."
+          "v": "Solo lo que usuarios/empresas realmente necesitan."
         },
         {
           "t": "Enfoque",
@@ -300,8 +300,8 @@
       "openEnded": true,
       "tag": { "en": "Partnerships", "es": "Alianzas" },
       "title": {
-        "en": "Additional bank & RSP partners",
-        "es": "Bancos y socios RSP adicionales"
+        "en": "Additional bank & remittance partners",
+        "es": "Bancos y socios de remesas adicionales"
       },
       "description": {
         "en": "New regulated remittance partners across East & West Africa.",
@@ -385,15 +385,15 @@
       "openEnded": true,
       "tag": {
         "en": "On-off ramps and XAH listings",
-        "es": "On-off ramps and XAH listings"
+        "es": "Rampas on/off y listados de XAH"
       },
       "title": {
         "en": "On and off ramps and token listing",
-        "es": "On and off ramps and token listing"
+        "es": "Rampas de entrada y salida y listado del token"
       },
       "description": {
         "en": "Work with multiple partners to enhance the ability to on and off ramp on Xahau",
-        "es": "Work with multiple partners to enhance the ability to on and off ramp on Xahau"
+        "es": "Colaboración con múltiples socios para ampliar las rampas de entrada y salida en Xahau."
       }
     },
     {
