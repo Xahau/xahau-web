@@ -129,6 +129,22 @@ const rolloutItems = data.items.filter(
 // KPIs
 const kpiFeatures = techItems.length;
 const kpiRollouts = rolloutItems.length;
+
+// Human-readable period label for mobile card badge (and screen readers).
+// The horizontal timeline is hidden on small screens, so each card needs to
+// carry its own quarter/year range inline.
+const fmtItemPeriod = (item: RoadmapItem): string => {
+  const startCol = qToIdx(item.quarter);
+  const start = idxToQ(startCol);
+  if (item.openEnded) return `${start.q} ${start.y} →`;
+  let endCol = startCol;
+  if (item.endQuarter) endCol = qToIdx(item.endQuarter);
+  else if (item.span && item.span > 1) endCol = startCol + item.span - 1;
+  if (endCol === startCol) return `${start.q} ${start.y}`;
+  const end = idxToQ(endCol);
+  if (start.y === end.y) return `${start.q}–${end.q} ${start.y}`;
+  return `${start.q} ${start.y} → ${end.q} ${end.y}`;
+};
 ---
 
 <section class={`xroadmap theme-${theme}`} data-screen-label="Xahau Roadmap" aria-label={labels.title}>
@@ -184,6 +200,7 @@ const kpiRollouts = rolloutItems.length;
         ].filter(Boolean).join(" ");
         return (
           <article class={classes} style={`grid-column:${p.col} / span ${p.span};`}>
+            <span class="xr-q-badge" aria-hidden="true">{fmtItemPeriod(it)}</span>
             {it.tag && <div class="k">{tr(it.tag)}</div>}
             <div class="n">{tr(it.title)}</div>
             {it.description && <div class="d">{tr(it.description)}</div>}
@@ -221,6 +238,7 @@ const kpiRollouts = rolloutItems.length;
         return (
           <article class={classes} style={`grid-column:${p.col} / span ${p.span};`}>
             <span class="peg" aria-hidden="true"></span>
+            <span class="xr-q-badge" aria-hidden="true">{fmtItemPeriod(it)}</span>
             {it.tag && <div class="k">{tr(it.tag)}</div>}
             <div class="n">{tr(it.title)}</div>
             {it.description && <div class="d">{tr(it.description)}</div>}
@@ -464,14 +482,102 @@ const kpiRollouts = rolloutItems.length;
 
   .xr-foot { margin-top:18px; padding-top:14px; border-top:1px solid var(--line); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:11px; color:var(--ink-mute); }
 
+  /* Per-card quarter badge — hidden on desktop (timeline carries this info)
+     and shown on mobile where the horizontal arrow is collapsed. */
+  .xr-q-badge { display:none; }
+
   @media (max-width:1100px) { .xr-philosophy { grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:720px) {
-    .xr-qgrid, .xr-lane { grid-template-columns:repeat(3,1fr); }
+
+  /* Tablet breakpoint: drop to 3 visible columns but keep the timeline metaphor. */
+  @media (max-width:900px) and (min-width:641px) {
+    .xr-qgrid, .xr-lane, .xr-dividers, .xr-arrow .grid, .xr-arrow .labels {
+      grid-template-columns:repeat(3,1fr);
+    }
     .xr-arrow { height:46px; }
-    /* Full-row stacking on mobile — span instructions would overflow 3 cols. */
+    .xr-arrow .ql { font-size:10px; padding:0 10px; }
     .xr-lane .xr-feat, .xr-lane .xr-roll { grid-column: 1 / -1 !important; }
     .xr-dividers { display:none; }
   }
+
+  /* --- Mobile (≤640px) ------------------------------------------------------
+     The horizontal timeline metaphor does not survive narrow viewports, so at
+     phone widths we flip to a linear, stacked card list. The quarter header
+     row, arrow and column dividers are hidden; every card instead shows its
+     own period via the .xr-q-badge (populated at build time). */
+  @media (max-width:640px) {
+    .xroadmap { padding:20px 16px 18px; border-radius:14px; }
+    .xroadmap h2 { font-size:22px; }
+    .xr-sub { font-size:12px; }
+
+    .xr-head { gap:10px; margin-bottom:14px; }
+    .xr-meta { gap:6px; }
+    .xr-chip { font-size:10px; padding:4px 8px; }
+
+    .xr-intro { padding:12px 14px; gap:12px; }
+    .xr-stmt { font-size:14px; line-height:1.45; }
+    .xr-kpis { gap:10px; margin-left:0; width:100%; justify-content:space-between; }
+    .xr-kpi { min-width:auto; flex:1; }
+    .xr-kpi .n { font-size:20px; }
+    .xr-kpi .l { font-size:9px; letter-spacing:0.1em; }
+
+    .xr-wrap { padding:0; margin:12px 0 4px; }
+    .xr-qgrid, .xr-arrow, .xr-dividers { display:none !important; }
+
+    /* Lanes collapse to a simple block list with a section heading derived
+       from the existing aria-label (so no extra markup is needed). */
+    .xr-lane { display:block; padding:0 !important; min-height:0 !important; position:relative; margin-bottom:18px; }
+    .xr-lane.top, .xr-lane.bot { padding:0 !important; }
+    .xr-lane::before {
+      content:attr(aria-label);
+      display:block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size:10px; letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--ink-mute);
+      margin-bottom:10px;
+    }
+
+    /* Cards become full-width blocks; drop peg/open-ended/clip glyphs that
+       only make sense against a horizontal timeline. */
+    .xr-feat, .xr-roll {
+      display:block !important;
+      grid-column:auto !important;
+      width:auto;
+      margin:0 0 10px !important;
+      padding:12px 14px !important;
+      border-radius:10px !important;
+    }
+    .xr-feat .peg, .xr-roll .peg { display:none; }
+    .xr-feat.is-openended::after, .xr-roll.is-openended::after,
+    .xr-feat.is-clipstart::before, .xr-roll.is-clipstart::before { display:none; }
+    .xr-feat.is-openended, .xr-roll.is-openended { padding-right:14px; }
+    .xr-feat.is-clipstart, .xr-roll.is-clipstart { padding-left:14px; }
+
+    /* Quarter badge → compact chip pinned to the top-right of each card. */
+    .xr-q-badge {
+      display:inline-block;
+      float:right;
+      margin:0 0 4px 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size:9.5px; letter-spacing:0.12em;
+      padding:3px 7px; border-radius:999px;
+      border:1px solid var(--line-2);
+      color:var(--ink-dim);
+      background:rgba(255,255,255,0.03);
+    }
+    .xroadmap.theme-light .xr-q-badge {
+      background:rgba(15,35,40,0.04);
+      color:#2a3439;
+      border-color:var(--line-2);
+    }
+
+    .xr-feat .n, .xr-roll .n { font-size:15px; }
+    .xr-feat .d, .xr-roll .d { font-size:12.5px; }
+
+    .xr-philosophy { grid-template-columns:1fr; gap:8px; margin-top:16px; }
+    .xr-legend { gap:10px 14px; font-size:11px; margin-top:14px; }
+    .xr-foot { font-size:10px; }
+  }
+
   @media print {
     .xroadmap { background:#fff !important; color:#000 !important; border:none; box-shadow:none; }
     .xr-intro, .xr-phil, .xr-foot, .xr-chip { color:#000 !important; border-color:#ccc !important; }

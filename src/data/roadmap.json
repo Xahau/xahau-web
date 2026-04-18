@@ -377,7 +377,25 @@
         "es": "Donaciones multimoneda en el ledger para ONG e iniciativas de bien público."
       }
     },
-
+    {
+      "id": "on-off-ramp",
+      "lane": "rollout",
+      "status": "partnership",
+      "quarter": "2026-Q2",
+      "openEnded": true,
+      "tag": {
+        "en": "On-off ramps and XAH listings",
+        "es": "On-off ramps and XAH listings"
+      },
+      "title": {
+        "en": "On and off ramps and token listing",
+        "es": "On and off ramps and token listing"
+      },
+      "description": {
+        "en": "Work with multiple partners to enhance the ability to on and off ramp on Xahau",
+        "es": "Work with multiple partners to enhance the ability to on and off ramp on Xahau"
+      }
+    },
     {
       "id": "xahau-connect",
       "lane": "rollout",
