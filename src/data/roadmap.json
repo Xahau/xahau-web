@@ -2,7 +2,7 @@
   "$comment": "Xahau roadmap source of truth. Edit this file to add/update/remove items. Committed JSON is rendered at build time by src/components/XahauRoadmap.astro — no runtime JS required.",
 
   "meta": {
-    "updated": "2026-04-18",
+    "updated": "2026-04-19",
     "window": {
       "mode": "auto",
       "$comment_mode": "'auto' = current quarter + next 5. 'manual' = use the `start` field below.",

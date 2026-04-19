@@ -1,4 +1,4 @@
-import { z } from "astro:content";
+import { z } from 'astro:content'
 
 /**
  * Schema for src/data/roadmap.json.
@@ -10,22 +10,16 @@ import { z } from "astro:content";
 
 const localized = z
   .union([z.string(), z.record(z.string(), z.string())])
-  .transform((v) => (typeof v === "string" ? { en: v } : v));
+  .transform((v) => (typeof v === 'string' ? { en: v } : v))
 
 export const quarterId = z
   .string()
-  .regex(/^\d{4}-Q[1-4]$/, "Quarter must look like '2026-Q2'");
+  .regex(/^\d{4}-Q[1-4]$/, "Quarter must look like '2026-Q2'")
 
 export const roadmapItem = z.object({
   id: z.string().min(1),
-  lane: z.enum(["tech", "rollout"]),
-  status: z.enum([
-    "feature",
-    "live",
-    "pilot",
-    "partnership",
-    "launch",
-  ]),
+  lane: z.enum(['tech', 'rollout']),
+  status: z.enum(['feature', 'live', 'pilot', 'partnership', 'launch']),
   // Start quarter (required).
   quarter: quarterId,
   // How many quarters the activity covers, starting from `quarter`. Defaults to 1.
@@ -39,7 +33,7 @@ export const roadmapItem = z.object({
   title: localized,
   description: localized.optional(),
   link: z.string().url().optional(),
-});
+})
 
 export const roadmapLabels = z.object({
   title: z.string(),
@@ -66,13 +60,13 @@ export const roadmapLabels = z.object({
     launch: z.string(),
   }),
   foot: z.string(),
-});
+})
 
 export const roadmapSchema = z.object({
   meta: z.object({
     updated: z.string(),
     window: z.object({
-      mode: z.enum(["auto", "manual"]).default("auto"),
+      mode: z.enum(['auto', 'manual']).default('auto'),
       start: z.string().nullable().default(null),
     }),
     i18n: z.object({
@@ -82,8 +76,8 @@ export const roadmapSchema = z.object({
   }),
   labels: z.record(z.string(), roadmapLabels),
   items: z.array(roadmapItem),
-});
+})
 
-export type Roadmap = z.infer<typeof roadmapSchema>;
-export type RoadmapItem = z.infer<typeof roadmapItem>;
-export type RoadmapLabels = z.infer<typeof roadmapLabels>;
+export type Roadmap = z.infer<typeof roadmapSchema>
+export type RoadmapItem = z.infer<typeof roadmapItem>
+export type RoadmapLabels = z.infer<typeof roadmapLabels>
