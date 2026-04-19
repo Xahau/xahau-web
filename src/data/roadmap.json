@@ -119,6 +119,22 @@
       }
     },
     {
+      "id": "export",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q2",
+      "endQuarter": "2026-Q3",
+      "tag": {
+        "en": "Feature · in development",
+        "es": "Función · en desarrollo"
+      },
+      "title": { "en": "FeatureExport", "es": "FeatureExport" },
+      "description": {
+        "en": "Export lets a Xahau user or hook request that the Xahau UNL sign a transaction destined for the XRPL — an ordinary transaction with a MultiSign block in which each UNL member contributes one of the signatures. This allows Xahau hooks to effectively control XRPL accounts and issue and manage assets on XRPL.",
+        "es": "Export permite que un usuario o un Hook de Xahau solicite que la UNL de Xahau firme una transacción destinada al XRPL — una transacción ordinaria con un bloque MultiSign en el que cada miembro de la UNL aporta una de las firmas. Esto permite que los Hooks de Xahau controlen cuentas del XRPL y emitan y gestionen activos en XRPL."
+      }
+    },
+    {
       "id": "amm",
       "lane": "tech",
       "status": "feature",
@@ -183,6 +199,22 @@
       }
     },
     {
+      "id": "js-hooks",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q2",
+      "span": 3,
+      "tag": {
+        "en": "Feature · in alpha development",
+        "es": "Función · en desarrollo alfa"
+      },
+      "title": { "en": "JSHooks", "es": "JSHooks" },
+      "description": {
+        "en": "JavaScript runtime for Hooks — write Xahau smart-contract logic in JavaScript alongside the existing WebAssembly runtime, broadening the developer surface.",
+        "es": "Entorno de ejecución JavaScript para Hooks — escribir la lógica de smart contracts en JavaScript junto al entorno WebAssembly existente, ampliando la superficie para desarrolladores."
+      }
+    },
+    {
       "id": "audit-optimisations",
       "lane": "tech",
       "status": "feature",
@@ -232,7 +264,7 @@
       },
       "description": {
         "en": "Addition of compliant USD stablecoin",
-        "es": "Incorporación de una stablecoin USD que cumple con la normativa."
+        "es": "Incorporación de una stablecoin USD que cumple con la normativa"
       }
     },
     {
@@ -248,7 +280,7 @@
       },
       "description": {
         "en": "Addition of regulated currencies from multiple countries",
-        "es": "Incorporación de divisas reguladas de múltiples países."
+        "es": "Incorporación de divisas reguladas de múltiples países"
       }
     },
     {
@@ -264,7 +296,7 @@
       },
       "description": {
         "en": "Addition of compliant GBP stablecoin",
-        "es": "Incorporación de una stablecoin GBP que cumple con la normativa."
+        "es": "Incorporación de una stablecoin GBP que cumple con la normativa"
       }
     },
     {
@@ -381,7 +413,7 @@
       },
       "description": {
         "en": "Work with multiple partners to enhance the ability to on and off ramp on Xahau",
-        "es": "Colaboración con múltiples socios para ampliar las rampas de entrada y salida en Xahau."
+        "es": "Colaboración con múltiples socios para ampliar las rampas de entrada y salida en Xahau"
       }
     },
     {
