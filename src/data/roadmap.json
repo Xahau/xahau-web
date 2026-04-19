@@ -119,18 +119,6 @@
       }
     },
     {
-      "id": "export",
-      "lane": "tech",
-      "status": "feature",
-      "quarter": "2026-Q3",
-      "endQuarter": "2026-Q4",
-      "tag": {
-        "en": "Feature · in development",
-        "es": "Función · en desarrollo"
-      },
-      "title": { "en": "FeatureExport", "es": "FeatureExport" }
-    },
-    {
       "id": "amm",
       "lane": "tech",
       "status": "feature",
@@ -424,27 +412,4 @@
         "es": "Evento InFTF que reúne a socios empresariales y desarrolladores."
       }
     }
-  ],
-
-  "$commentedItems": {
-    "$comment": "Items kept on file but currently hidden from the rendered roadmap. Move entries back into `items` to re-enable. This key is stripped by the Zod schema so nothing here is rendered or validated.",
-    "items": [
-      {
-        "id": "tipbot",
-        "lane": "rollout",
-        "status": "pilot",
-        "quarter": "2026-Q2",
-        "endQuarter": "2026-Q3",
-        "tag": {
-          "en": "Testing Q2 · Live Q3",
-          "es": "Pruebas Q2 · En vivo Q3"
-        },
-        "title": { "en": "TipBot", "es": "TipBot" },
-        "description": {
-          "en": "Non-custodial tipping bot built on Hooks, integrated with social media platforms. Testing in Q2, live in Q3.",
-          "es": "Bot de propinas no custodial basado en Hooks, integrado con redes sociales. Pruebas en Q2, lanzamiento en Q3."
-        }
-      }
-    ]
-  }
 }
