@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { visit } from 'unist-util-visit'
+import { defaultLocale, locales, nonDefaultLocales } from '../i18n/locales'
 
 const parseRules: {
   path: string
@@ -82,15 +83,13 @@ export function remarkGlobalReferences() {
     }
   }
 
-  const NON_ROOT_LOCALES = ['es', 'ja']
-
   return function transformer(tree: any, vfile: any) {
     const refs = loadGlobalReferences()
 
     // Detect locale from the file path
     let localePrefix = ''
     const filePath = vfile.path || vfile.history?.[0] || ''
-    for (const locale of NON_ROOT_LOCALES) {
+    for (const locale of nonDefaultLocales) {
       if (filePath.includes(`/content/docs/${locale}/`)) {
         localePrefix = `/${locale}`
         break
