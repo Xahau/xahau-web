@@ -157,13 +157,7 @@ const sections = ecosystemData.sections.map((section) =>
     )
   })}
 
-  <p class="xe-tm">
-    {locale === 'es'
-      ? 'Todas las marcas y logotipos son propiedad de sus respectivos dueños.'
-      : locale === 'ja'
-      ? 'すべての商標およびロゴは、各所有者の財産です。'
-      : 'All trademarks and logos are the property of their respective owners.'}
-  </p>
+  <p class="xe-tm">{ecosystemData.trademark[locale]}</p>
 </section>
 
 <style>
