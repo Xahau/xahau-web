@@ -1,0 +1,197 @@
+{
+  "events": [
+    {
+      "id": "non-evm-course-2026-02",
+      "date": "2026-02-27",
+      "time": "16:00",
+      "timezone": "CET",
+      "dateLabel": {
+        "en": "Friday, 27 Feb 2026 · 16:00 CET",
+        "es": "Viernes, 27 feb 2026 · 16:00 CET",
+        "ja": "2026年2月27日（金）16:00 CET"
+      },
+      "title": {
+        "en": "Non-EVM Blockchain Programming Course",
+        "es": "Curso de Programación Blockchain Non-EVM",
+        "ja": "非EVMブロックチェーンプログラミングコース"
+      },
+      "location": {
+        "name": "MIL (Madrid Innovation Lab)",
+        "address": "Calle Bravo Murillo 37-39, Madrid, Spain",
+        "mapsUrl": "https://www.google.com/maps/place/MIL+(+Madrid+Innovation+Lab+)/@40.434491,-3.7064685,906m/data=!3m1!1e3!4m6!3m5!1s0xd4229d08548c999:0x5f5190cb07369de2!8m2!3d40.4366246!4d-3.7048174!16s%2Fg%2F11snptdnc1"
+      },
+      "speakers": [],
+      "registration": {
+        "url": "https://luma.com/hiy3lsdq",
+        "label": {
+          "en": "Register to attend",
+          "es": "Regístrate para asistir",
+          "ja": "参加登録する"
+        }
+      },
+      "recording": null,
+      "description": {
+        "en": "A free introductory course on Xahau blockchain programming, designed to help you take your first steps in this type of technology. This 4-hour in-person course focuses on learning fundamental concepts and tools through practical exercises. Whether you're a developer curious about Non-EVM alternatives, an entrepreneur, or someone with no prior blockchain experience, this course will cover topics from basic architecture and wallet creation to smart contracts in Non-EVM environments. Language: Spanish & English.",
+        "es": "Un curso introductorio gratuito sobre programación blockchain en Xahau, diseñado para ayudarte a dar tus primeros pasos en este tipo de tecnología. Este curso presencial de 4 horas se centra en aprender conceptos y herramientas fundamentales a través de ejercicios prácticos. Tanto si eres un desarrollador curioso sobre alternativas Non-EVM, un emprendedor, o alguien sin experiencia previa en blockchain, este curso cubrirá temas desde arquitectura básica y creación de wallets hasta contratos inteligentes en entornos Non-EVM. Idioma: Español e Inglés.",
+        "ja": "Xahauブロックチェーンプログラミングの無料入門コースです。この4時間の対面コースは、実践的な演習を通じて基本的な概念とツールを学ぶことに焦点を当てています。非EVM代替手段に興味を持つ開発者、起業家、またはブロックチェーンの経験がない方を対象としています。言語：スペイン語・英語。"
+      }
+    },
+    {
+      "id": "institutional-custody-2026-02",
+      "date": "2026-02-11",
+      "time": "18:30",
+      "timezone": "CET",
+      "dateLabel": {
+        "en": "Wednesday, 11 Feb 2026 · 18:30 CET",
+        "es": "Miércoles, 11 feb 2026 · 18:30 CET",
+        "ja": "2026年2月11日（水）18:30 CET"
+      },
+      "title": {
+        "en": "Institutional Custody of Crypto Assets & Gold Tokenization",
+        "es": "Custodia Institucional de Criptoactivos y Tokenización del Oro",
+        "ja": "暗号資産の機関保管とゴールドトークナイゼーション"
+      },
+      "location": {
+        "name": "MIL (Madrid Innovation Lab)",
+        "address": "Calle Bravo Murillo 37-39, Madrid, Spain",
+        "mapsUrl": "https://www.google.com/maps/place/MIL+(+Madrid+Innovation+Lab+)/@40.434491,-3.7064685,906m/data=!3m1!1e3!4m6!3m5!1s0xd4229d08548c999:0x5f5190cb07369de2!8m2!3d40.4366246!4d-3.7048174!16s%2Fg%2F11snptdnc1"
+      },
+      "speakers": [
+        {
+          "name": "José Ángel Fernández",
+          "role": "CEO, Prosegur Crypto"
+        }
+      ],
+      "registration": null,
+      "recording": {
+        "url": "https://www.youtube.com/watch?v=GJPq3y5x5FA",
+        "label": {
+          "en": "Watch recording",
+          "es": "Ver grabación",
+          "ja": "録画を見る"
+        },
+        "platform": "Madrid Innovation Lab YouTube"
+      },
+      "description": {
+        "en": "An in-person session of Xahau Connect featuring José Ángel Fernández, CEO of Prosegur Crypto. This talk explored Prosegur's journey into the blockchain ecosystem through Prosegur Crypto, covering the institutional custody of crypto assets, how these systems work from a technological and security perspective, and the services offered to institutional clients. The session also covered Prosegur Crypto's gold tokenization offering, discussing both the technical implementation and the business model behind tokenizing physical gold and its real-world use cases.",
+        "es": "Una sesión presencial de Xahau Connect con José Ángel Fernández, CEO de Prosegur Crypto. Esta charla exploró el camino de Prosegur en el ecosistema blockchain, cubriendo la custodia institucional de criptoactivos, cómo funcionan estos sistemas desde una perspectiva tecnológica y de seguridad, y la oferta de tokenización del oro de Prosegur Crypto.",
+        "ja": "Prosegur CryptoのCEO、José Ángel FernándezによるXahau Connectのセッション。暗号資産の機関保管、技術・セキュリティの観点からシステムがどのように機能するか、および現物ゴールドのトークナイゼーションについて探求しました。"
+      }
+    },
+    {
+      "id": "blockchain-regulation-2025-12",
+      "date": "2025-12-04",
+      "time": "18:30",
+      "timezone": "CET",
+      "dateLabel": {
+        "en": "Thursday, 4 Dec 2025 · 18:30 CET",
+        "es": "Jueves, 4 dic 2025 · 18:30 CET",
+        "ja": "2025年12月4日（木）18:30 CET"
+      },
+      "title": {
+        "en": "Blockchain and Regulation: Europe Under Legal Scrutiny",
+        "es": "Blockchain y Regulación: Europa Bajo Escrutinio Legal",
+        "ja": "ブロックチェーンと規制：法的審査下のヨーロッパ"
+      },
+      "location": {
+        "name": "MIL (Madrid Innovation Lab)",
+        "address": "Calle Bravo Murillo 37-39, Madrid, Spain",
+        "mapsUrl": "https://www.google.com/maps/place/MIL+(+Madrid+Innovation+Lab+)/@40.434491,-3.7064685,906m/data=!3m1!1e3!4m6!3m5!1s0xd4229d08548c999:0x5f5190cb07369de2!8m2!3d40.4366246!4d-3.7048174!16s%2Fg%2F11snptdnc1"
+      },
+      "speakers": [
+        {
+          "name": "Horacio Gómez Rey",
+          "role": "Head of Legal Spain, N26"
+        },
+        {
+          "name": "Pedro Méndez de Vigo",
+          "role": "AVP Legal Europe, Crypto.com"
+        }
+      ],
+      "registration": null,
+      "recording": {
+        "url": "https://www.youtube.com/watch?v=Koq8LqR7qyc",
+        "label": {
+          "en": "Watch recording",
+          "es": "Ver grabación",
+          "ja": "録画を見る"
+        },
+        "platform": "Madrid Innovation Lab YouTube"
+      },
+      "description": {
+        "en": "An in-depth discussion on blockchain regulation in Europe, featuring leading legal experts from major fintech and crypto companies. This session explored the evolving regulatory landscape, compliance challenges, and the future of blockchain under European legal scrutiny.",
+        "es": "Una discusión en profundidad sobre la regulación blockchain en Europa, con expertos legales líderes de importantes empresas fintech y crypto. Esta sesión exploró el panorama regulatorio en evolución y los desafíos de cumplimiento.",
+        "ja": "欧州のブロックチェーン規制に関する深い議論。主要なフィンテック・暗号企業の法律専門家が登壇し、規制環境の変化、コンプライアンスの課題、ブロックチェーンの将来について探求しました。"
+      }
+    }
+  ],
+  "about": {
+    "body": {
+      "en": "Xahau Connect is a series of professional blockchain events created by INFTF (Inclusive Financial Technology Foundation) to foster serious, agnostic discussions about blockchain technology and its real-world applications. The events bring together experts, professional builders, researchers, and innovators from diverse blockchain ecosystems to share knowledge, explore challenges, and collaborate on advancing the technology beyond hype and speculation.",
+      "es": "Xahau Connect es una serie de eventos profesionales de blockchain creados por INFTF (Inclusive Financial Technology Foundation) para fomentar debates serios y agnósticos sobre la tecnología blockchain y sus aplicaciones en el mundo real. Los eventos reúnen a expertos, constructores profesionales, investigadores e innovadores de diversos ecosistemas blockchain.",
+      "ja": "Xahau Connectは、INFTF（Inclusive Financial Technology Foundation）が主催する専門的なブロックチェーンイベントシリーズです。ブロックチェーン技術とその実世界への応用について、真剣かつ非特定的な議論を促進することを目的としています。"
+    },
+    "mission": [
+      {
+        "title": {
+          "en": "Serious Technical Discussion",
+          "es": "Debate Técnico Serio",
+          "ja": "真剣な技術的議論"
+        },
+        "desc": {
+          "en": "In-depth conversations on blockchain architecture, business, opportunities, regulation, and innovation.",
+          "es": "Conversaciones en profundidad sobre arquitectura blockchain, negocio, oportunidades, regulación e innovación.",
+          "ja": "ブロックチェーンのアーキテクチャ、ビジネス、機会、規制、革新に関する深い議論。"
+        }
+      },
+      {
+        "title": {
+          "en": "Blockchain Agnosticism",
+          "es": "Agnosticismo Blockchain",
+          "ja": "ブロックチェーン非特定主義"
+        },
+        "desc": {
+          "en": "Welcoming perspectives from all blockchain ecosystems and technologies without bias.",
+          "es": "Bienvenida de perspectivas de todos los ecosistemas y tecnologías blockchain sin sesgo.",
+          "ja": "あらゆるブロックチェーンエコシステムや技術からの視点を偏りなく歓迎します。"
+        }
+      },
+      {
+        "title": {
+          "en": "Professional Networking",
+          "es": "Networking Profesional",
+          "ja": "プロフェッショナルネットワーキング"
+        },
+        "desc": {
+          "en": "Connecting builders, experts, developers, researchers, and industry leaders.",
+          "es": "Conectando constructores, expertos, desarrolladores, investigadores y líderes de la industria.",
+          "ja": "ビルダー、専門家、開発者、研究者、業界リーダーをつなぎます。"
+        }
+      },
+      {
+        "title": {
+          "en": "Real-World Applications",
+          "es": "Aplicaciones del Mundo Real",
+          "ja": "実世界への応用"
+        },
+        "desc": {
+          "en": "Focusing on practical implementations and use cases that drive adoption.",
+          "es": "Enfocándonos en implementaciones prácticas y casos de uso que impulsan la adopción.",
+          "ja": "実際の実装と普及を促進するユースケースに焦点を当てます。"
+        }
+      },
+      {
+        "title": {
+          "en": "Knowledge Sharing",
+          "es": "Intercambio de Conocimiento",
+          "ja": "知識の共有"
+        },
+        "desc": {
+          "en": "Learning from experts across different blockchain domains and industries.",
+          "es": "Aprendiendo de expertos en diferentes dominios e industrias blockchain.",
+          "ja": "様々なブロックチェーン分野や業界の専門家から学びます。"
+        }
+      }
+    ]
+  }
+}

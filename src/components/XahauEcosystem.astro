@@ -1,0 +1,600 @@
+---
+/**
+ * XahauEcosystem.astro — Editorial ecosystem directory
+ *
+ * All content driven from src/data/ecosystem.json.
+ * Add/remove/update items there; no markup changes needed.
+ *
+ * Layout philosophy:
+ *  - Wallets / Exchanges / Explorers  → open logo strip, no boxes
+ *  - Projects (no logos)              → two-column editorial list, names as headings
+ */
+
+import { Image } from 'astro:assets'
+import logoAfricanUnion from '../assets/ecosystem-logos/AUPF.png'
+import logoBithomp from '../assets/ecosystem-logos/bithomp.png'
+import logoBitmart from '../assets/ecosystem-logos/bitmart.png'
+import logoBitrue from '../assets/ecosystem-logos/bitrue.png'
+import logoCoopbank from '../assets/ecosystem-logos/Coopbank-Logo-Ethiopia.svg'
+import logoCoinex from '../assets/ecosystem-logos/coinex.png'
+import logoComingSoon from '../assets/ecosystem-logos/coming-soon.svg'
+import logoDcent from '../assets/ecosystem-logos/dcent.png'
+import logoGatehub from '../assets/ecosystem-logos/gatehub.png'
+import logoQuantoz from '../assets/ecosystem-logos/quantoz.svg'
+import logoXahauServices from '../assets/ecosystem-logos/xahau-services.png'
+import logoXahscan from '../assets/ecosystem-logos/xahscan.png'
+// ── Logo import map (static imports required by Astro)
+import logoXaman from '../assets/ecosystem-logos/xaman.png'
+import logoXrplwin from '../assets/ecosystem-logos/xrplwin.png'
+import ecosystemData from '../data/ecosystem.json'
+
+const logoMap: Record<string, ImageMetadata> = {
+  xaman: logoXaman,
+  dcent: logoDcent,
+  gatehub: logoGatehub,
+  bitrue: logoBitrue,
+  bitmart: logoBitmart,
+  coinex: logoCoinex,
+  xahscan: logoXahscan,
+  bithomp: logoBithomp,
+  xrplwin: logoXrplwin,
+  'xahau-services': logoXahauServices,
+  'Coopbank-Logo-Ethiopia': logoCoopbank,
+  AUPF: logoAfricanUnion,
+  quantoz: logoQuantoz,
+}
+
+type Locale = 'en' | 'es' | 'ja'
+const locale = (Astro.currentLocale ?? 'en') as Locale
+
+// Projects sorted alphabetically at build time; others keep editorial order.
+const sections = ecosystemData.sections.map((section) =>
+  section.id === 'projects'
+    ? {
+        ...section,
+        items: [...section.items].sort((a, b) => a.name.localeCompare(b.name)),
+      }
+    : section,
+)
+---
+
+<section class="xeco" aria-label="Xahau Ecosystem">
+  <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
+  <header class="xe-head">
+    <div class="xe-head-title">
+      <h2>Ecosystem</h2>
+      <p class="xe-sub">
+        {sections.map(s => s.label['en']).join(', ')}
+        built on or around Xahau
+      </p>
+    </div>
+    <div class="xe-chips">
+      {sections.map(s => (
+        <span class="xe-chip">{s.items.length} {s.label['en']}</span>
+      ))}
+    </div>
+  </header>
+
+  {sections.map(section => {
+    const isProjects = section.id === 'projects'
+    return (
+      <div class={`xe-act act-${section.theme}`}>
+
+        {/* Section label (pip + monospace) + tagline */}
+        <div class="xe-sect-head">
+          <p class="xe-act-label">
+            <span class={`act-pip pip-${section.theme}`}></span>
+            {section.label[locale]}
+          </p>
+          <p class="xe-sect-tag">{section.tagline[locale]}</p>
+        </div>
+
+        {isProjects ? (
+
+          /* ── Projects: two-column editorial list, no boxes ── */
+          <ul class="xe-project-list">
+            {section.items.map(item => (
+              <li class="xe-project-item">
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class={`xe-project-link link-${section.theme}`}
+                >
+                  <span class={`xe-project-name pname-${section.theme}`}>{item.name}</span>
+                  <span class="xe-project-desc">{item.desc}</span>
+                  <span class="xe-project-arrow">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+        ) : (
+
+          /* ── Logo strip: open flex, no boxes ── */
+          <div class="xe-logo-strip">
+            {section.items.map(item => {
+              const logo = item.logo ? logoMap[item.logo] : null
+              return (
+                item.coming_soon && !item.url ? (
+                  <div class={`xe-logo-item litem-${section.theme} xe-coming-soon`}>
+                    <div class="xe-logo-wrap xe-logo-wrap-dark">
+                      <img src={logoComingSoon.src} alt="Coming soon" class="xe-logo-img xe-logo-img-cs" width="160" height="80" />
+                    </div>
+                    <span class="xe-logo-name">Coming soon</span>
+                    <span class="xe-logo-desc">{item.desc}</span>
+                  </div>
+                ) : (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class={`xe-logo-item litem-${section.theme}`}
+                  >
+                    {logo ? (
+                      <div
+                        class="xe-logo-wrap"
+                        style={item.logo_bg ? `background:${item.logo_bg};` : ''}
+                      >
+                        <Image src={logo} alt={item.name} class="xe-logo-img" />
+                      </div>
+                    ) : (
+                      <div class={`xe-logo-text-badge badge-${section.theme}`}>
+                        {item.name}
+                      </div>
+                    )}
+                    <span class="xe-logo-name">{item.name}</span>
+                    <span class="xe-logo-desc">{item.desc}</span>
+                  </a>
+                )
+              )
+            })}
+          </div>
+
+        )}
+
+      </div>
+    )
+  })}
+
+  <p class="xe-tm">
+    {locale === 'es'
+      ? 'Todas las marcas y logotipos son propiedad de sus respectivos dueños.'
+      : locale === 'ja'
+      ? 'すべての商標およびロゴは、各所有者の財産です。'
+      : 'All trademarks and logos are the property of their respective owners.'}
+  </p>
+</section>
+
+<style>
+  /* ══ Design tokens ════════════════════════════════════════════════════════ */
+  .xeco {
+    --ink: #0f2328;
+    --dim: #2d3e44;
+    --mute: #556068;
+    --grn2: #007a28;
+    --teal2: #006f87;
+    --vlt2: #4e18b8;
+    --amb2: #b56020;
+    --grn-hi: #00c940;
+    --teal-hi: #00c4e8;
+    --vlt-hi: #a050ff;
+    --amb-hi: #ff9030;
+
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px 72px;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 20px 64px -24px rgba(15, 35, 40, 0.13);
+  }
+  .xeco * {
+    box-sizing: border-box;
+  }
+
+  /* ── Page header ─────────────────────────────────────────────────────── */
+  .xe-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 40px;
+  }
+  .xeco h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+  .xe-sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: var(--mute);
+  }
+  .xe-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+  .xe-chip {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 5px 13px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    color: var(--mute);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Act structure ───────────────────────────────────────────────────── */
+  .xe-act {
+    padding-top: 56px;
+  }
+
+  .xe-act-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 0 0 20px;
+  }
+  .act-pip {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pip-grn {
+    background: var(--grn2);
+  }
+  .pip-teal {
+    background: var(--teal2);
+  }
+  .pip-vlt {
+    background: var(--vlt2);
+  }
+  .pip-amb {
+    background: var(--amb2);
+  }
+
+  /* Section header: label + tagline */
+  .xe-sect-head {
+    margin-bottom: 36px;
+  }
+  .xe-sect-head .xe-act-label {
+    margin-bottom: 6px;
+  }
+  .xe-sect-tag {
+    margin: 0;
+    font-size: 14px;
+    color: var(--mute);
+  }
+
+  /* ══ LOGO STRIP — wallets / exchanges / explorers ═════════════════════ */
+  .xe-logo-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 0;
+    align-items: stretch;
+    /* subtle top rule */
+    border-top: 1px solid #e4edef;
+  }
+
+  .xe-logo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 28px 32px 24px 0;
+    text-decoration: none;
+    color: var(--ink);
+    /* right border as divider */
+    border-right: 1px solid #e4edef;
+    margin-right: -1px; /* collapse double borders */
+    min-width: 180px;
+    flex: 1;
+    transition: background 0.15s;
+  }
+  .xe-logo-item:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+  .xe-logo-item:first-child {
+    padding-left: 0;
+  }
+  .xe-logo-item:not(:first-child) {
+    padding-left: 32px;
+  }
+
+  /* Hover tint per section */
+  .litem-grn:hover {
+    background: #f4fbf6;
+  }
+  .litem-teal:hover {
+    background: #f0f8fb;
+  }
+  .litem-amb:hover {
+    background: #fdf6ef;
+  }
+
+  /* Logo image container */
+  .xe-logo-wrap {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    border-radius: 8px;
+    padding: 6px 10px;
+    width: fit-content;
+  }
+  /* No background: just align left */
+  .xe-logo-item .xe-logo-wrap:not([style]) {
+    padding: 0;
+    background: transparent;
+  }
+  .xe-logo-img {
+    max-height: 44px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Text badge for logo-less items within logo sections */
+  .xe-logo-text-badge {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .badge-grn {
+    color: var(--grn2);
+  }
+  .badge-teal {
+    color: var(--teal2);
+  }
+  .badge-amb {
+    color: var(--amb2);
+  }
+
+  .xe-logo-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .xe-logo-desc {
+    font-size: 12px;
+    color: var(--mute);
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  /* Dark wrap for coming-soon icon */
+  .xe-logo-wrap-dark {
+    background: #0b1f26;
+    border-radius: 10px;
+    padding: 4px 6px;
+  }
+  .xe-logo-img-cs {
+    max-height: 50px;
+    max-width: 160px;
+  }
+
+  /* ══ COMING SOON — teaser treatment ══════════════════════════════════ */
+  .xe-coming-soon {
+    opacity: 0.75;
+    pointer-events: none;
+    cursor: default;
+    border-style: dashed;
+  }
+  .xe-coming-soon .xe-logo-img {
+    animation: cs-pulse 2.8s ease-in-out infinite;
+  }
+  @keyframes cs-pulse {
+    0%,
+    100% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+  .xe-logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hover-bg);
+    border: 2px dashed var(--border);
+  }
+  .xe-placeholder-icon {
+    font-size: 24px;
+    color: var(--border);
+    font-weight: 700;
+  }
+  .xe-soon-badge {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mute);
+    background: var(--hover-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  /* ══ PROJECT LIST — two-column editorial list ═════════════════════════ */
+  .xe-project-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* top rule */
+    border-top: 1px solid #e4edef;
+  }
+
+  .xe-project-item {
+    border-bottom: 1px solid #e4edef;
+  }
+  /* Odd items get a right divider */
+  .xe-project-item:nth-child(odd) {
+    border-right: 1px solid #e4edef;
+  }
+
+  .xe-project-link {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 22px 36px 22px 0;
+    text-decoration: none;
+    color: var(--ink);
+    transition: background 0.15s;
+  }
+  .xe-project-item:nth-child(odd) .xe-project-link {
+    padding-right: 32px;
+  }
+  .xe-project-item:nth-child(even) .xe-project-link {
+    padding-left: 32px;
+    padding-right: 0;
+  }
+
+  .link-vlt:hover {
+    background: #faf8ff;
+  }
+
+  .xe-project-name {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    transition: opacity 0.15s;
+  }
+  .xe-project-link:hover .xe-project-name {
+    opacity: 0.75;
+  }
+
+  /* Per-section gradient on project names */
+  .pname-vlt {
+    background: linear-gradient(140deg, #2a0875 15%, var(--vlt-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .xe-project-desc {
+    font-size: 13px;
+    color: var(--mute);
+    line-height: 1.45;
+  }
+
+  .xe-project-arrow {
+    position: absolute;
+    top: 22px;
+    right: 0;
+    font-size: 13px;
+    color: #cdd7dc;
+    transition:
+      color 0.15s,
+      transform 0.15s;
+  }
+  .xe-project-item:nth-child(even) .xe-project-arrow {
+    right: 0;
+  }
+  .xe-project-link:hover .xe-project-arrow {
+    color: var(--vlt2);
+    transform: translate(2px, -2px);
+  }
+
+  /* TM disclaimer */
+  .xe-tm {
+    margin-top: 48px;
+    font-size: 12px;
+    color: var(--mute);
+    opacity: 0.6;
+  }
+
+  /* ── Responsive ─────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .xe-logo-strip {
+      gap: 0;
+    }
+    .xe-logo-item {
+      min-width: 140px;
+      padding: 20px 24px 18px 0;
+    }
+    .xe-logo-item:not(:first-child) {
+      padding-left: 24px;
+    }
+  }
+  @media (max-width: 640px) {
+    .xeco {
+      padding: 32px 24px 48px;
+      border-radius: 16px;
+    }
+    .xeco h2 {
+      font-size: 28px;
+    }
+    .xe-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .xe-sect-title {
+      font-size: 24px;
+    }
+
+    .xe-logo-strip {
+      flex-direction: column;
+      border-top: none;
+    }
+    /* Reset all per-item padding rules so mobile stacking takes effect */
+    .xe-logo-item,
+    .xe-logo-item:not(:first-child),
+    .xe-logo-item:first-child,
+    .xe-logo-item:last-child {
+      padding: 18px 0 16px;
+    }
+    .xe-logo-item {
+      border-right: none;
+      border-top: 1px solid #e4edef;
+      flex-direction: row;
+      align-items: center;
+      gap: 14px;
+    }
+    .xe-logo-desc {
+      display: none;
+    }
+
+    .xe-project-list {
+      grid-template-columns: 1fr;
+    }
+    .xe-project-item:nth-child(odd) {
+      border-right: none;
+    }
+    .xe-project-item:nth-child(even) .xe-project-link {
+      padding-left: 0;
+    }
+    .xe-project-name {
+      font-size: 17px;
+    }
+  }
+</style>

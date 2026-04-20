@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
@@ -66,11 +66,32 @@
   },
   "overrides": [
     {
+      // Biome false positives in .astro files:
+      // - noUnusedVariables cannot track usage across the frontmatter/template boundary
+      // - useJsxKeyInIterable does not apply to server-rendered Astro components
       "includes": ["**/*.astro"],
       "linter": {
         "rules": {
           "correctness": {
+            "noUnusedVariables": "off",
             "useJsxKeyInIterable": "off"
+          }
+        }
+      }
+    },
+    {
+      // Pre-existing CSS patterns in XahauRoadmap.astro that cannot be refactored without risk
+      "includes": ["src/components/XahauRoadmap.astro"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noImportantInKeyframe": "off"
+          },
+          "style": {
+            "noDescendingSpecificity": "off"
+          },
+          "complexity": {
+            "noImportantStyles": "off"
           }
         }
       }

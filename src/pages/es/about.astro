@@ -1,0 +1,17 @@
+---
+import '../../styles/main.css'
+import XahauAboutEs from '../../components/XahauAboutEs.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const _frontmatter = {
+  title: 'Sobre Xahau',
+  description:
+    'Blockchain L1 empresarial con programabilidad basada en cuentas',
+}
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
+    <XahauAboutEs />
+  </div>
+</BaseLayout>
