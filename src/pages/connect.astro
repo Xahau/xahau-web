@@ -1,0 +1,17 @@
+---
+import '../styles/main.css'
+import XahauConnect from '../components/XahauConnect.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+const _frontmatter = {
+  title: 'Xahau Connect',
+  description:
+    'Professional blockchain events for serious discussion and innovation',
+}
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
+    <XahauConnect />
+  </div>
+</BaseLayout>

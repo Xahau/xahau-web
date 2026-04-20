@@ -1,12 +1,12 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!dist"],
+    "includes": ["**", "!dist", "!.astro"],
     "ignoreUnknown": false
   },
   "formatter": {
@@ -62,5 +62,48 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  // ── Override 1: all .astro files ────────────────────────────────────────────
+  // noUnusedVariables: Biome's scope analysis doesn't cross the ---/template
+  // boundary in Astro components, so every frontmatter variable used in the
+  // template is incorrectly flagged as unused. All flagged variables have been
+  // verified to be genuinely used in their respective templates.
+  //
+  // useJsxKeyInIterable: Astro templates are server-rendered (no virtual DOM),
+  // so `key` props on .map() iterables are meaningless noise. Biome 2.4 added
+  // this rule but cannot detect the Astro render context — false positive for
+  // all .astro files.
+  //
+  // ── Override 2: XahauRoadmap.astro only ──────────────────────────────────────
+  // noImportantStyles / noDescendingSpecificity: XahauRoadmap.astro is a
+  // pre-existing component with 14 !important declarations and 20 descending-
+  // specificity violations that predate this project. Scoped to this one file
+  // so the rules remain active for all other components — any new !important
+  // or specificity inversion we introduce elsewhere will still be caught.
+  "overrides": [
+    {
+      "includes": ["**/*.astro"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off",
+            "useJsxKeyInIterable": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/XahauRoadmap.astro"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noImportantStyles": "off"
+          },
+          "style": {
+            "noDescendingSpecificity": "off"
+          }
+        }
+      }
+    }
+  ]
 }

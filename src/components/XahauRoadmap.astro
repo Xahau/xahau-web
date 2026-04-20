@@ -1,0 +1,1204 @@
+---
+// XahauRoadmap.astro
+// Single-source-of-truth roadmap chart. Reads src/data/roadmap.json,
+// renders statically at build time. No runtime JS.
+//
+// Usage in a .astro page frontmatter:
+//   import XahauRoadmap from '@/components/XahauRoadmap.astro'
+// Then in the template:
+//   <XahauRoadmap lang={Astro.currentLocale ?? 'en'} />
+//
+// To add/edit/delete an item: edit src/data/roadmap.json and commit.
+
+import roadmap from '../data/roadmap.json'
+import { type RoadmapItem, roadmapSchema } from '../schemas/roadmap'
+
+interface Props {
+  /** BCP-47 locale key — must match a key under `labels` in roadmap.json */
+  lang?: string
+  /** Override the start quarter (ISO date). Otherwise uses meta.window. */
+  startDate?: string
+  /**
+   * Visual theme. "dark" (default) renders the original dark panel.
+   * "light" renders the roadmap on a white surface to match a light site.
+   * Swap by changing `theme` in the page — rollback is one word.
+   */
+  theme?: 'dark' | 'light'
+}
+
+const { lang: langProp, startDate, theme = 'dark' } = Astro.props
+
+// === Parse & validate =======================================================
+const data = roadmapSchema.parse(roadmap)
+const defaultLocale = data.meta.i18n.defaultLocale
+const lang = langProp && data.labels[langProp] ? langProp : defaultLocale
+
+const labels = data.labels[lang] ?? data.labels[defaultLocale]
+
+// === Helpers ================================================================
+const tr = (v: unknown): string => {
+  if (typeof v === 'string') return v
+  if (v && typeof v === 'object') {
+    const rec = v as Record<string, string>
+    return rec[lang] ?? rec[defaultLocale] ?? Object.values(rec)[0] ?? ''
+  }
+  return ''
+}
+
+const qToIdx = (q: string) => {
+  const [y, qx] = q.split('-Q')
+  return Number(y) * 4 + (Number(qx) - 1)
+}
+const idxToQ = (i: number) => ({
+  q: `Q${(i % 4) + 1}`,
+  y: String(Math.floor(i / 4)),
+  id: `${Math.floor(i / 4)}-Q${(i % 4) + 1}`,
+})
+
+// Current-quarter detection (build-time)
+const nowIdx = (() => {
+  const d = new Date()
+  return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
+})()
+
+// Window resolution
+const win = data.meta.window
+const startIdx = (() => {
+  if (startDate) {
+    const d = new Date(startDate)
+    return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
+  }
+  if (win.mode === 'manual' && win.start) {
+    const d = new Date(win.start)
+    return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
+  }
+  return nowIdx // auto: start at current quarter
+})()
+const QCOUNT = 6
+const quarters = Array.from({ length: QCOUNT }, (_, i) => idxToQ(startIdx + i))
+
+// Resolve how many quarters an item covers, honouring (in order):
+//   openEnded → stretches to the end of the visible window
+//   endQuarter → explicit end (inclusive)
+//   span → count of quarters
+// The returned span is clamped to the visible window.
+const resolveSpan = (item: RoadmapItem): number => {
+  const startCol = qToIdx(item.quarter)
+  if (item.openEnded) {
+    return Math.max(1, startIdx + QCOUNT - startCol)
+  }
+  if (item.endQuarter) {
+    const endCol = qToIdx(item.endQuarter)
+    return Math.max(1, endCol - startCol + 1)
+  }
+  return item.span ?? 1
+}
+
+// An item is "in window" if any part of its span overlaps the visible window.
+const inWindow = (item: RoadmapItem) => {
+  const startCol = qToIdx(item.quarter)
+  const endCol = startCol + resolveSpan(item) - 1
+  return endCol >= startIdx && startCol < startIdx + QCOUNT
+}
+
+// Return { col, span } in 1-based CSS grid coordinates, clipped to the window.
+const gridPos = (item: RoadmapItem) => {
+  const startCol = qToIdx(item.quarter)
+  const rawSpan = resolveSpan(item)
+  const clippedStart = Math.max(startCol, startIdx)
+  const clippedEnd = Math.min(startCol + rawSpan - 1, startIdx + QCOUNT - 1)
+  return {
+    col: clippedStart - startIdx + 1,
+    span: clippedEnd - clippedStart + 1,
+    clippedStart: clippedStart > startCol, // started before window
+  }
+}
+
+const techItems = data.items.filter((i) => i.lane === 'tech' && inWindow(i))
+const rolloutItems = data.items.filter(
+  (i) => i.lane === 'rollout' && inWindow(i),
+)
+
+// KPIs
+const kpiFeatures = techItems.length
+const kpiRollouts = rolloutItems.length
+
+// Human-readable period label for mobile card badge (and screen readers).
+// The horizontal timeline is hidden on small screens, so each card needs to
+// carry its own quarter/year range inline.
+const fmtItemPeriod = (item: RoadmapItem): string => {
+  const startCol = qToIdx(item.quarter)
+  const start = idxToQ(startCol)
+  if (item.openEnded) return `${start.q} ${start.y} →`
+  let endCol = startCol
+  if (item.endQuarter) endCol = qToIdx(item.endQuarter)
+  else if (item.span && item.span > 1) endCol = startCol + item.span - 1
+  if (endCol === startCol) return `${start.q} ${start.y}`
+  const end = idxToQ(endCol)
+  if (start.y === end.y) return `${start.q}–${end.q} ${start.y}`
+  return `${start.q} ${start.y} → ${end.q} ${end.y}`
+}
+---
+
+<section
+  class={`xroadmap theme-${theme}`}
+  data-screen-label="Xahau Roadmap"
+  aria-label={labels.title}
+>
+  <header class="xr-head">
+    <div class="xr-title">
+      <div>
+        <h2>{labels.title}</h2>
+        <p class="xr-sub">{labels.subtitle}</p>
+      </div>
+    </div>
+    <div class="xr-meta">
+      <span class="xr-chip accent">
+        <span class="xr-dot"></span>
+        {quarters[0].q}
+        {quarters[0].y}→ {quarters[QCOUNT - 1].q}
+        {quarters[QCOUNT - 1].y}
+      </span>
+      <span class="xr-chip">{labels.updated}· {data.meta.updated}</span>
+    </div>
+  </header>
+
+  <div class="xr-intro">
+    <p class="xr-stmt" set:html={labels.statement} />
+    <div class="xr-kpis">
+      <div class="xr-kpi">
+        <span class="n">{kpiRollouts}</span
+        ><span class="l">{labels.kpis.rollouts}</span>
+      </div>
+      <div class="xr-kpi">
+        <span class="n">{QCOUNT}</span
+        ><span class="l">{labels.kpis.quarters}</span>
+      </div>
+      <div class="xr-kpi">
+        <span class="n">{kpiFeatures}</span
+        ><span class="l">{labels.kpis.features}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="xr-wrap">
+    <!-- Quarter headers -->
+    <div class="xr-qgrid">
+      {quarters.map((q) => (
+        <div class="xr-qhead">
+          <span class="q">{q.q}</span>
+          <span class="y">{q.y}</span>
+        </div>
+      ))}
+    </div>
+
+    <!-- TOP LANE · rollouts (primary — users care most about usage) -->
+    <div class="xr-lane top" aria-label={labels.laneRollout}>
+      <div class="xr-dividers" aria-hidden="true">
+        {quarters.map(() => <span></span>)}
+      </div>
+      {rolloutItems.map((it) => {
+        const p = gridPos(it);
+        const classes = [
+          "xr-roll",
+          `status-${it.status}`,
+          p.span > 1 ? "is-span" : "",
+          it.openEnded ? "is-openended" : "",
+          p.clippedStart ? "is-clipstart" : "",
+        ].filter(Boolean).join(" ");
+        return (
+          <article class={classes} style={`grid-column:${p.col} / span ${p.span};`}>
+            <span class="xr-q-badge" aria-hidden="true">{fmtItemPeriod(it)}</span>
+            {it.tag && <div class="k">{tr(it.tag)}</div>}
+            <div class="n">{tr(it.title)}</div>
+            {it.description && <div class="d">{tr(it.description)}</div>}
+            <span class="peg" aria-hidden="true"></span>
+          </article>
+        );
+      })}
+    </div>
+
+    <!-- ARROW -->
+    <div class="xr-arrow" role="presentation">
+      <div class="shaft"></div>
+      <div class="grid">{quarters.map(() => <div class="tick"></div>)}</div>
+      <div class="labels">
+        {quarters.map((q) => <span class="ql">{q.q} · {q.y}</span>)}
+      </div>
+    </div>
+
+    <!-- BOTTOM LANE · tech (secondary — enterprise-grade = few feature changes) -->
+    <div class="xr-lane bot" aria-label={labels.laneTech}>
+      <div class="xr-dividers" aria-hidden="true">
+        {quarters.map(() => <span></span>)}
+      </div>
+      {techItems.map((it) => {
+        const p = gridPos(it);
+        const classes = [
+          "xr-feat",
+          `status-${it.status}`,
+          p.span > 1 ? "is-span" : "",
+          it.openEnded ? "is-openended" : "",
+          p.clippedStart ? "is-clipstart" : "",
+        ].filter(Boolean).join(" ");
+        return (
+          <article class={classes} style={`grid-column:${p.col} / span ${p.span};`}>
+            <span class="peg" aria-hidden="true"></span>
+            <span class="xr-q-badge" aria-hidden="true">{fmtItemPeriod(it)}</span>
+            {it.tag && <div class="k">{tr(it.tag)}</div>}
+            <div class="n">{tr(it.title)}</div>
+            {it.description && <div class="d">{tr(it.description)}</div>}
+          </article>
+        );
+      })}
+    </div>
+  </div>
+
+  <section class="xr-philosophy" aria-label="Philosophy">
+    {labels.philosophy.map((p) => (
+      <div class="xr-phil">
+        <div class="t">{p.t}</div>
+        <div class="v">{p.v}</div>
+      </div>
+    ))}
+  </section>
+
+  <div class="xr-legend">
+    <span class="sw feat"
+      ><i></i>
+      {labels.legend.feature}</span
+    >
+    <span class="sw live"
+      ><i></i>
+      {labels.legend.live}</span
+    >
+    <span class="sw pilot"
+      ><i></i>
+      {labels.legend.pilot}</span
+    >
+    <span class="sw partner"
+      ><i></i>
+      {labels.legend.partnership}</span
+    >
+    <span class="sw launch"
+      ><i></i>
+      {labels.legend.launch}</span
+    >
+  </div>
+
+  <footer class="xr-foot"><span>{labels.foot}</span></footer>
+</section>
+
+<style>
+  .xroadmap {
+    /* Xahau palette (aligned with site tokens):
+         xahau-gray  #0f2328  — dark panel background
+         xahau-green #5de48c  — bright accent
+         xahau-green-dark #007b3d — darker accent
+         xahau-secondary #fad7ae — warm secondary
+      */
+    --bg: #0a1619;
+    --panel: #0f2328;
+    --ink: #e9edf1;
+    --ink-dim: #aab3bd;
+    --ink-mute: #7a8890;
+    --line: #1a3036;
+    --line-2: #244048;
+    --accent: #5de48c;
+    --accent-2: #007b3d;
+    --teal: #44c7b6;
+    --violet: #9a7cff;
+    --rose: #ff6b9a;
+    --green: #7dd67a;
+    --peach: #fad7ae;
+    --section-bg: linear-gradient(180deg, var(--panel), var(--bg));
+    --section-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.8);
+    background: var(--section-bg);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 30px 34px 28px;
+    color: var(--ink);
+    font-family: 'Onest', var(--sl-font, 'Inter'), system-ui, sans-serif;
+    box-shadow: var(--section-shadow);
+  }
+
+  /* === Light theme override ==================================================
+       Activate by rendering <XahauRoadmap theme="light" />. Rollback is a one-word
+       prop change in src/pages/roadmap.astro (or remove the prop for the default
+       "dark"). */
+  .xroadmap.theme-light {
+    /* Panel is a warm off-white so cards don't dissolve into the page bg. */
+    --bg: #eef2f1;
+    --panel: #fbfbf9;
+    --ink: #0f2328;
+    --ink-dim: #2a3439;
+    --ink-mute: #546066;
+    --line: #d6dcde;
+    --line-2: #b9c2c6;
+    --section-bg: linear-gradient(180deg, #fbfbf9, #f3f6f4);
+    --section-shadow: 0 22px 56px -28px rgba(15, 35, 40, 0.28);
+  }
+  /* Feature cards: near-white surface + chunky left accent, matching rollouts.
+       Keeps green as an accent colour instead of a pastel wash. */
+  .xroadmap.theme-light .xr-feat {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent-2);
+    box-shadow: 0 6px 18px -14px rgba(15, 35, 40, 0.25);
+  }
+  .xroadmap.theme-light .xr-feat.is-span {
+    background: #ffffff;
+  }
+  /* Bump tags up a touch — 9px text was fragile on white. Colour stays
+       per-card-type so status colours (live/pilot/partnership/launch) still apply. */
+  .xroadmap.theme-light .xr-feat .k,
+  .xroadmap.theme-light .xr-roll .k {
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .xroadmap.theme-light .xr-feat .k {
+    color: var(--accent-2);
+  }
+  .xroadmap.theme-light .xr-feat.is-openended::after {
+    color: var(--accent-2);
+  }
+  /* Descriptions: darker than --ink-dim so body text is comfortably legible. */
+  .xroadmap.theme-light .xr-feat .d,
+  .xroadmap.theme-light .xr-roll .d {
+    color: #2a3439;
+  }
+  /* Peg dot matches the deeper accent so nothing glows neon-green on white. */
+  .xroadmap.theme-light .xr-feat .peg {
+    background: rgba(0, 123, 61, 0.5);
+  }
+  .xroadmap.theme-light .xr-feat .peg::after {
+    background: var(--accent-2);
+    box-shadow: 0 0 8px rgba(0, 123, 61, 0.4);
+  }
+
+  /* Rollout cards: white surface, colour carried by the left rule and tag. */
+  .xroadmap.theme-light .xr-roll {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--teal);
+    box-shadow: 0 6px 18px -14px rgba(15, 35, 40, 0.25);
+  }
+  .xroadmap.theme-light .xr-roll.status-live {
+    border-left-color: #2fa84f;
+  }
+  .xroadmap.theme-light .xr-roll.status-pilot {
+    border-left-color: var(--violet);
+  }
+  .xroadmap.theme-light .xr-roll.status-partnership {
+    border-left-color: var(--rose);
+  }
+  .xroadmap.theme-light .xr-roll.status-launch {
+    border-left-color: var(--teal);
+  }
+  /* Deepen the status accent colours so tag text and pegs read cleanly on white.
+       The bright dark-theme palette (teal/violet/rose/green) washes out at small sizes. */
+  .xroadmap.theme-light .xr-roll.status-live .k {
+    color: #2fa84f;
+  }
+  .xroadmap.theme-light .xr-roll.status-live .peg::before {
+    background: #2fa84f;
+  }
+  .xroadmap.theme-light .xr-roll.status-launch .k {
+    color: #0d7d6b;
+  }
+  .xroadmap.theme-light .xr-roll.status-launch .peg::before {
+    background: #0d7d6b;
+  }
+  .xroadmap.theme-light .xr-roll.status-launch {
+    border-left-color: #0d7d6b;
+  }
+  .xroadmap.theme-light .xr-roll.status-pilot .k {
+    color: #5a3fbf;
+  }
+  .xroadmap.theme-light .xr-roll.status-pilot .peg::before {
+    background: #5a3fbf;
+  }
+  .xroadmap.theme-light .xr-roll.status-pilot {
+    border-left-color: #5a3fbf;
+  }
+  .xroadmap.theme-light .xr-roll.status-partnership .k {
+    color: #c9316b;
+  }
+  .xroadmap.theme-light .xr-roll.status-partnership .peg::before {
+    background: #c9316b;
+  }
+  .xroadmap.theme-light .xr-roll.status-partnership {
+    border-left-color: #c9316b;
+  }
+
+  /* Dividers on light need more contrast than the card border colour. */
+  .xroadmap.theme-light .xr-dividers span {
+    border-right-color: var(--line-2);
+  }
+  .xroadmap.theme-light .xr-qhead {
+    border-right-color: var(--line-2);
+  }
+
+  /* Chip accent + intro emphasis read better with the deeper green. */
+  .xroadmap.theme-light .xr-chip.accent {
+    color: var(--accent-2);
+    border-color: rgba(0, 123, 61, 0.45);
+    background: rgba(93, 228, 140, 0.08);
+  }
+  .xroadmap.theme-light .xr-chip {
+    background: rgba(15, 35, 40, 0.03);
+  }
+  .xroadmap.theme-light .xr-dot {
+    background: var(--accent-2);
+    box-shadow: 0 0 8px rgba(0, 123, 61, 0.5);
+  }
+  .xroadmap.theme-light .xr-stmt em {
+    color: var(--accent-2);
+  }
+  .xroadmap.theme-light .xr-intro {
+    background: rgba(93, 228, 140, 0.05);
+    border-color: rgba(0, 123, 61, 0.2);
+  }
+  .xroadmap.theme-light .xr-phil {
+    background: #ffffff;
+  }
+
+  /* Arrow shaft: uniform deep green so the quarter labels stay readable. */
+  .xroadmap.theme-light .xr-arrow .shaft {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 123, 61, 0.85),
+      rgba(0, 123, 61, 0.98) 50%,
+      rgba(0, 123, 61, 0.85)
+    );
+  }
+  .xroadmap.theme-light .xr-arrow .ql {
+    color: #ffffff;
+  }
+  .xroadmap.theme-light .xr-arrow .tick {
+    border-right-color: rgba(255, 255, 255, 0.18);
+  }
+  .xroadmap * {
+    box-sizing: border-box;
+  }
+
+  .xr-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .xr-title {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .xr-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(140deg, var(--accent), var(--accent-2));
+    color: #0f2328;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .xroadmap h2 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  .xr-sub {
+    color: var(--ink-dim);
+    font-size: 13px;
+    margin: 3px 0 0;
+  }
+  .xr-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .xr-chip {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    color: var(--ink-dim);
+  }
+  .xr-chip.accent {
+    border-color: rgba(93, 228, 140, 0.35);
+    color: var(--accent);
+  }
+  .xr-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 6px;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .xr-intro {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 6px 0 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .xr-stmt {
+    font-size: 17px;
+    max-width: 780px;
+    line-height: 1.4;
+    margin: 0;
+  }
+  .xr-stmt em {
+    color: var(--accent);
+    font-style: normal;
+  }
+  .xr-kpis {
+    display: flex;
+    gap: 18px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .xr-kpi {
+    min-width: 110px;
+  }
+  .xr-kpi .n {
+    font-size: 26px;
+    line-height: 1;
+    display: block;
+  }
+  .xr-kpi .l {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-top: 6px;
+    display: block;
+  }
+
+  .xr-wrap {
+    position: relative;
+    margin: 18px 0 10px;
+    padding: 0 8px;
+  }
+  .xr-qgrid,
+  .xr-lane {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .xr-qhead {
+    padding: 0 12px 8px;
+    border-right: 1px dashed var(--line);
+  }
+  .xr-qhead:last-child {
+    border-right: none;
+  }
+  .xr-qhead .q {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.14em;
+  }
+  .xr-qhead .y {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 9px;
+    color: var(--ink-mute);
+    letter-spacing: 0.16em;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .xr-lane {
+    position: relative;
+    gap: 8px 12px;
+  }
+  .xr-lane.top {
+    min-height: 170px;
+    align-items: end;
+    padding: 12px 14px 18px;
+  }
+  .xr-lane.bot {
+    min-height: 180px;
+    padding: 18px 14px 0;
+  }
+
+  /* Dashed column dividers drawn behind the cards. */
+  .xr-dividers {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .xr-dividers span {
+    border-right: 1px dashed var(--line);
+  }
+  .xr-dividers span:last-child {
+    border-right: none;
+  }
+
+  .xr-feat,
+  .xr-roll {
+    position: relative;
+    z-index: 1;
+  }
+
+  .xr-feat {
+    background: linear-gradient(
+      180deg,
+      rgba(93, 228, 140, 0.1),
+      rgba(93, 228, 140, 0.02)
+    );
+    border: 1px solid rgba(93, 228, 140, 0.35);
+    border-radius: 10px;
+    padding: 12px 12px 12px 14px;
+  }
+  .xr-feat .k {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+  .xr-feat .n {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+  }
+  .xr-feat .d {
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    margin-top: 5px;
+    line-height: 1.4;
+  }
+  .xr-feat .peg {
+    position: absolute;
+    left: 20px;
+    top: -14px;
+    width: 2px;
+    height: 12px;
+    background: rgba(93, 228, 140, 0.6);
+  }
+  .xr-feat .peg::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(93, 228, 140, 0.7);
+  }
+
+  /* Multi-quarter cards get a subtle inner rule showing the timeline extent. */
+  .xr-feat.is-span {
+    background: linear-gradient(
+      180deg,
+      rgba(93, 228, 140, 0.14),
+      rgba(93, 228, 140, 0.04)
+    );
+  }
+  .xr-roll.is-span {
+    background: linear-gradient(
+      90deg,
+      rgba(68, 199, 182, 0.08),
+      rgba(68, 199, 182, 0.02)
+    );
+  }
+
+  /* Open-ended: soft fade on the right edge and a "continues" arrow. */
+  .xr-feat.is-openended,
+  .xr-roll.is-openended {
+    padding-right: 30px;
+  }
+  .xr-feat.is-openended::after,
+  .xr-roll.is-openended::after {
+    content: '›';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 700;
+    color: var(--accent);
+    opacity: 0.9;
+  }
+  .xr-roll.is-openended.status-live::after {
+    color: var(--green);
+  }
+  .xr-roll.is-openended.status-pilot::after {
+    color: var(--violet);
+  }
+  .xr-roll.is-openended.status-partnership::after {
+    color: var(--rose);
+  }
+  .xr-roll.is-openended.status-launch::after {
+    color: var(--teal);
+  }
+
+  /* Clipped-start indicator: a soft left-edge gradient mask. */
+  .xr-feat.is-clipstart,
+  .xr-roll.is-clipstart {
+    padding-left: 24px;
+  }
+  .xr-feat.is-clipstart::before,
+  .xr-roll.is-clipstart::before {
+    content: '‹';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 700;
+    color: var(--ink-mute);
+    opacity: 0.6;
+  }
+
+  .xr-arrow {
+    position: relative;
+    height: 58px;
+    margin: 6px 0;
+  }
+  .xr-arrow .shaft {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(93, 228, 140, 0.22),
+      rgba(93, 228, 140, 0.65) 22%,
+      rgba(0, 123, 61, 0.95) 50%,
+      rgba(93, 228, 140, 0.65) 78%,
+      rgba(93, 228, 140, 0.22)
+    );
+    clip-path: polygon(
+      0 30%,
+      95% 30%,
+      95% 12%,
+      100% 50%,
+      95% 88%,
+      95% 70%,
+      0 70%
+    );
+  }
+  .xr-arrow .grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    pointer-events: none;
+  }
+  .xr-arrow .tick {
+    border-right: 1px solid rgba(0, 0, 0, 0.28);
+  }
+  .xr-arrow .tick:last-child {
+    border-right: none;
+  }
+  .xr-arrow .labels {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    align-items: center;
+  }
+  .xr-arrow .ql {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: #0f2328;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0 14px;
+  }
+
+  .xr-roll {
+    padding: 12px 12px 12px 14px;
+    border-left: 2px solid var(--teal);
+    background: rgba(68, 199, 182, 0.04);
+    border-radius: 0 8px 8px 0;
+  }
+  .xr-roll.status-live {
+    border-left-color: var(--green);
+    background: rgba(125, 214, 122, 0.05);
+  }
+  .xr-roll.status-pilot {
+    border-left-color: var(--violet);
+    background: rgba(154, 124, 255, 0.05);
+  }
+  .xr-roll.status-partnership {
+    border-left-color: var(--rose);
+    background: rgba(255, 107, 154, 0.05);
+  }
+  .xr-roll.status-launch {
+    border-left-color: var(--teal);
+    background: rgba(68, 199, 182, 0.05);
+  }
+  .xr-roll .k {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    color: var(--ink-mute);
+  }
+  .xr-roll.status-live .k {
+    color: var(--green);
+  }
+  .xr-roll.status-pilot .k {
+    color: var(--violet);
+  }
+  .xr-roll.status-partnership .k {
+    color: var(--rose);
+  }
+  .xr-roll.status-launch .k {
+    color: var(--teal);
+  }
+  .xr-roll .n {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+  }
+  .xr-roll .d {
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 5px;
+    line-height: 1.45;
+  }
+  .xr-roll .peg {
+    position: absolute;
+    left: 20px;
+    bottom: -14px;
+    width: 2px;
+    height: 12px;
+    background: rgba(68, 199, 182, 0.6);
+  }
+  .xr-roll.status-live .peg {
+    background: rgba(125, 214, 122, 0.6);
+  }
+  .xr-roll.status-pilot .peg {
+    background: rgba(154, 124, 255, 0.6);
+  }
+  .xr-roll.status-partnership .peg {
+    background: rgba(255, 107, 154, 0.6);
+  }
+  .xr-roll .peg::before {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+  .xr-roll.status-live .peg::before {
+    background: var(--green);
+  }
+  .xr-roll.status-pilot .peg::before {
+    background: var(--violet);
+  }
+  .xr-roll.status-partnership .peg::before {
+    background: var(--rose);
+  }
+
+  .xr-philosophy {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .xr-phil {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .xr-phil .t {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 6px;
+  }
+  .xr-phil .v {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .xr-legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin: 18px 0 0;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .xr-legend .sw {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .xr-legend .sw i {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .xr-legend .sw.feat i {
+    background: var(--accent);
+  }
+  .xr-legend .sw.live i {
+    background: var(--green);
+  }
+  .xr-legend .sw.pilot i {
+    background: var(--violet);
+  }
+  .xr-legend .sw.partner i {
+    background: var(--rose);
+  }
+  .xr-legend .sw.launch i {
+    background: var(--teal);
+  }
+
+  .xr-foot {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+  }
+
+  /* Per-card quarter badge — hidden on desktop (timeline carries this info)
+       and shown on mobile where the horizontal arrow is collapsed. */
+  .xr-q-badge {
+    display: none;
+  }
+
+  @media (max-width: 1100px) {
+    .xr-philosophy {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Tablet breakpoint: drop to 3 visible columns but keep the timeline metaphor. */
+  @media (max-width: 900px) and (min-width: 641px) {
+    .xr-qgrid,
+    .xr-lane,
+    .xr-dividers,
+    .xr-arrow .grid,
+    .xr-arrow .labels {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .xr-arrow {
+      height: 46px;
+    }
+    .xr-arrow .ql {
+      font-size: 10px;
+      padding: 0 10px;
+    }
+    .xr-lane .xr-feat,
+    .xr-lane .xr-roll {
+      grid-column: 1 / -1 !important;
+    }
+    .xr-dividers {
+      display: none;
+    }
+  }
+
+  /* === Mobile (≤640px) ======================================================
+       The horizontal timeline metaphor does not survive narrow viewports, so at
+       phone widths we flip to a linear, stacked card list. The quarter header
+       row, arrow and column dividers are hidden; every card instead shows its
+       own period via the .xr-q-badge (populated at build time). */
+  @media (max-width: 640px) {
+    .xroadmap {
+      padding: 20px 16px 18px;
+      border-radius: 14px;
+    }
+    .xroadmap h2 {
+      font-size: 22px;
+    }
+    .xr-sub {
+      font-size: 12px;
+    }
+
+    .xr-head {
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .xr-meta {
+      gap: 6px;
+    }
+    .xr-chip {
+      font-size: 10px;
+      padding: 4px 8px;
+    }
+
+    .xr-intro {
+      padding: 12px 14px;
+      gap: 12px;
+    }
+    .xr-stmt {
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .xr-kpis {
+      gap: 10px;
+      margin-left: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .xr-kpi {
+      min-width: auto;
+      flex: 1;
+    }
+    .xr-kpi .n {
+      font-size: 20px;
+    }
+    .xr-kpi .l {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+    }
+
+    .xr-wrap {
+      padding: 0;
+      margin: 12px 0 4px;
+    }
+    .xr-qgrid,
+    .xr-arrow,
+    .xr-dividers {
+      display: none !important;
+    }
+
+    /* Lanes collapse to a simple block list with a section heading derived
+         from the existing aria-label (so no extra markup is needed). */
+    .xr-lane {
+      display: block;
+      padding: 0 !important;
+      min-height: 0 !important;
+      position: relative;
+      margin-bottom: 18px;
+    }
+    .xr-lane.top,
+    .xr-lane.bot {
+      padding: 0 !important;
+    }
+    .xr-lane::before {
+      content: attr(aria-label);
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 10px;
+    }
+
+    /* Cards become full-width blocks; drop peg/open-ended/clip glyphs that
+         only make sense against a horizontal timeline. */
+    .xr-feat,
+    .xr-roll {
+      display: block !important;
+      grid-column: auto !important;
+      width: auto;
+      margin: 0 0 10px !important;
+      padding: 12px 14px !important;
+      border-radius: 10px !important;
+    }
+    .xr-feat .peg,
+    .xr-roll .peg {
+      display: none;
+    }
+    .xr-feat.is-openended::after,
+    .xr-roll.is-openended::after,
+    .xr-feat.is-clipstart::before,
+    .xr-roll.is-clipstart::before {
+      display: none;
+    }
+    .xr-feat.is-openended,
+    .xr-roll.is-openended {
+      padding-right: 14px;
+    }
+    .xr-feat.is-clipstart,
+    .xr-roll.is-clipstart {
+      padding-left: 14px;
+    }
+
+    /* Quarter badge → compact chip pinned to the top-right of each card. */
+    .xr-q-badge {
+      display: inline-block;
+      float: right;
+      margin: 0 0 4px 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--line-2);
+      color: var(--ink-dim);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .xroadmap.theme-light .xr-q-badge {
+      background: rgba(15, 35, 40, 0.04);
+      color: #2a3439;
+      border-color: var(--line-2);
+    }
+
+    .xr-feat .n,
+    .xr-roll .n {
+      font-size: 15px;
+    }
+    .xr-feat .d,
+    .xr-roll .d {
+      font-size: 12.5px;
+    }
+
+    .xr-philosophy {
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .xr-legend {
+      gap: 10px 14px;
+      font-size: 11px;
+      margin-top: 14px;
+    }
+    .xr-foot {
+      font-size: 10px;
+    }
+  }
+
+  @media print {
+    .xroadmap {
+      background: #fff !important;
+      color: #000 !important;
+      border: none;
+      box-shadow: none;
+    }
+    .xr-intro,
+    .xr-phil,
+    .xr-foot,
+    .xr-chip {
+      color: #000 !important;
+      border-color: #ccc !important;
+    }
+  }
+</style>
