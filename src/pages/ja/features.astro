@@ -1,0 +1,16 @@
+---
+import '../../styles/main.css'
+import XahauFeaturesJa from '../../components/XahauFeaturesJa.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const _frontmatter = {
+  title: '機能',
+  description: '実績ある技術、新鮮なアプローチ',
+}
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
+    <XahauFeaturesJa />
+  </div>
+</BaseLayout>

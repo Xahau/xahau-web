@@ -1,0 +1,917 @@
+---
+/**
+ * XahauContestJa.astro — Editorial layout for the Xahau Dev Contest page (Japanese)
+ *
+ * Follows the same white-card editorial style as XahauAbout / XahauFeatures / XahauHome.
+ * For EN: see XahauContest.astro · For ES: see XahauContestEs.astro
+ */
+---
+
+<section class="xcontest" aria-label="Xahau Dev Contest">
+  <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
+  <header class="xc-head">
+    <div class="xc-head-title">
+      <h2>Xahau Dev Contest</h2>
+      <p class="xc-sub">
+        Ecosystem Rising — Xahauを活用したユーザー向けサービスを構築
+      </p>
+    </div>
+    <div class="xc-chips">
+      <span class="xc-chip">第2回</span>
+      <span class="xc-chip">Xahau Mainnet</span>
+      <span class="xc-chip">主要賞3つ</span>
+      <span class="xc-chip">XAH報酬</span>
+    </div>
+  </header>
+
+  <!-- ══ ACT I — はじめに ══════════════════════════════════════════════════ -->
+  <div class="xc-act act-intro">
+    <p class="xc-act-label"><span class="act-pip pip-grn"></span>はじめに</p>
+
+    <div class="xc-intro-grid">
+      <div class="xc-intro-body">
+        <span class="xc-lbl lbl-grn">概要</span>
+        <h3>Ecosystem Risingへようこそ</h3>
+        <p>
+          このコンテストは、<strong
+            >Xahauを活用したユーザー向けサービス</strong
+          >を構築するイノベーターを招待し、
+          賞品を競いながらXahauエコシステムを強化するものです。
+        </p>
+        <p>
+          個人でもチームでも、好きなだけプロジェクトを提出でき、それぞれ異なる賞の対象となります。
+        </p>
+      </div>
+
+      <div class="xc-prizes">
+        <span class="xc-lbl lbl-grn">賞品</span>
+        <h3>XAHの主要賞</h3>
+        <div class="xc-prize-list">
+          <div class="xc-prize prize-gold">
+            <span class="prize-medal">🥇</span>
+            <div>
+              <span class="prize-place">1位</span>
+              <span class="prize-value">XAH建て4,000 USD相当</span>
+            </div>
+          </div>
+          <div class="xc-prize prize-silver">
+            <span class="prize-medal">🥈</span>
+            <div>
+              <span class="prize-place">2位</span>
+              <span class="prize-value">XAH建て2,000 USD相当</span>
+            </div>
+          </div>
+          <div class="xc-prize prize-bronze">
+            <span class="prize-medal">🥉</span>
+            <div>
+              <span class="prize-place">3位</span>
+              <span class="prize-value">XAH建て1,000 USD相当</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="xc-timeline">
+          <span class="xc-lbl lbl-grn">スケジュール</span>
+          <div class="timeline-row">
+            <span class="timeline-dot"></span>
+            <span><strong>提出締切：</strong>2026年2月1日</span>
+          </div>
+          <div class="timeline-row">
+            <span class="timeline-dot"></span>
+            <span
+              ><strong
+                >審査パネル：</strong
+              >XahauおよびXRPLコミュニティの5名</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ACT II — 審査パネルとテーマ ══════════════════════════════════════ -->
+  <div class="xc-act act-panel">
+    <p class="xc-act-label">
+      <span class="act-pip pip-teal"></span>審査パネルとテーマ
+    </p>
+
+    <div class="xc-panel-grid">
+      <div class="xc-judges">
+        <span class="xc-lbl lbl-teal">審査パネル</span>
+        <h3>5名のコミュニティメンバー</h3>
+        <div class="xc-judge-list">
+          <div class="xc-judge">
+            <span class="judge-handle">tequ</span>
+            <span class="judge-role">Xahauブロックチェーン開発者</span>
+            <a
+              href="https://x.com/_tequ_"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="judge-link"
+              >@_tequ_ ↗</a
+            >
+          </div>
+          <div class="xc-judge">
+            <span class="judge-handle">Robert Kiuru</span>
+            <span class="judge-role">COO、XRPL Labs</span>
+            <a
+              href="https://x.com/robertkiuru"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="judge-link"
+              >@robertkiuru ↗</a
+            >
+          </div>
+          <div class="xc-judge">
+            <span class="judge-handle">gadget78</span>
+            <span class="judge-role">Evrenodeデベロッパー</span>
+            <a
+              href="https://x.com/gadget78"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="judge-link"
+              >@gadget78 ↗</a
+            >
+          </div>
+          <div class="xc-judge">
+            <span class="judge-handle">Andrei Rosseti</span>
+            <span class="judge-role"
+              >Xahau DocProofアーキテクト · CTO、EleveCRM</span
+            >
+            <a
+              href="https://x.com/andreirosseti"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="judge-link"
+              >@andreirosseti ↗</a
+            >
+          </div>
+          <div class="xc-judge">
+            <span class="judge-handle">Vet</span>
+            <span class="judge-role">XRPLコミュニティコントリビューター</span>
+            <a
+              href="https://x.com/Vet_X0"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="judge-link"
+              >@Vet_X0 ↗</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="xc-theme">
+        <span class="xc-lbl lbl-teal">テーマ</span>
+        <h3>Xahau上のサービス</h3>
+        <p>
+          参加者は<strong
+            >Xahauメインネットと対話するWebベースのサービス</strong
+          >を構築し、
+          <strong
+            >エンドユーザー</strong
+          >（一般ユーザー、パワーユーザー、公共部門、民間部門）向けに設計する必要があります。
+        </p>
+        <div class="xc-examples">
+          <div class="xc-example-group">
+            <span class="example-heading">日常ユーザーツール</span>
+            <span>個人財務ダッシュボード</span>
+            <span>ウォレットマネージャー</span>
+            <span>コミュニティアプリ</span>
+          </div>
+          <div class="xc-example-group">
+            <span class="example-heading">ビジネスサービス</span>
+            <span>決済ポータル</span>
+            <span>ロイヤルティプラットフォーム</span>
+            <span>顧客サービスツール</span>
+          </div>
+          <div class="xc-example-group">
+            <span class="example-heading">公共プラットフォーム</span>
+            <span>NFTマーケットプレイス</span>
+            <span>投票システム</span>
+            <span>寄付ハブ</span>
+            <span>文化アプリ</span>
+            <span>社会的善のためのユーティリティ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ACT III — ルールと評価 ════════════════════════════════════════════ -->
+  <div class="xc-act act-rules">
+    <p class="xc-act-label">
+      <span class="act-pip pip-grn"></span>ルールと評価
+    </p>
+
+    <div class="xc-rules-grid">
+      <div class="xc-rules-col">
+        <span class="xc-lbl lbl-grn">参加ルール</span>
+        <h3>知っておくべきこと</h3>
+        <ul class="xc-rule-list">
+          <li><strong>好きなだけ多くのプロジェクト</strong>を提出できます。</li>
+          <li>各プロジェクトは個人またはグループが提出できます。</li>
+          <li>
+            同じ参加者の異なるプロジェクトがそれぞれ別の賞を受けることができます。
+          </li>
+          <li>
+            プロジェクトは<strong
+              >Xahauメインネットで動作</strong
+            >する必要があります。
+          </li>
+          <li>
+            各プロジェクトは<strong
+              >オンラインでアクセス可能</strong
+            >である必要があります。
+          </li>
+          <li>
+            各提出には<strong
+              >基本的なドキュメント</strong
+            >を含める必要があります。マルチメディア素材も歓迎。
+          </li>
+          <li>
+            <strong>AIツール</strong>は開発とドキュメントの両方に使用できます。
+          </li>
+          <li>
+            <strong
+              >Hooks</strong
+            >を使用する場合、Hookコードはオープンソースである必要があります。CコードとHookハッシュを添付してください。
+          </li>
+          <li>
+            規制された金融サービスや違法活動を対象とするプロジェクトは対象外です。
+          </li>
+          <li>
+            <a
+              href="https://x.com/XahauNetwork"
+              target="_blank"
+              rel="noopener noreferrer"
+              >@XahauNetwork</a
+            >をタグ付けしてXに投稿し、参加を発表してください。
+          </li>
+        </ul>
+      </div>
+
+      <div class="xc-eval-col">
+        <div class="xc-eval">
+          <span class="xc-lbl lbl-grn">評価基準</span>
+          <h3>審査員が重視すること</h3>
+          <div class="xc-criteria">
+            <div class="criterion">
+              <span class="criterion-label">独自性と創造性</span>
+              <span class="criterion-desc"
+                >アイデアはどれほど新しく革新的ですか？</span
+              >
+            </div>
+            <div class="criterion">
+              <span class="criterion-label">既存の競合他社の不在</span>
+              <span class="criterion-desc"
+                >コンテスト前にXahauメインネットで同じサービスを提供するものがないか。</span
+              >
+            </div>
+            <div class="criterion">
+              <span class="criterion-label">影響と有用性</span>
+              <span class="criterion-desc"
+                >エンドユーザー（個人、企業、公共部門）への価値。</span
+              >
+            </div>
+            <div class="criterion">
+              <span class="criterion-label">実行の品質</span>
+              <span class="criterion-desc"
+                >安定性、ドキュメント、ユーザーエクスペリエンス。</span
+              >
+            </div>
+            <div class="criterion">
+              <span class="criterion-label">Hooksの使用</span>
+              <span class="criterion-desc"
+                >XahauのスマートコントラクトであるHooksの使用は特別な評価を受けます。</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="xc-format">
+          <span class="xc-lbl lbl-grn">提出フォーマット</span>
+          <p>
+            各プロジェクトは<a
+              href="https://github.com/xahau/xahau-2nd-dev-contest"
+              target="_blank"
+              rel="noopener noreferrer"
+              >このリポジトリ ↗</a
+            >の submissionsディレクトリ内にフォルダと<strong
+              >提出ファイル</strong
+            >を含める必要があります。
+          </p>
+          <p class="format-example">
+            <code
+              >submissions/GitHubName_ProjectName/GitHubName_ProjectName.md</code
+            >
+          </p>
+          <p>
+            必須フィールド：プロジェクトタイトル · 簡単な説明 · 参加者 ·
+            ソーシャルメディア · 連絡先メール · プロジェクトリンク ·
+            XahauアドレスHooksのCコードとハッシュ（使用する場合）·
+            リポジトリリンク（任意）
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ACT IV — サポートとリソース ══════════════════════════════════════ -->
+  <div class="xc-act act-support">
+    <p class="xc-act-label">
+      <span class="act-pip pip-teal"></span>サポートとリソース
+    </p>
+
+    <div class="xc-support-grid">
+      <div class="xc-support-col">
+        <span class="xc-lbl lbl-teal">サポート</span>
+        <h3>質問とコミュニティ</h3>
+        <p>
+          <a
+            href="https://discord.gg/ds7nb93mYj"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Xahau Builders Discord ↗</a
+          >に参加するか、
+          <a href="mailto:contests@xahau.org"
+            >contests@xahau.org</a
+          >にメールしてください。
+          質問はFAQに追加され、他の参加者も参照できます。
+        </p>
+        <p class="ownership-note">
+          提出されたすべてのプロジェクトは<strong
+            >元の作成者の財産</strong
+          >のままです。
+        </p>
+
+        <div class="xc-faq">
+          <span class="xc-lbl lbl-teal">FAQ</span>
+          <div class="faq-item">
+            <span class="faq-q">複数のプロジェクトを提出できますか？</span>
+            <span class="faq-a"
+              >はい — 個人でもグループとしても、好きなだけ提出できます。</span
+            >
+          </div>
+          <div class="faq-item">
+            <span class="faq-q"
+              >プロジェクトはオープンソースである必要がありますか？</span
+            >
+            <span class="faq-a"
+              >いいえ、ただし基本的なドキュメントが必要です。Hookコードはオープンソースである必要があります。</span
+            >
+          </div>
+          <div class="faq-item">
+            <span class="faq-q"
+              >AIを使用してプロジェクトを構築や文書化できますか？</span
+            >
+            <span class="faq-a">はい、AIの使用は完全に許可されています。</span>
+          </div>
+          <div class="faq-item">
+            <span class="faq-q">Hooksを使用することに利点はありますか？</span>
+            <span class="faq-a"
+              >はい —
+              Hooksを創造的に実装したプロジェクトは特別な評価を受けます。</span
+            >
+          </div>
+          <div class="faq-item">
+            <span class="faq-q"
+              >コンテスト後、プロジェクトはどうなりますか？</span
+            >
+            <span class="faq-a">完全な所有権を保持します。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="xc-links-col">
+        <span class="xc-lbl lbl-teal">便利なリンク</span>
+        <h3>Xahau開発者向けリソース</h3>
+        <div class="xc-link-list">
+          <a
+            href="https://docs.xahau.network"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-resource-link"
+          >
+            <span class="resource-name">Xahauドキュメント</span>
+            <span class="resource-arrow">↗</span>
+          </a>
+          <a
+            href="https://xahau.network/docs/hooks/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-resource-link"
+          >
+            <span class="resource-name">Xahau Hooksドキュメント</span>
+            <span class="resource-arrow">↗</span>
+          </a>
+          <a
+            href="https://github.com/Xahau"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-resource-link"
+          >
+            <span class="resource-name">XahauのGitHubリポジトリ</span>
+            <span class="resource-arrow">↗</span>
+          </a>
+          <a
+            href="https://xaman.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-resource-link"
+          >
+            <span class="resource-name">Xaman Webサイト</span>
+            <span class="resource-arrow">↗</span>
+          </a>
+          <a
+            href="https://xahau-test.net/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-resource-link"
+          >
+            <span class="resource-name">Xahau Testnetフォーセット</span>
+            <span class="resource-arrow">↗</span>
+          </a>
+          <a
+            href="https://discord.gg/ds7nb93mYj"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-resource-link"
+          >
+            <span class="resource-name">Xahau Discord</span>
+            <span class="resource-arrow">↗</span>
+          </a>
+          <a
+            href="https://github.com/xahau/xahau-2nd-dev-contest"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-resource-link"
+          >
+            <span class="resource-name">コンテストリポジトリ</span>
+            <span class="resource-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .xcontest {
+    --ink: #0f2328;
+    --dim: #2d3e44;
+    --mute: #556068;
+    --grn2: #007a28;
+    --teal2: #006f87;
+    --border: #e4edef;
+    --hover-bg: #f4f6f7;
+
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px 72px;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 20px 64px -24px rgba(15, 35, 40, 0.13);
+  }
+  .xcontest * {
+    box-sizing: border-box;
+  }
+  .xc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 40px;
+  }
+  .xcontest h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: var(--ink);
+  }
+  .xc-sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: var(--mute);
+  }
+  .xc-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+  .xc-chip {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 5px 13px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    color: var(--mute);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+  .xc-act {
+    padding-top: 52px;
+  }
+  .xc-act-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 0 0 36px;
+  }
+  .act-pip {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pip-grn {
+    background: var(--grn2);
+  }
+  .pip-teal {
+    background: var(--teal2);
+  }
+  .xc-lbl {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .lbl-grn {
+    color: var(--grn2);
+    background: rgba(0, 122, 40, 0.09);
+  }
+  .lbl-teal {
+    color: var(--teal2);
+    background: rgba(0, 111, 135, 0.1);
+  }
+  .xcontest h3 {
+    margin: 0 0 16px;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .xcontest p {
+    margin: 0 0 14px;
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--dim);
+  }
+  .xcontest a {
+    color: var(--grn2);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .xcontest a:hover {
+    text-decoration: underline;
+  }
+  .xc-intro-grid,
+  .xc-panel-grid,
+  .xc-rules-grid,
+  .xc-support-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .xc-prize-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .xc-prize {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+  }
+  .prize-medal {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .prize-place {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+  .prize-value {
+    display: block;
+    font-size: 12px;
+    color: var(--mute);
+    margin-top: 2px;
+  }
+  .prize-gold {
+    background: linear-gradient(120deg, #fffbf0 0%, #fff 100%);
+    border-color: #e8d88a;
+  }
+  .prize-silver {
+    background: linear-gradient(120deg, #f7f9fa 0%, #fff 100%);
+    border-color: #c8d5da;
+  }
+  .prize-bronze {
+    background: #ffffff;
+  }
+  .xc-timeline {
+    border-top: 1.5px solid var(--border);
+    padding-top: 20px;
+  }
+  .xc-timeline .xc-lbl {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .timeline-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--dim);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .timeline-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--grn2);
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .xc-judge-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .xc-judge {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .xc-judge:last-child {
+    border-bottom: none;
+  }
+  .judge-handle {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .judge-role {
+    font-size: 12px;
+    color: var(--mute);
+    line-height: 1.4;
+  }
+  .judge-link {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--teal2);
+    text-decoration: none;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .judge-link:hover {
+    text-decoration: underline;
+  }
+  .xc-examples {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .xc-example-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    background: var(--hover-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .example-heading {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
+  }
+  .xc-example-group span:not(.example-heading) {
+    font-size: 12.5px;
+    color: var(--mute);
+    line-height: 1.5;
+  }
+  .xc-rule-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .xc-rule-list li {
+    padding: 11px 16px;
+    font-size: 13.5px;
+    color: var(--dim);
+    line-height: 1.55;
+    border-bottom: 1px solid var(--border);
+  }
+  .xc-rule-list li:last-child {
+    border-bottom: none;
+  }
+  .xc-rule-list li strong {
+    color: var(--ink);
+  }
+  .xc-rule-list li a {
+    color: var(--grn2);
+  }
+  .xc-criteria {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .criterion {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .criterion:last-child {
+    border-bottom: none;
+  }
+  .criterion-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .criterion-desc {
+    display: block;
+    font-size: 12.5px;
+    color: var(--mute);
+    line-height: 1.45;
+  }
+  .xc-format {
+    border-top: 1.5px solid var(--border);
+    padding-top: 22px;
+    margin-top: 4px;
+  }
+  .xc-format .xc-lbl {
+    display: block;
+  }
+  .format-example {
+    background: var(--hover-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 10px 0 12px;
+  }
+  .format-example code {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--ink);
+    word-break: break-all;
+  }
+  .xc-faq {
+    margin-top: 28px;
+    border-top: 1.5px solid var(--border);
+    padding-top: 20px;
+  }
+  .xc-faq .xc-lbl {
+    display: block;
+  }
+  .faq-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .faq-item:last-child {
+    border-bottom: none;
+  }
+  .faq-q {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .faq-a {
+    display: block;
+    font-size: 13px;
+    color: var(--mute);
+    line-height: 1.5;
+  }
+  .ownership-note {
+    font-size: 13px;
+    color: var(--mute);
+    margin-top: -6px;
+  }
+  .xc-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .xc-resource-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    transition: background 0.15s;
+    color: inherit;
+  }
+  .xc-resource-link:last-child {
+    border-bottom: none;
+  }
+  .xc-resource-link:hover {
+    background: var(--hover-bg);
+    text-decoration: none;
+  }
+  .resource-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dim);
+  }
+  .resource-arrow {
+    font-size: 13px;
+    color: var(--teal2);
+    font-weight: 700;
+  }
+
+  @media (max-width: 900px) {
+    .xc-intro-grid,
+    .xc-panel-grid,
+    .xc-rules-grid,
+    .xc-support-grid {
+      grid-template-columns: 1fr;
+    }
+    .xc-examples {
+      grid-template-columns: 1fr 1fr;
+    }
+    .xc-judge {
+      grid-template-columns: 1fr 1fr;
+    }
+    .judge-link {
+      grid-column: span 2;
+    }
+  }
+  @media (max-width: 640px) {
+    .xcontest {
+      padding: 32px 20px 48px;
+      border-radius: 16px;
+    }
+    .xcontest h2 {
+      font-size: 28px;
+    }
+    .xc-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .xc-examples {
+      grid-template-columns: 1fr;
+    }
+    .xc-judge {
+      grid-template-columns: 1fr;
+    }
+    .judge-link {
+      grid-column: span 1;
+    }
+  }
+</style>

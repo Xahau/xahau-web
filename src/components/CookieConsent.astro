@@ -1,10 +1,11 @@
 ---
-  import 'vanilla-cookieconsent/dist/cookieconsent.css'
-  import { createCookieConsentConfig } from '../CookieConsentConfig'
+import 'vanilla-cookieconsent/dist/cookieconsent.css'
+import { createCookieConsentConfig } from '../CookieConsentConfig'
 
-  const locale = (Astro.currentLocale ?? 'en') as 'en' | 'es' | 'ja'
-  const cookieConsentConfig = createCookieConsentConfig(locale)
+const locale = (Astro.currentLocale ?? 'en') as 'en' | 'es' | 'ja'
+const cookieConsentConfig = createCookieConsentConfig(locale)
 ---
+
 <script define:vars={{ cookieConsentConfig }}>
   import { run } from 'vanilla-cookieconsent'
 

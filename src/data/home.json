@@ -1,0 +1,46 @@
+{
+  "stats": [
+    {
+      "value": "22M+",
+      "label": {
+        "en": "Ledgers closed",
+        "es": "Ledgers cerrados",
+        "ja": "閉鎖済みレジャー"
+      },
+      "theme": "dark",
+      "col": 5
+    },
+    {
+      "value": "1.5M+",
+      "label": {
+        "en": "Transactions / 24h",
+        "es": "Transacciones/24h",
+        "ja": "取引/24時間"
+      },
+      "theme": "dark",
+      "col": 4
+    },
+    {
+      "value": "200K+",
+      "label": { "en": "Accounts", "es": "Cuentas", "ja": "アカウント" },
+      "theme": "light",
+      "col": 3
+    },
+    {
+      "value": "5K+",
+      "label": {
+        "en": "Hooks installed",
+        "es": "Hooks instalados",
+        "ja": "インストール済みHooks"
+      },
+      "theme": "light",
+      "col": 3
+    },
+    {
+      "value": "300+",
+      "label": { "en": "Nodes", "es": "Nodos", "ja": "ノード" },
+      "theme": "light",
+      "col": 3
+    }
+  ]
+}

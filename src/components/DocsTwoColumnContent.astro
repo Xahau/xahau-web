@@ -1,16 +1,12 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-  <div class="col-span-3">
-    <slot/>
-  </div>
-  {
-    Astro.locals.starlightRoute.toc && (
+  <div class="col-span-3"><slot /></div>
+  {Astro.locals.starlightRoute.toc && (
       <aside class="right-sidebar-container col-span-1 print:hidden">
         <div class="right-sidebar">
           <slot name="right-sidebar" />
         </div>
       </aside>
-    )
-  }
+    )}
 </div>
 
 <style>

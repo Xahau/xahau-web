@@ -1,146 +1,145 @@
 ---
-  // XahauRoadmap.astro
-  // Single-source-of-truth roadmap chart. Reads src/data/roadmap.json,
-  // renders statically at build time. No runtime JS.
-  //
-  // Usage in a .astro page frontmatter:
-  //   import XahauRoadmap from '@/components/XahauRoadmap.astro'
-  // Then in the template:
-  //   <XahauRoadmap lang={Astro.currentLocale ?? 'en'} />
-  //
-  // To add/edit/delete an item: edit src/data/roadmap.json and commit.
+// XahauRoadmap.astro
+// Single-source-of-truth roadmap chart. Reads src/data/roadmap.json,
+// renders statically at build time. No runtime JS.
+//
+// Usage in a .astro page frontmatter:
+//   import XahauRoadmap from '@/components/XahauRoadmap.astro'
+// Then in the template:
+//   <XahauRoadmap lang={Astro.currentLocale ?? 'en'} />
+//
+// To add/edit/delete an item: edit src/data/roadmap.json and commit.
 
-  import roadmap from '../data/roadmap.json'
-  import { type RoadmapItem, roadmapSchema } from '../schemas/roadmap'
+import roadmap from '../data/roadmap.json'
+import { type RoadmapItem, roadmapSchema } from '../schemas/roadmap'
 
-  interface Props {
-    /** BCP-47 locale key — must match a key under `labels` in roadmap.json */
-    lang?: string
-    /** Override the start quarter (ISO date). Otherwise uses meta.window. */
-    startDate?: string
-    /**
-     * Visual theme. "dark" (default) renders the original dark panel.
-     * "light" renders the roadmap on a white surface to match a light site.
-     * Swap by changing `theme` in the page — rollback is one word.
-     */
-    theme?: 'dark' | 'light'
+interface Props {
+  /** BCP-47 locale key — must match a key under `labels` in roadmap.json */
+  lang?: string
+  /** Override the start quarter (ISO date). Otherwise uses meta.window. */
+  startDate?: string
+  /**
+   * Visual theme. "dark" (default) renders the original dark panel.
+   * "light" renders the roadmap on a white surface to match a light site.
+   * Swap by changing `theme` in the page — rollback is one word.
+   */
+  theme?: 'dark' | 'light'
+}
+
+const { lang: langProp, startDate, theme = 'dark' } = Astro.props
+
+// === Parse & validate =======================================================
+const data = roadmapSchema.parse(roadmap)
+const defaultLocale = data.meta.i18n.defaultLocale
+const lang = langProp && data.labels[langProp] ? langProp : defaultLocale
+
+const labels = data.labels[lang] ?? data.labels[defaultLocale]
+
+// === Helpers ================================================================
+const tr = (v: unknown): string => {
+  if (typeof v === 'string') return v
+  if (v && typeof v === 'object') {
+    const rec = v as Record<string, string>
+    return rec[lang] ?? rec[defaultLocale] ?? Object.values(rec)[0] ?? ''
   }
+  return ''
+}
 
-  const { lang: langProp, startDate, theme = 'dark' } = Astro.props
+const qToIdx = (q: string) => {
+  const [y, qx] = q.split('-Q')
+  return Number(y) * 4 + (Number(qx) - 1)
+}
+const idxToQ = (i: number) => ({
+  q: `Q${(i % 4) + 1}`,
+  y: String(Math.floor(i / 4)),
+  id: `${Math.floor(i / 4)}-Q${(i % 4) + 1}`,
+})
 
-  // === Parse & validate =======================================================
-  const data = roadmapSchema.parse(roadmap)
-  const defaultLocale = data.meta.i18n.defaultLocale
-  const lang = langProp && data.labels[langProp] ? langProp : defaultLocale
+// Current-quarter detection (build-time)
+const nowIdx = (() => {
+  const d = new Date()
+  return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
+})()
 
-  const labels = data.labels[lang] ?? data.labels[defaultLocale]
-
-  // === Helpers ================================================================
-  const tr = (v: unknown): string => {
-    if (typeof v === 'string') return v
-    if (v && typeof v === 'object') {
-      const rec = v as Record<string, string>
-      return rec[lang] ?? rec[defaultLocale] ?? Object.values(rec)[0] ?? ''
-    }
-    return ''
-  }
-
-  const qToIdx = (q: string) => {
-    const [y, qx] = q.split('-Q')
-    return Number(y) * 4 + (Number(qx) - 1)
-  }
-  const idxToQ = (i: number) => ({
-    q: `Q${(i % 4) + 1}`,
-    y: String(Math.floor(i / 4)),
-    id: `${Math.floor(i / 4)}-Q${(i % 4) + 1}`,
-  })
-
-  // Current-quarter detection (build-time)
-  const nowIdx = (() => {
-    const d = new Date()
+// Window resolution
+const win = data.meta.window
+const startIdx = (() => {
+  if (startDate) {
+    const d = new Date(startDate)
     return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
-  })()
-
-  // Window resolution
-  const win = data.meta.window
-  const startIdx = (() => {
-    if (startDate) {
-      const d = new Date(startDate)
-      return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
-    }
-    if (win.mode === 'manual' && win.start) {
-      const d = new Date(win.start)
-      return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
-    }
-    return nowIdx // auto: start at current quarter
-  })()
-  const QCOUNT = 6
-  const quarters = Array.from({ length: QCOUNT }, (_, i) =>
-    idxToQ(startIdx + i),
-  )
-
-  // Resolve how many quarters an item covers, honouring (in order):
-  //   openEnded → stretches to the end of the visible window
-  //   endQuarter → explicit end (inclusive)
-  //   span → count of quarters
-  // The returned span is clamped to the visible window.
-  const resolveSpan = (item: RoadmapItem): number => {
-    const startCol = qToIdx(item.quarter)
-    if (item.openEnded) {
-      return Math.max(1, startIdx + QCOUNT - startCol)
-    }
-    if (item.endQuarter) {
-      const endCol = qToIdx(item.endQuarter)
-      return Math.max(1, endCol - startCol + 1)
-    }
-    return item.span ?? 1
   }
-
-  // An item is "in window" if any part of its span overlaps the visible window.
-  const inWindow = (item: RoadmapItem) => {
-    const startCol = qToIdx(item.quarter)
-    const endCol = startCol + resolveSpan(item) - 1
-    return endCol >= startIdx && startCol < startIdx + QCOUNT
+  if (win.mode === 'manual' && win.start) {
+    const d = new Date(win.start)
+    return d.getFullYear() * 4 + Math.floor(d.getMonth() / 3)
   }
+  return nowIdx // auto: start at current quarter
+})()
+const QCOUNT = 6
+const quarters = Array.from({ length: QCOUNT }, (_, i) => idxToQ(startIdx + i))
 
-  // Return { col, span } in 1-based CSS grid coordinates, clipped to the window.
-  const gridPos = (item: RoadmapItem) => {
-    const startCol = qToIdx(item.quarter)
-    const rawSpan = resolveSpan(item)
-    const clippedStart = Math.max(startCol, startIdx)
-    const clippedEnd = Math.min(startCol + rawSpan - 1, startIdx + QCOUNT - 1)
-    return {
-      col: clippedStart - startIdx + 1,
-      span: clippedEnd - clippedStart + 1,
-      clippedStart: clippedStart > startCol, // started before window
-    }
+// Resolve how many quarters an item covers, honouring (in order):
+//   openEnded → stretches to the end of the visible window
+//   endQuarter → explicit end (inclusive)
+//   span → count of quarters
+// The returned span is clamped to the visible window.
+const resolveSpan = (item: RoadmapItem): number => {
+  const startCol = qToIdx(item.quarter)
+  if (item.openEnded) {
+    return Math.max(1, startIdx + QCOUNT - startCol)
   }
-
-  const techItems = data.items.filter((i) => i.lane === 'tech' && inWindow(i))
-  const rolloutItems = data.items.filter(
-    (i) => i.lane === 'rollout' && inWindow(i),
-  )
-
-  // KPIs
-  const kpiFeatures = techItems.length
-  const kpiRollouts = rolloutItems.length
-
-  // Human-readable period label for mobile card badge (and screen readers).
-  // The horizontal timeline is hidden on small screens, so each card needs to
-  // carry its own quarter/year range inline.
-  const fmtItemPeriod = (item: RoadmapItem): string => {
-    const startCol = qToIdx(item.quarter)
-    const start = idxToQ(startCol)
-    if (item.openEnded) return `${start.q} ${start.y} →`
-    let endCol = startCol
-    if (item.endQuarter) endCol = qToIdx(item.endQuarter)
-    else if (item.span && item.span > 1) endCol = startCol + item.span - 1
-    if (endCol === startCol) return `${start.q} ${start.y}`
-    const end = idxToQ(endCol)
-    if (start.y === end.y) return `${start.q}–${end.q} ${start.y}`
-    return `${start.q} ${start.y} → ${end.q} ${end.y}`
+  if (item.endQuarter) {
+    const endCol = qToIdx(item.endQuarter)
+    return Math.max(1, endCol - startCol + 1)
   }
+  return item.span ?? 1
+}
+
+// An item is "in window" if any part of its span overlaps the visible window.
+const inWindow = (item: RoadmapItem) => {
+  const startCol = qToIdx(item.quarter)
+  const endCol = startCol + resolveSpan(item) - 1
+  return endCol >= startIdx && startCol < startIdx + QCOUNT
+}
+
+// Return { col, span } in 1-based CSS grid coordinates, clipped to the window.
+const gridPos = (item: RoadmapItem) => {
+  const startCol = qToIdx(item.quarter)
+  const rawSpan = resolveSpan(item)
+  const clippedStart = Math.max(startCol, startIdx)
+  const clippedEnd = Math.min(startCol + rawSpan - 1, startIdx + QCOUNT - 1)
+  return {
+    col: clippedStart - startIdx + 1,
+    span: clippedEnd - clippedStart + 1,
+    clippedStart: clippedStart > startCol, // started before window
+  }
+}
+
+const techItems = data.items.filter((i) => i.lane === 'tech' && inWindow(i))
+const rolloutItems = data.items.filter(
+  (i) => i.lane === 'rollout' && inWindow(i),
+)
+
+// KPIs
+const kpiFeatures = techItems.length
+const kpiRollouts = rolloutItems.length
+
+// Human-readable period label for mobile card badge (and screen readers).
+// The horizontal timeline is hidden on small screens, so each card needs to
+// carry its own quarter/year range inline.
+const fmtItemPeriod = (item: RoadmapItem): string => {
+  const startCol = qToIdx(item.quarter)
+  const start = idxToQ(startCol)
+  if (item.openEnded) return `${start.q} ${start.y} →`
+  let endCol = startCol
+  if (item.endQuarter) endCol = qToIdx(item.endQuarter)
+  else if (item.span && item.span > 1) endCol = startCol + item.span - 1
+  if (endCol === startCol) return `${start.q} ${start.y}`
+  const end = idxToQ(endCol)
+  if (start.y === end.y) return `${start.q}–${end.q} ${start.y}`
+  return `${start.q} ${start.y} → ${end.q} ${end.y}`
+}
 ---
+
 <section
   class={`xroadmap theme-${theme}`}
   data-screen-label="Xahau Roadmap"
@@ -165,22 +164,19 @@
   </header>
 
   <div class="xr-intro">
-    <p class="xr-stmt" set:html={labels.statement}/>
+    <p class="xr-stmt" set:html={labels.statement} />
     <div class="xr-kpis">
       <div class="xr-kpi">
-        <span class="n">{kpiRollouts}</span><span class="l"
-          >{labels.kpis.rollouts}</span
-        >
+        <span class="n">{kpiRollouts}</span
+        ><span class="l">{labels.kpis.rollouts}</span>
       </div>
       <div class="xr-kpi">
-        <span class="n">{QCOUNT}</span><span class="l"
-          >{labels.kpis.quarters}</span
-        >
+        <span class="n">{QCOUNT}</span
+        ><span class="l">{labels.kpis.quarters}</span>
       </div>
       <div class="xr-kpi">
-        <span class="n">{kpiFeatures}</span><span class="l"
-          >{labels.kpis.features}</span
-        >
+        <span class="n">{kpiFeatures}</span
+        ><span class="l">{labels.kpis.features}</span>
       </div>
     </div>
   </div>
@@ -290,19 +286,17 @@
     >
   </div>
 
-  <footer class="xr-foot">
-    <span>{labels.foot}</span>
-  </footer>
+  <footer class="xr-foot"><span>{labels.foot}</span></footer>
 </section>
 
 <style>
   .xroadmap {
     /* Xahau palette (aligned with site tokens):
-       xahau-gray  #0f2328  — dark panel background
-       xahau-green #5de48c  — bright accent
-       xahau-green-dark #007b3d — darker accent
-       xahau-secondary #fad7ae — warm secondary
-    */
+         xahau-gray  #0f2328  — dark panel background
+         xahau-green #5de48c  — bright accent
+         xahau-green-dark #007b3d — darker accent
+         xahau-secondary #fad7ae — warm secondary
+      */
     --bg: #0a1619;
     --panel: #0f2328;
     --ink: #e9edf1;
@@ -329,9 +323,9 @@
   }
 
   /* === Light theme override ==================================================
-     Activate by rendering <XahauRoadmap theme="light" />. Rollback is a one-word
-     prop change in src/pages/roadmap.astro (or remove the prop for the default
-     "dark"). */
+       Activate by rendering <XahauRoadmap theme="light" />. Rollback is a one-word
+       prop change in src/pages/roadmap.astro (or remove the prop for the default
+       "dark"). */
   .xroadmap.theme-light {
     /* Panel is a warm off-white so cards don't dissolve into the page bg. */
     --bg: #eef2f1;
@@ -345,7 +339,7 @@
     --section-shadow: 0 22px 56px -28px rgba(15, 35, 40, 0.28);
   }
   /* Feature cards: near-white surface + chunky left accent, matching rollouts.
-     Keeps green as an accent colour instead of a pastel wash. */
+       Keeps green as an accent colour instead of a pastel wash. */
   .xroadmap.theme-light .xr-feat {
     background: #ffffff;
     border: 1px solid var(--line);
@@ -356,7 +350,7 @@
     background: #ffffff;
   }
   /* Bump tags up a touch — 9px text was fragile on white. Colour stays
-     per-card-type so status colours (live/pilot/partnership/launch) still apply. */
+       per-card-type so status colours (live/pilot/partnership/launch) still apply. */
   .xroadmap.theme-light .xr-feat .k,
   .xroadmap.theme-light .xr-roll .k {
     font-size: 10px;
@@ -402,7 +396,7 @@
     border-left-color: var(--teal);
   }
   /* Deepen the status accent colours so tag text and pegs read cleanly on white.
-     The bright dark-theme palette (teal/violet/rose/green) washes out at small sizes. */
+       The bright dark-theme palette (teal/violet/rose/green) washes out at small sizes. */
   .xroadmap.theme-light .xr-roll.status-live .k {
     color: #2fa84f;
   }
@@ -993,7 +987,7 @@
   }
 
   /* Per-card quarter badge — hidden on desktop (timeline carries this info)
-     and shown on mobile where the horizontal arrow is collapsed. */
+       and shown on mobile where the horizontal arrow is collapsed. */
   .xr-q-badge {
     display: none;
   }
@@ -1030,10 +1024,10 @@
   }
 
   /* === Mobile (≤640px) ======================================================
-     The horizontal timeline metaphor does not survive narrow viewports, so at
-     phone widths we flip to a linear, stacked card list. The quarter header
-     row, arrow and column dividers are hidden; every card instead shows its
-     own period via the .xr-q-badge (populated at build time). */
+       The horizontal timeline metaphor does not survive narrow viewports, so at
+       phone widths we flip to a linear, stacked card list. The quarter header
+       row, arrow and column dividers are hidden; every card instead shows its
+       own period via the .xr-q-badge (populated at build time). */
   @media (max-width: 640px) {
     .xroadmap {
       padding: 20px 16px 18px;
@@ -1095,7 +1089,7 @@
     }
 
     /* Lanes collapse to a simple block list with a section heading derived
-       from the existing aria-label (so no extra markup is needed). */
+         from the existing aria-label (so no extra markup is needed). */
     .xr-lane {
       display: block;
       padding: 0 !important;
@@ -1119,7 +1113,7 @@
     }
 
     /* Cards become full-width blocks; drop peg/open-ended/clip glyphs that
-       only make sense against a horizontal timeline. */
+         only make sense against a horizontal timeline. */
     .xr-feat,
     .xr-roll {
       display: block !important;
