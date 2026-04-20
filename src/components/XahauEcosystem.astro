@@ -156,6 +156,14 @@ const sections = ecosystemData.sections.map((section) =>
       </div>
     )
   })}
+
+  <p class="xe-tm">
+    {locale === 'es'
+      ? 'Todas las marcas y logotipos son propiedad de sus respectivos dueños.'
+      : locale === 'ja'
+      ? 'すべての商標およびロゴは、各所有者の財産です。'
+      : 'All trademarks and logos are the property of their respective owners.'}
+  </p>
 </section>
 
 <style>
@@ -515,6 +523,14 @@ const sections = ecosystemData.sections.map((section) =>
   .xe-project-link:hover .xe-project-arrow {
     color: var(--vlt2);
     transform: translate(2px, -2px);
+  }
+
+  /* TM disclaimer */
+  .xe-tm {
+    margin-top: 48px;
+    font-size: 12px;
+    color: var(--mute);
+    opacity: 0.6;
   }
 
   /* ── Responsive ─────────────────────────────────────────────────────── */
