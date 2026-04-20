@@ -1,16 +1,18 @@
 ---
-  import '../styles/main.css'
-  import { getRelativeLocaleUrl } from 'astro:i18n'
-  import worldmap from '../assets/worldmap.svg'
-  import type { IndexLocale } from '../i18n/indexTranslations'
-  import { indexTranslations } from '../i18n/indexTranslations'
-  import BaseLayout from '../layouts/BaseLayout.astro'
+import '../styles/main.css'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import worldmap from '../assets/worldmap.svg'
+import XahauHome from '../components/XahauHome.astro'
+import type { IndexLocale } from '../i18n/indexTranslations'
+import { indexTranslations } from '../i18n/indexTranslations'
+import BaseLayout from '../layouts/BaseLayout.astro'
 
-  const _frontmatter = Astro.props.frontmatter
+const _frontmatter = Astro.props.frontmatter
 
-  const locale = (Astro.currentLocale ?? 'en') as IndexLocale
-  const i = indexTranslations[locale]
+const locale = (Astro.currentLocale ?? 'en') as IndexLocale
+const i = indexTranslations[locale]
 ---
+
 <BaseLayout frontmatter={_frontmatter}>
   <div
     class="relative flex flex-col items-center justify-center min-h-[80vh] py-40"
@@ -39,13 +41,13 @@
         <div class="flex gap-4">
           <a
             href={getRelativeLocaleUrl(locale, '/about')}
-            class="px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
+            class="hero-btn hero-btn-primary"
           >
             {i.hero_learn}
           </a>
           <a
             href={getRelativeLocaleUrl(locale, '/docs')}
-            class="px-10 h-12 flex items-center justify-center bg-gray-300 text-black text-base font-bold hover:bg-black hover:text-white transition"
+            class="hero-btn hero-btn-secondary"
           >
             {i.hero_docs}
           </a>
@@ -53,100 +55,41 @@
       </div>
     </div>
   </div>
-  <div class="flex flex-col">
-    <div class="flex-none container mx-auto py-12 text-left max-w-7xl p-6">
-      <h1 class="text-3xl md:text-4xl font-extrabold text-black mb-4">
-        {i.network_title}
-      </h1>
-      <h2 class="text-xl md:text-2xl font-semibold text-black mb-8">
-        {i.network_subtitle}
-      </h2>
-      <div class="items-start grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">
-            {i.feat1_title}
-          </h3>
-          <p class="text-base font-light text-black">{i.feat1_desc}</p>
-        </div>
-        <div>
-          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">
-            {i.feat2_title}
-          </h3>
-          <p class="text-base font-light text-black">{i.feat2_desc}</p>
-        </div>
-        <div>
-          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">
-            {i.feat3_title}
-          </h3>
-          <p class="text-base font-light text-black">{i.feat3_desc}</p>
-        </div>
-        <div>
-          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">
-            {i.feat4_title}
-          </h3>
-          <p class="text-base font-light text-black">{i.feat4_desc}</p>
-        </div>
-        <div>
-          <h3 class="text-xl md:text-2xl font-bold text-black mb-2">
-            {i.feat5_title}
-          </h3>
-          <p class="text-base font-light text-black">{i.feat5_desc}</p>
-        </div>
-        <a
-          href={getRelativeLocaleUrl(locale, '/features')}
-          class="self-end px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
-        >
-          {i.feat_more}
-        </a>
-      </div>
-    </div>
+  <div class="flex-none container mx-auto max-w-7xl p-6 pb-12">
+    <XahauHome />
   </div>
-  <div class="flex flex-col items-end">
-    <div class="flex-none container mx-auto py-12 text-left max-w-7xl p-6">
-      <h1 class="text-3xl md:text-4xl font-extrabold text-black mb-4">
-        {i.stats_title}
-      </h1>
-      <h2 class="text-xl md:text-2xl font-semibold text-black mb-8">
-        {i.stats_subtitle}
-      </h2>
-      <div class="items-end grid grid-cols-6 md:grid-cols-9 gap-4">
-        <div
-          class="text-black flex flex-col col-span-4 md:col-span-3 min-h-40 items-start justify-end p-4 bg-white border-black border-2"
-        >
-          <h3 class="text-xl md:text-2xl font-semibold">{i.stats_accounts}</h3>
-          <h4 class="text-4xl md:text-6xl font-extrabold">200K+</h4>
-        </div>
-        <div
-          class="text-black flex flex-col col-span-2 md:col-span-2 min-h-40 items-start justify-end p-4 bg-white border-black border-2"
-        >
-          <h3 class="text-xl md:text-2xl font-semibold">{i.stats_hooks}</h3>
-          <h4 class="text-4xl md:text-6xl font-extrabold">5K+</h4>
-        </div>
-        <div
-          class="text-xahau-secondary flex flex-col col-span-2 md:col-span-2 min-h-40 items-start justify-end p-4 bg-xahau-gray border-black border-2"
-        >
-          <h3 class="text-xl md:text-2xl font-semibold">{i.stats_nodes}</h3>
-          <h4 class="text-4xl md:text-6xl font-extrabold">300+</h4>
-        </div>
-        <div
-          class="text-xahau-secondary flex flex-col col-span-4 md:col-span-2 row-start-auto md:row-start-2 min-h-40 items-start justify-end p-4 bg-xahau-gray border-black border-2"
-        >
-          <h3 class="text-xl md:text-2xl font-semibold">{i.stats_txs}</h3>
-          <h4 class="text-4xl md:text-6xl font-extrabold">1.5M+</h4>
-        </div>
-        <div
-          class="text-black flex flex-col col-span-6 md:col-span-3 row-start-auto md:row-start-2 min-h-40 items-start justify-end p-4 bg-white border-black border-2"
-        >
-          <h3 class="text-xl md:text-2xl font-semibold">{i.stats_ledgers}</h3>
-          <h4 class="text-4xl md:text-6xl font-extrabold">22M+</h4>
-        </div>
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/infrastructure/system-requirements/')}
-          class="col-span-6 row-start-auto md:row-start-2 px-10 h-12 flex items-center justify-center bg-xahau-green text-black text-base font-bold hover:bg-black hover:text-white transition"
-          >{i.stats_node_cta}</a
-        >
-      </div>
-    </div>
-  </div>
-  <slot/>
+  <slot />
 </BaseLayout>
+
+<style>
+  .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 36px;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+  .hero-btn-primary {
+    background: #007a28;
+    color: #ffffff;
+  }
+  .hero-btn-primary:hover {
+    background: #005a1e;
+    color: #ffffff;
+  }
+  .hero-btn-secondary {
+    background: #e4edef;
+    color: #0f2328;
+  }
+  .hero-btn-secondary:hover {
+    background: #cdd7dc;
+    color: #0f2328;
+  }
+</style>

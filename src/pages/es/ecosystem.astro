@@ -1,0 +1,16 @@
+---
+import '../../styles/main.css'
+import XahauEcosystem from '../../components/XahauEcosystem.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const _frontmatter = {
+  title: 'Ecosistema',
+  description: 'Xahau alrededor del mundo',
+}
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
+    <XahauEcosystem />
+  </div>
+</BaseLayout>

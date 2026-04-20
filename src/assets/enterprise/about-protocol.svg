@@ -1,0 +1,98 @@
+<svg viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-p" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ddf2f7"/>
+      <stop offset="100%" stop-color="#edf8fc"/>
+    </radialGradient>
+    <filter id="card-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#002a36" flood-opacity="0.22"/>
+    </filter>
+    <filter id="hook-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#00c4e8" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="380" rx="28" fill="url(#bg-p)"/>
+
+  <!-- ══ Stage 1: Transaction block ══ -->
+  <rect x="28" y="140" width="88" height="100" rx="16"
+        fill="#091e26" stroke="#1e5060" stroke-width="1.5"
+        filter="url(#card-shadow)"/>
+  <!-- Three horizontal rule lines — suggests a list/ledger entry -->
+  <line x1="48" y1="172" x2="96" y2="172" stroke="#1e7090" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+  <line x1="48" y1="190" x2="96" y2="190" stroke="#1e7090" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="48" y1="208" x2="80" y2="208" stroke="#1e7090" stroke-width="2.5" stroke-linecap="round" opacity="0.45"/>
+
+  <!-- ══ Arrow 1 → 2 ══ -->
+  <line x1="124" y1="190" x2="144" y2="190" stroke="#00c4e8" stroke-width="2" opacity="0.5"/>
+  <polygon points="148,190 141,185 141,195" fill="#00c4e8" opacity="0.5"/>
+
+  <!-- ══ Stage 2: Hook intercept block (taller, glowing border) ══ -->
+  <rect x="152" y="118" width="96" height="144" rx="20"
+        fill="#091e26" stroke="#00c4e8" stroke-width="2.5"
+        filter="url(#hook-glow)"/>
+  <!-- Corner bracket: top-left -->
+  <path d="M152,148 L152,118 L182,118"
+        stroke="#00c4e8" stroke-width="2" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Corner bracket: bottom-right -->
+  <path d="M218,232 L248,232 L248,202"
+        stroke="#00c4e8" stroke-width="2" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Hook shape: a J-curve path (no text) -->
+  <path d="M188,142 L188,208 Q188,224 204,224 L220,224"
+        stroke="#00c4e8" stroke-width="3.5" fill="none"
+        stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  <!-- Small capture arc above the hook -->
+  <path d="M178,148 Q200,132 222,148"
+        stroke="#00c4e8" stroke-width="2" fill="none"
+        stroke-linecap="round" opacity="0.4"/>
+
+  <!-- ══ Arrow 2 → 3 ══ -->
+  <line x1="256" y1="190" x2="270" y2="190" stroke="#00c4e8" stroke-width="2" opacity="0.5"/>
+  <polygon points="274,190 267,185 267,195" fill="#00c4e8" opacity="0.5"/>
+
+  <!-- ══ Stage 3: Consensus cluster ══ -->
+  <!-- Background dashed ring -->
+  <circle cx="326" cy="190" r="62"
+          stroke="#006f87" stroke-width="0.8" opacity="0.18" fill="none" stroke-dasharray="3 5"/>
+
+  <!-- Mesh lines between validator positions -->
+  <!-- Hexagon positions (r=50): top, top-right, bot-right, bot, bot-left, top-left -->
+  <!-- top     (326, 140) -->
+  <!-- tr      (373, 165) -->
+  <!-- br      (373, 215) -->
+  <!-- bot     (326, 240) -->
+  <!-- bl      (279, 215) -->
+  <!-- tl      (279, 165) -->
+  <line x1="326" y1="140" x2="373" y2="165" stroke="#006f87" stroke-width="0.9" opacity="0.38"/>
+  <line x1="373" y1="165" x2="373" y2="215" stroke="#006f87" stroke-width="0.9" opacity="0.38"/>
+  <line x1="373" y1="215" x2="326" y2="240" stroke="#006f87" stroke-width="0.9" opacity="0.38"/>
+  <line x1="326" y1="240" x2="279" y2="215" stroke="#006f87" stroke-width="0.9" opacity="0.38"/>
+  <line x1="279" y1="215" x2="279" y2="165" stroke="#006f87" stroke-width="0.9" opacity="0.38"/>
+  <line x1="279" y1="165" x2="326" y2="140" stroke="#006f87" stroke-width="0.9" opacity="0.38"/>
+  <!-- Cross-mesh (skip connections) -->
+  <line x1="326" y1="140" x2="373" y2="215" stroke="#006f87" stroke-width="0.5" opacity="0.18"/>
+  <line x1="373" y1="165" x2="279" y2="215" stroke="#006f87" stroke-width="0.5" opacity="0.18"/>
+  <line x1="326" y1="240" x2="279" y2="165" stroke="#006f87" stroke-width="0.5" opacity="0.18"/>
+
+  <!-- Validator nodes: 4 confirmed (bright filled inner), 2 pending (dim) -->
+  <!-- Confirmed nodes -->
+  <circle cx="326" cy="140" r="15" fill="#0d2228" stroke="#00c4e8" stroke-width="1.8"/>
+  <circle cx="326" cy="140" r="6"  fill="#00c4e8" opacity="0.85"/>
+
+  <circle cx="373" cy="165" r="15" fill="#0d2228" stroke="#00c4e8" stroke-width="1.8"/>
+  <circle cx="373" cy="165" r="6"  fill="#00c4e8" opacity="0.85"/>
+
+  <circle cx="373" cy="215" r="15" fill="#0d2228" stroke="#00c4e8" stroke-width="1.8"/>
+  <circle cx="373" cy="215" r="6"  fill="#00c4e8" opacity="0.85"/>
+
+  <circle cx="326" cy="240" r="15" fill="#0d2228" stroke="#00c4e8" stroke-width="1.8"/>
+  <circle cx="326" cy="240" r="6"  fill="#00c4e8" opacity="0.85"/>
+
+  <!-- Pending nodes (dimmer border, small muted dot) -->
+  <circle cx="279" cy="215" r="15" fill="#091820" stroke="#1e4a56" stroke-width="1.5"/>
+  <circle cx="279" cy="215" r="4"  fill="#1e4a56" opacity="0.6"/>
+
+  <circle cx="279" cy="165" r="15" fill="#091820" stroke="#1e4a56" stroke-width="1.5"/>
+  <circle cx="279" cy="165" r="4"  fill="#1e4a56" opacity="0.6"/>
+</svg>

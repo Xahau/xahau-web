@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" fill="none">
+  <!-- Orbit rings — visible on light background -->
+  <circle cx="200" cy="200" r="110" stroke="#0f2328" stroke-width="1.2" stroke-opacity="0.18" fill="none" stroke-dasharray="4 5"/>
+  <circle cx="200" cy="200" r="80"  stroke="#0f2328" stroke-width="1.2" stroke-opacity="0.22" fill="none" stroke-dasharray="4 5"/>
+  <circle cx="200" cy="200" r="52"  stroke="#0f2328" stroke-width="1.2" stroke-opacity="0.28" fill="none" stroke-dasharray="4 5"/>
+  <!-- Green orbit arcs (flow indicators) -->
+  <path d="M 277.8 277.8 Q 200.0 348.0 122.2 277.8" stroke="#5de48c" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+  <path d="M 122.2 277.8 Q 52.0 200.0 122.2 122.2"  stroke="#5de48c" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+  <path d="M 122.2 122.2 Q 200.0 52.0 277.8 122.2"  stroke="#5de48c" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+  <path d="M 277.8 122.2 Q 348.0 200.0 277.8 277.8" stroke="#5de48c" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+  <!-- Outer orbit nodes (white fill, green border) -->
+  <circle cx="277.8" cy="277.8" r="24" fill="white" stroke="#007b3d" stroke-width="2"/>
+  <text x="277.8" y="283" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#007b3d">+4%</text>
+  <circle cx="122.2" cy="277.8" r="24" fill="white" stroke="#007b3d" stroke-width="2"/>
+  <text x="122.2" y="283" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#007b3d">Fee</text>
+  <circle cx="122.2" cy="122.2" r="24" fill="white" stroke="#007b3d" stroke-width="2"/>
+  <text x="122.2" y="117"  text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#007b3d">Reserve</text>
+  <circle cx="277.8" cy="122.2" r="24" fill="white" stroke="#007b3d" stroke-width="2"/>
+  <text x="277.8" y="127" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#007b3d">Burn</text>
+  <!-- Centre XAH node -->
+  <circle cx="200" cy="200" r="46" fill="#0f2328"/>
+  <text x="200" y="196" text-anchor="middle" font-family="system-ui,sans-serif" font-size="24" font-weight="800" fill="white">XAH</text>
+  <text x="200" y="215" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#5de48c">Native</text>
+</svg>
