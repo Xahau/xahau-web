@@ -11,12 +11,16 @@
  */
 
 import { Image } from 'astro:assets'
+import logoAfricanUnion from '../assets/ecosystem-logos/AUPF.png'
 import logoBithomp from '../assets/ecosystem-logos/bithomp.png'
 import logoBitmart from '../assets/ecosystem-logos/bitmart.png'
 import logoBitrue from '../assets/ecosystem-logos/bitrue.png'
+import logoCoopbank from '../assets/ecosystem-logos/Coopbank-Logo-Ethiopia.svg'
 import logoCoinex from '../assets/ecosystem-logos/coinex.png'
+import logoComingSoon from '../assets/ecosystem-logos/coming-soon.svg'
 import logoDcent from '../assets/ecosystem-logos/dcent.png'
 import logoGatehub from '../assets/ecosystem-logos/gatehub.png'
+import logoQuantoz from '../assets/ecosystem-logos/quantoz.svg'
 import logoXahauServices from '../assets/ecosystem-logos/xahau-services.png'
 import logoXahscan from '../assets/ecosystem-logos/xahscan.png'
 // ── Logo import map (static imports required by Astro)
@@ -35,6 +39,10 @@ const logoMap: Record<string, ImageMetadata> = {
   bithomp: logoBithomp,
   xrplwin: logoXrplwin,
   'xahau-services': logoXahauServices,
+  'Coopbank-Logo-Ethiopia': logoCoopbank,
+  TerraPay_Logo: logoTerrapay,
+  AUPF: logoAfricanUnion,
+  quantoz: logoQuantoz,
 }
 
 type Locale = 'en' | 'es' | 'ja'
@@ -57,14 +65,14 @@ const sections = ecosystemData.sections.map((section) =>
     <div class="xe-head-title">
       <h2>Ecosystem</h2>
       <p class="xe-sub">
-        Wallets, exchanges, explorers and projects built on or around Xahau
+        {sections.map(s => s.label['en']).join(', ')}
+        built on or around Xahau
       </p>
     </div>
     <div class="xe-chips">
-      <span class="xe-chip">4 Wallets</span>
-      <span class="xe-chip">4 Exchanges</span>
-      <span class="xe-chip">4 Explorers</span>
-      <span class="xe-chip">18 Projects</span>
+      {sections.map(s => (
+        <span class="xe-chip">{s.items.length} {s.label['en']}</span>
+      ))}
     </div>
   </header>
 
@@ -109,27 +117,37 @@ const sections = ecosystemData.sections.map((section) =>
             {section.items.map(item => {
               const logo = item.logo ? logoMap[item.logo] : null
               return (
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class={`xe-logo-item litem-${section.theme}`}
-                >
-                  {logo ? (
-                    <div
-                      class="xe-logo-wrap"
-                      style={item.logo_bg ? `background:${item.logo_bg};` : ''}
-                    >
-                      <Image src={logo} alt={item.name} class="xe-logo-img" />
+                item.coming_soon && !item.url ? (
+                  <div class={`xe-logo-item litem-${section.theme} xe-coming-soon`}>
+                    <div class="xe-logo-wrap xe-logo-wrap-dark">
+                      <img src={logoComingSoon.src} alt="Coming soon" class="xe-logo-img xe-logo-img-cs" width="160" height="80" />
                     </div>
-                  ) : (
-                    <div class={`xe-logo-text-badge badge-${section.theme}`}>
-                      {item.name}
-                    </div>
-                  )}
-                  <span class="xe-logo-name">{item.name}</span>
-                  <span class="xe-logo-desc">{item.desc}</span>
-                </a>
+                    <span class="xe-logo-name">Coming soon</span>
+                    <span class="xe-logo-desc">{item.desc}</span>
+                  </div>
+                ) : (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class={`xe-logo-item litem-${section.theme}`}
+                  >
+                    {logo ? (
+                      <div
+                        class="xe-logo-wrap"
+                        style={item.logo_bg ? `background:${item.logo_bg};` : ''}
+                      >
+                        <Image src={logo} alt={item.name} class="xe-logo-img" />
+                      </div>
+                    ) : (
+                      <div class={`xe-logo-text-badge badge-${section.theme}`}>
+                        {item.name}
+                      </div>
+                    )}
+                    <span class="xe-logo-name">{item.name}</span>
+                    <span class="xe-logo-desc">{item.desc}</span>
+                  </a>
+                )
               )
             })}
           </div>
@@ -356,6 +374,64 @@ const sections = ecosystemData.sections.map((section) =>
     color: var(--mute);
     line-height: 1.4;
     flex: 1;
+  }
+
+  /* Dark wrap for coming-soon icon */
+  .xe-logo-wrap-dark {
+    background: #0b1f26;
+    border-radius: 10px;
+    padding: 4px 6px;
+  }
+  .xe-logo-img-cs {
+    max-height: 50px;
+    max-width: 160px;
+  }
+
+  /* ══ COMING SOON — teaser treatment ══════════════════════════════════ */
+  .xe-coming-soon {
+    opacity: 0.75;
+    pointer-events: none;
+    cursor: default;
+    border-style: dashed;
+  }
+  .xe-coming-soon .xe-logo-img {
+    animation: cs-pulse 2.8s ease-in-out infinite;
+  }
+  @keyframes cs-pulse {
+    0%,
+    100% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+  .xe-logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hover-bg);
+    border: 2px dashed var(--border);
+  }
+  .xe-placeholder-icon {
+    font-size: 24px;
+    color: var(--border);
+    font-weight: 700;
+  }
+  .xe-soon-badge {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mute);
+    background: var(--hover-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
   }
 
   /* ══ PROJECT LIST — two-column editorial list ═════════════════════════ */

@@ -17,7 +17,7 @@
         "es": "Transacciones/24h",
         "ja": "取引/24時間"
       },
-      "theme": "dark",
+      "theme": "teal",
       "col": 4
     },
     {
@@ -27,13 +27,13 @@
       "col": 3
     },
     {
-      "value": "5K+",
+      "value": "10K+",
       "label": {
         "en": "Hooks installed",
         "es": "Hooks instalados",
         "ja": "インストール済みHooks"
       },
-      "theme": "light",
+      "theme": "sage",
       "col": 3
     },
     {
@@ -41,6 +41,27 @@
       "label": { "en": "Nodes", "es": "Nodos", "ja": "ノード" },
       "theme": "light",
       "col": 3
+    },
+    {
+      "value": "500M+",
+      "label": {
+        "en": "Hook executions",
+        "es": "Ejecuciones de Hooks",
+        "ja": "Hook実行回数"
+      },
+      "theme": "dark",
+      "col": 6
+    },
+    {
+      "type": "cta",
+      "theme": "light",
+      "col": 3,
+      "label": {
+        "en": "Want to run a node?",
+        "es": "¿Quieres ejecutar un nodo?",
+        "ja": "ノードを運用しませんか？"
+      },
+      "url": "/docs/infrastructure/system-requirements"
     }
   ]
 }

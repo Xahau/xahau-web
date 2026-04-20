@@ -1,9 +1,57 @@
 {
   "sections": [
     {
+      "id": "enterprise",
+      "theme": "grn",
+      "label": {
+        "en": "Enterprises",
+        "es": "Empresas",
+        "ja": "企業"
+      },
+      "tagline": {
+        "en": "Institutions that have adopted Xahau",
+        "es": "Instituciones que han adoptado Xahau",
+        "ja": "Xahauを採用した機関"
+      },
+      "items": [
+        {
+          "name": "Coop Bank of Oromia",
+          "url": "https://coopbankoromia.com.et",
+          "logo": "Coopbank-Logo-Ethiopia",
+          "logo_ext": "svg",
+          "desc": "Ethiopia's leading cooperative bank, leveraging Xahau for financial services"
+        },
+        {
+          "name": "Quantoz",
+          "url": "https://quantoz.com",
+          "logo": "quantoz",
+          "logo_ext": "svg",
+          "desc": "European fintech issuing regulated stablecoins and digital assets on Xahau"
+        },
+        {
+          "name": "Coming soon",
+          "url": null,
+          "logo": null,
+          "coming_soon": true,
+          "desc": "A major global payments institution will be announced shortly"
+        },
+        {
+          "name": "African Union",
+          "url": "https://au.int",
+          "logo": "AUPF",
+          "logo_ext": "png",
+          "desc": "MoU signed with INFTF to explore Xahau for continental digital finance initiatives"
+        }
+      ]
+    },
+    {
       "id": "wallets",
       "theme": "grn",
-      "label": { "en": "Wallets", "es": "Carteras", "ja": "ウォレット" },
+      "label": {
+        "en": "Wallets",
+        "es": "Carteras",
+        "ja": "ウォレット"
+      },
       "tagline": {
         "en": "Store, send and sign with XAH",
         "es": "Almacena, envía y firma con XAH",
@@ -40,7 +88,11 @@
     {
       "id": "exchanges",
       "theme": "teal",
-      "label": { "en": "Exchanges", "es": "Exchanges", "ja": "取引所" },
+      "label": {
+        "en": "Exchanges",
+        "es": "Exchanges",
+        "ja": "取引所"
+      },
       "tagline": {
         "en": "Buy, sell and trade XAH",
         "es": "Compra, vende y opera con XAH",
@@ -117,7 +169,11 @@
     {
       "id": "projects",
       "theme": "vlt",
-      "label": { "en": "Projects", "es": "Proyectos", "ja": "プロジェクト" },
+      "label": {
+        "en": "Projects",
+        "es": "Proyectos",
+        "ja": "プロジェクト"
+      },
       "tagline": {
         "en": "Apps, tools and experiences built on Xahau",
         "es": "Aplicaciones, herramientas y experiencias construidas en Xahau",

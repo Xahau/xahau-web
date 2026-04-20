@@ -74,7 +74,7 @@ const t = translations[locale as Locale] || translations.en
 
 <footer class="bg-white border-t border-[#e4edef]">
   <div class="mx-auto max-w-7xl px-6 py-14">
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-12">
+    <div class="flex flex-col gap-10 md:grid md:grid-cols-12">
       <!-- ── Brand column ───────────────────────────────────────────────── -->
       <div class="md:col-span-4 flex flex-col gap-5">
         <a href={getRelativeLocaleUrl(locale, '/')} class="inline-block -ml-1">
@@ -122,108 +122,115 @@ const t = translations[locale as Locale] || translations.en
         </div>
       </div>
 
-      <!-- ── Xahau column ───────────────────────────────────────────────── -->
-      <div class="md:col-span-2 md:col-start-6 flex flex-col gap-3">
-        <p class="footer-col-head">Xahau</p>
-        <a href={getRelativeLocaleUrl(locale, '/about')} class="footer-link"
-          >{t.about}</a
-        >
-        <a href={getRelativeLocaleUrl(locale, '/features')} class="footer-link"
-          >{t.features}</a
-        >
-        <a href={getRelativeLocaleUrl(locale, '/ecosystem')} class="footer-link"
-          >{t.ecosystem}</a
-        >
-        <a href={getRelativeLocaleUrl(locale, '/roadmap')} class="footer-link"
-          >{t.roadmap}</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/compliance/responsible-disclosure')}
-          class="footer-link"
-          >{t.break}</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/fraud-report')}
-          class="footer-link"
-          >{t.fraud}</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/resources/media-kit')}
-          class="footer-link"
-          >{t.media}</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/privacy-policy')}
-          class="footer-link"
-          >{t.privacy}</a
-        >
-      </div>
+      <!-- ── Link columns — 3-col grid on all sizes ───────────────────── -->
+      <div class="grid grid-cols-3 gap-6 md:contents">
+        <!-- ── Xahau column ───────────────────────────────────────────────── -->
+        <div class="md:col-span-2 md:col-start-6 flex flex-col gap-3">
+          <p class="footer-col-head">Xahau</p>
+          <a href={getRelativeLocaleUrl(locale, '/about')} class="footer-link"
+            >{t.about}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/features')}
+            class="footer-link"
+            >{t.features}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/ecosystem')}
+            class="footer-link"
+            >{t.ecosystem}</a
+          >
+          <a href={getRelativeLocaleUrl(locale, '/roadmap')} class="footer-link"
+            >{t.roadmap}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/compliance/responsible-disclosure')}
+            class="footer-link"
+            >{t.break}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/fraud-report')}
+            class="footer-link"
+            >{t.fraud}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/resources/media-kit')}
+            class="footer-link"
+            >{t.media}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/privacy-policy')}
+            class="footer-link"
+            >{t.privacy}</a
+          >
+        </div>
 
-      <!-- ── Docs column ────────────────────────────────────────────────── -->
-      <div class="md:col-span-2 flex flex-col gap-3">
-        <p class="footer-col-head">{t.docs}</p>
-        <a href={getRelativeLocaleUrl(locale, '/docs')} class="footer-link"
-          >{t.getstarted}</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/protocol-reference/transactions')}
-          class="footer-link"
-          >{t.protocol}</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/hooks')}
-          class="footer-link"
-          >Hooks</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/data-apis')}
-          class="footer-link"
-          >Data APIs</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/infrastructure/system-requirements')}
-          class="footer-link"
-          >{t.infra}</a
-        >
-        <a
-          href={getRelativeLocaleUrl(locale, '/docs/resources/whitepaper')}
-          class="footer-link"
-          >Whitepaper</a
-        >
-      </div>
+        <!-- ── Docs column ────────────────────────────────────────────────── -->
+        <div class="md:col-span-2 flex flex-col gap-3">
+          <p class="footer-col-head">{t.docs}</p>
+          <a href={getRelativeLocaleUrl(locale, '/docs')} class="footer-link"
+            >{t.getstarted}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/protocol-reference/transactions')}
+            class="footer-link"
+            >{t.protocol}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/hooks')}
+            class="footer-link"
+            >Hooks</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/data-apis')}
+            class="footer-link"
+            >Data APIs</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/infrastructure/system-requirements')}
+            class="footer-link"
+            >{t.infra}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/resources/whitepaper')}
+            class="footer-link"
+            >Whitepaper</a
+          >
+        </div>
 
-      <!-- ── Connect column ─────────────────────────────────────────────── -->
-      <div class="md:col-span-2 flex flex-col gap-3">
-        <p class="footer-col-head">{t.connect}</p>
-        <a href={getRelativeLocaleUrl(locale, '/connect')} class="footer-link"
-          >{t.events}</a
-        >
-        <a href={getRelativeLocaleUrl(locale, '/contest')} class="footer-link"
-          >Dev Contest</a
-        >
-        <a
-          href="https://x.com/XahauNetwork"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="footer-link"
-          >X / Twitter ↗</a
-        >
-        <a
-          href="https://github.com/Xahau"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="footer-link"
-          >GitHub ↗</a
-        >
-        <a
-          href="https://discord.com/invite/UzU58haAn4"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="footer-link"
-          >{t.discord}
-          ↗</a
-        >
-      </div>
+        <!-- ── Connect column ─────────────────────────────────────────────── -->
+        <div class="md:col-span-2 flex flex-col gap-3">
+          <p class="footer-col-head">{t.connect}</p>
+          <a href={getRelativeLocaleUrl(locale, '/connect')} class="footer-link"
+            >{t.events}</a
+          >
+          <a href={getRelativeLocaleUrl(locale, '/contest')} class="footer-link"
+            >Dev Contest</a
+          >
+          <a
+            href="https://x.com/XahauNetwork"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >X / Twitter ↗</a
+          >
+          <a
+            href="https://github.com/Xahau"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >GitHub ↗</a
+          >
+          <a
+            href="https://discord.com/invite/UzU58haAn4"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >{t.discord}
+            ↗</a
+          >
+        </div>
+      </div><!-- /link columns -->
     </div>
 
     <!-- ── Bottom bar ──────────────────────────────────────────────────── -->

@@ -37,7 +37,7 @@ const features = [1, 2, 3, 4, 5].map((n) => ({
       <span class="xh-chip">Est. October 2023</span>
       <span class="xh-chip">~4s Settlement</span>
       <span class="xh-chip">10k tx / ledger</span>
-      <span class="xh-chip">100k+ Accounts</span>
+      <span class="xh-chip">200k+ Accounts</span>
     </div>
   </header>
 
@@ -84,26 +84,29 @@ const features = [1, 2, 3, 4, 5].map((n) => ({
     <!-- Stats tiles — values come from home.json -->
     <div class="xh-stats">
       {stats.map(s => (
-        <div
-          class={`xh-stat tile-${s.theme}`}
-          style={`--col:${s.col}`}
-        >
-          <span class="xh-stat-lbl">
-            {s.label[locale as keyof typeof s.label]}
-          </span>
-          <span class="xh-stat-val">{s.value}</span>
-        </div>
+        s.type === 'cta' ? (
+          <a
+            href={getRelativeLocaleUrl(locale, s.url)}
+            class={`xh-stat xh-stat-cta tile-${s.theme}`}
+            style={`--col:${s.col}`}
+          >
+            <span class="xh-stat-cta-label">
+              {s.label[locale as keyof typeof s.label]}
+            </span>
+            <span class="xh-stat-cta-arrow">→</span>
+          </a>
+        ) : (
+          <div
+            class={`xh-stat tile-${s.theme}`}
+            style={`--col:${s.col}`}
+          >
+            <span class="xh-stat-lbl">
+              {s.label[locale as keyof typeof s.label]}
+            </span>
+            <span class="xh-stat-val">{s.value}</span>
+          </div>
+        )
       ))}
-    </div>
-
-    <!-- CTA below the grid -->
-    <div class="xh-stats-cta-row">
-      <a
-        href={getRelativeLocaleUrl(locale, '/docs/infrastructure/system-requirements/')}
-        class="xh-stats-cta"
-      >
-        {i.stats_node_cta}→
-      </a>
     </div>
   </div><!-- /act-stats -->
 </section>
@@ -304,9 +307,19 @@ const features = [1, 2, 3, 4, 5].map((n) => ({
     color: var(--ink);
   }
   .tile-dark {
-    background: #0f2328;
-    color: #e8f4f8;
-    border-color: #0f2328;
+    background: #e6f2ea;
+    color: var(--ink);
+    border-color: #c8e0cf;
+  }
+  .tile-teal {
+    background: #e0f2f6;
+    color: var(--ink);
+    border-color: #b8dde6;
+  }
+  .tile-sage {
+    background: #eef4f0;
+    color: var(--ink);
+    border-color: #d0e2d5;
   }
 
   .xh-stat-lbl {
@@ -327,35 +340,47 @@ const features = [1, 2, 3, 4, 5].map((n) => ({
   .tile-light .xh-stat-val {
     color: var(--ink);
   }
-  .tile-dark .xh-stat-val {
-    color: var(--teal-hi);
+  .tile-dark .xh-stat-val,
+  .tile-teal .xh-stat-val,
+  .tile-sage .xh-stat-val {
+    color: var(--ink);
   }
 
-  /* CTA below the grid */
-  .xh-stats-cta-row {
-    margin-top: 16px;
-    display: flex;
-    justify-content: flex-end;
-  }
-  .xh-stats-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--teal2);
+  /* CTA tile inside the stats grid */
+  .xh-stat-cta {
     text-decoration: none;
-    letter-spacing: 0.01em;
-    border-bottom: 1.5px solid transparent;
-    padding-bottom: 1px;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-style: dashed;
     transition:
-      border-color 0.15s,
-      color 0.15s;
+      background 0.18s,
+      border-color 0.18s;
   }
-  .xh-stats-cta:hover {
-    color: #004d60;
-    border-color: #004d60;
+  .xh-stat-cta:hover {
+    background: #f0f5f6;
+    border-color: var(--teal2);
+  }
+  .xh-stat-cta-label {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    color: var(--ink);
+    max-width: 160px;
+  }
+  .xh-stat-cta-arrow {
+    font-size: 28px;
+    line-height: 1;
+    color: var(--teal2);
+    align-self: flex-end;
+    transition: transform 0.18s;
+  }
+  .xh-stat-cta:hover .xh-stat-cta-arrow {
+    transform: translate(3px, -2px);
   }
 
   /* ── Responsive ─────────────────────────────────────────────────────── */
