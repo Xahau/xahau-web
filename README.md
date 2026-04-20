@@ -3,7 +3,7 @@
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/Xahau/xahau-web/tree/main)
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/Xahau/xahau-web/tree/main)
 
-Built with [Astro](https://astro.build), [Tailwind CSS](https://tailwindcss.com), and [React](https://react.dev). Marketing pages use a hand-coded editorial component system; documentation lives under `src/content/docs/` and is powered by [Starlight](https://starlight.astro.build).
+Built with [Astro](https://astro.build), [Tailwind CSS](https://tailwindcss.com), and [React](https://react.dev). About/Feature pages use a hand-coded editorial component system; documentation lives under `src/content/docs/` and is powered by [Starlight](https://starlight.astro.build).
 
 ---
 
