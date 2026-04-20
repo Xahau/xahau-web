@@ -1,0 +1,238 @@
+{
+  "sections": [
+    {
+      "id": "wallets",
+      "theme": "grn",
+      "label": { "en": "Wallets", "es": "Carteras", "ja": "ウォレット" },
+      "tagline": {
+        "en": "Store, send and sign with XAH",
+        "es": "Almacena, envía y firma con XAH",
+        "ja": "XAHを保管・送金・署名"
+      },
+      "items": [
+        {
+          "name": "Xaman",
+          "url": "https://xaman.app/",
+          "logo": "xaman",
+          "logo_bg": "#000000",
+          "desc": "The leading wallet and signing app for Xahau and XRPL"
+        },
+        {
+          "name": "D'CENT",
+          "url": "https://www.dcentwallet.com/",
+          "logo": "dcent",
+          "desc": "Hardware wallet with native Xahau support"
+        },
+        {
+          "name": "GemWallet",
+          "url": "https://gemwallet.app/",
+          "logo": null,
+          "desc": "Browser extension wallet for Xahau"
+        },
+        {
+          "name": "Ledger",
+          "url": "https://www.ledger.com/",
+          "logo": null,
+          "desc": "Industry-leading hardware security wallet"
+        }
+      ]
+    },
+    {
+      "id": "exchanges",
+      "theme": "teal",
+      "label": { "en": "Exchanges", "es": "Exchanges", "ja": "取引所" },
+      "tagline": {
+        "en": "Buy, sell and trade XAH",
+        "es": "Compra, vende y opera con XAH",
+        "ja": "XAHを売買・取引"
+      },
+      "items": [
+        {
+          "name": "Gatehub",
+          "url": "https://gatehub.net/",
+          "logo": "gatehub",
+          "desc": "XAH trading and custody platform"
+        },
+        {
+          "name": "Bitrue",
+          "url": "https://www.bitrue.com/",
+          "logo": "bitrue",
+          "desc": "Crypto exchange with XAH spot trading"
+        },
+        {
+          "name": "BitMart",
+          "url": "https://www.bitmart.com/",
+          "logo": "bitmart",
+          "desc": "Global exchange offering XAH pairs"
+        },
+        {
+          "name": "CoinEx",
+          "url": "https://www.coinex.com/",
+          "logo": "coinex",
+          "desc": "Exchange platform supporting XAH"
+        }
+      ]
+    },
+    {
+      "id": "explorers",
+      "theme": "amb",
+      "label": {
+        "en": "Explorers & Utilities",
+        "es": "Exploradores y utilidades",
+        "ja": "エクスプローラーとユーティリティ"
+      },
+      "tagline": {
+        "en": "Inspect and interact with the ledger",
+        "es": "Inspecciona e interactúa con el ledger",
+        "ja": "台帳を検索・操作"
+      },
+      "items": [
+        {
+          "name": "XAHSCAN",
+          "url": "https://xahscan.com/",
+          "logo": "xahscan",
+          "logo_bg": "#1E3B70",
+          "desc": "Block explorer and transaction search for Xahau"
+        },
+        {
+          "name": "Xahau Explorer",
+          "url": "https://xahauexplorer.com/",
+          "logo": "bithomp",
+          "desc": "Explorer with account and NFT tools"
+        },
+        {
+          "name": "XRPLWin",
+          "url": "https://xahau.xrplwin.com/",
+          "logo": "xrplwin",
+          "desc": "Multi-network explorer with Xahau support"
+        },
+        {
+          "name": "Xahau Services",
+          "url": "https://xahau.services/",
+          "logo": "xahau-services",
+          "desc": "Developer tools and utilities for Xahau"
+        }
+      ]
+    },
+    {
+      "id": "projects",
+      "theme": "vlt",
+      "label": { "en": "Projects", "es": "Proyectos", "ja": "プロジェクト" },
+      "tagline": {
+        "en": "Apps, tools and experiences built on Xahau",
+        "es": "Aplicaciones, herramientas y experiencias construidas en Xahau",
+        "ja": "Xahau上に構築されたアプリ・ツール・体験"
+      },
+      "items": [
+        {
+          "name": "Evernode",
+          "url": "https://www.evernode.org/",
+          "logo": null,
+          "desc": "Decentralised smart contract hosting using Hooks"
+        },
+        {
+          "name": "Magnetic",
+          "url": "https://xmagnetic.org/?network=xahau",
+          "logo": null,
+          "desc": "NFT marketplace on Xahau"
+        },
+        {
+          "name": "Dallipay",
+          "url": "https://www.dallipay.com/",
+          "logo": null,
+          "desc": "Payment platform built on Xahau"
+        },
+        {
+          "name": "Dhali",
+          "url": "https://dhali.io/",
+          "logo": null,
+          "desc": "Decentralised application platform"
+        },
+        {
+          "name": "Xahau DocProof",
+          "url": "https://xahaudocproof.com/",
+          "logo": null,
+          "desc": "Document timestamping and verification on-chain"
+        },
+        {
+          "name": "VPRA",
+          "url": "https://vpra.app/",
+          "logo": null,
+          "desc": "Verified profile and reputation system"
+        },
+        {
+          "name": "Xpert Page",
+          "url": "https://xpert.page/",
+          "logo": null,
+          "desc": "On-chain professional profile pages"
+        },
+        {
+          "name": "xMerch",
+          "url": "https://xmerch.app/",
+          "logo": null,
+          "desc": "Tokenised merchandise platform"
+        },
+        {
+          "name": "Evergram",
+          "url": "https://evergram.app/",
+          "logo": null,
+          "desc": "Messaging with on-chain rewards"
+        },
+        {
+          "name": "XAMINI",
+          "url": "https://xamini.io/",
+          "logo": null,
+          "desc": "Mini-application ecosystem on Xahau"
+        },
+        {
+          "name": "XAH Invest",
+          "url": "https://xahinvest.com/",
+          "logo": null,
+          "desc": "Portfolio and investment tracker for XAH"
+        },
+        {
+          "name": "DinoXAHur",
+          "url": "https://xaman.app/detect/xapp:dino.xahur",
+          "logo": null,
+          "desc": "Collectible dino game via Xaman xApp"
+        },
+        {
+          "name": "Xaman DEX Trade",
+          "url": "https://xumm.app/detect/xapp:xumm.dex",
+          "logo": null,
+          "desc": "DEX trading via Xaman xApp"
+        },
+        {
+          "name": "Voucher",
+          "url": "https://xumm.app/detect/xapp:xaman.voucher",
+          "logo": null,
+          "desc": "Gift voucher xApp for Xaman"
+        },
+        {
+          "name": "Xahau Radio",
+          "url": "https://xahauradio.com/",
+          "logo": null,
+          "desc": "Community internet radio for Xahau"
+        },
+        {
+          "name": "Xahau Journal",
+          "url": "https://github.com/Cbot-XRPL/Xahau-Journal?tab=readme-ov-file",
+          "logo": null,
+          "desc": "News and updates for the Xahau community"
+        },
+        {
+          "name": "Hooks 101",
+          "url": "https://github.com/Handy4ndy/XahauHooks101",
+          "logo": null,
+          "desc": "Beginner's guide to writing Hooks"
+        },
+        {
+          "name": "HandyHooks",
+          "url": "https://github.com/Handy4ndy/HandyHooks",
+          "logo": null,
+          "desc": "Ready-to-use Hook templates and tools"
+        }
+      ]
+    }
+  ]
+}

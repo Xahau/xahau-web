@@ -1,11 +1,12 @@
 ---
-  import Search from '@astrojs/starlight/components/Search.astro'
-  import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro'
-  import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro'
+import Search from '@astrojs/starlight/components/Search.astro'
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro'
+import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro'
 
-  const _sidebar = Astro.locals.starlightRoute.sidebar
+const _sidebar = Astro.locals.starlightRoute.sidebar
 ---
+
 <SidebarPersister>
-  <Search class="hidden md:block"/>
-  <SidebarSublist sublist={_sidebar}/>
+  <Search class="hidden md:block" />
+  <SidebarSublist sublist={_sidebar} />
 </SidebarPersister>

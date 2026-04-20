@@ -1,0 +1,668 @@
+---
+/**
+ * XahauFeaturesEs.astro — Versión en español del layout editorial
+ *
+ * Sin JSON, sin bucles. Cada sección está compuesta individualmente.
+ * Tres actos temáticos: Protocolo · Finanzas · Gobernanza.
+ *
+ * Edita el contenido directamente en este archivo.
+ */
+
+import consensusGraphic from '../assets/enterprise/consensus.svg'
+import globalGraphic from '../assets/enterprise/global.svg'
+import hooksGraphic from '../assets/enterprise/hooks.svg'
+---
+
+<section class="xfeat" aria-label="Características de Xahau">
+  <!-- ══ ENCABEZADO ═══════════════════════════════════════════════════════ -->
+  <header class="xf-head">
+    <div class="xf-head-title">
+      <h2>Características</h2>
+      <p class="xf-sub">Tecnología probada con un enfoque innovador</p>
+    </div>
+    <div class="xf-chips">
+      <span class="xf-chip">10+ Funciones de Protocolo</span>
+      <span class="xf-chip">DEX Nativo</span>
+      <span class="xf-chip">NFTs Integrados</span>
+      <span class="xf-chip">Sin Sobrecarga de Ejecución</span>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ACTO I — CAPA DE PROTOCOLO
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="xf-act act-proto">
+    <p class="xf-act-label">
+      <span class="act-pip pip-grn"></span>Capa de Protocolo
+    </p>
+
+    <!-- HOOKS ─ sección principal ───────────────────────────────────────── -->
+    <div class="xf-statement stmt-proto">
+      <div class="xf-stmt-body">
+        <span class="xf-lbl lbl-proto">Programabilidad</span>
+        <h3>
+          Hooks: Lógica de Contrato
+          <br>
+          Inteligente a Nivel de Cuenta
+        </h3>
+        <p>
+          Xahau introduce los Hooks, una forma única de lógica de contrato
+          inteligente on-ledger que se ejecuta directamente a nivel de cuenta. A
+          diferencia de los contratos inteligentes en la mayoría de blockchains,
+          que requieren interactuar con direcciones de contratos externas, los
+          Hooks son programas ligeros incrustados dentro de las propias cuentas
+          de usuario. Estos Hooks pueden inspeccionar, modificar o rechazar
+          automáticamente cualquier transacción que involucre esa cuenta, sin
+          necesidad de llamadas a funciones explícitas.
+        </p>
+        <p>
+          Dado que los Hooks se ejecutan inline y dentro del consenso, ofrecen
+          programabilidad en tiempo real con una sobrecarga mínima. Rechaza
+          transferencias de tokens no autorizadas, desencadena acciones en
+          depósitos, implementa lógica de cumplimiento normativo — todo sin
+          ralentizar la red. Los Hooks representan un nuevo paradigma de
+          seguridad y programabilidad.
+        </p>
+      </div>
+      <div class="xf-stmt-graphic">
+        <img
+          src={hooksGraphic.src}
+          width="380"
+          height="380"
+          alt=""
+          aria-hidden="true"
+        >
+      </div>
+    </div>
+
+    <!-- DEX + COMISIONES ─ par asimétrico ───────────────────────────────── -->
+    <div class="xf-pair pair-6040">
+      <div class="xf-detail">
+        <span class="xf-lbl lbl-proto">Exchange</span>
+        <h4>Ofertas: Exchange Descentralizado (DEX) Integrado</h4>
+        <p>
+          Xahau incluye un sistema de Ofertas nativo, que impulsa un exchange
+          descentralizado integrado en el ledger. Los usuarios pueden crear
+          entradas de Oferta para comprar o vender activos directamente en la
+          red; el libro de órdenes del protocolo las empareja automáticamente.
+          Intercambio entre pares sin intermediarios ni plataformas externas.
+        </p>
+        <p>
+          A diferencia de la mayoría de blockchains que necesitan contratos
+          inteligentes para el trading, el DEX de Xahau es una característica de
+          primera clase del ledger — liquidación rápida, bajas comisiones,
+          integración perfecta.
+        </p>
+      </div>
+
+      <div class="xf-detail">
+        <span class="xf-lbl lbl-proto">Economía</span>
+        <h4>Bajas Comisiones con Quema de Fees</h4>
+        <p>
+          Comisiones de transacción consistentemente bajas, respaldadas por un
+          modelo integrado de quema de fees que reduce el spam y premia la salud
+          a largo plazo de la red. Cada transacción paga una comisión mínima en
+          XAH; una parte se destruye permanentemente — un silencioso efecto
+          deflacionario.
+        </p>
+        <p>
+          A diferencia de los modelos inflacionarios o las comisiones de tipo
+          subasta, Xahau proporciona previsibilidad y alineación económica para
+          todos los usuarios.
+        </p>
+      </div>
+    </div>
+
+    <!-- RENDIMIENTO ─ sección amplia ────────────────────────────────────── -->
+    <div class="xf-solo">
+      <span class="xf-lbl lbl-proto">Infraestructura</span>
+      <h4>Rápido, Verde y Escalable</h4>
+      <div class="xf-solo-cols">
+        <p>
+          Construido sobre una versión refinada del protocolo de consenso del
+          XRPL, Xahau ofrece finalidad rápida, bajo consumo de energía y
+          escalabilidad fiable. Las transacciones se confirman en segundos — sin
+          minería, requisitos mínimos de hardware.
+        </p>
+        <p>
+          El resultado es una red que puede servir casos de uso financieros y
+          empresariales del mundo real sin comprometer el medio ambiente ni la
+          experiencia del usuario. Ideal para sistemas de pago globales, activos
+          tokenizados o aplicaciones de alto volumen donde el rendimiento y la
+          sostenibilidad son innegociables.
+        </p>
+      </div>
+    </div>
+  </div><!-- /act-proto -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ACTO II — PRIMITIVAS FINANCIERAS
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="xf-act act-fin">
+    <p class="xf-act-label">
+      <span class="act-pip pip-teal"></span>Primitivas Financieras
+    </p>
+
+    <!-- PAGOS ─ sección principal ───────────────────────────────────────── -->
+    <div class="xf-statement stmt-fin">
+      <div class="xf-stmt-body">
+        <span class="xf-lbl lbl-fin">Pagos</span>
+        <h3>
+          Transferencias Multi-Activo
+          <br>y Canales de Pago
+        </h3>
+        <p>
+          Xahau soporta pagos multi-activo a través de un sistema de líneas de
+          confianza y monedas emitidas. Usando una transacción TrustSet, dos
+          partes pueden establecer una línea de confianza para transaccionar en
+          cualquier activo personalizado o IOU — soporte integrado para
+          múltiples monedas y tokens, sin contratos inteligentes.
+        </p>
+        <p>
+          Las empresas pueden emitir stablecoins o tokens en Xahau; los usuarios
+          los envían e intercambian de forma nativa. La suite de Pagos también
+          incluye Preautorización de Depósito, que permite a las cuentas incluir
+          en una lista blanca quién puede enviarles fondos — seguridad contra
+          transacciones no deseadas.
+        </p>
+        <p>
+          Y para escala: Xahau soporta canales de pago que permiten
+          transacciones rápidas y de alto volumen fuera del ledger con
+          liquidación on-chain. Micropagos, pagos en streaming — asegurados por
+          el ledger sin congestionarlo.
+        </p>
+      </div>
+      <div class="xf-stmt-graphic">
+        <img
+          src={globalGraphic.src}
+          width="380"
+          height="380"
+          alt=""
+          aria-hidden="true"
+        >
+      </div>
+    </div>
+
+    <!-- TOKENS + RECOMPENSAS ─ par ──────────────────────────────────────── -->
+    <div class="xf-pair pair-5545">
+      <div class="xf-detail">
+        <span class="xf-lbl lbl-fin">Control de Activos</span>
+        <h4>Control de Tokens y Activos por Diseño</h4>
+        <p>
+          Control granular sobre tokens y líneas de confianza. TrustSet,
+          Clawback, Freeze y Deposit Authorization permiten una personalización
+          completa de cómo se pueden usar o recibir los tokens. Los activos
+          pueden ser incluidos en listas blancas, bloqueados o quemados — todo
+          aplicado a nivel de protocolo.
+        </p>
+        <p>
+          Especialmente adecuado para instrumentos financieros regulados,
+          stablecoins, programas de fidelización o cadenas de suministro
+          empresariales donde el cumplimiento normativo, la seguridad y la
+          precisión son críticos.
+        </p>
+      </div>
+
+      <div class="xf-detail">
+        <span class="xf-lbl lbl-fin">Economía</span>
+        <h4>Recompensas de Saldo: Rendimiento Pasivo Sin Staking</h4>
+        <p>
+          Las cuentas acumulan valor pasivamente simplemente manteniendo
+          activos. Las recompensas se calculan en función del saldo de la cuenta
+          y se distribuyen mediante un mecanismo aplicado por consenso — sin
+          staking, sin delegación, sin contratos de terceros.
+        </p>
+        <p>
+          A diferencia del yield farming en otros lugares, el modelo de
+          recompensas de Xahau funciona de forma nativa, transparente y
+          automática.
+        </p>
+      </div>
+    </div>
+
+    <!-- ESCROW + REMIT + CHEQUES ─ trío ─────────────────────────────────── -->
+    <div class="xf-trio">
+      <div class="xf-detail">
+        <span class="xf-lbl lbl-fin">Primitivas</span>
+        <h4>Escrow</h4>
+        <p>
+          Escrow on-ledger para tokens nativos y emitidos. Los fondos se
+          bloquean con lógica de liberación basada en tiempo o condiciones,
+          aplicada por la propia red — sin contratos inteligentes externos.
+        </p>
+        <p>
+          Pagos por hitos, liquidación de marketplace, distribución de confianza
+          — soporte nativo para activos fungibles y no fungibles en escrow.
+        </p>
+      </div>
+
+      <div class="xf-detail">
+        <span class="xf-lbl lbl-fin">Pagos</span>
+        <h4>Remit</h4>
+        <p>
+          Transacciones multi-operación simplificadas entre cuentas. Un solo
+          Remit puede distribuir valor a múltiples destinatarios o desencadenar
+          múltiples cambios de saldo de forma atómica — sin pila de
+          instrucciones separadas.
+        </p>
+        <p>
+          Rendimiento predecible, baja latencia, sólida trazabilidad para
+          procesadores de pago y marketplaces. Integrado en el protocolo.
+        </p>
+      </div>
+
+      <div class="xf-detail">
+        <span class="xf-lbl lbl-fin">Pagos</span>
+        <h4>Cheques</h4>
+        <p>
+          Un sistema de pago diferido — como escribir cheques digitales
+          on-chain. Emite un Cheque que el destinatario cobra más tarde, o
+          cancela si es necesario. Control de pago adicional, aplicado puramente
+          por las reglas de la red.
+        </p>
+        <p>
+          Pocas plataformas tienen un instrumento de pago diferido nativo. Sin
+          contratos inteligentes personalizados. Solo una primitiva limpia y
+          simple.
+        </p>
+      </div>
+    </div>
+  </div><!-- /act-fin -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ACTO III — GOBERNANZA E IDENTIDAD
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="xf-act act-gov">
+    <p class="xf-act-label">
+      <span class="act-pip pip-vlt"></span>Gobernanza e Identidad
+    </p>
+
+    <!-- GOBERNANZA ─ sección principal ──────────────────────────────────── -->
+    <div class="xf-statement stmt-gov">
+      <div class="xf-stmt-body">
+        <span class="xf-lbl lbl-gov">Gobernanza</span>
+        <h3>
+          El Juego de Gobernanza:
+          <br>
+          Coordinación Descentralizada
+          <br>
+          con Propósito
+        </h3>
+        <p>
+          Xahau cuenta con un novedoso sistema de gobernanza respaldado por el
+          Juego de Gobernanza — un mecanismo transparente y on-ledger para
+          proponer, revisar y votar enmiendas. Los operadores de validadores
+          (Gobernadores) participan directamente en la configuración del
+          protocolo, compitiendo en un sistema de recompensas estructurado
+          basado en la responsabilidad y el compromiso.
+        </p>
+        <p>
+          Las actualizaciones del protocolo y las decisiones de política son
+          abiertas y participativas, no dictadas por una entidad centralizada.
+          La coordinación empresarial estructurada se une a la transparencia y
+          resiliencia del consenso descentralizado — estableciendo un nuevo
+          estándar para la coordinación on-chain.
+        </p>
+      </div>
+      <div class="xf-stmt-graphic">
+        <img
+          src={consensusGraphic.src}
+          width="380"
+          height="380"
+          alt=""
+          aria-hidden="true"
+        >
+      </div>
+    </div>
+
+    <!-- URITOKENS ─ sección de cierre ───────────────────────────────────── -->
+    <div class="xf-closing">
+      <div class="xf-closing-inner">
+        <span class="xf-lbl lbl-gov">NFTs</span>
+        <h4>URITokens: NFTs Nativos en Xahau</h4>
+        <p>
+          Los URITokens representan el enfoque de Xahau hacia los tokens no
+          fungibles — implementados como una parte nativa del ledger, no
+          mediante contratos inteligentes separados. Un URIToken es un objeto
+          on-ledger de primera clase, identificado de forma única por la cuenta
+          emisora y el URI. Solo puede existir un URIToken con un URI dado por
+          cuenta, garantizando la verdadera unicidad de cada activo digital.
+        </p>
+        <p>
+          Los creadores acuñan, intercambian o queman NFTs con transacciones
+          simples — URITokenMint, URITokenBuy, URITokenBurn — sin desplegar
+          código personalizado. El emisor puede incluso permitir la quema
+          estableciendo un flag. NFTs a nivel de protocolo: más eficientes, más
+          seguros, menos fricción.
+        </p>
+      </div>
+    </div>
+  </div><!-- /act-gov -->
+</section>
+
+<style>
+  /* Design tokens */
+  .xfeat {
+    --ink: #0f2328;
+    --dim: #2d3e44;
+    --mute: #556068;
+    --grn2: #007a28;
+    --teal2: #006f87;
+    --vlt2: #4e18b8;
+    --grn-hi: #00c940;
+    --teal-hi: #00c4e8;
+    --vlt-hi: #a050ff;
+
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px 72px;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 20px 64px -24px rgba(15, 35, 40, 0.13);
+  }
+  .xfeat * {
+    box-sizing: border-box;
+  }
+
+  .xf-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 40px;
+  }
+  .xfeat h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: var(--ink);
+  }
+  .xf-sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: var(--mute);
+  }
+  .xf-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+  .xf-chip {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 5px 13px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    color: var(--mute);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  .xf-act {
+    padding-top: 52px;
+  }
+  .xf-act-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 0 0 44px;
+  }
+  .act-pip {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pip-grn {
+    background: var(--grn2);
+  }
+  .pip-teal {
+    background: var(--teal2);
+  }
+  .pip-vlt {
+    background: var(--vlt2);
+  }
+
+  .xf-lbl {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .lbl-proto {
+    color: var(--grn2);
+    background: rgba(0, 140, 43, 0.1);
+  }
+  .lbl-fin {
+    color: var(--teal2);
+    background: rgba(0, 144, 171, 0.1);
+  }
+  .lbl-gov {
+    color: var(--vlt2);
+    background: rgba(91, 30, 200, 0.1);
+  }
+
+  .xf-statement {
+    display: flex;
+    align-items: center;
+  }
+  .xf-stmt-body {
+    flex: 0 0 57%;
+    max-width: 57%;
+    padding: 64px 0 64px 28px;
+  }
+  .xf-stmt-graphic {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 8px 32px 16px;
+    opacity: 0.95;
+  }
+  .xf-stmt-graphic img {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    display: block;
+  }
+
+  .xf-statement h3 {
+    margin: 0 0 22px;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .stmt-proto h3 {
+    background: linear-gradient(140deg, #004d1a 15%, var(--grn-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stmt-fin h3 {
+    background: linear-gradient(140deg, #003d50 15%, var(--teal-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stmt-gov h3 {
+    background: linear-gradient(140deg, #2a0875 15%, var(--vlt-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .xf-statement p {
+    font-size: 15.5px;
+    line-height: 1.72;
+    color: var(--dim);
+    margin: 0 0 16px;
+  }
+  .xf-statement p:last-child {
+    margin-bottom: 0;
+  }
+
+  .xf-pair,
+  .xf-trio {
+    display: grid;
+  }
+  .pair-6040 {
+    grid-template-columns: 3fr 2fr;
+  }
+  .pair-5545 {
+    grid-template-columns: 11fr 9fr;
+  }
+  .xf-trio {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .xf-detail {
+    padding: 48px 40px 48px 28px;
+  }
+  .xf-detail h4 {
+    margin: 0 0 14px;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.28;
+    letter-spacing: -0.014em;
+    color: var(--ink);
+  }
+  .act-proto .xf-detail h4,
+  .act-proto .xf-solo h4 {
+    color: var(--grn2);
+  }
+  .act-fin .xf-detail h4 {
+    color: var(--teal2);
+  }
+  .act-gov .xf-detail h4,
+  .act-gov .xf-closing h4 {
+    color: var(--vlt2);
+  }
+  .xf-detail p {
+    font-size: 14px;
+    line-height: 1.72;
+    color: var(--dim);
+    margin: 0 0 12px;
+  }
+  .xf-detail p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .xf-solo {
+    padding: 52px 0 52px 28px;
+  }
+  .xf-solo h4 {
+    margin: 0 0 18px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.016em;
+    color: var(--ink);
+  }
+  .xf-solo-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 900px;
+  }
+  .xf-solo-cols p {
+    font-size: 14.5px;
+    line-height: 1.72;
+    color: var(--dim);
+    margin: 0;
+  }
+
+  .xf-closing {
+    padding: 52px 0 52px 28px;
+  }
+  .xf-closing-inner {
+    max-width: 640px;
+  }
+  .xf-closing h4 {
+    margin: 0 0 16px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.016em;
+    color: var(--ink);
+  }
+  .xf-closing p {
+    font-size: 14.5px;
+    line-height: 1.72;
+    color: var(--dim);
+    margin: 0 0 14px;
+  }
+  .xf-closing p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 900px) {
+    .xf-statement {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .xf-stmt-body {
+      flex: none;
+      max-width: 100%;
+    }
+    .xf-stmt-graphic {
+      width: 100%;
+      padding: 0 0 32px;
+      opacity: 0.6;
+    }
+    .xf-stmt-graphic img {
+      max-width: 240px;
+      margin: 0 auto;
+    }
+    .xf-pair,
+    .xf-trio {
+      grid-template-columns: 1fr;
+    }
+    .xf-solo-cols {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .xf-solo-cols p {
+      margin-bottom: 14px;
+    }
+  }
+  @media (max-width: 640px) {
+    .xfeat {
+      padding: 32px 24px 48px;
+      border-radius: 16px;
+    }
+    .xfeat h2 {
+      font-size: 28px;
+    }
+    .xf-statement h3 {
+      font-size: 26px;
+    }
+    .xf-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .xf-stmt-body {
+      padding: 44px 0 44px 22px;
+    }
+    .xf-detail {
+      padding: 36px 20px 36px 22px;
+    }
+  }
+</style>

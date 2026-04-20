@@ -1,16 +1,17 @@
 ---
 import '../../styles/main.css'
-import XahauRoadmap from '../../components/XahauRoadmap.astro'
+import XahauConnect from '../../components/XahauConnect.astro'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
 const _frontmatter = {
-  title: 'Hoja de ruta',
-  description: 'Hoja de ruta de Xahau para los próximos trimestres',
+  title: 'Xahau Connect',
+  description:
+    '真剣な議論とイノベーションのためのプロフェッショナルなブロックチェーンイベント',
 }
 ---
 
 <BaseLayout frontmatter={_frontmatter}>
   <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
-    <XahauRoadmap lang="es" theme="light" />
+    <XahauConnect />
   </div>
 </BaseLayout>

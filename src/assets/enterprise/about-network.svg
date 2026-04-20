@@ -1,0 +1,117 @@
+<svg viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-n" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e2f6e9"/>
+      <stop offset="100%" stop-color="#f0faf3"/>
+    </radialGradient>
+    <radialGradient id="hub-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00c940" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#00c940" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="hub-f" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="node-f" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="190" r="188" fill="url(#bg-n)"/>
+
+  <!-- Outer orbit ring -->
+  <circle cx="200" cy="190" r="165" stroke="#007a28" stroke-width="0.6" opacity="0.08" fill="none"/>
+
+  <!-- Mid orbit ring (dashed) -->
+  <circle cx="200" cy="190" r="132" stroke="#007a28" stroke-width="0.6" opacity="0.13" fill="none" stroke-dasharray="4 6"/>
+
+  <!-- Six spokes -->
+  <line x1="200" y1="190" x2="200" y2="58"  stroke="#00c940" stroke-width="1.4" opacity="0.3"/>
+  <line x1="200" y1="190" x2="314" y2="124" stroke="#00c940" stroke-width="1.4" opacity="0.3"/>
+  <line x1="200" y1="190" x2="314" y2="256" stroke="#00c940" stroke-width="1.4" opacity="0.3"/>
+  <line x1="200" y1="190" x2="200" y2="322" stroke="#00c940" stroke-width="1.4" opacity="0.3"/>
+  <line x1="200" y1="190" x2="86"  y2="256" stroke="#00c940" stroke-width="1.4" opacity="0.3"/>
+  <line x1="200" y1="190" x2="86"  y2="124" stroke="#00c940" stroke-width="1.4" opacity="0.3"/>
+
+  <!-- Midpoint accent dots on spokes -->
+  <circle cx="200" cy="124" r="2.8" fill="#00c940" opacity="0.45"/>
+  <circle cx="257" cy="157" r="2.8" fill="#00c940" opacity="0.45"/>
+  <circle cx="257" cy="223" r="2.8" fill="#00c940" opacity="0.45"/>
+  <circle cx="200" cy="256" r="2.8" fill="#00c940" opacity="0.45"/>
+  <circle cx="143" cy="223" r="2.8" fill="#00c940" opacity="0.45"/>
+  <circle cx="143" cy="157" r="2.8" fill="#00c940" opacity="0.45"/>
+
+  <!-- Subtle arc cross-connections between adjacent nodes -->
+  <path d="M200,58  Q257,124 314,124" stroke="#007a28" stroke-width="0.7" opacity="0.15" fill="none" stroke-dasharray="3 5"/>
+  <path d="M314,124 Q314,190 314,256" stroke="#007a28" stroke-width="0.7" opacity="0.15" fill="none" stroke-dasharray="3 5"/>
+  <path d="M314,256 Q257,322 200,322" stroke="#007a28" stroke-width="0.7" opacity="0.15" fill="none" stroke-dasharray="3 5"/>
+  <path d="M200,322 Q143,256 86,256"  stroke="#007a28" stroke-width="0.7" opacity="0.15" fill="none" stroke-dasharray="3 5"/>
+  <path d="M86,256  Q86,190 86,124"   stroke="#007a28" stroke-width="0.7" opacity="0.15" fill="none" stroke-dasharray="3 5"/>
+  <path d="M86,124  Q143,58 200,58"   stroke="#007a28" stroke-width="0.7" opacity="0.15" fill="none" stroke-dasharray="3 5"/>
+
+  <!-- Outer node glows -->
+  <circle cx="200" cy="58"  r="24" fill="#00c940" opacity="0.07" filter="url(#node-f)"/>
+  <circle cx="314" cy="124" r="24" fill="#00c940" opacity="0.07" filter="url(#node-f)"/>
+  <circle cx="314" cy="256" r="24" fill="#00c940" opacity="0.07" filter="url(#node-f)"/>
+  <circle cx="200" cy="322" r="24" fill="#00c940" opacity="0.07" filter="url(#node-f)"/>
+  <circle cx="86"  cy="256" r="24" fill="#00c940" opacity="0.07" filter="url(#node-f)"/>
+  <circle cx="86"  cy="124" r="24" fill="#00c940" opacity="0.07" filter="url(#node-f)"/>
+
+  <!-- Outer nodes: dark shell + inner ring + centre dot -->
+  <circle cx="200" cy="58"  r="22" fill="#0c2312" stroke="#1a6630" stroke-width="1.5"/>
+  <circle cx="200" cy="58"  r="12" fill="none"    stroke="#00c940" stroke-width="1"   opacity="0.35"/>
+  <circle cx="200" cy="58"  r="4"  fill="#00c940" opacity="0.65"/>
+
+  <circle cx="314" cy="124" r="22" fill="#0c2312" stroke="#1a6630" stroke-width="1.5"/>
+  <circle cx="314" cy="124" r="12" fill="none"    stroke="#00c940" stroke-width="1"   opacity="0.35"/>
+  <circle cx="314" cy="124" r="4"  fill="#00c940" opacity="0.65"/>
+
+  <circle cx="314" cy="256" r="22" fill="#0c2312" stroke="#1a6630" stroke-width="1.5"/>
+  <circle cx="314" cy="256" r="12" fill="none"    stroke="#00c940" stroke-width="1"   opacity="0.35"/>
+  <circle cx="314" cy="256" r="4"  fill="#00c940" opacity="0.65"/>
+
+  <circle cx="200" cy="322" r="22" fill="#0c2312" stroke="#1a6630" stroke-width="1.5"/>
+  <circle cx="200" cy="322" r="12" fill="none"    stroke="#00c940" stroke-width="1"   opacity="0.35"/>
+  <circle cx="200" cy="322" r="4"  fill="#00c940" opacity="0.65"/>
+
+  <circle cx="86"  cy="256" r="22" fill="#0c2312" stroke="#1a6630" stroke-width="1.5"/>
+  <circle cx="86"  cy="256" r="12" fill="none"    stroke="#00c940" stroke-width="1"   opacity="0.35"/>
+  <circle cx="86"  cy="256" r="4"  fill="#00c940" opacity="0.65"/>
+
+  <circle cx="86"  cy="124" r="22" fill="#0c2312" stroke="#1a6630" stroke-width="1.5"/>
+  <circle cx="86"  cy="124" r="12" fill="none"    stroke="#00c940" stroke-width="1"   opacity="0.35"/>
+  <circle cx="86"  cy="124" r="4"  fill="#00c940" opacity="0.65"/>
+
+  <!-- Hub glow layer -->
+  <circle cx="200" cy="190" r="80" fill="url(#hub-glow)" filter="url(#hub-f)"/>
+
+  <!-- Central hub -->
+  <circle cx="200" cy="190" r="54" fill="#0e2820" stroke="#007a28" stroke-width="2"/>
+  <circle cx="200" cy="190" r="46" fill="#0a1e18"/>
+  <!-- Hub inner radial marks (no text) -->
+  <line x1="200" y1="152" x2="200" y2="164" stroke="#00c940" stroke-width="1.5" opacity="0.55"/>
+  <line x1="200" y1="216" x2="200" y2="228" stroke="#00c940" stroke-width="1.5" opacity="0.55"/>
+  <line x1="158" y1="190" x2="170" y2="190" stroke="#00c940" stroke-width="1.5" opacity="0.55"/>
+  <line x1="230" y1="190" x2="242" y2="190" stroke="#00c940" stroke-width="1.5" opacity="0.55"/>
+  <line x1="170" y1="162" x2="179" y2="171" stroke="#00c940" stroke-width="1.2" opacity="0.35"/>
+  <line x1="221" y1="209" x2="230" y2="218" stroke="#00c940" stroke-width="1.2" opacity="0.35"/>
+  <line x1="230" y1="162" x2="221" y2="171" stroke="#00c940" stroke-width="1.2" opacity="0.35"/>
+  <line x1="179" y1="209" x2="170" y2="218" stroke="#00c940" stroke-width="1.2" opacity="0.35"/>
+  <!-- Hub centre -->
+  <circle cx="200" cy="190" r="9"  fill="#00c940" opacity="0.6"/>
+  <circle cx="200" cy="190" r="4"  fill="#00c940"/>
+
+  <!-- Decorative tick marks on outer orbit -->
+  <circle cx="365" cy="190" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="343" cy="272" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="282" cy="333" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="200" cy="355" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="118" cy="333" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="57"  cy="272" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="35"  cy="190" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="57"  cy="108" r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="118" cy="47"  r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="200" cy="25"  r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="282" cy="47"  r="2"  fill="#00c940" opacity="0.25"/>
+  <circle cx="343" cy="108" r="2"  fill="#00c940" opacity="0.25"/>
+</svg>

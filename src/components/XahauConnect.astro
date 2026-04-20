@@ -1,0 +1,739 @@
+---
+/**
+ * XahauConnect.astro — Editorial events page
+ *
+ * All events driven from src/data/connect.json.
+ * Upcoming / past split is determined at build time by comparing
+ * each event's `date` field against today's date — no manual tagging needed.
+ *
+ * To add a new event: add an entry to connect.json with a future date.
+ * It will automatically move to Past Events after that date passes and the
+ * site is rebuilt.
+ */
+
+import connectData from '../data/connect.json'
+
+type Locale = 'en' | 'es' | 'ja'
+const locale = (Astro.currentLocale ?? 'en') as Locale
+
+// ── Date-based split (build time) ────────────────────────────────────────────
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+
+const allEvents = connectData.events
+const upcoming = allEvents
+  .filter((e) => new Date(e.date) >= today)
+  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+const past = allEvents
+  .filter((e) => new Date(e.date) < today)
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+const about = connectData.about
+const mission = about.mission
+
+// ── Static UI strings ─────────────────────────────────────────────────────────
+const ui = {
+  en: {
+    page_title: 'Xahau Connect',
+    page_sub:
+      'Professional blockchain events for serious discussion and innovation',
+    chip_inftf: 'By INFTF',
+    chip_location: 'Madrid, Spain',
+    chip_upcoming: (n: number) => (n === 1 ? '1 Upcoming' : `${n} Upcoming`),
+    lbl_upcoming: 'Upcoming Events',
+    lbl_past: 'Past Events',
+    lbl_about: 'About',
+    lbl_contact: 'Get Involved',
+    no_upcoming: 'No events currently scheduled.',
+    no_upcoming_sub:
+      'Follow @XahauNetwork or email connect@xahau.org for announcements.',
+    location_view: 'View on map',
+    about_title: 'About Xahau Connect',
+    mission_title: 'Our Mission',
+    contact_title: 'Speakers, Sponsors & Contact',
+    contact_body:
+      "We're grateful to our partners who support Xahau Connect's mission of fostering professional blockchain discourse. Partner and speaker details will be announced as we confirm participation for upcoming events.",
+    contact_speaking: 'Speaking proposals & sponsorship:',
+    contact_updates: 'Subscribe for updates:',
+    contact_follow: 'Follow',
+    contact_follow2: 'and',
+    contact_on_x: 'on X',
+    contact_or: 'or email',
+  },
+  es: {
+    page_title: 'Xahau Connect',
+    page_sub:
+      'Eventos profesionales de blockchain para debates serios e innovación',
+    chip_inftf: 'Por INFTF',
+    chip_location: 'Madrid, España',
+    chip_upcoming: (n: number) => (n === 1 ? '1 Próximo' : `${n} Próximos`),
+    lbl_upcoming: 'Próximos Eventos',
+    lbl_past: 'Eventos Pasados',
+    lbl_about: 'Acerca de',
+    lbl_contact: 'Participa',
+    no_upcoming: 'No hay eventos programados actualmente.',
+    no_upcoming_sub:
+      'Sigue a @XahauNetwork o escribe a connect@xahau.org para anuncios.',
+    location_view: 'Ver en el mapa',
+    about_title: 'Sobre Xahau Connect',
+    mission_title: 'Nuestra Misión',
+    contact_title: 'Ponentes, Patrocinadores y Contacto',
+    contact_body:
+      'Estamos agradecidos con nuestros socios que apoyan la misión de Xahau Connect. Los detalles de ponentes y patrocinadores se anunciarán a medida que confirmemos la participación.',
+    contact_speaking: 'Propuestas de ponencias y patrocinios:',
+    contact_updates: 'Suscríbete para actualizaciones:',
+    contact_follow: 'Sigue a',
+    contact_follow2: 'y a',
+    contact_on_x: 'en X',
+    contact_or: 'o escribe a',
+  },
+  ja: {
+    page_title: 'Xahau Connect',
+    page_sub:
+      '真剣な議論とイノベーションのためのプロフェッショナルなブロックチェーンイベント',
+    chip_inftf: 'INFTF主催',
+    chip_location: 'スペイン・マドリード',
+    chip_upcoming: (n: number) => `${n}件の予定`,
+    lbl_upcoming: '今後のイベント',
+    lbl_past: '過去のイベント',
+    lbl_about: 'について',
+    lbl_contact: '参加する',
+    no_upcoming: '現在予定されているイベントはありません。',
+    no_upcoming_sub:
+      '@XahauNetworkをフォローするか、connect@xahau.orgにメールしてお知らせを受け取ってください。',
+    location_view: '地図で見る',
+    about_title: 'Xahau Connectについて',
+    mission_title: '私たちのミッション',
+    contact_title: 'スピーカー・スポンサー・お問い合わせ',
+    contact_body:
+      'Xahau Connectのプロフェッショナルなブロックチェーン議論の使命を支援するパートナーに感謝します。',
+    contact_speaking: '講演提案・スポンサーシップのお問い合わせ：',
+    contact_updates: '更新情報の購読：',
+    contact_follow: 'フォロー：',
+    contact_follow2: 'および',
+    contact_on_x: '（X）',
+    contact_or: 'またはメール：',
+  },
+}
+const t = ui[locale]
+---
+
+<section class="xcon" aria-label="Xahau Connect">
+  <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════════ -->
+  <header class="xc-head">
+    <div class="xc-head-title">
+      <h2>{t.page_title}</h2>
+      <p class="xc-sub">{t.page_sub}</p>
+    </div>
+    <div class="xc-chips">
+      <span class="xc-chip">{t.chip_inftf}</span>
+      <span class="xc-chip">{t.chip_location}</span>
+      <span class="xc-chip">{t.chip_upcoming(upcoming.length)}</span>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       ACT I — UPCOMING EVENTS  (teal)
+  ══════════════════════════════════════════════════════════════════════════════ -->
+  <div class="xc-act act-upcoming">
+    <p class="xc-act-label">
+      <span class="act-pip pip-teal"></span>
+      {t.lbl_upcoming}
+    </p>
+
+    {upcoming.length === 0 ? (
+
+      <div class="xc-empty">
+        <p class="xc-empty-line">{t.no_upcoming}</p>
+        <p class="xc-empty-sub">{t.no_upcoming_sub}</p>
+      </div>
+
+    ) : (
+
+      <div class="xc-events">
+        {upcoming.map(ev => {
+          const title    = ev.title[locale as keyof typeof ev.title] as string
+          const desc     = ev.description[locale as keyof typeof ev.description] as string
+          const dateStr  = ev.dateLabel[locale as keyof typeof ev.dateLabel] as string
+          const regLabel = ev.registration?.label[locale as keyof typeof ev.registration.label] as string | undefined
+          return (
+            <article class="xc-event ev-upcoming">
+              <div class="xc-event-meta">
+                <span class="xc-meta-date">{dateStr}</span>
+                <a href={ev.location.mapsUrl} target="_blank" rel="noopener noreferrer" class="xc-meta-loc">
+                  {ev.location.name} ↗
+                </a>
+              </div>
+              <h3 class="xc-event-title title-teal">{title}</h3>
+              <p class="xc-event-desc">{desc}</p>
+              {ev.speakers.length > 0 && (
+                <div class="xc-speakers">
+                  {ev.speakers.map(s => (
+                    <span class="xc-speaker">{s.name} <em>{s.role}</em></span>
+                  ))}
+                </div>
+              )}
+              {ev.registration && (
+                <a href={ev.registration.url} target="_blank" rel="noopener noreferrer" class="xc-cta-btn btn-teal">
+                  {regLabel} →
+                </a>
+              )}
+            </article>
+          )
+        })}
+      </div>
+
+    )}
+  </div><!-- /act-upcoming -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       ACT II — PAST EVENTS  (amber)
+  ══════════════════════════════════════════════════════════════════════════════ -->
+  {past.length > 0 && (
+    <div class="xc-act act-past">
+
+      <p class="xc-act-label">
+        <span class="act-pip pip-amb"></span>{t.lbl_past}
+      </p>
+
+      <div class="xc-events">
+        {past.map(ev => {
+          const title    = ev.title[locale as keyof typeof ev.title] as string
+          const desc     = ev.description[locale as keyof typeof ev.description] as string
+          const dateStr  = ev.dateLabel[locale as keyof typeof ev.dateLabel] as string
+          const recLabel = ev.recording?.label[locale as keyof typeof ev.recording.label] as string | undefined
+          return (
+            <article class="xc-event ev-past">
+              <div class="xc-event-meta">
+                <span class="xc-meta-date">{dateStr}</span>
+                <a href={ev.location.mapsUrl} target="_blank" rel="noopener noreferrer" class="xc-meta-loc">
+                  {ev.location.name} ↗
+                </a>
+              </div>
+              <h3 class="xc-event-title title-amb">{title}</h3>
+              {ev.speakers.length > 0 && (
+                <div class="xc-speakers">
+                  {ev.speakers.map(s => (
+                    <span class="xc-speaker">{s.name} <em>{s.role}</em></span>
+                  ))}
+                </div>
+              )}
+              <p class="xc-event-desc">{desc}</p>
+              {ev.recording && (
+                <a href={ev.recording.url} target="_blank" rel="noopener noreferrer" class="xc-cta-link link-amb">
+                  {recLabel} ↗
+                </a>
+              )}
+            </article>
+          )
+        })}
+      </div>
+
+    </div>
+  )}<!-- /act-past -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       ACT III — ABOUT  (violet)
+  ══════════════════════════════════════════════════════════════════════════════ -->
+  <div class="xc-act act-about">
+    <p class="xc-act-label">
+      <span class="act-pip pip-vlt"></span>
+      {t.lbl_about}
+    </p>
+
+    <div class="xc-about-layout">
+      <div class="xc-about-body">
+        <span class="xc-lbl lbl-vlt">INFTF</span>
+        <h3 class="xc-about-title">{t.about_title}</h3>
+        <p>{about.body[locale as keyof typeof about.body]}</p>
+      </div>
+
+      <div class="xc-mission">
+        <span class="xc-lbl lbl-vlt">{t.mission_title}</span>
+        <div class="xc-mission-grid">
+          {mission.map(item => (
+            <div class="xc-mission-item">
+              <h4>{item.title[locale as keyof typeof item.title]}</h4>
+              <p>{item.desc[locale as keyof typeof item.desc]}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div><!-- /act-about -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       ACT IV — CONTACT  (green)
+  ══════════════════════════════════════════════════════════════════════════════ -->
+  <div class="xc-act act-contact">
+    <p class="xc-act-label">
+      <span class="act-pip pip-grn"></span>
+      {t.lbl_contact}
+    </p>
+
+    <div class="xc-contact-layout">
+      <div class="xc-contact-block">
+        <span class="xc-lbl lbl-grn">Contact</span>
+        <h3 class="xc-contact-title">{t.contact_title}</h3>
+        <p class="xc-contact-body">{t.contact_body}</p>
+        <p class="xc-contact-item">
+          <span class="xc-contact-key">{t.contact_speaking}</span>
+          <a href="mailto:connect@xahau.org" class="xc-contact-val"
+            >connect@xahau.org</a
+          >
+        </p>
+      </div>
+
+      <div class="xc-contact-block">
+        <span class="xc-lbl lbl-grn">Follow</span>
+        <h3 class="xc-contact-title">{t.contact_updates}</h3>
+        <p class="xc-contact-item">
+          {t.contact_follow}
+          {' '}
+          <a
+            href="https://x.com/XahauNetwork"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-contact-val"
+            >@XahauNetwork</a
+          >
+          {' '}
+          {t.contact_follow2}
+          {' '}
+          <a
+            href="https://x.com/incfintech"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="xc-contact-val"
+            >INFTF</a
+          >
+          {' '}
+          {t.contact_on_x}
+        </p>
+        <p class="xc-contact-item">
+          {t.contact_or}
+          {' '}
+          <a href="mailto:connect@xahau.org" class="xc-contact-val"
+            >connect@xahau.org</a
+          >
+        </p>
+      </div>
+    </div>
+  </div><!-- /act-contact -->
+</section>
+
+<style>
+  /* ══ Design tokens — mirrors XahauAbout / XahauFeatures / XahauHome exactly ══ */
+  .xcon {
+    --ink: #0f2328;
+    --dim: #2d3e44;
+    --mute: #556068;
+    --grn2: #007a28;
+    --teal2: #006f87;
+    --vlt2: #4e18b8;
+    --amb2: #b56020;
+    --grn-hi: #00c940;
+    --teal-hi: #00c4e8;
+    --vlt-hi: #a050ff;
+    --amb-hi: #ff9030;
+
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px 72px;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 20px 64px -24px rgba(15, 35, 40, 0.13);
+  }
+  .xcon * {
+    box-sizing: border-box;
+  }
+
+  /* ── Page header ─────────────────────────────────────────────────────────── */
+  .xc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 40px;
+  }
+  .xcon h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: var(--ink);
+  }
+  .xc-sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: var(--mute);
+  }
+  .xc-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+  .xc-chip {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 5px 13px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    color: var(--mute);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Acts ────────────────────────────────────────────────────────────────── */
+  .xc-act {
+    padding-top: 56px;
+  }
+
+  .xc-act-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 0 0 36px;
+  }
+  .act-pip {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pip-teal {
+    background: var(--teal2);
+  }
+  .pip-amb {
+    background: var(--amb2);
+  }
+  .pip-vlt {
+    background: var(--vlt2);
+  }
+  .pip-grn {
+    background: var(--grn2);
+  }
+
+  /* ── Inline labels ───────────────────────────────────────────────────────── */
+  .xc-lbl {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .lbl-teal {
+    color: var(--teal2);
+    background: rgba(0, 111, 135, 0.1);
+  }
+  .lbl-amb {
+    color: var(--amb2);
+    background: rgba(181, 96, 32, 0.1);
+  }
+  .lbl-vlt {
+    color: var(--vlt2);
+    background: rgba(78, 24, 184, 0.09);
+  }
+  .lbl-grn {
+    color: var(--grn2);
+    background: rgba(0, 122, 40, 0.09);
+  }
+
+  /* ── Events list ─────────────────────────────────────────────────────────── */
+  .xc-events {
+    border-top: 1px solid #e4edef;
+  }
+  .xc-event {
+    padding: 36px 0;
+    border-bottom: 1px solid #e4edef;
+  }
+
+  /* Meta row: date + location */
+  .xc-event-meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .xc-meta-date {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+  }
+  .xc-meta-loc {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+    text-decoration: none;
+    border-bottom: 1px solid #cdd7dc;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
+  }
+  .xc-meta-loc:hover {
+    color: var(--teal2);
+    border-color: var(--teal2);
+  }
+
+  /* Event title */
+  .xc-event-title {
+    margin: 0 0 16px;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.18;
+  }
+  .title-teal {
+    background: linear-gradient(140deg, #003d50 15%, var(--teal-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .title-amb {
+    background: linear-gradient(140deg, #5a2800 15%, var(--amb-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Description */
+  .xc-event-desc {
+    margin: 0 0 18px;
+    font-size: 15px;
+    line-height: 1.72;
+    color: var(--dim);
+    max-width: 72ch;
+  }
+
+  /* Speakers */
+  .xc-speakers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin-bottom: 18px;
+  }
+  .xc-speaker {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .xc-speaker em {
+    font-style: normal;
+    font-weight: 400;
+    color: var(--mute);
+    margin-left: 4px;
+  }
+
+  /* CTA: button (upcoming) */
+  .xc-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 42px;
+    padding: 0 22px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    border-radius: 6px;
+    transition:
+      background 0.18s,
+      color 0.18s;
+  }
+  .btn-teal {
+    background: var(--teal2);
+    color: #fff;
+  }
+  .btn-teal:hover {
+    background: #004d60;
+  }
+
+  /* CTA: text link (past) */
+  .xc-cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    border-bottom: 1.5px solid transparent;
+    padding-bottom: 1px;
+    transition:
+      border-color 0.15s,
+      color 0.15s;
+  }
+  .link-amb {
+    color: var(--amb2);
+  }
+  .link-amb:hover {
+    color: #7a3a0a;
+    border-color: #7a3a0a;
+  }
+
+  /* Empty state */
+  .xc-empty {
+    padding: 40px 0 8px;
+    border-top: 1px solid #e4edef;
+  }
+  .xc-empty-line {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dim);
+  }
+  .xc-empty-sub {
+    margin: 0;
+    font-size: 14px;
+    color: var(--mute);
+  }
+
+  /* ── About layout ────────────────────────────────────────────────────────── */
+  .xc-about-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 48px 64px;
+    align-items: start;
+  }
+  .xc-about-title {
+    margin: 0 0 18px;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    background: linear-gradient(140deg, #1a0060 15%, var(--vlt-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .xc-about-body p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.72;
+    color: var(--dim);
+  }
+
+  /* Mission grid */
+  .xc-mission-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 32px;
+    margin-top: 20px;
+  }
+  .xc-mission-item h4 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .xc-mission-item p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--dim);
+  }
+
+  /* ── Contact layout ──────────────────────────────────────────────────────── */
+  .xc-contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px 64px;
+    align-items: start;
+  }
+  .xc-contact-title {
+    margin: 0 0 16px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .xc-contact-body {
+    margin: 0 0 20px;
+    font-size: 15px;
+    line-height: 1.68;
+    color: var(--dim);
+  }
+  .xc-contact-item {
+    margin: 0 0 10px;
+    font-size: 14.5px;
+    color: var(--dim);
+    line-height: 1.6;
+  }
+  .xc-contact-key {
+    display: block;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 5px;
+  }
+  .xc-contact-val {
+    color: var(--grn2);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1.5px solid transparent;
+    transition:
+      border-color 0.15s,
+      color 0.15s;
+  }
+  .xc-contact-val:hover {
+    color: #004d18;
+    border-color: #004d18;
+  }
+
+  /* ── Responsive ──────────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .xc-about-layout {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    .xc-contact-layout {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    .xc-mission-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+  @media (max-width: 640px) {
+    .xcon {
+      padding: 32px 24px 48px;
+      border-radius: 16px;
+    }
+    .xcon h2 {
+      font-size: 28px;
+    }
+    .xc-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .xc-event-title {
+      font-size: 21px;
+    }
+  }
+</style>

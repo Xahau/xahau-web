@@ -232,4 +232,9 @@ npm run ci      # CI lint — exits non-zero on errors, no auto-fix
 **Biome overrides** (see `biome.jsonc`):
 
 - **All `**/*.astro` files:** `noUnusedVariables` and `useJsxKeyInIterable` are suppressed. Both are false positives — Biome cannot track variable usage across Astro's frontmatter/template boundary, and cannot detect server-render context where `key` props are unnecessary.
-- **`src/components/XahauRoadmap.astro` only:** `noImportantStyles` and `noDescendingSpecificity` are suppressed for pre-existing CSS patterns specific to that component. New components are still checked.
+- **`src/components/XahauRoadmap.astro` only:** Three rules are suppressed for pre-existing CSS patterns that cannot be safely refactored:
+  - `noImportantStyles` — `!important` is used intentionally in print media query overrides
+  - `noImportantInKeyframe` — `!important` appears inside a `@keyframes` block for animation reset
+  - `noDescendingSpecificity` — theme modifier selectors (`.xroadmap.theme-light .xr-roll.status-live`) intentionally override base selectors at lower specificity
+
+  New components are still checked by all three rules.

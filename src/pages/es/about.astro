@@ -1,16 +1,17 @@
 ---
 import '../../styles/main.css'
-import XahauRoadmap from '../../components/XahauRoadmap.astro'
+import XahauAboutEs from '../../components/XahauAboutEs.astro'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
 const _frontmatter = {
-  title: 'Hoja de ruta',
-  description: 'Hoja de ruta de Xahau para los próximos trimestres',
+  title: 'Sobre Xahau',
+  description:
+    'Blockchain L1 empresarial con programabilidad basada en cuentas',
 }
 ---
 
 <BaseLayout frontmatter={_frontmatter}>
   <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
-    <XahauRoadmap lang="es" theme="light" />
+    <XahauAboutEs />
   </div>
 </BaseLayout>

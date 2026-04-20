@@ -1,0 +1,17 @@
+---
+import '../../styles/main.css'
+import XahauContestEs from '../../components/XahauContestEs.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const _frontmatter = {
+  title: 'Xahau Dev Contest',
+  description:
+    'Ecosystem Rising — Construye servicios de usuario powered by Xahau',
+}
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="flex-none container mx-auto max-w-7xl p-6 pb-12">
+    <XahauContestEs />
+  </div>
+</BaseLayout>

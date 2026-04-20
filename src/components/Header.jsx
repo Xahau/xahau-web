@@ -76,7 +76,7 @@ const nav = {
 const XahauLogo = ({ href }) => (
   <a href={href} className="-m-1.5 p-1.5">
     <span className="sr-only">Xahau</span>
-    <img src={logo.src} width="222" height="40" alt="Xahau Logo" />
+    <img src={logo.src} width="200" height="36" alt="Xahau Logo" />
   </a>
 )
 
@@ -97,7 +97,7 @@ export default function Header(props) {
       name: 'Dev Contest',
       href: getRelativeLocaleUrl(currentLocale, '/contest'),
     },
-    { name: 'X', href: 'https://x.com/XahauNetwork' },
+    { name: 'X / Twitter', href: 'https://x.com/XahauNetwork' },
     { name: 'GitHub', href: 'https://github.com/Xahau' },
     { name: t.discord, href: 'https://discord.com/invite/UzU58haAn4' },
   ]
@@ -166,61 +166,84 @@ export default function Header(props) {
   const activeSegment =
     currentLocale !== 'en' ? pathSegments[1] : pathSegments[0]
 
-  const dropdownItemClass =
-    'group relative flex items-center gap-x-6 p-2 text-sm/6'
+  /* ── Shared class fragments ─────────────────────────────────────────────── */
+  const linkBase =
+    'no-underline text-sm font-medium transition-colors duration-150'
+  const linkIdle = 'text-[#2d3e44] hover:text-[#0f2328]'
+  const linkActive = 'text-[#007b3d]'
+
+  const dropdownPanel =
+    'absolute left-1/2 z-10 mt-3 w-52 -translate-x-1/2 overflow-hidden ' +
+    'bg-white rounded-xl border border-[#e4edef] shadow-[0_4px_24px_-4px_rgba(15,35,40,0.12)] ' +
+    'transition data-closed:translate-y-1 data-closed:opacity-0 ' +
+    'data-enter:duration-150 data-enter:ease-out data-leave:duration-100 data-leave:ease-in'
+
+  const dropdownItem =
+    'no-underline flex items-center px-3 py-2 text-sm text-[#2d3e44] ' +
+    'hover:text-[#0f2328] hover:bg-[#f4f6f7] rounded-lg transition-colors duration-100'
 
   return (
-    <header className="header bg-xahau-background z-20">
+    <header className="sticky top-0 z-20 bg-white border-b border-[#e4edef]">
       <nav
         aria-label="Global"
-        className="mx-auto flex max-w-7xl items-center justify-between p-6"
+        className="mx-auto flex max-w-7xl items-center justify-between px-6 h-[64px]"
       >
+        {/* Logo */}
         <div className="flex lg:flex-1">
           <XahauLogo href={getRelativeLocaleUrl(currentLocale, '/')} />
         </div>
+
+        {/* Mobile hamburger */}
         <div className="flex lg:hidden">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
-            className="border-none bg-transparent -m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+            className="border-none bg-transparent -m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-[#556068] hover:text-[#0f2328] transition-colors"
           >
             <span className="sr-only">Open main menu</span>
-            <Bars3Icon aria-hidden="true" className="size-6" />
+            <Bars3Icon aria-hidden="true" className="size-5" />
           </button>
         </div>
 
-        {/* Desktop navigation */}
-        <PopoverGroup className="hidden lg:flex lg:gap-x-12 lg:items-center">
+        {/* ── Desktop navigation ─────────────────────────────────────────── */}
+        <PopoverGroup className="hidden lg:flex lg:gap-x-8 lg:items-center">
           {navItems.map((navItem) => {
             const isActive =
               navItem.urlPattern && activeSegment === navItem.urlPattern
+
+            /* Plain link */
             if (navItem.href) {
               return (
                 <a
                   key={navItem.name}
                   href={navItem.href}
-                  className={`selected:no-underline no-underline text-base text-black ${isActive ? 'font-bold' : 'font-regular'}`}
+                  className={`${linkBase} ${isActive ? linkActive : linkIdle} relative`}
                 >
                   {navItem.name}
+                  {isActive && (
+                    <span
+                      className="absolute -bottom-[22px] left-0 right-0 h-[2px] bg-[#007b3d] rounded-t-full"
+                      aria-hidden="true"
+                    />
+                  )}
                 </a>
               )
             }
+
+            /* Dropdown */
             return (
               <Popover key={navItem.name} className="relative">
                 <PopoverButton
-                  className={`selected:no-underline no-underline p-0 border-none text-base text-black flex items-center gap-x-1 bg-transparent hover:cursor-pointer ${isActive ? 'font-bold' : 'font-regular'}`}
+                  className={`${linkBase} ${isActive ? linkActive : linkIdle} p-0 border-none bg-transparent flex items-center gap-x-1 hover:cursor-pointer`}
                 >
                   {navItem.name}
                   <ChevronDownIcon
                     aria-hidden="true"
-                    className="size-5 flex-none text-black"
+                    className="size-4 flex-none text-[#8fa5ad] mt-px"
                   />
                 </PopoverButton>
-                <PopoverPanel
-                  transition
-                  className="absolute left-1/2 z-10 mt-3 w-screen max-w-max -translate-x-1/2 overflow-hidden bg-xahau-gray shadow-lg ring-1 ring-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
-                >
-                  <div className="p-4">
+                <PopoverPanel transition className={dropdownPanel}>
+                  <div className="p-1.5">
                     {navItem.children.map((item) => (
                       <a
                         key={item.name}
@@ -228,9 +251,14 @@ export default function Header(props) {
                         target={
                           item.href.startsWith('http') ? '_blank' : undefined
                         }
-                        className="no-underline block font-regular text-white"
+                        rel={
+                          item.href.startsWith('http')
+                            ? 'noopener noreferrer'
+                            : undefined
+                        }
+                        className={dropdownItem}
                       >
-                        <div className={dropdownItemClass}>{item.name}</div>
+                        {item.name}
                       </a>
                     ))}
                   </div>
@@ -239,32 +267,37 @@ export default function Header(props) {
             )
           })}
 
-          {/* Language switcher */}
+          {/* ── Language switcher ─────────────────────────────────────────── */}
           <Popover className="relative">
             <PopoverButton
-              className="no-underline p-0 border-none text-black flex items-center gap-x-1 bg-transparent hover:cursor-pointer"
+              className="no-underline p-0 border-none flex items-center gap-x-1 bg-transparent hover:cursor-pointer text-[#8fa5ad] hover:text-[#556068] transition-colors"
               aria-label="Select language"
             >
-              <GlobeAltIcon className="size-5 text-black" />
+              <GlobeAltIcon className="size-4" />
               <ChevronDownIcon
                 aria-hidden="true"
-                className="size-4 flex-none text-black"
+                className="size-3.5 flex-none"
               />
             </PopoverButton>
             <PopoverPanel
               transition
-              className="absolute right-0 z-10 mt-3 w-40 overflow-hidden bg-xahau-gray shadow-lg ring-1 ring-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+              className={`${dropdownPanel} right-0 left-auto -translate-x-0 w-40`}
             >
-              <div className="p-2">
+              <div className="p-1.5">
                 {languages.map((lang) => (
                   <a
                     key={lang.code}
                     href={langUrl(lang.code)}
-                    className={`no-underline flex items-center gap-x-2 px-3 py-2 text-sm text-white hover:bg-white/10 ${currentLocale === lang.code ? 'font-bold' : 'font-regular'}`}
+                    className={`no-underline flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors duration-100
+                      ${
+                        currentLocale === lang.code
+                          ? 'text-[#007b3d] font-semibold bg-[#f4f6f7]'
+                          : 'text-[#2d3e44] hover:bg-[#f4f6f7] hover:text-[#0f2328]'
+                      }`}
                   >
                     <span>{lang.label}</span>
                     {currentLocale === lang.code && (
-                      <span className="ml-auto">✓</span>
+                      <span className="size-1.5 rounded-full bg-[#007b3d]" />
                     )}
                   </a>
                 ))}
@@ -274,54 +307,62 @@ export default function Header(props) {
         </PopoverGroup>
       </nav>
 
-      {/* Mobile menu */}
+      {/* ── Mobile menu ────────────────────────────────────────────────────── */}
       <Dialog
         open={mobileMenuOpen}
         onClose={setMobileMenuOpen}
         className="lg:hidden"
       >
-        <div className="fixed inset-0 z-50" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+        <div className="fixed inset-0 z-50 bg-[#0f2328]/20" />
+        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm border-l border-[#e4edef]">
           <div className="flex items-center justify-between">
             <XahauLogo href={getRelativeLocaleUrl(currentLocale, '/')} />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="border-none bg-transparent -m-2.5 rounded-md p-2.5 text-gray-700"
+              className="border-none bg-transparent -m-2.5 rounded-md p-2.5 text-[#556068] hover:text-[#0f2328] transition-colors"
             >
               <span className="sr-only">Close menu</span>
-              <XMarkIcon aria-hidden="true" className="size-6" />
+              <XMarkIcon aria-hidden="true" className="size-5" />
             </button>
           </div>
-          <div className="mt-6 flow-root">
-            <div className="-my-6 divide-y divide-gray-500/10">
-              <div className="space-y-2 py-6">
+
+          <div className="mt-8 flow-root">
+            <div className="-my-6 divide-y divide-[#e4edef]">
+              <div className="space-y-0.5 py-6">
                 {navItems.map((navItem) => {
                   const isActive =
                     navItem.urlPattern && activeSegment === navItem.urlPattern
+
                   if (navItem.href) {
                     return (
                       <a
                         key={navItem.name}
                         href={navItem.href}
-                        className={`selected:no-underline no-underline -mx-3 block rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 text-black ${isActive ? 'font-bold' : 'font-regular'}`}
+                        className={`no-underline -mx-3 flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors
+                          ${isActive ? 'text-[#007b3d] bg-[#f4f6f7]' : 'text-[#2d3e44] hover:bg-[#f4f6f7] hover:text-[#0f2328]'}`}
                       >
                         {navItem.name}
+                        {isActive && (
+                          <span className="ml-auto size-1.5 rounded-full bg-[#007b3d]" />
+                        )}
                       </a>
                     )
                   }
+
                   return (
                     <Disclosure key={navItem.name} as="div" className="-mx-3">
                       <DisclosureButton
-                        className={`selected:no-underline no-underline border-none rounded-lg py-2 text-base/7 hover:bg-gray-50 text-black bg-transparent group flex w-full items-center justify-between pr-3.5 pl-3 ${isActive ? 'font-bold' : 'font-regular'}`}
+                        className={`no-underline border-none rounded-lg py-2.5 text-sm font-medium bg-transparent group flex w-full items-center justify-between pr-3.5 pl-3 transition-colors
+                          ${isActive ? 'text-[#007b3d]' : 'text-[#2d3e44] hover:bg-[#f4f6f7] hover:text-[#0f2328]'}`}
                       >
                         {navItem.name}
                         <ChevronDownIcon
                           aria-hidden="true"
-                          className="size-5 flex-none group-data-open:rotate-180"
+                          className="size-4 flex-none text-[#8fa5ad] group-data-open:rotate-180 transition-transform duration-200"
                         />
                       </DisclosureButton>
-                      <DisclosurePanel className="mt-2 space-y-2">
+                      <DisclosurePanel className="mt-0.5 space-y-0.5 pb-2">
                         {navItem.children.map((item) => (
                           <DisclosureButton
                             key={item.name}
@@ -332,7 +373,12 @@ export default function Header(props) {
                                 ? '_blank'
                                 : undefined
                             }
-                            className="no-underline block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-regular text-black hover:bg-gray-50"
+                            rel={
+                              item.href.startsWith('http')
+                                ? 'noopener noreferrer'
+                                : undefined
+                            }
+                            className="no-underline block rounded-lg py-2 pr-3 pl-6 text-sm text-[#556068] hover:bg-[#f4f6f7] hover:text-[#0f2328] transition-colors"
                           >
                             {item.name}
                           </DisclosureButton>
@@ -346,26 +392,27 @@ export default function Header(props) {
               {/* Mobile language selector */}
               <div className="py-6">
                 <Disclosure as="div" className="-mx-3">
-                  <DisclosureButton className="border-none rounded-lg py-2 text-base/7 hover:bg-gray-50 text-black bg-transparent group flex w-full items-center justify-between pr-3.5 pl-3 font-regular no-underline">
+                  <DisclosureButton className="border-none rounded-lg py-2.5 text-sm font-medium text-[#2d3e44] bg-transparent group flex w-full items-center justify-between pr-3.5 pl-3 no-underline hover:bg-[#f4f6f7] hover:text-[#0f2328] transition-colors">
                     <span className="flex items-center gap-x-2">
-                      <GlobeAltIcon className="size-5 text-black" />
+                      <GlobeAltIcon className="size-4 text-[#8fa5ad]" />
                       {languages.find((l) => l.code === currentLocale)?.label}
                     </span>
                     <ChevronDownIcon
                       aria-hidden="true"
-                      className="size-5 flex-none group-data-open:rotate-180"
+                      className="size-4 flex-none text-[#8fa5ad] group-data-open:rotate-180 transition-transform duration-200"
                     />
                   </DisclosureButton>
-                  <DisclosurePanel className="mt-2 space-y-1">
+                  <DisclosurePanel className="mt-0.5 space-y-0.5 pb-2">
                     {languages.map((lang) => (
                       <a
                         key={lang.code}
                         href={langUrl(lang.code)}
-                        className={`no-underline flex items-center gap-x-2 rounded-lg py-2 pr-3 pl-6 text-sm/7 text-black hover:bg-gray-50 ${currentLocale === lang.code ? 'font-bold' : 'font-regular'}`}
+                        className={`no-underline flex items-center justify-between rounded-lg py-2 pr-3 pl-6 text-sm transition-colors
+                          ${currentLocale === lang.code ? 'text-[#007b3d] font-semibold' : 'text-[#556068] hover:bg-[#f4f6f7] hover:text-[#0f2328]'}`}
                       >
                         <span>{lang.label}</span>
                         {currentLocale === lang.code && (
-                          <span className="ml-auto text-xs">✓</span>
+                          <span className="size-1.5 rounded-full bg-[#007b3d]" />
                         )}
                       </a>
                     ))}
