@@ -1,4 +1,9 @@
 {
+  "title": {
+    "en": "Ecosystem",
+    "es": "Ecosistema",
+    "ja": "エコシステム"
+  },
   "buildonxahau": {
     "en": "built on or around Xahau",
     "es": "creados en Xahau o en torno a ella",

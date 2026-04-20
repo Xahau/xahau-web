@@ -62,7 +62,7 @@ const sections = ecosystemData.sections.map((section) =>
   <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
   <header class="xe-head">
     <div class="xe-head-title">
-      <h2>Ecosystem</h2>
+      <h2>{ecosystemData.title[locale]}</h2>
       <p class="xe-sub">
         {sections.map(s => s.label[locale]).join(', ')}
         {ecosystemData.buildonxahau[locale]}
