@@ -1,9 +1,10 @@
 ---
-  import '../styles/main.css'
-  import BaseLayout from '../layouts/BaseLayout.astro'
+import '../styles/main.css'
+import BaseLayout from '../layouts/BaseLayout.astro'
 
-  const _frontmatter = Astro.props.frontmatter
+const _frontmatter = Astro.props.frontmatter
 ---
+
 <BaseLayout frontmatter={_frontmatter}>
   <div class="flex-none container mx-auto py-12 text-left max-w-7xl p-6">
     <h1 class="text-5xl font-extrabold mb-2">{_frontmatter.title}</h1>

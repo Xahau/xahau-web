@@ -1,0 +1,448 @@
+---
+/**
+ * XahauHome.astro — Editorial home page sections (Network + Statistics)
+ *
+ * Hero lives in IndexLayout. This component renders the two post-hero acts
+ * in the same white-card editorial style as XahauAbout / XahauFeatures.
+ *
+ * Stats values are driven from src/data/home.json — update the JSON to
+ * change the numbers without touching markup.
+ */
+
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import homeData from '../data/home.json'
+import type { IndexLocale } from '../i18n/indexTranslations'
+import { indexTranslations } from '../i18n/indexTranslations'
+
+const locale = (Astro.currentLocale ?? 'en') as IndexLocale
+const i = indexTranslations[locale]
+const stats = homeData.stats
+
+// Build a plain array from the flat feat1…feat5 translation keys
+type TKey = keyof typeof i
+const features = [1, 2, 3, 4, 5].map((n) => ({
+  title: i[`feat${n}_title` as TKey] as string,
+  desc: i[`feat${n}_desc` as TKey] as string,
+}))
+---
+
+<section class="xhome" aria-label={i.network_title}>
+  <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
+  <header class="xh-head">
+    <div class="xh-head-title">
+      <h2>{i.network_title}</h2>
+      <p class="xh-sub">{i.network_subtitle}</p>
+    </div>
+    <div class="xh-chips">
+      <span class="xh-chip">Est. October 2023</span>
+      <span class="xh-chip">~4s Settlement</span>
+      <span class="xh-chip">10k tx / ledger</span>
+      <span class="xh-chip">200k+ Accounts</span>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ACT I — THE NETWORK  (green)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="xh-act act-net">
+    <p class="xh-act-label"><span class="act-pip pip-grn"></span>Network</p>
+
+    <div class="xh-feats">
+      {features.map(f => (
+        <div class="xh-feat">
+          <h4>{f.title}</h4>
+          <p>{f.desc}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="xh-feats-cta">
+      <a
+        href={getRelativeLocaleUrl(locale, '/features')}
+        class="xh-cta xh-cta-grn"
+      >
+        {i.feat_more}→
+      </a>
+    </div>
+  </div><!-- /act-net -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ACT II — STATISTICS  (teal)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="xh-act act-stats">
+    <p class="xh-act-label"><span class="act-pip pip-teal"></span>Statistics</p>
+
+    <div class="xh-stats-head">
+      <div>
+        <span class="xh-lbl lbl-stats">Network</span>
+        <h3>
+          {i.stats_title}
+          <br>
+          <em>{i.stats_subtitle}</em>
+        </h3>
+      </div>
+    </div>
+
+    <!-- Stats tiles — values come from home.json -->
+    <div class="xh-stats">
+      {stats.map(s => (
+        s.type === 'cta' ? (
+          <a
+            href={getRelativeLocaleUrl(locale, s.url)}
+            class={`xh-stat xh-stat-cta tile-${s.theme}`}
+            style={`--col:${s.col}`}
+          >
+            <span class="xh-stat-cta-label">
+              {s.label[locale as keyof typeof s.label]}
+            </span>
+            <span class="xh-stat-cta-arrow">→</span>
+          </a>
+        ) : (
+          <div
+            class={`xh-stat tile-${s.theme}`}
+            style={`--col:${s.col}`}
+          >
+            <span class="xh-stat-lbl">
+              {s.label[locale as keyof typeof s.label]}
+            </span>
+            <span class="xh-stat-val">{s.value}</span>
+          </div>
+        )
+      ))}
+    </div>
+  </div><!-- /act-stats -->
+</section>
+
+<style>
+  /* ══ Design tokens — mirrors XahauAbout / XahauFeatures exactly ══════════ */
+  .xhome {
+    --ink: #0f2328;
+    --dim: #2d3e44;
+    --mute: #556068;
+    --grn2: #007a28;
+    --teal2: #006f87;
+    --grn-hi: #00c940;
+    --teal-hi: #00c4e8;
+
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px 72px;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 20px 64px -24px rgba(15, 35, 40, 0.13);
+  }
+  .xhome * {
+    box-sizing: border-box;
+  }
+
+  /* ── Page header ─────────────────────────────────────────────────────── */
+  .xh-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 40px;
+  }
+  .xhome h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: var(--ink);
+  }
+  .xh-sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: var(--mute);
+  }
+  .xh-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+  .xh-chip {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 5px 13px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    color: var(--mute);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Acts ────────────────────────────────────────────────────────────── */
+  .xh-act {
+    padding-top: 52px;
+  }
+
+  .xh-act-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 0 0 36px;
+  }
+  .act-pip {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pip-grn {
+    background: var(--grn2);
+  }
+  .pip-teal {
+    background: var(--teal2);
+  }
+
+  /* ── Act I: Features grid ────────────────────────────────────────────── */
+  .xh-feats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px 40px;
+    align-items: end;
+  }
+  .xh-feat h4 {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .xh-feat p {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.68;
+    color: var(--dim);
+  }
+
+  /* CTA row below features grid */
+  .xh-feats-cta {
+    margin-top: 28px;
+  }
+
+  /* CTA button */
+  .xh-cta {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 24px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    border-radius: 6px;
+    transition:
+      background 0.18s,
+      color 0.18s;
+    align-self: end;
+  }
+  .xh-cta-grn {
+    background: var(--grn2);
+    color: #ffffff;
+  }
+  .xh-cta-grn:hover {
+    background: #004d18;
+  }
+
+  /* ── Act II: Statistics label + h3 ──────────────────────────────────── */
+  .xh-lbl {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .lbl-stats {
+    color: var(--teal2);
+    background: rgba(0, 111, 135, 0.1);
+  }
+
+  .xh-stats-head h3 {
+    margin: 0 0 36px;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    background: linear-gradient(140deg, #003d50 15%, var(--teal-hi) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .xh-stats-head h3 em {
+    font-style: normal;
+  }
+
+  /* ── Stats tiles grid ────────────────────────────────────────────────── */
+  .xh-stats {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 12px;
+  }
+
+  .xh-stat {
+    grid-column: span var(--col, 3);
+    min-height: 148px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 20px 22px;
+    border-radius: 12px;
+    border: 1.5px solid #d0dde0;
+  }
+  .tile-light {
+    background: #ffffff;
+    color: var(--ink);
+  }
+  .tile-dark {
+    background: #e6f2ea;
+    color: var(--ink);
+    border-color: #c8e0cf;
+  }
+  .tile-teal {
+    background: #e0f2f6;
+    color: var(--ink);
+    border-color: #b8dde6;
+  }
+  .tile-sage {
+    background: #eef4f0;
+    color: var(--ink);
+    border-color: #d0e2d5;
+  }
+
+  .xh-stat-lbl {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+  .xh-stat-val {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .tile-light .xh-stat-val {
+    color: var(--ink);
+  }
+  .tile-dark .xh-stat-val,
+  .tile-teal .xh-stat-val,
+  .tile-sage .xh-stat-val {
+    color: var(--ink);
+  }
+
+  /* CTA tile inside the stats grid */
+  .xh-stat-cta {
+    text-decoration: none;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-style: dashed;
+    transition:
+      background 0.18s,
+      border-color 0.18s;
+  }
+  .xh-stat-cta:hover {
+    background: #f0f5f6;
+    border-color: var(--teal2);
+  }
+  .xh-stat-cta-label {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    color: var(--ink);
+    max-width: 160px;
+  }
+  .xh-stat-cta-arrow {
+    font-size: 28px;
+    line-height: 1;
+    color: var(--teal2);
+    align-self: flex-end;
+    transition: transform 0.18s;
+  }
+  .xh-stat-cta:hover .xh-stat-cta-arrow {
+    transform: translate(3px, -2px);
+  }
+
+  /* ── Responsive ─────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .xh-feats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .xh-stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .xh-stat {
+      grid-column: span 2;
+      min-height: 120px;
+    }
+    .xh-stat-cta {
+      grid-column: span 4;
+    }
+    .xh-stat-val {
+      font-size: 38px;
+    }
+  }
+  @media (max-width: 640px) {
+    .xhome {
+      padding: 32px 24px 48px;
+      border-radius: 16px;
+    }
+    .xhome h2 {
+      font-size: 28px;
+    }
+    .xh-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .xh-feats {
+      grid-template-columns: 1fr;
+    }
+    .xh-stats {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .xh-stat {
+      grid-column: span 1;
+      min-height: 100px;
+      padding: 14px 16px;
+    }
+    .xh-stat[style*='--col:3'],
+    .xh-stat[style*='--col:4'],
+    .xh-stat[style*='--col:5'] {
+      grid-column: span 2;
+    }
+    .xh-stat-val {
+      font-size: 32px;
+    }
+    .xh-stats-head h3 {
+      font-size: 26px;
+    }
+  }
+</style>

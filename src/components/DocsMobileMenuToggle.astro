@@ -1,19 +1,21 @@
 ---
-  import {
-    Bars3Icon,
-    ChevronDownIcon,
-    XMarkIcon,
-  } from '@heroicons/react/20/solid'
+import {
+  Bars3Icon,
+  ChevronDownIcon,
+  XMarkIcon,
+} from '@heroicons/react/20/solid'
 ---
+
 <starlight-menu-button class="print:hidden">
   <button
+    type="button"
     aria-expanded="false"
     aria-label={Astro.locals.t('menuButton.accessibleLabel')}
     aria-controls="starlight__sidebar"
     class="sl-flex md:sl-hidden"
   >
-    <Bars3Icon name="open" className="open-menu"/>
-    <XMarkIcon name="close" className="close-menu"/>
+    <Bars3Icon name="open" className="open-menu" />
+    <XMarkIcon name="close" className="close-menu" />
   </button>
 </starlight-menu-button>
 

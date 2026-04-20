@@ -1,8 +1,8 @@
 ---
-  import TableOfContents from '@astrojs/starlight/components/TableOfContents.astro'
+import TableOfContents from '@astrojs/starlight/components/TableOfContents.astro'
 ---
-{
-  Astro.locals.starlightRoute.toc && (
+
+{Astro.locals.starlightRoute.toc && (
     <>
       <div class="right-sidebar-panel sl-hidden lg:sl-block">
         <div class="sl-container">
@@ -10,8 +10,7 @@
         </div>
       </div>
     </>
-  )
-}
+  )}
 
 <style>
   @layer starlight.core {

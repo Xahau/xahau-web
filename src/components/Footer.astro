@@ -1,142 +1,284 @@
 ---
-  import { Image } from 'astro:assets'
-  import { getRelativeLocaleUrl } from 'astro:i18n'
-  import logo from '../assets/xahau-logo.svg'
+import { Image } from 'astro:assets'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import logo from '../assets/xahau-logo.svg'
 
-  const locale = Astro.currentLocale ?? 'en'
+const locale = Astro.currentLocale ?? 'en'
 
-  const translations = {
-    en: {
-      tagline: 'This website is open source and open for contributions',
-      on: 'on',
-      about: 'About',
-      features: 'Features',
-      ecosystem: 'Ecosystem',
-      roadmap: 'Roadmap',
-      break: 'Break Xahau',
-      fraud: 'Report Fraud',
-      media: 'Media kit',
-      privacy: 'Privacy Policy',
-      docs: 'Documentation',
-      getstarted: 'Get started',
-      protocol: 'Protocol Reference',
-      infra: 'Infrastructure',
-      connect: 'Connect',
-      events: 'Events',
-      discord: 'Community Discord',
-    },
-    es: {
-      tagline:
-        'Este sitio web es de código abierto y está abierto a contribuciones',
-      on: 'en',
-      about: 'Acerca de',
-      features: 'Características',
-      ecosystem: 'Ecosistema',
-      roadmap: 'Hoja de ruta',
-      break: 'Break Xahau',
-      fraud: 'Reportar Fraude',
-      media: 'Kit de Prensa',
-      privacy: 'Política de Privacidad',
-      docs: 'Documentación',
-      getstarted: 'Primeros pasos',
-      protocol: 'Referencia de Protocolo',
-      infra: 'Infraestructura',
-      connect: 'Conectar',
-      events: 'Eventos',
-      discord: 'Discord de la Comunidad',
-    },
-    ja: {
-      tagline:
-        'このウェブサイトはオープンソースで、コントリビューションを受け付けています',
-      on: 'にて',
-      about: 'Xahauについて',
-      features: '機能',
-      ecosystem: 'エコシステム',
-      roadmap: 'ロードマップ',
-      break: 'Break Xahau',
-      fraud: '不正を報告',
-      media: 'メディアキット',
-      privacy: 'プライバシーポリシー',
-      docs: 'ドキュメント',
-      getstarted: 'はじめる',
-      protocol: 'プロトコルリファレンス',
-      infra: 'インフラストラクチャ',
-      connect: 'コネクト',
-      events: 'イベント',
-      discord: 'コミュニティDiscord',
-    },
-  }
+const translations = {
+  en: {
+    tagline: 'Open source and open for contributions',
+    on: 'on',
+    about: 'About',
+    features: 'Features',
+    ecosystem: 'Ecosystem',
+    roadmap: 'Roadmap',
+    break: 'Break Xahau',
+    fraud: 'Report Fraud',
+    media: 'Media kit',
+    privacy: 'Privacy Policy',
+    docs: 'Documentation',
+    getstarted: 'Get started',
+    protocol: 'Protocol Reference',
+    infra: 'Infrastructure',
+    connect: 'Connect',
+    events: 'Events',
+    discord: 'Community Discord',
+    copyright: `© ${new Date().getFullYear()} Xahau. Open source`,
+  },
+  es: {
+    tagline: 'Código abierto y abierto a contribuciones',
+    on: 'en',
+    about: 'Acerca de',
+    features: 'Características',
+    ecosystem: 'Ecosistema',
+    roadmap: 'Hoja de ruta',
+    break: 'Break Xahau',
+    fraud: 'Reportar Fraude',
+    media: 'Kit de Prensa',
+    privacy: 'Política de Privacidad',
+    docs: 'Documentación',
+    getstarted: 'Primeros pasos',
+    protocol: 'Referencia de Protocolo',
+    infra: 'Infraestructura',
+    connect: 'Conectar',
+    events: 'Eventos',
+    discord: 'Discord de la Comunidad',
+    copyright: `© ${new Date().getFullYear()} Xahau. Código abierto`,
+  },
+  ja: {
+    tagline: 'オープンソースで、コントリビューションを受け付けています',
+    on: 'にて',
+    about: 'Xahauについて',
+    features: '機能',
+    ecosystem: 'エコシステム',
+    roadmap: 'ロードマップ',
+    break: 'Break Xahau',
+    fraud: '不正を報告',
+    media: 'メディアキット',
+    privacy: 'プライバシーポリシー',
+    docs: 'ドキュメント',
+    getstarted: 'はじめる',
+    protocol: 'プロトコルリファレンス',
+    infra: 'インフラストラクチャ',
+    connect: 'コネクト',
+    events: 'イベント',
+    discord: 'コミュニティDiscord',
+    copyright: `© ${new Date().getFullYear()} Xahau. オープンソース`,
+  },
+}
 
-  const t = translations[locale as 'en' | 'es' | 'ja'] || translations.en
+type Locale = 'en' | 'es' | 'ja'
+const t = translations[locale as Locale] || translations.en
 ---
-<footer
-  class="bg-white text-base font-regular text-black **:text-black **:no-underline"
->
-  <div
-    class="flex-none container mx-auto py-12 max-w-7xl p-6 grid grid-cols-1 md:grid-cols-10 gap-4"
-  >
-    <div class="col-span-1 md:col-span-3 flex flex-col gap-3">
-      <a href={getRelativeLocaleUrl(locale, '/')}>
-        <Image src={logo} class="w-1/2" alt="Xahau"/>
-      </a>
-      <p>
-        {t.tagline}
-        <a href="https://github.com/Xahau/xahau-web" target="_blank"
-          >{t.on}GitHub</a
+
+<footer class="bg-white border-t border-[#e4edef]">
+  <div class="mx-auto max-w-7xl px-6 py-14">
+    <div class="flex flex-col gap-10 md:grid md:grid-cols-12">
+      <!-- ── Brand column ───────────────────────────────────────────────── -->
+      <div class="md:col-span-4 flex flex-col gap-5">
+        <a href={getRelativeLocaleUrl(locale, '/')} class="inline-block -ml-1">
+          <Image src={logo} width={180} height={32} alt="Xahau" />
+        </a>
+        <p class="text-sm text-[#556068] leading-relaxed max-w-xs">
+          {t.tagline}
+          —
+          <a
+            href="https://github.com/Xahau/xahau-web"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#2d3e44] hover:text-[#007b3d] no-underline font-medium transition-colors"
+          >
+            GitHub ↗
+          </a>
+        </p>
+
+        <!-- Social row -->
+        <div class="flex items-center gap-4 mt-1">
+          <a
+            href="https://x.com/XahauNetwork"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#8fa5ad] hover:text-[#0f2328] no-underline text-sm font-medium transition-colors"
+            aria-label="X / Twitter"
+            >X</a
+          >
+          <span class="text-[#e4edef]" aria-hidden="true">·</span>
+          <a
+            href="https://github.com/Xahau"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#8fa5ad] hover:text-[#0f2328] no-underline text-sm font-medium transition-colors"
+            >GitHub</a
+          >
+          <span class="text-[#e4edef]" aria-hidden="true">·</span>
+          <a
+            href="https://discord.com/invite/UzU58haAn4"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#8fa5ad] hover:text-[#0f2328] no-underline text-sm font-medium transition-colors"
+            >Discord</a
+          >
+        </div>
+      </div>
+
+      <!-- ── Link columns — 3-col grid on all sizes ───────────────────── -->
+      <div class="grid grid-cols-3 gap-6 md:contents">
+        <!-- ── Xahau column ───────────────────────────────────────────────── -->
+        <div class="md:col-span-2 md:col-start-6 flex flex-col gap-3">
+          <p class="footer-col-head">Xahau</p>
+          <a href={getRelativeLocaleUrl(locale, '/about')} class="footer-link"
+            >{t.about}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/features')}
+            class="footer-link"
+            >{t.features}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/ecosystem')}
+            class="footer-link"
+            >{t.ecosystem}</a
+          >
+          <a href={getRelativeLocaleUrl(locale, '/roadmap')} class="footer-link"
+            >{t.roadmap}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/compliance/responsible-disclosure')}
+            class="footer-link"
+            >{t.break}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/fraud-report')}
+            class="footer-link"
+            >{t.fraud}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/resources/media-kit')}
+            class="footer-link"
+            >{t.media}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/privacy-policy')}
+            class="footer-link"
+            >{t.privacy}</a
+          >
+        </div>
+
+        <!-- ── Docs column ────────────────────────────────────────────────── -->
+        <div class="md:col-span-2 flex flex-col gap-3">
+          <p class="footer-col-head">{t.docs}</p>
+          <a href={getRelativeLocaleUrl(locale, '/docs')} class="footer-link"
+            >{t.getstarted}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/protocol-reference/transactions')}
+            class="footer-link"
+            >{t.protocol}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/hooks')}
+            class="footer-link"
+            >Hooks</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/data-apis')}
+            class="footer-link"
+            >Data APIs</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/infrastructure/system-requirements')}
+            class="footer-link"
+            >{t.infra}</a
+          >
+          <a
+            href={getRelativeLocaleUrl(locale, '/docs/resources/whitepaper')}
+            class="footer-link"
+            >Whitepaper</a
+          >
+        </div>
+
+        <!-- ── Connect column ─────────────────────────────────────────────── -->
+        <div class="md:col-span-2 flex flex-col gap-3">
+          <p class="footer-col-head">{t.connect}</p>
+          <a href={getRelativeLocaleUrl(locale, '/connect')} class="footer-link"
+            >{t.events}</a
+          >
+          <a href={getRelativeLocaleUrl(locale, '/contest')} class="footer-link"
+            >Dev Contest</a
+          >
+          <a
+            href="https://x.com/XahauNetwork"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >X / Twitter ↗</a
+          >
+          <a
+            href="https://github.com/Xahau"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >GitHub ↗</a
+          >
+          <a
+            href="https://discord.com/invite/UzU58haAn4"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >{t.discord}
+            ↗</a
+          >
+        </div>
+      </div><!-- /link columns -->
+    </div>
+
+    <!-- ── Bottom bar ──────────────────────────────────────────────────── -->
+    <div
+      class="mt-12 pt-6 border-t border-[#e4edef] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+    >
+      <p
+        class="text-xs text-[#8fa5ad] font-[ui-monospace,monospace] tracking-wide"
+      >
+        {t.copyright}
+        ·
+        <a
+          href="https://github.com/Xahau/xahau-web"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-[#556068] no-underline transition-colors"
+          >github.com/Xahau/xahau-web</a
         >
       </p>
-    </div>
-    <div class="col-span-1 md:col-span-2 md:col-start-5 flex flex-col gap-3">
-      <p>
-        <strong>Xahau</strong>
-      </p>
-      <a href={getRelativeLocaleUrl(locale, '/about')}>{t.about}</a>
-      <a href={getRelativeLocaleUrl(locale, '/features')}>{t.features}</a>
-      <a href={getRelativeLocaleUrl(locale, '/ecosystem')}>{t.ecosystem}</a>
-      <a href={getRelativeLocaleUrl(locale, '/roadmap')}>{t.roadmap}</a>
-      <a
-        href={getRelativeLocaleUrl(locale, '/docs/compliance/responsible-disclosure')}
+      <p
+        class="text-xs text-[#8fa5ad] font-[ui-monospace,monospace] tracking-wide"
       >
-        {t.break}
-      </a>
-      <a href={getRelativeLocaleUrl(locale, '/fraud-report')}>{t.fraud}</a>
-      <a href={getRelativeLocaleUrl(locale, '/docs/resources/media-kit')}>
-        {t.media}
-      </a>
-      <a href={getRelativeLocaleUrl(locale, '/privacy-policy')}>{t.privacy}</a>
-    </div>
-    <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
-      <p>
-        <strong>{t.docs}</strong>
+        xahau.network
       </p>
-      <a href={getRelativeLocaleUrl(locale, '/docs')}>{t.getstarted}</a>
-      <a
-        href={getRelativeLocaleUrl(locale, '/docs/protocol-reference/transactions')}
-      >
-        {t.protocol}
-      </a>
-      <a href={getRelativeLocaleUrl(locale, '/docs/hooks')}>Hooks</a>
-      <a href={getRelativeLocaleUrl(locale, '/docs/data-apis')}>Data APIs</a>
-      <a
-        href={getRelativeLocaleUrl(locale, '/docs/infrastructure/system-requirements')}
-      >
-        {t.infra}
-      </a>
-      <a href={getRelativeLocaleUrl(locale, '/docs/resources/whitepaper')}>
-        Whitepaper
-      </a>
-    </div>
-    <div class="col-span-1 md:col-span-2 flex flex-col gap-3">
-      <p>
-        <strong>{t.connect}</strong>
-      </p>
-      <a href={getRelativeLocaleUrl(locale, '/connect')}>{t.events}</a>
-      <a href={getRelativeLocaleUrl(locale, '/contest')}>Dev Contest</a>
-      <a href="https://x.com/XahauNetwork" target="_blank">X</a>
-      <a href="https://github.com/Xahau" target="_blank">GitHub</a>
-      <a href="https://discord.com/invite/UzU58haAn4" target="_blank">
-        {t.discord}
-      </a>
     </div>
   </div>
 </footer>
+
+<style>
+  .footer-col-head {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2d3e44;
+    margin-bottom: 4px;
+  }
+
+  .footer-link {
+    font-size: 14px;
+    color: #556068;
+    text-decoration: none;
+    transition: color 0.15s;
+    line-height: 1.4;
+  }
+
+  .footer-link:hover {
+    color: #0f2328;
+  }
+</style>

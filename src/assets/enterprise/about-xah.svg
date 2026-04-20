@@ -1,0 +1,65 @@
+<svg viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg-x" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e8e2f9"/>
+      <stop offset="100%" stop-color="#f3f0fd"/>
+    </radialGradient>
+    <radialGradient id="icon-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4010b0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#4010b0" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="icon-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="20" flood-color="#1a0060" flood-opacity="0.38"/>
+    </filter>
+    <filter id="glow-f" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="190" r="192" fill="url(#bg-x)"/>
+
+  <!-- Ambient glow behind icon -->
+  <circle cx="200" cy="190" r="110" fill="url(#icon-glow)" filter="url(#glow-f)"/>
+
+  <!-- Ellipse coin rings (three orbital planes) -->
+  <ellipse cx="200" cy="190" rx="170" ry="34" fill="none" stroke="#6020c0" stroke-width="1.4" opacity="0.22"/>
+  <ellipse cx="200" cy="190" rx="138" ry="26" fill="none" stroke="#6020c0" stroke-width="1.2" opacity="0.16"/>
+  <ellipse cx="200" cy="190" rx="106" ry="19" fill="none" stroke="#6020c0" stroke-width="1"   opacity="0.11"/>
+
+  <!-- Orbital accent dots on outer ring -->
+  <circle cx="30"  cy="190" r="4.5" fill="#6020c0" opacity="0.3"/>
+  <circle cx="370" cy="190" r="4.5" fill="#6020c0" opacity="0.3"/>
+  <circle cx="96"  cy="160" r="3"   fill="#6020c0" opacity="0.2"/>
+  <circle cx="304" cy="160" r="3"   fill="#6020c0" opacity="0.2"/>
+  <circle cx="96"  cy="220" r="3"   fill="#6020c0" opacity="0.2"/>
+  <circle cx="304" cy="220" r="3"   fill="#6020c0" opacity="0.2"/>
+
+  <!-- Mid-ring accent dots -->
+  <circle cx="62"  cy="190" r="3"   fill="#8040e0" opacity="0.18"/>
+  <circle cx="338" cy="190" r="3"   fill="#8040e0" opacity="0.18"/>
+
+  <!-- Corner ambient dots (subtle visual weight at corners) -->
+  <circle cx="52"  cy="72"  r="6"   fill="#5010a0" opacity="0.1"/>
+  <circle cx="348" cy="72"  r="6"   fill="#5010a0" opacity="0.1"/>
+  <circle cx="52"  cy="308" r="6"   fill="#5010a0" opacity="0.1"/>
+  <circle cx="348" cy="308" r="6"   fill="#5010a0" opacity="0.1"/>
+
+  <!-- Official Xahau icon — centred, no text -->
+  <svg x="88" y="78" width="224" height="224" viewBox="0 0 180 180"
+       filter="url(#icon-shadow)">
+    <defs>
+      <clipPath id="ic">
+        <rect width="180" height="180" fill="white"/>
+      </clipPath>
+    </defs>
+    <g clip-path="url(#ic)">
+      <rect width="180" height="180" rx="40" fill="#0E0143"/>
+      <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M97.9191 125.747L106.355 138H137.482L127.298 123.21L97.9191 125.747ZM87.9795 111.309L87.8937 111.184L72.1277 138H42.078L72.9362 89.3546L41 43H72.1277L90.0497 69.1419L105.411 43H135.461L105.007 90.8369L116.936 108.161L88.0408 111.205L87.9795 111.309Z"
+            fill="white"/>
+      <path d="M167.632 104.614C169.337 105.392 169.535 107.671 167.988 108.715L143.979 124.925C142.432 125.969 140.301 124.996 140.143 123.173L137.688 94.8819C137.53 93.059 139.464 91.7535 141.169 92.5319L167.632 104.614Z"
+            fill="#F7F7F7"/>
+    </g>
+  </svg>
+</svg>
