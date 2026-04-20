@@ -54,7 +54,9 @@ const features = [1, 2, 3, 4, 5].map((n) => ({
           <p>{f.desc}</p>
         </div>
       ))}
+    </div>
 
+    <div class="xh-feats-cta">
       <a
         href={getRelativeLocaleUrl(locale, '/features')}
         class="xh-cta xh-cta-grn"
@@ -227,7 +229,12 @@ const features = [1, 2, 3, 4, 5].map((n) => ({
     color: var(--dim);
   }
 
-  /* CTA button inside features grid */
+  /* CTA row below features grid */
+  .xh-feats-cta {
+    margin-top: 28px;
+  }
+
+  /* CTA button */
   .xh-cta {
     display: inline-flex;
     align-items: center;
