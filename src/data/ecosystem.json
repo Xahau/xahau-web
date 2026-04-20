@@ -1,4 +1,9 @@
 {
+  "buildonxahau": {
+    "en": "built on or around Xahau",
+    "es": "creados en Xahau o en torno a ella",
+    "ja": "がXahauを利用して構築しています"
+  },
   "sections": [
     {
       "id": "enterprise",
