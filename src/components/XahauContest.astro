@@ -1,12 +1,9 @@
 ---
-/**
- * XahauContest.astro — Editorial layout for the Xahau Dev Contest page (English)
- *
- * Follows the same white-card editorial style as XahauAbout / XahauFeatures / XahauHome.
- * Four acts: Introduction · Panel & Theme · Rules & Evaluation · Support & Legal
- *
- * For ES/JA: see XahauContestEs.astro / XahauContestJa.astro
- */
+import type { ContestLocale } from '../i18n/contestTranslations'
+import { contestTranslations } from '../i18n/contestTranslations'
+
+const locale = (Astro.currentLocale ?? 'en') as ContestLocale
+const t = contestTranslations[locale]
 ---
 
 <section class="xcontest" aria-label="Xahau Dev Contest">
@@ -14,15 +11,13 @@
   <header class="xc-head">
     <div class="xc-head-title">
       <h2>Xahau Dev Contest</h2>
-      <p class="xc-sub">
-        Ecosystem Rising — Build user-facing services powered by Xahau
-      </p>
+      <p class="xc-sub">{t.page_subtitle}</p>
     </div>
     <div class="xc-chips">
-      <span class="xc-chip">2nd Edition</span>
-      <span class="xc-chip">Xahau Mainnet</span>
-      <span class="xc-chip">3 Main Prizes</span>
-      <span class="xc-chip">XAH Rewards</span>
+      <span class="xc-chip">{t.chip1}</span>
+      <span class="xc-chip">{t.chip2}</span>
+      <span class="xc-chip">{t.chip3}</span>
+      <span class="xc-chip">{t.chip4}</span>
     </div>
   </header>
 
@@ -31,67 +26,58 @@
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="xc-act act-intro">
     <p class="xc-act-label">
-      <span class="act-pip pip-grn"></span>Introduction
+      <span class="act-pip pip-grn"></span>{t.act1_label}
     </p>
 
     <div class="xc-intro-grid">
       <!-- Welcome blurb -->
       <div class="xc-intro-body">
-        <span class="xc-lbl lbl-grn">About</span>
-        <h3>Welcome to Ecosystem Rising</h3>
-        <p>
-          This contest invites innovators to build
-          <strong>user-facing services powered by Xahau</strong>
-          and compete for prizes while strengthening the Xahau ecosystem.
-        </p>
-        <p>
-          Whether you're a solo developer or a team, you can submit as many
-          projects as you like — each eligible for different prizes.
-        </p>
+        <span class="xc-lbl lbl-grn">{t.act1_about_lbl}</span>
+        <h3>{t.act1_about_h3}</h3>
+        <p set:html={t.act1_about_p1} />
+        <p>{t.act1_about_p2}</p>
       </div>
 
       <!-- Prizes -->
       <div class="xc-prizes">
-        <span class="xc-lbl lbl-grn">Prizes</span>
-        <h3>Main Prizes in XAH</h3>
+        <span class="xc-lbl lbl-grn">{t.act1_prizes_lbl}</span>
+        <h3>{t.act1_prizes_h3}</h3>
         <div class="xc-prize-list">
           <div class="xc-prize prize-gold">
             <span class="prize-medal">🥇</span>
             <div>
-              <span class="prize-place">1st Prize</span>
-              <span class="prize-value">4,000 USD value in XAH</span>
+              <span class="prize-place">{t.prize1_place}</span>
+              <span class="prize-value">{t.prize1_value}</span>
             </div>
           </div>
           <div class="xc-prize prize-silver">
             <span class="prize-medal">🥈</span>
             <div>
-              <span class="prize-place">2nd Prize</span>
-              <span class="prize-value">2,000 USD value in XAH</span>
+              <span class="prize-place">{t.prize2_place}</span>
+              <span class="prize-value">{t.prize2_value}</span>
             </div>
           </div>
           <div class="xc-prize prize-bronze">
             <span class="prize-medal">🥉</span>
             <div>
-              <span class="prize-place">3rd Prize</span>
-              <span class="prize-value">1,000 USD value in XAH</span>
+              <span class="prize-place">{t.prize3_place}</span>
+              <span class="prize-value">{t.prize3_value}</span>
             </div>
           </div>
         </div>
 
         <div class="xc-timeline">
-          <span class="xc-lbl lbl-grn">Timeline</span>
+          <span class="xc-lbl lbl-grn">{t.timeline_lbl}</span>
           <div class="timeline-row">
             <span class="timeline-dot"></span>
             <span
-              ><strong>Submission deadline:</strong>
-              February 1st, 2026</span
+              ><strong>{t.timeline1_label}</strong> {t.timeline1_value}</span
             >
           </div>
           <div class="timeline-row">
             <span class="timeline-dot"></span>
             <span
-              ><strong>Judging panel:</strong>
-              5 members from the Xahau and XRPL community</span
+              ><strong>{t.timeline2_label}</strong> {t.timeline2_value}</span
             >
           </div>
         </div>
@@ -104,14 +90,14 @@
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="xc-act act-panel">
     <p class="xc-act-label">
-      <span class="act-pip pip-teal"></span>Panel &amp; Theme
+      <span class="act-pip pip-teal"></span>{t.act2_label}
     </p>
 
     <div class="xc-panel-grid">
-      <!-- Judges -->
+      <!-- Judges (hardcoded — same across all locales, only role label differs) -->
       <div class="xc-judges">
-        <span class="xc-lbl lbl-teal">Judges Panel</span>
-        <h3>Five Community Members</h3>
+        <span class="xc-lbl lbl-teal">{t.act2_judges_lbl}</span>
+        <h3>{t.act2_judges_h3}</h3>
         <div class="xc-judge-list">
           <div class="xc-judge">
             <span class="judge-handle">tequ</span>
@@ -175,34 +161,29 @@
 
       <!-- Theme / Examples -->
       <div class="xc-theme">
-        <span class="xc-lbl lbl-teal">Theme</span>
-        <h3>Services on Xahau</h3>
-        <p>
-          Participants must build
-          <strong>web-based services that interact with Xahau Mainnet</strong>
-          and are designed for the <strong>end user</strong> — whether casual
-          users, power users, public sector, or private sector audiences.
-        </p>
+        <span class="xc-lbl lbl-teal">{t.act2_theme_lbl}</span>
+        <h3>{t.act2_theme_h3}</h3>
+        <p set:html={t.act2_theme_p} />
         <div class="xc-examples">
           <div class="xc-example-group">
-            <span class="example-heading">Everyday user tools</span>
-            <span>Personal finance dashboards</span>
-            <span>Wallet managers</span>
-            <span>Community apps</span>
+            <span class="example-heading">{t.example1_heading}</span>
+            <span>{t.example1_item1}</span>
+            <span>{t.example1_item2}</span>
+            <span>{t.example1_item3}</span>
           </div>
           <div class="xc-example-group">
-            <span class="example-heading">Business services</span>
-            <span>Payment portals</span>
-            <span>Loyalty platforms</span>
-            <span>Client service tools</span>
+            <span class="example-heading">{t.example2_heading}</span>
+            <span>{t.example2_item1}</span>
+            <span>{t.example2_item2}</span>
+            <span>{t.example2_item3}</span>
           </div>
           <div class="xc-example-group">
-            <span class="example-heading">Public platforms</span>
-            <span>NFT marketplaces</span>
-            <span>Voting systems</span>
-            <span>Donation hubs</span>
-            <span>Cultural apps</span>
-            <span>Utilities for social good</span>
+            <span class="example-heading">{t.example3_heading}</span>
+            <span>{t.example3_item1}</span>
+            <span>{t.example3_item2}</span>
+            <span>{t.example3_item3}</span>
+            <span>{t.example3_item4}</span>
+            <span>{t.example3_item5}</span>
           </div>
         </div>
       </div>
@@ -214,120 +195,62 @@
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="xc-act act-rules">
     <p class="xc-act-label">
-      <span class="act-pip pip-grn"></span>Rules &amp; Evaluation
+      <span class="act-pip pip-grn"></span>{t.act3_label}
     </p>
 
     <div class="xc-rules-grid">
       <!-- Participation Rules -->
       <div class="xc-rules-col">
-        <span class="xc-lbl lbl-grn">Participation Rules</span>
-        <h3>What You Need to Know</h3>
+        <span class="xc-lbl lbl-grn">{t.act3_rules_lbl}</span>
+        <h3>{t.act3_rules_h3}</h3>
         <ul class="xc-rule-list">
-          <li>You can submit <strong>as many projects as you like</strong>.</li>
-          <li>Each project may be submitted by an individual or a group.</li>
-          <li>
-            Different projects from the same participant can be eligible for
-            different prizes.
-          </li>
-          <li>Projects <strong>must run on the Xahau Mainnet</strong>.</li>
-          <li>
-            Each project <strong>must be accessible online</strong> so that
-            judges and the public can use or view it.
-          </li>
-          <li>
-            Each submission must include <strong>basic documentation</strong>.
-            Multimedia material (videos, slides, demos) is welcome.
-          </li>
-          <li>
-            <strong>AI tools</strong>
-            may be used for both development and documentation.
-          </li>
-          <li>
-            If your project uses <strong>Hooks</strong>, the Hook code must be
-            open source. Attach C code and hook hash in your submission.
-          </li>
-          <li>
-            Projects offering regulated financial services or targeting illegal
-            activities are not eligible.
-          </li>
-          <li>
-            Post on X tagging
-            <a
-              href="https://x.com/XahauNetwork"
-              target="_blank"
-              rel="noopener noreferrer"
-              >@XahauNetwork</a
-            >
-            to announce your participation.
-          </li>
+          <li set:html={t.rule1} />
+          <li set:html={t.rule2} />
+          <li set:html={t.rule3} />
+          <li set:html={t.rule4} />
+          <li set:html={t.rule5} />
+          <li set:html={t.rule6} />
+          <li set:html={t.rule7} />
+          <li set:html={t.rule8} />
+          <li set:html={t.rule9} />
+          <li set:html={t.html_rule10} />
         </ul>
       </div>
 
       <!-- Evaluation + Submission -->
       <div class="xc-eval-col">
         <div class="xc-eval">
-          <span class="xc-lbl lbl-grn">Evaluation Criteria</span>
-          <h3>What Judges Value</h3>
+          <span class="xc-lbl lbl-grn">{t.act3_eval_lbl}</span>
+          <h3>{t.act3_eval_h3}</h3>
           <div class="xc-criteria">
             <div class="criterion">
-              <span class="criterion-label">Originality &amp; Creativity</span>
-              <span class="criterion-desc"
-                >How novel and creative is the idea?</span
-              >
+              <span class="criterion-label">{t.crit1_label}</span>
+              <span class="criterion-desc">{t.crit1_desc}</span>
             </div>
             <div class="criterion">
-              <span class="criterion-label">No Existing Competitors</span>
-              <span class="criterion-desc"
-                >Absence of similar services on Xahau Mainnet before the
-                contest.</span
-              >
+              <span class="criterion-label">{t.crit2_label}</span>
+              <span class="criterion-desc">{t.crit2_desc}</span>
             </div>
             <div class="criterion">
-              <span class="criterion-label">Impact &amp; Usefulness</span>
-              <span class="criterion-desc"
-                >Value for end users — individuals, businesses, or public
-                sector.</span
-              >
+              <span class="criterion-label">{t.crit3_label}</span>
+              <span class="criterion-desc">{t.crit3_desc}</span>
             </div>
             <div class="criterion">
-              <span class="criterion-label">Quality of Execution</span>
-              <span class="criterion-desc"
-                >Stability, documentation, and user experience.</span
-              >
+              <span class="criterion-label">{t.crit4_label}</span>
+              <span class="criterion-desc">{t.crit4_desc}</span>
             </div>
             <div class="criterion">
-              <span class="criterion-label">Use of Hooks</span>
-              <span class="criterion-desc"
-                >Smart contract usage on Xahau receives special recognition.</span
-              >
+              <span class="criterion-label">{t.crit5_label}</span>
+              <span class="criterion-desc">{t.crit5_desc}</span>
             </div>
           </div>
         </div>
 
         <div class="xc-format">
-          <span class="xc-lbl lbl-grn">Submission Format</span>
-          <p>
-            Each project must include a folder and a
-            <strong>submission file</strong>
-            inside the submissions directory of
-            <a
-              href="https://github.com/xahau/xahau-2nd-dev-contest"
-              target="_blank"
-              rel="noopener noreferrer"
-              >this repository ↗</a
-            >.
-          </p>
-          <p class="format-example">
-            <code
-              >submissions/GitHubName_ProjectName/GitHubName_ProjectName.md</code
-            >
-          </p>
-          <p>
-            Required fields: Project Title · Brief Description · Participants ·
-            Social Media · Contact Email · Link to Online Project · Xahau
-            Address · Documentation Link · Hooks C code &amp; hash (if
-            applicable) · Repository Link (optional)
-          </p>
+          <span class="xc-lbl lbl-grn">{t.act3_format_lbl}</span>
+          <p set:html={t.html_format_p1} />
+          <p class="format-example"><code>{t.format_example}</code></p>
+          <p>{t.format_p2}</p>
         </div>
       </div>
     </div>
@@ -338,71 +261,46 @@
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="xc-act act-support">
     <p class="xc-act-label">
-      <span class="act-pip pip-teal"></span>Support &amp; Resources
+      <span class="act-pip pip-teal"></span>{t.act4_label}
     </p>
 
     <div class="xc-support-grid">
       <!-- Support + FAQ -->
       <div class="xc-support-col">
-        <span class="xc-lbl lbl-teal">Support</span>
-        <h3>Questions &amp; Community</h3>
-        <p>
-          Join the
-          <a
-            href="https://discord.gg/ds7nb93mYj"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Xahau Builders Discord ↗</a
-          >
-          or email <a href="mailto:contests@xahau.org">contests@xahau.org</a>.
-          Your questions may also be added to the FAQ so others can benefit.
-        </p>
-        <p class="ownership-note">
-          All submitted projects remain the
-          <strong>property of their original creators</strong>.
-        </p>
+        <span class="xc-lbl lbl-teal">{t.act4_support_lbl}</span>
+        <h3>{t.act4_support_h3}</h3>
+        <p set:html={t.html_support_p1} />
+        <p class="ownership-note" set:html={t.ownership_note} />
 
         <div class="xc-faq">
-          <span class="xc-lbl lbl-teal">FAQ</span>
+          <span class="xc-lbl lbl-teal">{t.act4_faq_lbl}</span>
           <div class="faq-item">
-            <span class="faq-q">Can I submit more than one project?</span>
-            <span class="faq-a"
-              >Yes — as many as you want, individually or as part of a group.</span
-            >
+            <span class="faq-q">{t.faq1_q}</span>
+            <span class="faq-a">{t.faq1_a}</span>
           </div>
           <div class="faq-item">
-            <span class="faq-q">Do projects have to be open source?</span>
-            <span class="faq-a"
-              >No, but they must include basic documentation. Hook code must be
-              open source if used.</span
-            >
+            <span class="faq-q">{t.faq2_q}</span>
+            <span class="faq-a">{t.faq2_a}</span>
           </div>
           <div class="faq-item">
-            <span class="faq-q"
-              >Can I use AI to build or document my project?</span
-            >
-            <span class="faq-a">Yes, AI usage is fully allowed.</span>
+            <span class="faq-q">{t.faq3_q}</span>
+            <span class="faq-a">{t.faq3_a}</span>
           </div>
           <div class="faq-item">
-            <span class="faq-q">Is there an advantage to using Hooks?</span>
-            <span class="faq-a"
-              >Yes — projects that creatively implement Hooks will receive
-              special recognition.</span
-            >
+            <span class="faq-q">{t.faq4_q}</span>
+            <span class="faq-a">{t.faq4_a}</span>
           </div>
           <div class="faq-item">
-            <span class="faq-q"
-              >What happens to my project after the contest?</span
-            >
-            <span class="faq-a">You keep full ownership.</span>
+            <span class="faq-q">{t.faq5_q}</span>
+            <span class="faq-a">{t.faq5_a}</span>
           </div>
         </div>
       </div>
 
       <!-- Useful Links + Legal -->
       <div class="xc-links-col">
-        <span class="xc-lbl lbl-teal">Useful Links</span>
-        <h3>Resources for Xahau Developers</h3>
+        <span class="xc-lbl lbl-teal">{t.act4_links_lbl}</span>
+        <h3>{t.act4_links_h3}</h3>
         <div class="xc-link-list">
           <a
             href="https://docs.xahau.network"
@@ -469,36 +367,20 @@
           </a>
         </div>
 
-        <div class="xc-legal">
-          <span class="xc-lbl lbl-teal">Final Disclaimer</span>
-          <p>By participating, you agree that:</p>
-          <ul class="legal-list">
-            <li>
-              Participants must meet eligibility criteria and adhere to all
-              rules. Previously published projects are not eligible.
-            </li>
-            <li>
-              Projects remain the property of their creators; organizers reserve
-              the right to showcase submissions with appropriate credit.
-            </li>
-            <li>
-              Organizers may disqualify submissions that violate rules. All jury
-              decisions are final.
-            </li>
-            <li>
-              Organizers are not liable for damages or losses during
-              participation and may modify contest requirements at any time.
-            </li>
-            <li>
-              Sanctions and jurisdictional restrictions may apply. KYC
-              verification may be required to receive rewards.
-            </li>
-            <li>
-              All taxes and financial obligations related to rewards are the
-              sole responsibility of the participant.
-            </li>
-          </ul>
-        </div>
+        {t.act4_legal_lbl && (
+            <div class="xc-legal">
+              <span class="xc-lbl lbl-teal">{t.act4_legal_lbl}</span>
+              <p>{t.legal_intro}</p>
+              <ul class="legal-list">
+                <li>{t.legal1}</li>
+                <li>{t.legal2}</li>
+                <li>{t.legal3}</li>
+                <li>{t.legal4}</li>
+                <li>{t.legal5}</li>
+                <li>{t.legal6}</li>
+              </ul>
+            </div>
+          )}
       </div>
     </div>
   </div><!-- /act-support -->

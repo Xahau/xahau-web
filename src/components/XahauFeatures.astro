@@ -1,37 +1,34 @@
 ---
 /**
- * XahauFeatures.astro — Hand-crafted editorial layout
+ * XahauFeatures.astro — Hand-crafted editorial layout (i18n unified)
  *
  * No JSON, no loops. Each feature section is individually composed.
  * Three thematic acts: Protocol · Finance · Governance.
- * Statement openers + varied pair/trio detail sections.
- *
- * Edit content directly in this file.
- * For ES/JA: duplicate this file and translate in-place.
+ * Translations live in src/i18n/featuresTranslations.ts
  */
 
 import consensusGraphic from '../assets/enterprise/consensus.svg'
 import globalGraphic from '../assets/enterprise/global.svg'
 import hooksGraphic from '../assets/enterprise/hooks.svg'
+import type { FeaturesLocale } from '../i18n/featuresTranslations'
+import { featuresTranslations } from '../i18n/featuresTranslations'
 
-interface Props {
-  lang?: string
-}
-const { lang = 'en' } = Astro.props
+const locale = (Astro.currentLocale ?? 'en') as FeaturesLocale
+const t = featuresTranslations[locale] ?? featuresTranslations['en']
 ---
 
 <section class="xfeat" aria-label="Xahau Features">
   <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
   <header class="xf-head">
     <div class="xf-head-title">
-      <h2>Features</h2>
-      <p class="xf-sub">Proven technology with a fresh approach</p>
+      <h2>{t.page_title}</h2>
+      <p class="xf-sub">{t.page_subtitle}</p>
     </div>
     <div class="xf-chips">
-      <span class="xf-chip">10+ Protocol Features</span>
-      <span class="xf-chip">Native DEX</span>
-      <span class="xf-chip">NFTs Built-In</span>
-      <span class="xf-chip">No Runtime Overhead</span>
+      <span class="xf-chip">{t.chip1}</span>
+      <span class="xf-chip">{t.chip2}</span>
+      <span class="xf-chip">{t.chip3}</span>
+      <span class="xf-chip">{t.chip4}</span>
     </div>
   </header>
 
@@ -40,36 +37,16 @@ const { lang = 'en' } = Astro.props
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="xf-act act-proto">
     <p class="xf-act-label">
-      <span class="act-pip pip-grn"></span>Protocol Layer
+      <span class="act-pip pip-grn"></span>{t.act1_label}
     </p>
 
     <!-- HOOKS ─ statement opener ────────────────────────────────────────── -->
     <div class="xf-statement stmt-proto">
       <div class="xf-stmt-body">
-        <span class="xf-lbl lbl-proto">Programmability</span>
-        <h3>
-          Hooks: Account-Level
-          <br>
-          Smart Contract Logic
-        </h3>
-        <p>
-          Xahau introduces Hooks—a unique form of on-ledger smart contract logic
-          that runs directly at the account level. Unlike smart contracts on
-          most blockchains that require interacting with external contract
-          addresses, Hooks are lightweight programs embedded inside user
-          accounts themselves. These Hooks can automatically inspect, modify, or
-          reject any transaction involving that account, without the need for
-          explicit function calls.
-        </p>
-        <p>
-          Because Hooks are executed inline and within consensus, they offer
-          real-time programmability with minimal overhead. This allows for
-          powerful use cases such as rejecting unauthorized token transfers,
-          triggering actions on deposits, or implementing compliance logic—all
-          without slowing down the network. Hooks represent a new security and
-          programmability paradigm, making accounts active participants in
-          transaction logic.
-        </p>
+        <span class="xf-lbl lbl-proto">{t.proto_section_label}</span>
+        <h3>{t.proto_h3_line1}<br>{t.proto_h3_line2}</h3>
+        <p>{t.proto_para1}</p>
+        <p>{t.proto_para2}</p>
       </div>
       <div class="xf-stmt-graphic">
         <img
@@ -84,60 +61,27 @@ const { lang = 'en' } = Astro.props
     <!-- DEX + FEES ─ asymmetric pair ────────────────────────────────────── -->
     <div class="xf-pair pair-6040">
       <div class="xf-detail">
-        <span class="xf-lbl lbl-proto">Exchange</span>
-        <h4>Offers: Built-In Decentralized Exchange (DEX)</h4>
-        <p>
-          Xahau includes a native Offers system, powering a built-in
-          decentralized exchange on the ledger. Users can create Offer entries
-          to buy or sell assets (such as tokens or issued currencies) directly
-          on the network, and these offers are automatically matched by the
-          protocol's order book.
-        </p>
-        <p>
-          Unlike many blockchains that require smart contracts or external
-          platforms for trading, Xahau's DEX is a first-class feature of the
-          ledger. This on-ledger exchange offers fast settlement and low fees,
-          making asset trading seamless for users and applications.
-        </p>
+        <span class="xf-lbl lbl-proto">{t.dex_label}</span>
+        <h4>{t.dex_h4}</h4>
+        <p>{t.dex_para1}</p>
+        <p>{t.dex_para2}</p>
       </div>
 
       <div class="xf-detail">
-        <span class="xf-lbl lbl-proto">Economics</span>
-        <h4>Low Fees with Fee Burning</h4>
-        <p>
-          Xahau maintains consistently low transaction fees, with a built-in
-          fee-burning model that reduces spam and rewards long-term network
-          health. Every transaction pays a minimal fee in XAH, and a portion of
-          that fee is permanently destroyed—creating a deflationary effect over
-          time.
-        </p>
-        <p>
-          This approach discourages network abuse while preserving
-          accessibility, particularly for high-throughput or cost-sensitive
-          applications. Unlike inflationary models or auction-style fees, Xahau
-          provides predictability and economic alignment for all users.
-        </p>
+        <span class="xf-lbl lbl-proto">{t.fees_label}</span>
+        <h4>{t.fees_h4}</h4>
+        <p>{t.fees_para1}</p>
+        <p>{t.fees_para2}</p>
       </div>
     </div>
 
     <!-- PERFORMANCE ─ solo wide ─────────────────────────────────────────── -->
     <div class="xf-solo">
-      <span class="xf-lbl lbl-proto">Infrastructure</span>
-      <h4>Fast, Green, and Scalable</h4>
+      <span class="xf-lbl lbl-proto">{t.perf_label}</span>
+      <h4>{t.perf_h4}</h4>
       <div class="xf-solo-cols">
-        <p>
-          Built on a refined version of XRPL's consensus protocol, Xahau offers
-          fast finality, low energy usage, and reliable scalability.
-          Transactions confirm in seconds, with no mining and minimal hardware
-          requirements. The result is a network that can serve real-world
-          financial and enterprise use cases without compromising the
-          environment or user experience.
-        </p>
-        <p>
-          Xahau's architecture is ideal for global payment systems, tokenized
-          asset platforms, or high-volume applications where performance and
-          sustainability are non-negotiable.
-        </p>
+        <p>{t.perf_para1}</p>
+        <p>{t.perf_para2}</p>
       </div>
     </div>
   </div><!-- /act-proto -->
@@ -147,44 +91,20 @@ const { lang = 'en' } = Astro.props
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="xf-act act-fin">
     <p class="xf-act-label">
-      <span class="act-pip pip-teal"></span>Financial Primitives
+      <span class="act-pip pip-teal"></span>{t.act2_label}
     </p>
 
     <!-- PAYMENTS ─ statement opener ─────────────────────────────────────── -->
     <div class="xf-statement stmt-fin">
       <div class="xf-stmt-body">
-        <span class="xf-lbl lbl-fin">Payments</span>
+        <span class="xf-lbl lbl-fin">{t.pay_section_label}</span>
         <h3>
-          Payments:
-          <br>
-          Multi-Asset Transfers
-          <br>
-          &amp; Channels
+          {t.pay_h3_line1}<br>{t.pay_h3_line2}
+          {t.pay_h3_line3 ? <><br />{t.pay_h3_line3}</> : null}
         </h3>
-        <p>
-          The Payments functionality in Xahau is designed to facilitate fast,
-          flexible transfer of value across the network. Uniquely, Xahau (like
-          XRPL) supports multi-asset payments through a system of trust lines
-          and issued currencies. Using a TrustSet transaction, two parties can
-          establish a trust line to transact in a custom asset or IOU, enabling
-          built-in support for multiple currencies or tokens without requiring
-          smart contracts.
-        </p>
-        <p>
-          This means businesses can issue stablecoins or tokens on Xahau and
-          users can send or exchange them natively. The Payments suite also
-          includes advanced features like Deposit Preauthorization, which lets
-          an account whitelist who can send it funds, adding security against
-          unwanted transactions.
-        </p>
-        <p>
-          In addition, Xahau supports payment channels for scalability. Payment
-          channels allow two parties to conduct rapid, high-volume transactions
-          off-ledger and then settle the net result on the blockchain. With
-          transactions like PaymentChannelCreate, Fund, and Claim, Xahau enables
-          micropayments or streaming payments that are secured by the ledger but
-          don't congest it.
-        </p>
+        <p>{t.pay_para1}</p>
+        <p>{t.pay_para2}</p>
+        <p>{t.pay_para3}</p>
       </div>
       <div class="xf-stmt-graphic">
         <img
@@ -199,98 +119,41 @@ const { lang = 'en' } = Astro.props
     <!-- TOKENS + REWARDS ─ pair ─────────────────────────────────────────── -->
     <div class="xf-pair pair-5545">
       <div class="xf-detail">
-        <span class="xf-lbl lbl-fin">Asset Control</span>
-        <h4>Token and Asset Control by Design</h4>
-        <p>
-          Xahau gives issuers and users granular control over tokens and
-          trustlines. Features like TrustSet, Clawback, Freeze, and Deposit
-          Authorization allow full customization of how tokens can be used or
-          received. Assets can be whitelisted, blocked, or burned, all enforced
-          at the protocol level.
-        </p>
-        <p>
-          This makes Xahau uniquely suited for regulated financial instruments,
-          stablecoins, loyalty programs, or enterprise supply chains—any
-          scenario where compliance, safety, and precision are critical.
-        </p>
+        <span class="xf-lbl lbl-fin">{t.tokens_label}</span>
+        <h4>{t.tokens_h4}</h4>
+        <p>{t.tokens_para1}</p>
+        <p>{t.tokens_para2}</p>
       </div>
 
       <div class="xf-detail">
-        <span class="xf-lbl lbl-fin">Economics</span>
-        <h4>Balance Rewards: Passive Yield Without Staking</h4>
-        <p>
-          Xahau offers a Balance Reward system that lets accounts passively
-          accumulate value simply by holding assets. These rewards are
-          calculated based on account balance and distributed through a
-          consensus-enforced mechanism, without requiring staking, delegation,
-          or third-party contracts.
-        </p>
-        <p>
-          The mechanism is powered by protocol-level logic and on-chain Hooks,
-          ensuring rewards are automatic, fair, and sustainable. Unlike yield
-          farming or staking systems on other blockchains, Xahau's reward model
-          doesn't require users to lock assets or chase complex DeFi
-          strategies—it works natively, with transparency and simplicity.
-        </p>
+        <span class="xf-lbl lbl-fin">{t.rewards_label}</span>
+        <h4>{t.rewards_h4}</h4>
+        <p>{t.rewards_para1}</p>
+        <p>{t.rewards_para2}</p>
       </div>
     </div>
 
     <!-- ESCROW + REMIT + CHECKS ─ trio ──────────────────────────────────── -->
     <div class="xf-trio">
       <div class="xf-detail">
-        <span class="xf-lbl lbl-fin">Primitives</span>
-        <h4>Escrow: Conditional Transfers for Any Asset</h4>
-        <p>
-          Xahau supports on-ledger escrow of both native and issued tokens,
-          enabling secure conditional transfers for a broad range of business
-          and financial use cases. Funds or tokens can be locked with time-based
-          or condition-based release logic, enforced by the network itself.
-        </p>
-        <p>
-          Whether you're building a milestone-based payment system, marketplace
-          settlement, or trusted token distribution, Xahau's escrows offer a
-          simple yet powerful tool—without the need for external smart
-          contracts. Native support for both fungible and non-fungible assets in
-          escrow makes this a uniquely versatile feature.
-        </p>
+        <span class="xf-lbl lbl-fin">{t.escrow_label}</span>
+        <h4>{t.escrow_h4}</h4>
+        <p>{t.escrow_para1}</p>
+        <p>{t.escrow_para2}</p>
       </div>
 
       <div class="xf-detail">
-        <span class="xf-lbl lbl-fin">Payments</span>
-        <h4>Remit: Native Cross-Account Transfers</h4>
-        <p>
-          The Remit feature allows streamlined, multi-operation transactions
-          between accounts—ideal for complex or high-volume payment flows.
-          Instead of sending multiple separate instructions, a single Remit
-          transaction can distribute value to multiple recipients or trigger
-          multiple balance changes atomically.
-        </p>
-        <p>
-          This improves efficiency and reliability, especially for payment
-          processors, marketplaces, or applications that need to perform bundled
-          operations. Because it's built into the protocol, Remit ensures
-          predictable performance, low latency, and strong auditability.
-        </p>
+        <span class="xf-lbl lbl-fin">{t.remit_label}</span>
+        <h4>{t.remit_h4}</h4>
+        <p>{t.remit_para1}</p>
+        <p>{t.remit_para2}</p>
       </div>
 
       <div class="xf-detail">
-        <span class="xf-lbl lbl-fin">Payments</span>
-        <h4>Checks: Deferred Payment System</h4>
-        <p>
-          Xahau supports Checks, a deferred payment system akin to writing
-          digital checks on the blockchain. One party can issue a Check (promise
-          of payment) that the intended recipient may cash at a later time or
-          cancel if needed. This feature allows secure, flexible
-          transactions—for example, a business can issue payment that the
-          receiver will claim when certain conditions are met.
-        </p>
-        <p>
-          The ledger has dedicated transactions for creating a check, cashing
-          it, or canceling it. Few other platforms have this kind of native
-          deferred payment instrument; Xahau's check system provides an extra
-          layer of payment control, all enforced by the network's rules without
-          requiring custom smart contracts.
-        </p>
+        <span class="xf-lbl lbl-fin">{t.checks_label}</span>
+        <h4>{t.checks_h4}</h4>
+        <p>{t.checks_para1}</p>
+        <p>{t.checks_para2}</p>
       </div>
     </div>
   </div><!-- /act-fin -->
@@ -300,35 +163,16 @@ const { lang = 'en' } = Astro.props
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="xf-act act-gov">
     <p class="xf-act-label">
-      <span class="act-pip pip-vlt"></span>Governance &amp; Identity
+      <span class="act-pip pip-vlt"></span>{t.act3_label}
     </p>
 
     <!-- GOVERNANCE ─ statement opener ──────────────────────────────────── -->
     <div class="xf-statement stmt-gov">
       <div class="xf-stmt-body">
-        <span class="xf-lbl lbl-gov">Governance</span>
-        <h3>
-          Governance Game:
-          <br>
-          Decentralized Coordination
-          <br>
-          with Purpose
-        </h3>
-        <p>
-          Xahau features a novel governance system backed by the Governance
-          Game, a transparent, on-ledger mechanism for proposing, reviewing, and
-          voting on amendments. Validator operators (Governors) participate
-          directly in shaping the protocol, while also competing in a structured
-          reward system based on accountability and engagement.
-        </p>
-        <p>
-          This system ensures that protocol upgrades and policy decisions are
-          open and participatory, not dictated by a centralized entity. It
-          combines the benefits of structured enterprise coordination with the
-          transparency and resilience of decentralized consensus. By gamifying
-          governance in a secure and incentive-aligned way, Xahau sets a new
-          standard for on-chain coordination.
-        </p>
+        <span class="xf-lbl lbl-gov">{t.gov_section_label}</span>
+        <h3>{t.gov_h3_line1}<br>{t.gov_h3_line2}<br>{t.gov_h3_line3}</h3>
+        <p>{t.gov_para1}</p>
+        <p>{t.gov_para2}</p>
       </div>
       <div class="xf-stmt-graphic">
         <img
@@ -343,26 +187,10 @@ const { lang = 'en' } = Astro.props
     <!-- URITOKENS ─ closing section ─────────────────────────────────────── -->
     <div class="xf-closing">
       <div class="xf-closing-inner">
-        <span class="xf-lbl lbl-gov">NFTs</span>
-        <h4>URITokens: Native NFTs on Xahau</h4>
-        <p>
-          URITokens represent Xahau's approach to non-fungible tokens (NFTs),
-          implemented as a native part of the ledger rather than via separate
-          smart contracts. A URIToken is a first-class on-ledger object uniquely
-          identified by the issuing account and a Uniform Resource Identifier
-          (URI) that typically points to the token's metadata or content. Only
-          one URIToken with a given URI can exist per account, ensuring true
-          uniqueness for each digital asset.
-        </p>
-        <p>
-          This built-in NFT standard means creators can mint, trade, or burn
-          NFTs with simple transactions (e.g. URITokenMint, URITokenBuy,
-          URITokenBurn) without deploying custom code. The issuer of a URIToken
-          can even allow it to be destroyed (burned) by setting a flag, giving
-          flexibility in how NFTs are managed. By integrating NFTs at the
-          protocol level, Xahau makes issuing and managing digital collectibles
-          or credentials more efficient and secure.
-        </p>
+        <span class="xf-lbl lbl-gov">{t.uri_label}</span>
+        <h4>{t.uri_h4}</h4>
+        <p>{t.uri_para1}</p>
+        <p>{t.uri_para2}</p>
       </div>
     </div>
   </div><!-- /act-gov -->
@@ -370,8 +198,8 @@ const { lang = 'en' } = Astro.props
 
 <style>
   /* ══════════════════════════════════════════════════════════════════════════
-                 Design tokens
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Design tokens
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xfeat {
     --ink: #0f2328;
     --dim: #2d3e44;
@@ -397,8 +225,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Page header
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Page header
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xf-head {
     display: flex;
     justify-content: space-between;
@@ -439,8 +267,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Acts
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Acts
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xf-act {
     padding-top: 52px;
   }
@@ -475,8 +303,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Labels
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Labels
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xf-lbl {
     display: inline-block;
     font-family: ui-monospace, monospace;
@@ -502,8 +330,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Statement sections
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Statement sections
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xf-statement {
     display: flex;
     align-items: center;
@@ -567,8 +395,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Detail sections — pairs and trios
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Detail sections — pairs and trios
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xf-pair,
   .xf-trio {
     display: grid;
@@ -618,8 +446,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Solo wide section
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Solo wide section
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xf-solo {
     padding: 52px 0 52px 28px;
   }
@@ -644,8 +472,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Closing section
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Closing section
+                  ══════════════════════════════════════════════════════════════════════════ */
   .xf-closing {
     padding: 52px 0 52px 28px;
   }
@@ -670,8 +498,8 @@ const { lang = 'en' } = Astro.props
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-                 Responsive
-              ══════════════════════════════════════════════════════════════════════════ */
+                     Responsive
+                  ══════════════════════════════════════════════════════════════════════════ */
   @media (max-width: 900px) {
     .xf-statement {
       flex-direction: column;
