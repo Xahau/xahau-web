@@ -1,0 +1,57 @@
+---
+title: Hook
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(Adicionado pela \[emenda Hooks]\[].)_
+
+Um objeto `Hook` descreve um contrato inteligente, que pode ser acionado por uma transação para realizar operações predefinidas. As operações são definidas pelo criador do `Hook` e podem interagir com o ledger e as transações.
+
+### Exemplo JSON
+
+```json
+{
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "Hooks": [
+    {
+      "HookHash": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+      "HookParameters": []
+    }
+  ],
+  "LedgerEntryType": "Hook",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### Campos
+
+Um objeto `Hook` tem os seguintes campos:
+
+| Campo               | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                              |
+| ------------------- | --------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String    | Account             | Sim          | A conta que criou o Hook.                                                                                                                                                              |
+| `OwnerNode`         | String    | UInt64              | Sim          | Uma dica indicando qual página do diretório do proprietário aponta para este objeto, caso o diretório consista em múltiplas páginas.                                                    |
+| `PreviousTxnID`     | String    | Hash256             | Sim          | O ID da transação que mais recentemente modificou este objeto.                                                                                                                         |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | Sim          | O \[índice do ledger]\[] do ledger que contém a transação que mais recentemente modificou este objeto.                                                                                 |
+| `Hooks`             | Array     | Array               | Sim          | Um array de objetos hook. Cada objeto tem os seguintes campos: `HookHash`, `CreateCode`, `HookGrants`, `HookNamespace`, `HookParameters`, `HookOn`, `HookApiVersion`, `Flags`.        |
+| `LedgerEntryType`   | String    | UInt16              | Sim          | O valor `0x0043`, mapeado para a string `Hook`, indica que este objeto é um objeto Hook.                                                                                               |
+
+### Campos do Hook
+
+Os seguintes campos são utilizados no objeto hook:
+
+| Campo            | Tipo JSON | Tipo Interno | Descrição                           |
+| ---------------- | --------- | ------------- | ----------------------------------- |
+| `HookHash`       | String    | Hash256       | O hash do hook.                     |
+| `HookParameters` | Array     | Array         | Os parâmetros do hook.              |
+| `Flags`          | Number    | UInt32        | Flags adicionais para o hook.       |
+
+#### Formato do ID do Hook
+
+O ID de um objeto `Hook` é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço Hook (`0x0048`)
+* O AccountID do remetente da \[transação SetHook]\[] que criou o objeto `Hook`

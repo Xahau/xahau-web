@@ -1,0 +1,67 @@
+---
+title: Escrow
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/c6b6d82a754fe449cc533e18659df483c10a5c98/src/ripple/protocol/impl/LedgerFormats.cpp#L90-L101)
+
+_(Adicionado pela \[emenda Escrow]\[].)_
+
+O tipo de objeto `Escrow` representa um pagamento retido em XAH ou IOU aguardando execução ou cancelamento. Uma \[transação EscrowCreate]\[] cria um objeto `Escrow` no ledger. Uma transação \[EscrowFinish]\[] ou \[EscrowCancel]\[] bem-sucedida exclui o objeto.&#x20;
+
+Se o objeto `Escrow` tiver uma [_crypto-condition_](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02), o pagamento só pode ser concluído se uma transação EscrowFinish fornecer o _fulfillment_ correspondente que satisfaça a condição. (O único tipo de crypto-condition suportado é o [PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1).) Se o objeto `Escrow` tiver um tempo `FinishAfter`, o pagamento retido só pode ser executado após esse momento.
+
+Um objeto `Escrow` está associado a dois endereços:
+
+* O proprietário, que fornece o XAH ou IOU ao criar o objeto `Escrow`. Se o pagamento retido for cancelado, o XAH ou IOU retorna ao proprietário.
+* O destino, para onde o XAH ou IOU é pago quando o pagamento retido é bem-sucedido. O destino pode ser o mesmo que o proprietário.
+
+### Exemplo JSON
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Amount": "10000",
+    "CancelAfter": 545440232,
+    "Condition": "A0258020A82A88B2DF843A54F58772E4A3861866ECDB4157645DD9AE528C1D3AEEDABAB6810120",
+    "Destination": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "DestinationTag": 23480,
+    "FinishAfter": 545354132,
+    "Flags": 0,
+    "LedgerEntryType": "Escrow",
+    "OwnerNode": "0000000000000000",
+    "DestinationNode": "0000000000000000",
+    "PreviousTxnID": "C44F2EB84196B9AD820313DBEBA6316A15C9A2D35787579ED172B87A30131DA7",
+    "PreviousTxnLgrSeq": 28991004,
+    "SourceTag": 11747,
+    "index": "DC5F3851D8A1AB622F957761E5963BC5BD439D5C24AC6AD7AC4523F0640244AC"
+}
+```
+
+### Campos
+
+Um objeto `Escrow` tem os seguintes campos:
+
+| Nome                | Tipo JSON        | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                                                                              |
+| ------------------- | ---------------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String           | AccountID           | Sim          | O endereço do proprietário (remetente) deste pagamento retido. Esta é a conta que forneceu o valor e o recupera se o pagamento retido for cancelado.                                                                                                                                    |
+| `Amount`            | String ou Object | Amount              | Sim          | O valor a ser entregue pelo pagamento retido.                                                                                                                                                                                                                                          |
+| `CancelAfter`       | Number           | UInt32              | Não          | O pagamento retido pode ser cancelado se e somente se este campo estiver presente _e_ o tempo que especifica tiver passado. Especificamente, isso é especificado como \[segundos desde a Época Ripple]\[] e "passou" se for anterior ao horário de fechamento do ledger validado anterior. |
+| `Condition`         | String           | Blob                | Não          | Uma [crypto-condition PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1), em hexadecimal. Se presente, a \[transação EscrowFinish]\[] deve conter um fulfillment que satisfaça essa condição.                                                |
+| `Destination`       | String           | AccountID           | Sim          | O endereço de destino para onde o valor é pago se o pagamento retido for bem-sucedido.                                                                                                                                                                                                 |
+| `DestinationNode`   | String           | UInt64              | Não          | Uma dica indicando qual página do diretório do proprietário do destino aponta para este objeto, caso o diretório consista em múltiplas páginas. Omitido em escrows criados antes de habilitar a \[emenda fix1523]\[].                                                                    |
+| `DestinationTag`    | Number           | UInt32              | Não          | Uma tag arbitrária para especificar melhor o destino deste pagamento retido, como um destinatário hospedado no endereço de destino.                                                                                                                                                     |
+| `FinishAfter`       | Number           | UInt32              | Não          | O tempo, em \[segundos desde a Época Ripple]\[], após o qual este pagamento retido pode ser finalizado. Qualquer \[transação EscrowFinish]\[] antes deste horário falha. (Especificamente, isso é comparado com o horário de fechamento do ledger validado anterior.)                   |
+| `Flags`             | Number           | UInt32              | Sim          | Um mapa de bits de flags booleanos habilitados para este objeto. Atualmente, o protocolo não define flags para objetos `Escrow`. O valor é sempre `0`.                                                                                                                                  |
+| `LedgerEntryType`   | String           | UInt16              | Sim          | O valor `0x0075`, mapeado para a string `Escrow`, indica que este objeto é um objeto `Escrow`.                                                                                                                                                                                         |
+| `OwnerNode`         | String           | UInt64              | Sim          | Uma dica indicando qual página do diretório do proprietário aponta para este objeto, caso o diretório consista em múltiplas páginas. **Nota:** O objeto não contém um link direto para o diretório do proprietário que o contém, pois esse valor pode ser derivado de `Account`.        |
+| `PreviousTxnID`     | String           | Hash256             | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                                                                                                                                                         |
+| `PreviousTxnLgrSeq` | Number           | UInt32              | Sim          | O \[índice do ledger]\[Índice de Ledger] que contém a transação que mais recentemente modificou este objeto.                                                                                                                                                                           |
+| `SourceTag`         | Number           | UInt32              | Não          | Uma tag arbitrária para especificar melhor a origem deste pagamento retido, como um destinatário hospedado no endereço do proprietário.                                                                                                                                                 |
+| `TransferRate`      | Number           | UInt32              | Não          |                                                                                                                                                                                                                                                                                        |
+
+### Formato do ID do Escrow
+
+O ID de um objeto `Escrow` é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço Escrow (`0x0075`)
+* O AccountID do remetente da \[transação EscrowCreate]\[] que criou o objeto `Escrow`
+* O número de Sequência da \[transação EscrowCreate]\[] que criou o objeto `Escrow`. Se a transação EscrowCreate usou um Ticket, use o valor `TicketSequence` em vez disso.

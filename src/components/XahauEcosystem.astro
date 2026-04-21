@@ -11,6 +11,7 @@
  */
 
 import { Image } from 'astro:assets'
+import { normalizeLocale } from '../utils/localizedHref'
 import logoAfricanUnion from '../assets/ecosystem-logos/AUPF.png'
 import logoBithomp from '../assets/ecosystem-logos/bithomp.png'
 import logoBitmart from '../assets/ecosystem-logos/bitmart.png'
@@ -44,7 +45,7 @@ const logoMap: Record<string, ImageMetadata> = {
   quantoz: logoQuantoz,
 }
 
-type Locale = 'en' | 'es' | 'ja'
+type Locale = 'en' | 'es' | 'ja' | 'pt-br'
 const locale = (Astro.currentLocale ?? 'en') as Locale
 
 // Projects sorted alphabetically at build time; others keep editorial order.

@@ -1,0 +1,45 @@
+---
+title: DepositPreauth
+description: >-
+  Uma transação DepositPreauth concede a outra conta pré-aprovação para
+  entregar pagamentos ao remetente desta transação.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+  Você pode usar esta transação para pré-autorizar determinadas contrapartes antes de habilitar a Autorização de Depósito. Isso pode ser útil para garantir uma transição suave de não exigir autorização de depósito para exigi-la.
+</Aside>
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Adicionado pela \[emenda DepositPreauth]\[].)_
+
+### Exemplo
+
+```json
+{
+  "TransactionType" : "DepositPreauth",
+  "Account" : "rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
+  "Authorize" : "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Fee" : "10",
+  "Flags" : 2147483648,
+  "Sequence" : 2
+}
+```
+
+### Campos
+
+| Campo         | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                               |
+| ------------- | --------- | ------------------- | --------------------------------------------------------------------------------------- |
+| `Authorize`   | String    | AccountID           | _(Opcional)_ Endereço Xahau do remetente a ser pré-autorizado.                          |
+| `Unauthorize` | String    | AccountID           | _(Opcional)_ Endereço Xahau do remetente cuja pré-autorização deve ser revogada.        |
+
+Você deve fornecer _ou_ `Authorize` _ou_ `Unauthorize`, mas não ambos.
+
+### Casos de Erro
+
+* Uma conta não pode pré-autorizar (ou revogar) seu próprio endereço. Tentar fazer isso falha com o resultado `temCANNOT_PREAUTH_SELF`.
+* Tentar pré-autorizar uma conta que já está pré-autorizada falha com o resultado `tecDUPLICATE`.
+* Tentar revogar a autorização de uma conta que não está pré-autorizada falha com o resultado `tecNO_ENTRY`.
+* Tentar pré-autorizar um endereço que não possui fundos no ledger falha com o resultado `tecNO_TARGET`.
+* Adicionar uma autorização cria um objeto DepositPreauth no ledger, que conta para o requisito de reserva do proprietário. Se o remetente da transação não tiver XAH suficiente para cobrir o aumento de reserva, a transação falha com o resultado `tecINSUFFICIENT_RESERVE`. Se a conta já atingiu o número máximo de objetos próprios, a transação falha com o resultado `tecDIR_FULL`.

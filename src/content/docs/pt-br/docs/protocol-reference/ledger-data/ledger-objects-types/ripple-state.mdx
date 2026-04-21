@@ -1,0 +1,120 @@
+---
+title: Ripple State
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L70)
+
+O tipo de objeto `RippleState` conecta duas contas em uma única moeda. Conceitualmente, um objeto `RippleState` representa duas linhas de confiança entre as contas, uma de cada lado. Cada conta pode alterar as configurações do seu lado do objeto `RippleState`, mas o saldo é um único valor compartilhado. Uma linha de confiança que está inteiramente em seu estado padrão é considerada igual a uma linha de confiança que não existe, portanto o `rippled` exclui objetos `RippleState` quando suas propriedades são inteiramente padrão.
+
+### Conta Alta vs. Conta Baixa
+
+Só pode haver um objeto `RippleState` por moeda para qualquer par de contas. Como nenhuma conta tem privilégios no Xahau, um objeto `RippleState` ordena os endereços de conta numericamente, para garantir uma forma canônica. O endereço que for numericamente menor quando decodificado é considerado a "conta baixa" e o outro é a "conta alta". O saldo líquido da linha de confiança é armazenado da perspectiva da conta baixa.
+
+O "emissor" do saldo em uma linha de confiança depende de o saldo ser positivo ou negativo. Se um objeto `RippleState` mostrar um saldo positivo, a conta alta é o emissor. Se o saldo for negativo, a conta baixa é o emissor. Frequentemente, o emissor tem seu limite definido como 0 e a outra conta tem um limite positivo, mas isso não é confiável porque os limites podem mudar sem afetar um saldo existente.
+
+### Exemplo JSON
+
+```json
+{
+    "Balance": {
+        "currency": "USD",
+        "issuer": "rrrrrrrrrrrrrrrrrrrrBZbvji",
+        "value": "-10"
+    },
+    "Flags": 393216,
+    "HighLimit": {
+        "currency": "USD",
+        "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+        "value": "110"
+    },
+    "HighNode": "0000000000000000",
+    "LedgerEntryType": "RippleState",
+    "LowLimit": {
+        "currency": "USD",
+        "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+        "value": "0"
+    },
+    "LowNode": "0000000000000000",
+    "PreviousTxnID": "E3FE6EA3D48F0C2B639448020EA4F03D4F4F8FFDB243A852A0F59177921B4879",
+    "PreviousTxnLgrSeq": 14090896,
+    "LockCount": 1,
+    "LockedBalance": {
+        "currency": "USD",
+        "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+        "value": "10"
+    }
+    "index": "9CA88CDEDFF9252B3DE183CE35B038F57282BC9503CDFA1923EF9A95DF0D6F7B"
+}
+```
+
+### Campos
+
+Um objeto `RippleState` tem os seguintes campos:
+
+| Nome                | Tipo JSON | Tipo Interno | Obrigatório? | Descrição                                                                                                                                                                                                                                    |
+| ------------------- | --------- | ------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Balance`           | Object    | Amount        | Sim          | O saldo da linha de confiança, da perspectiva da conta baixa. Um saldo negativo indica que a conta alta possui tokens emitidos pela conta baixa. O emissor aqui é sempre definido como o valor neutro ACCOUNT_ONE.                           |
+| `Flags`             | Number    | UInt32        | Sim          | Um mapa de bits de opções booleanas habilitadas para este objeto.                                                                                                                                                                             |
+| `HighLimit`         | Object    | Amount        | Sim          | O limite que a conta alta definiu na linha de confiança. O `issuer` é o endereço da conta alta que definiu este limite.                                                                                                                       |
+| `HighNode`          | String    | UInt64        | Sim          | (Omitido em alguns ledgers históricos) Uma dica indicando qual página do diretório do proprietário da conta alta aponta para este objeto, caso o diretório consista em múltiplas páginas.                                                     |
+| `HighQualityIn`     | Number    | UInt32        | Não          | A qualidade de entrada definida pela conta alta, como um inteiro na razão implícita `HighQualityIn`:1.000.000.000. Como caso especial, o valor 0 equivale a 1 bilhão, ou valor nominal.                                                       |
+| `HighQualityOut`    | Number    | UInt32        | Não          | A qualidade de saída definida pela conta alta, como um inteiro na razão implícita `HighQualityOut`:1.000.000.000. Como caso especial, o valor 0 equivale a 1 bilhão, ou valor nominal.                                                        |
+| `LedgerEntryType`   | String    | UInt16        | Sim          | O valor `0x0072`, mapeado para a string `RippleState`, indica que este objeto é um objeto RippleState.                                                                                                                                        |
+| `LowLimit`          | Object    | Amount        | Sim          | O limite que a conta baixa definiu na linha de confiança. O `issuer` é o endereço da conta baixa que definiu este limite.                                                                                                                     |
+| `LowNode`           | String    | UInt64        | Sim          | (Omitido em alguns ledgers históricos) Uma dica indicando qual página do diretório do proprietário da conta baixa aponta para este objeto, caso o diretório consista em múltiplas páginas.                                                    |
+| `LowQualityIn`      | Number    | UInt32        | Não          | A qualidade de entrada definida pela conta baixa, como um inteiro na razão implícita `LowQualityIn`:1.000.000.000. Como caso especial, o valor 0 equivale a 1 bilhão, ou valor nominal.                                                       |
+| `LowQualityOut`     | Number    | UInt32        | Não          | A qualidade de saída definida pela conta baixa, como um inteiro na razão implícita `LowQualityOut`:1.000.000.000. Como caso especial, o valor 0 equivale a 1 bilhão, ou valor nominal.                                                        |
+| `PreviousTxnID`     | String    | Hash256       | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                                                                                                                |
+| `PreviousTxnLgrSeq` | Number    | UInt32        | Sim          | O \[índice do ledger]\[Índice de Ledger] que contém a transação que mais recentemente modificou este objeto.                                                                                                                                  |
+| `LockCount`         | Number    | UInt32        | Não          | O número total de saldos bloqueados em um objeto de ledger RippleState.                                                                                                                                                                      |
+| `LockedBalance`     | Object    | Amount        | Não          | O valor atual de tokens bloqueados para uma linha de confiança específica.                                                                                                                                                                   |
+
+### Flags de RippleState
+
+Existem várias opções que podem ser habilitadas ou desabilitadas para uma linha de confiança. Essas opções podem ser alteradas com uma \[transação TrustSet]\[]. No ledger, os flags são representados como valores binários que podem ser combinados com operações bitwise-or. Os valores de bits para os flags no ledger são diferentes dos valores usados para habilitar ou desabilitar esses flags em uma transação. Os flags de ledger têm nomes que começam com **`lsf`**.
+
+Objetos RippleState podem ter os seguintes valores de flag:
+
+| Nome do Flag        | Valor Hex    | Valor Decimal | Flag TrustSet Correspondente | Descrição                                                                                                                                                                               |
+| ------------------- | ------------ | ------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lsfLowReserve`     | `0x00010000` | 65536         | (Nenhum)                     | Este objeto RippleState contribui para a reserva do proprietário da conta baixa.                                                                                                        |
+| `lsfHighReserve`    | `0x00020000` | 131072        | (Nenhum)                     | Este objeto RippleState contribui para a reserva do proprietário da conta alta.                                                                                                         |
+| `lsfLowAuth`        | `0x00040000` | 262144        | `tfSetAuth`                  | A conta baixa autorizou a conta alta a deter tokens emitidos pela conta baixa.                                                                                                          |
+| `lsfHighAuth`       | `0x00080000` | 524288        | `tfSetAuth`                  | A conta alta autorizou a conta baixa a deter tokens emitidos pela conta alta.                                                                                                           |
+| `lsfLowNoRipple`    | `0x00100000` | 1048576       | `tfSetNoRipple`              | A conta baixa desabilitou o rippling a partir desta linha de confiança.                                                                                                                 |
+| `lsfHighNoRipple`   | `0x00200000` | 2097152       | `tfSetNoRipple`              | A conta alta desabilitou o rippling a partir desta linha de confiança.                                                                                                                  |
+| `lsfLowFreeze`      | `0x00400000` | 4194304       | `tfSetFreeze`                | A conta baixa congelou a linha de confiança, impedindo a conta alta de transferir o ativo.                                                                                              |
+| `lsfHighFreeze`     | `0x00800000` | 8388608       | `tfSetFreeze`                | A conta alta congelou a linha de confiança, impedindo a conta baixa de transferir o ativo.                                                                                              |
+| `lsfLowDeepFreeze`  | `0x02000000` | 33554432      | `tfSetDeepFreeze`            | A conta baixa aplicou deep-freeze na linha de confiança, impedindo a conta alta de enviar e receber o ativo. _(Requer a \[emenda DeepFreeze]\[])_                                       |
+| `lsfHighDeepFreeze` | `0x04000000` | 67108864      | `tfSetDeepFreeze`            | A conta alta aplicou deep-freeze na linha de confiança, impedindo a conta baixa de enviar e receber o ativo. _(Requer a \[emenda DeepFreeze]\[])_                                       |
+
+### Contribuição para a Reserva do Proprietário
+
+Se uma conta modificar uma linha de confiança para colocá-la em um estado não padrão, essa linha de confiança conta para a reserva do proprietário da conta. Em um objeto RippleState, os flags `lsfLowReserve` e `lsfHighReserve` indicam quais conta(s) são responsáveis pela reserva do proprietário. O servidor `rippled` define automaticamente esses flags quando modifica uma linha de confiança.
+
+Os valores que contam para o estado não padrão de uma linha de confiança são os seguintes:
+
+| A conta alta é responsável se...                              | A conta baixa é responsável se...                             |
+| ------------------------------------------------------------- | ------------------------------------------------------------- |
+| `Balance` é negativo (a conta alta detém moeda)               | `Balance` é positivo (a conta baixa detém moeda)              |
+| `HighLimit` não é `0`                                         | `LowLimit` não é `0`                                          |
+| `LowQualityIn` não é `0` e não é `1000000000`                 | `HighQualityIn` não é `0` e não é `1000000000`                |
+| `LowQualityOut` não é `0` e não é `1000000000`                | `HighQualityOut` não é `0` e não é `1000000000`               |
+| O flag `lsfHighNoRipple` não está em seu estado padrão        | O flag `lsfLowNoRipple` não está em seu estado padrão         |
+| O flag `lsfHighFreeze` está habilitado                        | O flag `lsfLowFreeze` está habilitado                         |
+
+Os flags **`lsfLowAuth`** e **`lsfHighAuth`** não contam contra o estado padrão, pois não podem ser desabilitados.
+
+O estado padrão dos dois flags No Ripple depende do estado do flag `lsfDefaultRipple` nos objetos AccountRoot correspondentes. Se o Default Ripple estiver desabilitado (o padrão), o estado padrão do flag `lsfNoRipple` é _habilitado_ para todas as linhas de confiança de uma conta. Se uma conta habilitar o Default Ripple, o flag `lsfNoRipple` é _desabilitado_ (rippling habilitado) para as linhas de confiança da conta por padrão.
+
+**Nota:** Antes da introdução do flag Default Ripple na versão 0.27.3 do `rippled` (10 de março de 2015), o estado padrão para todas as linhas de confiança era com ambos os flags No Ripple desabilitados (rippling habilitado).
+
+Felizmente, o `rippled` usa avaliação lazy para calcular a reserva do proprietário. Isso significa que mesmo que uma conta altere o estado padrão de todas as suas linhas de confiança alterando o flag Default Ripple, a reserva dessa conta permanece a mesma inicialmente. Se uma conta modificar uma linha de confiança, o `rippled` reavalia se essa linha de confiança individual está em seu estado padrão e se deve contribuir para a reserva do proprietário.
+
+### Formato do ID do RippleState
+
+O ID de um objeto RippleState é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço RippleState (`0x0072`)
+* O AccountID da conta baixa
+* O AccountID da conta alta
+* O código de moeda de 160 bits da(s) linha(s) de confiança

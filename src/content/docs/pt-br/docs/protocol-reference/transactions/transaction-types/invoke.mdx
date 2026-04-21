@@ -1,0 +1,40 @@
+---
+title: Invoke
+description: >-
+  Uma transação Invoke é usada para chamar um hook, que é um trecho de código
+  executado em resposta a determinadas operações no ledger.
+---
+\[[Source](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/Invoke.cpp)]
+
+_(Adicionado pela [emenda Hooks][].)_
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "Invoke",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Blob": "697066733A2F2F4445414442454546",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+}
+```
+
+| Campo            | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                              |
+| ---------------- | --------- | ------------------ | ------------ | -------------------------------------------------------------------------------------- |
+| `Account`        | String    | AccountID          | Sim          | O endereço da conta que está invocando o hook.                                         |
+| `Blob`           | String    | Blob               | Não          | Um blob de dados passado ao hook. (máximo de 128k bytes)                               |
+| `Destination`    | String    | AccountID          | Não          | O endereço da conta que é o destino do hook.                                           |
+
+### Custo Especial de Transação
+
+A transação Invoke possui um custo de transação padrão, acrescido de um custo adicional baseado no tamanho do campo Blob.
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações Invoke podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro  | Descrição                                                                              |
+| --------------- | -------------------------------------------------------------------------------------- |
+| `temDISABLED`   | Ocorre se a emenda Hooks não estiver habilitada.                                       |
+| `temMALFORMED`  | Ocorre se o campo Blob for maior que 128k bytes.                                       |
+| `terNO_ACCOUNT` | Ocorre se a conta remetente ou a conta de destino não existir.                         |

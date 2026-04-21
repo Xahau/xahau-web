@@ -1,0 +1,45 @@
+---
+title: Deposit Pre Auth
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L172-L178)
+
+Um objeto `DepositPreauth` rastreia uma pré-autorização de uma conta para outra. \[Transações DepositPreauth]\[] criam esses objetos.
+
+Isso não tem efeito no processamento de transações a menos que a conta que forneceu a pré-autorização exija Autorização de Depósito. Nesse caso, a conta que foi pré-autorizada pode enviar pagamentos e outras transações diretamente para a conta que forneceu a pré-autorização. As pré-autorizações são unidirecionais e não têm efeito sobre pagamentos na direção oposta.
+
+### Exemplo JSON
+
+```json
+{
+  "LedgerEntryType": "DepositPreauth",
+  "Account": "rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
+  "Authorize": "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Flags": 0,
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "3E8964D5A86B3CD6B9ECB33310D4E073D64C865A5B866200AD2B7E29F8326702",
+  "PreviousTxnLgrSeq": 7,
+  "index": "4A255038CC3ADCC1A9C91509279B59908251728D0DAADB248FFE297D0F7E068C"
+}
+```
+
+### Campos
+
+Um objeto `DepositPreauth` tem os seguintes campos:
+
+| Campo               | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                                                                              |
+| ------------------- | --------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String    | Account             | Sim          | A conta que concedeu a pré-autorização. (O destino dos pagamentos pré-autorizados.)                                                                                                                                                                                                    |
+| `Authorize`         | String    | Account             | Sim          | A conta que recebeu a pré-autorização. (O remetente dos pagamentos pré-autorizados.)                                                                                                                                                                                                   |
+| `Flags`             | Number    | UInt32              | Sim          | Um mapa de bits de flags booleanos habilitados para este objeto. Atualmente, o protocolo não define flags para objetos `DepositPreauth`. O valor é sempre `0`.                                                                                                                         |
+| `LedgerEntryType`   | String    | UInt16              | Sim          | O valor `0x0070`, mapeado para a string `DepositPreauth`, indica que este é um objeto DepositPreauth.                                                                                                                                                                                  |
+| `OwnerNode`         | String    | UInt64              | Sim          | Uma dica indicando qual página do diretório do proprietário do remetente aponta para este objeto, caso o diretório consista em múltiplas páginas. **Nota:** O objeto não contém um link direto para o diretório do proprietário que o contém, pois esse valor pode ser derivado de `Account`. |
+| `PreviousTxnID`     | String    | Hash256             | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                                                                                                                                                         |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | Sim          | O \[índice do ledger]\[Índice de Ledger] que contém a transação que mais recentemente modificou este objeto.                                                                                                                                                                           |
+
+### Formato do ID do DepositPreauth
+
+O ID de um objeto `DepositPreauth` é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço DepositPreauth (`0x0070`)
+* O AccountID do proprietário deste objeto (o remetente da \[transação DepositPreauth]\[] que criou este objeto; ou seja, quem concedeu a pré-autorização)
+* O AccountID da conta pré-autorizada (o campo `Authorized` da \[transação DepositPreauth]\[] que criou este objeto; ou seja, quem recebeu a pré-autorização)

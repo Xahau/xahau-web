@@ -17,7 +17,7 @@ function splitPath(path: string) {
 export function stripLocalePrefix(pathname: string) {
   const normalizedPathname = normalizePathname(pathname)
 
-  for (const locale of ['es', 'ja'] as const) {
+  for (const locale of ['es', 'ja', 'pt-br'] as const) {
     if (normalizedPathname === `/${locale}`) return '/'
     if (normalizedPathname.startsWith(`/${locale}/`)) {
       return normalizePathname(normalizedPathname.slice(locale.length + 1))

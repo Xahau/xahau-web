@@ -82,7 +82,7 @@ export function remarkGlobalReferences() {
     }
   }
 
-  const NON_ROOT_LOCALES = ['es', 'ja', 'br']
+  const NON_ROOT_LOCALES = ['es', 'ja', 'pt-BR']
 
   return function transformer(tree: any, vfile: any) {
     const refs = loadGlobalReferences()

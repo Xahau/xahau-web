@@ -1,0 +1,38 @@
+---
+title: CheckCash
+description: >-
+  Tenta resgatar um objeto Check no ledger para receber até o valor
+  autorizado pela transação CheckCreate correspondente.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Adicionado pela \[emenda Checks]\[].)_
+
+### Exemplo
+
+```json
+{
+    "Account": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+    "TransactionType": "CheckCash",
+    "Amount": "100000000",
+    "CheckID": "838766BA2B995C00744175F69A1B11E32C3DBC40E64801A4056FCBD657F57334",
+    "Fee": "12"
+}
+```
+
+| Campo        | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                     |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CheckID`    | String                                                                                                                             | Hash256             | O ID do objeto Check no ledger a ser resgatado, como uma string hexadecimal de 64 caracteres.                                                                                                                                |
+| `Amount`     | [Valor de Moeda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(Opcional)_ Resgata o Check por exatamente este valor, se possível. A moeda deve corresponder à do campo `SendMax` da transação CheckCreate correspondente. Você deve fornecer este campo ou `DeliverMin`.             |
+| `DeliverMin` | \[Valor de Moeda]\[]                                                                                                              | Amount              | _(Opcional)_ Resgata o Check por pelo menos este valor e pelo máximo possível. A moeda deve corresponder à do campo `SendMax` da transação CheckCreate correspondente. Você deve fornecer este campo ou `Amount`. |
+
+A transação _**deve**_ incluir `Amount` ou `DeliverMin`, mas não ambos.
+
+### Casos de Erro
+
+* Se o remetente da transação CheckCash não for o `Destination` do cheque, a transação falha com o código de resultado `tecNO_PERMISSION`.
+* Se o Check identificado pelo campo `CheckID` não existir, a transação falha com o resultado `tecNO_ENTRY`.
+* Se o Check identificado pelo campo `CheckID` já tiver expirado, a transação falha com o resultado `tecEXPIRED`.
+* Se o destinatário do Check tiver a flag `RequireDest` habilitada, mas o Check, conforme criado, não possuir uma tag de destino, a transação falha com o código de resultado `tecDST_TAG_NEEDED`.
+* Se a transação especificar ambos `Amount` e `DeliverMin`, ou omitir ambos, a transação falha com o resultado `temMALFORMED`.
+* Se `Amount` ou `DeliverMin` não corresponder à moeda (e emissor, se não for XAH) do Check, a transação falha com o resultado `temBAD_CURRENCY`.

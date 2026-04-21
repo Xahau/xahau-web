@@ -1,4 +1,4 @@
-export type FraudReportLocale = 'en' | 'es' | 'ja' | 'br'
+export type FraudReportLocale = 'en' | 'es' | 'ja' | 'pt-BR'
 
 export type FraudReportTranslations = {
   frontmatter: {
@@ -371,7 +371,7 @@ export const fraudReportTranslations: Record<
         'ネットワークエラー: サーバーに接続できませんでした。接続を確認して再度お試しください。',
     },
   },
-  'br': {
+  'pt-BR': {
     frontmatter: {
       title: 'Reportar Fraude',
       description:

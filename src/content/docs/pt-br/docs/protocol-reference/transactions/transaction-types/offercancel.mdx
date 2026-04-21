@@ -1,0 +1,44 @@
+---
+title: OfferCancel
+description: Uma transação OfferCancel remove um objeto Offer do Xahau.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+### Cancelar com OfferSequence
+
+```json
+{
+    "TransactionType": "OfferCancel",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108629,
+    "OfferSequence": 6,
+    "Sequence": 7
+}
+```
+
+### Cancelar com OfferID
+
+```json
+{
+    "TransactionType": "OfferCancel",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108629,
+    "OfferID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Sequence": 7
+}
+```
+
+### Campos
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                                                          |
+| --------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `OfferSequence` | Number    | UInt32              | _(Opcional)_ O número de sequência (ou número de Ticket) de uma transação OfferCreate anterior. Se especificado, cancela qualquer objeto offer no ledger que foi criado por essa transação. Não é considerado um erro se a offer especificada não existir. |
+| `OfferID`       | String    | Hash256             | _(Opcional)_ O ID do objeto Offer no ledger a ser cancelado, como uma string hexadecimal de 64 caracteres.                                                                                                                                                          |
+
+_Dica:_ Para remover uma offer antiga e substituí-la por uma nova, você pode usar uma \[transação OfferCreate]\[] com o parâmetro `OfferSequence`, em vez de usar OfferCancel seguido de outro OfferCreate.
+
+O método OfferCancel retorna `tesSUCCESS` mesmo que não encontre uma offer com o número de sequência correspondente.

@@ -12,9 +12,10 @@
  */
 
 import connectData from '../data/connect.json'
+import { normalizeLocale } from '../utils/localizedHref'
 
-type Locale = 'en' | 'es' | 'ja'
-const locale = (Astro.currentLocale ?? 'en') as Locale
+type Locale = 'en' | 'es' | 'ja' | 'pt-BR'
+const locale = normalizeLocale(Astro.currentLocale ?? 'en') as Locale
 
 // ── Date-based split (build time) ────────────────────────────────────────────
 const today = new Date()
@@ -114,6 +115,33 @@ const ui = {
     contact_on_x: '（X）',
     contact_or: 'またはメール：',
   },
+  'pt-BR': {
+    page_title: 'Xahau Connect',
+    page_sub:
+      'Eventos profissionais de blockchain para discussões sérias e inovação',
+    chip_inftf: 'Por INFTF',
+    chip_location: 'Madri, Espanha',
+    chip_upcoming: (n: number) => (n === 1 ? '1 Próximo' : `${n} Próximos`),
+    lbl_upcoming: 'Próximos Eventos',
+    lbl_past: 'Eventos Anteriores',
+    lbl_about: 'Sobre',
+    lbl_contact: 'Participe',
+    no_upcoming: 'Nenhum evento agendado no momento.',
+    no_upcoming_sub:
+      'Siga @XahauNetwork ou envie um e-mail para connect@xahau.org para receber comunicados.',
+    location_view: 'Ver no mapa',
+    about_title: 'Sobre o Xahau Connect',
+    mission_title: 'Nossa Missão',
+    contact_title: 'Palestrantes, Patrocinadores e Contato',
+    contact_body:
+      'Agradecemos aos nossos parceiros que apoiam a missão do Xahau Connect de promover o debate profissional sobre blockchain. Detalhes sobre parceiros e palestrantes serão divulgados conforme confirmarmos a participação nos próximos eventos.',
+    contact_speaking: 'Propostas de palestras e patrocínio:',
+    contact_updates: 'Inscreva-se para receber novidades:',
+    contact_follow: 'Siga',
+    contact_follow2: 'e',
+    contact_on_x: 'no X',
+    contact_or: 'ou envie um e-mail para',
+  }
 }
 const t = ui[locale]
 ---

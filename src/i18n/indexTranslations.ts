@@ -102,7 +102,7 @@ export const indexTranslations = {
     stats_ledgers: '閉鎖済みレジャー',
     stats_node_cta: 'ノードを運営したいですか？',
   },
-  'br': { // Placeholder translations for Portuguese (Brazil)
+  'pt-BR': {
     hero_title: 'A Blockchain Mais Inteligente com Programabilidade Baseada em Contas',
     hero_subtitle:
       'Não apenas contratos inteligentes – contas inteligentes. Barato e rápido por design. Construído para o mundo real.',

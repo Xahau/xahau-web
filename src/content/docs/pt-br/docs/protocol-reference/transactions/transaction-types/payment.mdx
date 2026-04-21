@@ -1,0 +1,113 @@
+---
+title: Payment
+description: >-
+  Uma transação Payment representa uma transferência de valor de uma conta para
+  outra. (Dependendo do caminho percorrido, isso pode envolver trocas adicionais
+  de valor, que ocorrem atomicamente.) Esta transação
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/5425a90f160711e46b2c1f1c93d68e5941e4bfb6/src/ripple/app/transactors/Payment.cpp)
+
+### Exemplo
+
+```json
+{
+  "TransactionType" : "Payment",
+  "Account" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Destination" : "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+  "Amount" : {
+     "currency" : "USD",
+     "value" : "1",
+     "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+  },
+  "Fee": "12",
+  "Flags": 2147483648,
+  "Sequence": 2,
+}
+```
+
+| Campo            | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Amount`         | [Valor de Moeda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | A quantidade de moeda a ser entregue. Para valores não-XAH, os nomes dos campos aninhados DEVEM estar em letras minúsculas. Se a flag `tfPartialPayment` estiver definida, entrega _até_ esse valor em vez do exato.                                                                                                                                                                                                                            |
+| `Destination`    | String                                                                                                                             | AccountID           | O endereço único da conta que receberá o pagamento.                                                                                                                                                                                                                                                                                                                                                                                             |
+| `DestinationTag` | Number                                                                                                                             | UInt32              | _(Opcional)_ Tag arbitrária que identifica o motivo do pagamento ao destino, ou um destinatário hospedado a ser pago.                                                                                                                                                                                                                                                                                                                           |
+| `InvoiceID`      | String                                                                                                                             | Hash256             | _(Opcional)_ Hash arbitrário de 256 bits representando um motivo ou identificador específico para este pagamento.                                                                                                                                                                                                                                                                                                                               |
+| `Paths`          | Array de arrays de caminho                                                                                                         | PathSet             | (Opcional, preenchível automaticamente) Array de caminhos de pagamento a serem usados nesta transação. Deve ser omitido em transações XAH-para-XAH.                                                                                                                                                                                                                                                                                             |
+| `SendMax`        | [Valor de Moeda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(Opcional)_ Maior valor de moeda de origem que esta transação pode custar, incluindo taxas de transferência, taxas de câmbio e [slippage](http://en.wikipedia.org/wiki/Slippage_\(finance\)). Não inclui o XAH destruído como custo de envio da transação. Para valores não-XAH, os nomes dos campos aninhados DEVEM estar em letras minúsculas. Deve ser fornecido para pagamentos entre moedas/emissores diferentes. Deve ser omitido em pagamentos XAH-para-XAH. |
+| `DeliverMin`     | \[Valor de Moeda]\[]                                                                                                               | Amount              | _(Opcional)_ Valor mínimo de moeda de destino que esta transação deve entregar. Válido apenas para pagamentos parciais. Para valores não-XAH, os nomes dos campos aninhados estão em letras minúsculas.                                                                                                                                                                                                                                          |
+
+### Tipos de Pagamentos
+
+O tipo de transação Payment é uma ferramenta de uso geral que pode representar vários tipos diferentes de ações abstratas. Você pode identificar o tipo de transação com base nos campos da transação, conforme descrito na tabela abaixo:
+
+| Tipo de pagamento                 | `Amount`                        | `SendMax`                       | `Paths`          | `Address` = `Destination`? | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| --------------------------------- | ------------------------------- | ------------------------------- | ---------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pagamento direto XAH-para-XAH     | String (XAH)                    | Omitido                         | Omitido          | Não                        | Transfere XAH diretamente de uma conta para outra. Sempre entrega o valor exato. Nenhuma taxa se aplica além do custo básico da transação.                                                                                                                                                                                                                                                                                                                                                                                           |
+| Criação ou resgate de tokens      | Objeto                          | Objeto (opcional)               | Opcional         | Não                        | Aumenta ou diminui a quantidade de uma moeda ou ativo não-XAH rastreado no Xahau. Taxas de transferência e congelamentos não se aplicam ao enviar e resgatar diretamente.                                                                                                                                                                                                                                                                                                                                                            |
+| Pagamento entre moedas            | Objeto (não-XAH) / String (XAH) | Objeto (não-XAH) / String (XAH) | Geralmente obrigatório | Não                   | Envia tokens de um titular para outro. O `Amount` ou `SendMax` pode ser XAH ou tokens, mas não podem ser ambos XAH. Esses pagamentos passam pelo emissor e podem percorrer caminhos mais longos por vários intermediários se a transação especificar um conjunto de caminhos. Taxas de transferência definidas pelo(s) emissor(es) se aplicam a este tipo de transação. Essas transações consomem ofertas na exchange descentralizada para conectar diferentes moedas, ou possivelmente até moedas com o mesmo código e emissores diferentes. |
+| Pagamento parcial                 | Objeto (não-XAH) / String (XAH) | Objeto (não-XAH) / String (XAH) | Geralmente obrigatório | Não                   | Envia _até_ um valor específico em qualquer moeda. Usa a flag `tfPartialPayment`. Pode incluir um valor `DeliverMin` especificando o mínimo que a transação deve entregar para ser bem-sucedida; se a transação não especificar `DeliverMin`, ela pode ter sucesso entregando _qualquer valor positivo_.                                                                                                                                                                                                                               |
+| Conversão de moeda                | Objeto (não-XAH) / String (XAH) | Objeto (não-XAH) / String (XAH) | Obrigatório      | Sim                        | Consome ofertas na exchange descentralizada para converter uma moeda em outra, possivelmente aproveitando oportunidades de [arbitragem](https://en.wikipedia.org/wiki/Arbitrage). O `Amount` e o `SendMax` não podem ser ambos XAH. Também chamado de _pagamento circular_ porque entrega dinheiro ao remetente. A API de Dados rastreia este tipo de transação como uma "troca" e não um "pagamento".                                                                                                                                |
+
+### Valores especiais de emissor para SendMax e Amount
+
+Na maioria das vezes, o campo `issuer` de um \[Valor de Moeda]\[] não-XAH indica o emissor de um token. No entanto, ao descrever pagamentos, existem regras especiais para o campo `issuer` nos campos `Amount` e `SendMax` de um pagamento.
+
+* Existe apenas um saldo entre dois endereços para o mesmo código de moeda. Isso significa que, às vezes, o campo `issuer` de um valor na verdade se refere a uma contraparte, em vez do endereço que emitiu o token.
+* Quando o campo `issuer` do campo de destino `Amount` corresponde ao endereço de `Destination`, ele é tratado como um caso especial significando "qualquer emissor que o destino aceite." Isso inclui todos os endereços para os quais o destino possui linhas de confiança com limite positivo, bem como tokens com o mesmo código de moeda emitidos pelo destino.
+* Quando o campo `issuer` do campo `SendMax` corresponde ao endereço da conta de origem, ele é tratado como um caso especial significando "qualquer emissor que a origem possa usar." Isso inclui a criação de novos tokens em linhas de confiança que outras contas estenderam à conta de origem, e o envio de tokens que a conta de origem detém de outros emissores.
+
+### Criando Contas
+
+O tipo de transação Payment pode criar novas contas no Xahau enviando XAH suficiente para um endereço sem fundos. Outras transações para endereços sem fundos sempre falham.
+
+Para mais informações, consulte Contas.
+
+### Caminhos
+
+Se presente, o campo `Paths` deve conter um _conjunto de caminhos_ — um array de arrays de caminhos. Cada caminho individual representa uma forma pela qual o valor pode fluir do remetente ao destinatário por meio de várias contas intermediárias e livros de ordens. Uma única transação pode potencialmente usar múltiplos caminhos, por exemplo, se a transação trocar moeda usando vários livros de ordens diferentes para obter a melhor taxa.
+
+Você deve omitir o campo `Paths` para pagamentos diretos, incluindo:
+
+* Uma transferência XAH-para-XAH.
+* Uma transferência direta em uma linha de confiança que conecta o remetente e o destinatário.
+
+Se o campo `Paths` for fornecido, o servidor decide no momento do processamento da transação quais caminhos usar, a partir do conjunto fornecido mais um _caminho padrão_ (a forma mais direta possível de conectar as contas especificadas). Essa decisão é determinística e tenta minimizar os custos, mas não há garantia de que seja perfeita.
+
+O campo `Paths` não deve ser um array vazio, nem um array cujos membros sejam todos arrays vazios.
+
+Para mais informações, consulte Caminhos.
+
+### Flags de Pagamento
+
+Transações do tipo Payment suportam valores adicionais no campo `Flags`, da seguinte forma:
+
+| Nome da Flag       | Valor Hex    | Valor Decimal | Descrição                                                                                                                                                                          |
+| ------------------ | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tfNoDirectRipple` | `0x00010000` | 65536         | Não usar o caminho padrão; usar apenas os caminhos incluídos no campo `Paths`. Isso tem o objetivo de forçar a transação a aproveitar oportunidades de arbitragem. A maioria dos clientes não precisa disso. |
+| `tfPartialPayment` | `0x00020000` | 131072        | Se o `Amount` especificado não puder ser enviado sem gastar mais do que `SendMax`, reduz o valor recebido em vez de falhar completamente. Consulte Pagamentos Parciais para mais detalhes.        |
+| `tfLimitQuality`   | `0x00040000` | 262144        | Usar apenas caminhos onde todas as conversões tenham uma proporção entrada:saída igual ou melhor que a proporção `Amount`:`SendMax`. Consulte Limite de Qualidade para detalhes.    |
+
+### Pagamentos Parciais
+
+Um pagamento parcial permite que um pagamento seja bem-sucedido reduzindo o valor recebido. Pagamentos parciais são úteis para devolver pagamentos sem incorrer em custos adicionais para si mesmo. No entanto, pagamentos parciais também podem ser usados para explorar integrações que ingenuamente assumem que o campo `Amount` de uma transação bem-sucedida sempre descreve o valor exato entregue.
+
+Um pagamento parcial é qualquer \[transação Payment]\[] com a flag `tfPartialPayment` habilitada. Um pagamento parcial pode ser bem-sucedido se entregar qualquer valor positivo maior ou igual ao seu campo `DeliverMin` (ou qualquer valor positivo se `DeliverMin` não for especificado) sem enviar mais do que o valor de `SendMax`.
+
+O campo `delivered_amount` nos metadados de um pagamento indica o valor de moeda efetivamente recebido pela conta de destino.
+
+Para mais informações, consulte o artigo completo sobre Pagamentos Parciais.
+
+### Limite de Qualidade
+
+O Xahau define a "qualidade" de uma troca de moeda como a proporção do valor numérico de entrada pelo valor numérico de saída. Por exemplo, se você gasta $2 USD para receber £1 GBP, então a "qualidade" dessa troca é `0.5`.
+
+A flag `tfLimitQuality` permite definir uma qualidade mínima de conversões que você está disposto a aceitar. Esse limite de qualidade é definido como o `Amount` de destino dividido pelo valor de `SendMax` (apenas os valores numéricos, independentemente da moeda). Quando definida, o mecanismo de processamento de pagamentos evita usar qualquer caminho cuja qualidade (taxa de conversão) seja pior (numericamente inferior) que o limite de qualidade.
+
+Por si só, a flag `tfLimitQuality` reduz o número de situações em que uma transação pode ser bem-sucedida. Especificamente, ela rejeita pagamentos onde alguma parte do pagamento usa uma conversão desfavorável, mesmo que a qualidade _média_ geral das conversões no pagamento seja igual ou melhor que o limite de qualidade. Se um pagamento for rejeitado dessa forma, o resultado da transação é `tecPATH_DRY`.
+
+Considere o seguinte exemplo. Se estou tentando enviar a você 100 yuans chineses (`Amount` = 100 CNY) por 20 dólares americanos (`SendMax` = 20 USD) ou menos, então o limite de qualidade é `5`. Imagine que um trader está oferecendo ¥95 por $15 (uma proporção de cerca de `6,3` CNY por USD), mas a próxima melhor oferta no mercado é ¥5 por $2 (uma proporção de `2,5` CNY por USD). Se eu aceitasse ambas as ofertas para enviar a você 100 CNY, custaria 17 USD, para uma qualidade média de cerca de `5,9`.
+
+Sem a flag `tfLimitQuality` definida, essa transação seria bem-sucedida, pois os $17 que me custaria estão dentro do meu `SendMax` especificado. No entanto, com a flag `tfLimitQuality` habilitada, a transação falharia, pois o caminho para aceitar a segunda oferta tem uma qualidade de `2,5`, que é pior que o limite de qualidade de `5`.
+
+A flag `tfLimitQuality` é mais útil quando combinada com pagamentos parciais. Quando tanto `tfPartialPayment` quanto `tfLimitQuality` estão definidos em uma transação, ela entrega o máximo possível do `Amount` de destino, sem usar conversões piores que o limite de qualidade.
+
+No exemplo acima com uma oferta de ¥95/$15 e uma oferta de ¥5/$2, a situação é diferente se minha transação tiver `tfPartialPayment` e `tfLimitQuality` habilitados. Se mantivermos meu `SendMax` de 20 USD e um `Amount` de destino de 100 CNY, o limite de qualidade ainda é `5`. No entanto, como estou fazendo um pagamento parcial, a transação envia o máximo possível em vez de falhar se o valor total de destino não puder ser enviado. Isso significa que minha transação consome a oferta de ¥95/$15, cuja qualidade é cerca de `6,3`, mas rejeita a oferta de ¥5/$2 porque a qualidade dessa oferta de `2,5` é pior que o limite de qualidade de `5`. No final, minha transação entrega apenas ¥95 em vez dos ¥100 completos, mas evita desperdiçar dinheiro em taxas de câmbio desfavoráveis.

@@ -1,0 +1,68 @@
+---
+title: OfferCreate
+description: >-
+  Uma transação OfferCreate coloca uma Oferta na
+  exchange descentralizada.
+---
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "OfferCreate",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108682,
+    "Sequence": 8,
+    "TakerGets": "6000000",
+    "TakerPays": {
+      "currency": "GKO",
+      "issuer": "ruazs5h1qEsqpke88pcqnaseXdm6od2xc",
+      "value": "2"
+    }
+}
+```
+
+### Campos
+
+| Campo           | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descrição                                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------ |
+| `Expiration`    | Number                                                                                                                             | UInt32              | _(Opcional)_ Momento após o qual a Oferta deixa de estar ativa, em \[segundos desde a Época Ripple]\[]. |
+| `OfferSequence` | Number                                                                                                                             | UInt32              | _(Opcional)_ Uma Oferta a ser excluída primeiro, especificada da mesma forma que \[OfferCancel]\[].     |
+| `OfferID`       | String                                                                                                                             | Hash256             | _(Opcional)_ O ID do objeto de Oferta no ledger a ser cancelado, como uma string hexadecimal de 64 caracteres. |
+| `TakerGets`     | [Valor em Moeda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | O valor e o tipo de moeda sendo vendida.                                                               |
+| `TakerPays`     | [Valor em Moeda](/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | O valor e o tipo de moeda sendo comprada.                                                              |
+
+### Flags do OfferCreate
+
+Transações do tipo OfferCreate suportam valores adicionais no campo `Flags`, conforme abaixo:
+
+| Nome da Flag          | Valor Hex    | Valor Decimal | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| --------------------- | ------------ | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfPassive`           | `0x00010000` | 65536         | Se habilitado, a Oferta não consome Ofertas que correspondam exatamente a ela e, em vez disso, torna-se um objeto Oferta no ledger. Ainda assim, consome Ofertas que a cruzem.                                                                                                                                                                                                                                                      |
+| `tfImmediateOrCancel` | `0x00020000` | 131072        | Trata a Oferta como uma [ordem Immediate or Cancel](http://en.wikipedia.org/wiki/Immediate_or_cancel). A Oferta nunca cria um \[objeto Oferta]\[] no ledger: ela apenas negocia o máximo possível consumindo Ofertas existentes no momento em que a transação é processada. Se nenhuma Oferta corresponder, ela é executada "com sucesso" sem negociar nada. Nesse caso, a transação ainda usa o código de resultado `tesSUCCESS`. |
+| `tfFillOrKill`        | `0x00040000` | 262144        | Trata a oferta como uma [ordem Fill or Kill](http://en.wikipedia.org/wiki/Fill_or_kill). A Oferta nunca cria um \[objeto Oferta]\[] no ledger e é cancelada se não puder ser totalmente preenchida no momento da execução. Por padrão, isso significa que o proprietário deve receber o valor total de `TakerPays`; se a flag `tfSell` estiver habilitada, o proprietário deve ser capaz de gastar todo o valor de `TakerGets`.  |
+| `tfSell`              | `0x00080000` | 524288        | Troca todo o valor de `TakerGets`, mesmo que isso implique obter mais do que o valor de `TakerPays` em troca.                                                                                                                                                                                                                                                                                                                      |
+
+### Casos de Erro
+
+| Código de Erro           | Descrição                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temINVALID_FLAG`        | Ocorre se a transação especifica tanto `tfImmediateOrCancel` quanto `tfFillOrKill`.                                                                                                                                                                                                                                                                             |
+| `tecEXPIRED`             | Ocorre se a transação especifica um tempo de `Expiration` que já passou.                                                                                                                                                                                                                                                                                        |
+| `tecKILLED`              | Ocorre se a transação especifica `tfFillOrKill` e o valor total não pode ser preenchido. Se a _\[emenda ImmediateOfferKilled]\[]_ estiver habilitada, este código de resultado também ocorre quando a transação especifica `tfImmediateOrCancel` e é executada sem mover fundos (anteriormente, isso retornaria `tesSUCCESS`).                                  |
+| `temBAD_EXPIRATION`      | Ocorre se a transação contém um campo `Expiration` com formato inválido.                                                                                                                                                                                                                                                                                        |
+| `temBAD_SEQUENCE`        | Ocorre se a transação contém um `OfferSequence` com formato inválido ou maior que o próprio número de `Sequence` da transação.                                                                                                                                                                                                                                  |
+| `temBAD_OFFER`           | Ocorre se a Oferta tenta trocar XAH por XAH ou tenta negociar um valor inválido ou negativo de um token.                                                                                                                                                                                                                                                        |
+| `temREDUNDANT`           | Ocorre se a transação especifica um token pelo mesmo token (mesmo emissor e código de moeda).                                                                                                                                                                                                                                                                   |
+| `temBAD_CURRENCY`        | Ocorre se a transação especifica um token com o código de moeda "XAH".                                                                                                                                                                                                                                                                                          |
+| `temBAD_ISSUER`          | Ocorre se a transação especifica um token com um valor de `issuer` inválido.                                                                                                                                                                                                                                                                                    |
+| `tecNO_ISSUER`           | Ocorre se a transação especifica um token cujo valor de `issuer` não é uma conta com fundos no ledger.                                                                                                                                                                                                                                                          |
+| `tecFROZEN`              | Ocorre se a transação envolve um token em uma linha de confiança congelada (incluindo congelamentos locais e globais).                                                                                                                                                                                                                                           |
+| `tecUNFUNDED_OFFER`      | Ocorre se o proprietário não possui um valor positivo da moeda `TakerGets`. (Exceção: se `TakerGets` especifica um token que o proprietário emite, a transação pode ter sucesso.)                                                                                                                                                                               |
+| `tecNO_LINE`             | Ocorre se a transação envolve um token cujo emissor usa Linhas de Confiança Autorizadas e a linha de confiança necessária não existe.                                                                                                                                                                                                                            |
+| `tecNO_AUTH`             | Ocorre se a transação envolve um token cujo emissor usa Linhas de Confiança Autorizadas e a linha de confiança que receberia os tokens existe, mas não foi autorizada.                                                                                                                                                                                          |
+| `tecINSUF_RESERVE_OFFER` | Ocorre se o proprietário não tem XAH suficiente para atender ao requisito de reserva para adicionar um novo objeto Oferta ao ledger, e a transação não converteu nenhuma moeda. (Se a transação negociou qualquer valor com sucesso, ela é concluída com o código de resultado `tesSUCCESS`, mas não cria um objeto Oferta no ledger para o restante.) |
+| `tecDIR_FULL`            | Ocorre se o proprietário possui muitos itens no ledger ou o livro de ordens já contém muitas Ofertas na mesma taxa de câmbio.                                                                                                                                                                                                                                   |

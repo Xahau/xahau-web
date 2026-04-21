@@ -25,7 +25,7 @@ import { getAlternateLocaleHref } from '../utils/localizedHref'
 const languages = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
-  { code: 'br', label: 'Português (Brasil)' },
+  { code: 'pt-BR', label: 'Português (Brasil)' },
   // { code: 'ja', label: '日本語' },
 ]
 
@@ -58,7 +58,7 @@ const nav = {
     infra: 'Infraestructura',
     discord: 'Discord de la Comunidad',
   },
-  'br': {
+  'pt-BR': {
     about: 'Sobre',
     features: 'Recursos',
     ecosystem: 'Ecossistema',
