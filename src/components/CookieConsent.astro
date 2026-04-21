@@ -6,10 +6,14 @@ const locale = (Astro.currentLocale ?? 'en') as 'en' | 'es' | 'ja'
 const cookieConsentConfig = createCookieConsentConfig(locale)
 ---
 
-<script define:vars={{ cookieConsentConfig }}>
+<script is:inline define:vars={{ cookieConsentConfig }}>
+  window.__cookieConsentConfig = cookieConsentConfig
+</script>
+
+<script>
   import { run } from 'vanilla-cookieconsent'
 
-  run(cookieConsentConfig)
-
+  run(window.__cookieConsentConfig)
+  
   document.body.classList.add('cc--darkmode')
 </script>
