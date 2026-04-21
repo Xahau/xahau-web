@@ -42,7 +42,7 @@ Built with [Astro](https://astro.build), [Tailwind CSS](https://tailwindcss.com)
 
 ## Localization
 
-The site supports three locales: English (root `/`), Spanish (`/es/`), and Japanese (`/ja/`). Each editorial page has a dedicated component per locale — e.g. `XahauAbout.astro`, `XahauAboutEs.astro`, `XahauAboutJa.astro` — with a thin `.astro` page wrapper in `src/pages/` for each.
+The site supports three locales: English (root `/`), Spanish (`/es/`), and Japanese (`/ja/`). Each editorial page has a dedicated component per locale — e.g. `XahauAbout.astro`, `XahauAboutEs.astro`, `XahauAboutJa.astro` — with a thin `.astro` page wrapper in `src/pages/` for each. To add a new language, follow the steps in [ADDING-A-LOCALE.md](ADDING-A-LOCALE.md).
 
 ---
 
@@ -65,3 +65,4 @@ Most editorial page content is stored in JSON files under `src/data/`. **Edit th
 
 - [DEVELOPMENT.md](DEVELOPMENT.md) — editorial component system, design tokens, JSON schemas, Biome config
 - [CONTRIBUTING.md](CONTRIBUTING.md) — code style and pull request guidelines
+- [ADDING-A-LOCALE.md](ADDING-A-LOCALE.md) — how to add a new language, with a worked pt-BR example
