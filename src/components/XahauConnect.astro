@@ -11,7 +11,7 @@
  * site is rebuilt.
  */
 
-import connectData from '../data/connect.json'
+import { connectTranslations as connectData } from '../i18n/connectTranslations'
 import { defaultLocale, type Locale } from '../i18n/locales'
 
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale
