@@ -6,7 +6,7 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!dist"],
+    "includes": ["**", "!dist", "!.astro"],
     "ignoreUnknown": false
   },
   "formatter": {
@@ -26,7 +26,8 @@
       },
       "correctness": {
         "noUnusedImports": "off"
-      }
+      },
+      "a11y": "off" // TODO: Enable a11y rules for astro
     }
   },
   "html": {

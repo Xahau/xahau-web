@@ -75,6 +75,7 @@ export function remarkGlobalReferences() {
       }
 
       return globalRefs
+      // biome-ignore lint/suspicious/noExplicitAny: allowed
     } catch (error: any) {
       console.warn('Could not load global.md references:', error.message)
       globalRefs = {}
@@ -84,6 +85,7 @@ export function remarkGlobalReferences() {
 
   const NON_ROOT_LOCALES = ['es', 'ja']
 
+  // biome-ignore lint/suspicious/noExplicitAny: allowed
   return function transformer(tree: any, vfile: any) {
     const refs = loadGlobalReferences()
 
