@@ -1,47 +1,47 @@
 ---
-title: Chaining
-description: Chain multiple hooks together to do more useful tasks
+title: Encadeamento
+description: Encadeie múltiplos hooks para realizar tarefas mais úteis
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-<Aside type="tip" title="Hook Design Philosophy">
-_Each Hook should do one thing, and do it really well._
+<Aside type="tip" title="Filosofia de Design dos Hooks">
+_Cada Hook deve fazer uma coisa, e fazê-la muito bem._
 </Aside>
 
-### History
+### Histórico
 
-In the early days of Hooks it was only possible to install one Hook per account. This meant users were forced to produce omnibus Hooks if they wanted to do more than one thing: for example offset carbon and firewall at the same time.
+Nos primórdios dos Hooks, era possível instalar apenas um Hook por conta. Isso significava que os usuários eram obrigados a criar Hooks genéricos se quisessem fazer mais de uma coisa: por exemplo, compensar carbono e usar firewall ao mesmo tempo.
 
-This was counter to the Hook Design Philosophy, so Hook Chaining was introduced.
+Isso ia contra a Filosofia de Design dos Hooks, então o Encadeamento de Hooks foi introduzido.
 
-### Chaining
+### Encadeamento
 
-A Hook Chain is a sequence of up to **10** Hooks installed on an Xahau account.
+Uma Cadeia de Hooks é uma sequência de até **10** Hooks instalados em uma conta Xahau.
 
-* A Hook Chain executes successfully when every Hook in the chain has been individually executed and subsequently calls [accept](/pt-br/docs/hooks/functions/control/accept).
-* Each chain's execution starts at chain position 0 and ends at chain position 9. If a position is blank (because it was never filled or because the hook that was installed there has been removed) then that position is skipped and treated as successful.
-* In order for a transaction to succeed, both ends of the transaction (sending side and receiving side) must have executed successfully. This means if there is a Hook Chain installed on both sides, then both Hook Chains must execute successfully for the transaction to succeed.
+* Uma Cadeia de Hooks é executada com sucesso quando cada Hook da cadeia foi executado individualmente e, em seguida, chama [accept](/pt-br/docs/hooks/functions/control/accept).
+* A execução de cada cadeia começa na posição 0 e termina na posição 9. Se uma posição estiver vazia (porque nunca foi preenchida ou porque o hook instalado nela foi removido), essa posição é ignorada e tratada como bem-sucedida.
+* Para que uma transação seja bem-sucedida, ambos os lados da transação (lado do remetente e lado do destinatário) devem ter executado com sucesso. Isso significa que, se houver uma Cadeia de Hooks instalada em ambos os lados, ambas as cadeias devem ser executadas com sucesso para que a transação seja concluída.
 
-Hooks are installed into the chain using the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction). When they are installed, the installer may specify install-time [Parameters](/pt-br/docs/hooks/concepts/parameters) which may change the behaviour of the installed Hook.
+Os Hooks são instalados na cadeia usando a [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction). Quando instalados, o instalador pode especificar [Parâmetros](/pt-br/docs/hooks/concepts/parameters) de tempo de instalação, que podem alterar o comportamento do Hook instalado.
 
 <figure>
-![Example: Execution flow for a transaction passing through two Hook Chains](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_0OucxySTRinbe13SITJT_5561b32-sethook-Page-3.png)
-<figcaption>*Example: Execution flow for a transaction passing through two Hook Chains*</figcaption>
+![Exemplo: Fluxo de execução de uma transação passando por duas Cadeias de Hooks](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_0OucxySTRinbe13SITJT_5561b32-sethook-Page-3.png)
+<figcaption>*Exemplo: Fluxo de execução de uma transação passando por duas Cadeias de Hooks*</figcaption>
 </figure>
 
-### Chain Manipulation
+### Manipulação da Cadeia
 
-In addition to the _install-time_ operations specified in the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction), Hooks have some runtime control over chain execution:
+Além das operações de _tempo de instalação_ especificadas na [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction), os Hooks têm algum controle em tempo de execução sobre a execução da cadeia:
 
-* A Hook may determine its own `HookHash` by calling [hook_hash](/pt-br/docs/hooks/functions/hook-context/hook_hash).
-* A Hook may determine its location in the Hook Chain using [hook_pos](/pt-br/docs/hooks/functions/hook-context/hook_pos).
-* A Hook may skip (or re-enable) another Hook further down the chain using [hook_skip](/pt-br/docs/hooks/functions/hook-context/hook_skip).
-* A Hook may modify the [Parameters](/pt-br/docs/hooks/concepts/parameters) of a Hook further down the chain using [hook_param_set](/pt-br/docs/hooks/functions/hook-context/hook_param_set).
+* Um Hook pode determinar seu próprio `HookHash` chamando [hook_hash](/pt-br/docs/hooks/functions/hook-context/hook_hash).
+* Um Hook pode determinar sua localização na Cadeia de Hooks usando [hook_pos](/pt-br/docs/hooks/functions/hook-context/hook_pos).
+* Um Hook pode ignorar (ou reativar) outro Hook mais adiante na cadeia usando [hook_skip](/pt-br/docs/hooks/functions/hook-context/hook_skip).
+* Um Hook pode modificar os [Parâmetros](/pt-br/docs/hooks/concepts/parameters) de um Hook mais adiante na cadeia usando [hook_param_set](/pt-br/docs/hooks/functions/hook-context/hook_param_set).
 
-### Weak Executions
+### Execuções Fracas
 
-Hook Chains are [Strongly Executed](/pt-br/docs/hooks/concepts/weak-and-strong). However any Hook in any chain may flag that it requires a second, Weak Execution by calling [hook_again](/pt-br/docs/hooks/functions/hook-context/hook_again). If all Hook Chains execute successfully then the originating transaction is applied. Once the originating transaction has been applied any Weak Executions may happen, in the following order:
+As Cadeias de Hooks são [Fortemente Executadas](/pt-br/docs/hooks/concepts/weak-and-strong). No entanto, qualquer Hook em qualquer cadeia pode sinalizar que requer uma segunda Execução Fraca chamando [hook_again](/pt-br/docs/hooks/functions/hook-context/hook_again). Se todas as Cadeias de Hooks forem executadas com sucesso, a transação de origem é aplicada. Uma vez aplicada a transação de origem, quaisquer Execuções Fracas podem ocorrer, na seguinte ordem:
 
-1. `cbak` execution if this was an Emitted Transaction.
-2. Weak Transactional Stake Holders who have opted in to allow a [Collect Call](/pt-br/docs/hooks/concepts/collect-call). Execution order is first-come first-serve according to the event that caused the TSH to be flagged (such as pathing).
-3. Any _Again as Weak_ (AAW) Hooks. Execution order for AAW is first numerically according to Account ID then numerically according to Hook position.
+1. Execução de `cbak` se esta for uma Transação Emitida.
+2. Partes Interessadas Transacionais Fracas que optaram por permitir uma [Chamada Coletiva](/pt-br/docs/hooks/concepts/collect-call). A ordem de execução é por ordem de chegada, de acordo com o evento que causou a sinalização da TSH (como roteamento).
+3. Quaisquer Hooks _Again as Weak_ (AAW). A ordem de execução para AAW é primeiro numericamente pelo ID da Conta e depois numericamente pela posição do Hook.
