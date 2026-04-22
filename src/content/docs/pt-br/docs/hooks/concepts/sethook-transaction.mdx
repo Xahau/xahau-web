@@ -46,7 +46,7 @@ The main body of the SetHook transaction is the hooks array:
 }
 ```
 
-This array _mirrors_ the [Hook Chain](/docs/hooks/concepts/chaining) installed on the account:
+This array _mirrors_ the [Hook Chain](/pt-br/docs/hooks/concepts/chaining) installed on the account:
 
 * Position 0 in the array _corresponds_ to position 0 in the Hook Chain.
 * Position 3 in the array _corresponds_ to position 3 in the Hook Chain, etc.
@@ -71,11 +71,11 @@ The HookDefinition object is an unowned reference-counted ledger object that pro
 <figcaption>*Example: Hook Definitions on Xahau*</figcaption>
 </figure>
 
-For more information see: [Reference Counting](/docs/hooks/concepts/reference-counted-hook-definitions)
+For more information see: [Reference Counting](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions)
 
 ### Hook Defaults
 
-When a `HookDefinition` is created it contains the initial [Parameters](/docs/hooks/concepts/parameters), [Namespace](/docs/hooks/concepts/namespaces) and [Grants](/docs/hooks/concepts/grants) supplied by the user. These become the Hook Defaults. Any Hook referencing this Hook Definition will use these defaults _unless_ the SetHook Transaction that creates that reference explicitly overrides those defaults, or a subsequent Update Operation overrides them.
+When a `HookDefinition` is created it contains the initial [Parameters](/pt-br/docs/hooks/concepts/parameters), [Namespace](/pt-br/docs/hooks/concepts/namespaces) and [Grants](/pt-br/docs/hooks/concepts/grants) supplied by the user. These become the Hook Defaults. Any Hook referencing this Hook Definition will use these defaults _unless_ the SetHook Transaction that creates that reference explicitly overrides those defaults, or a subsequent Update Operation overrides them.
 
 ### HookSet Operations
 

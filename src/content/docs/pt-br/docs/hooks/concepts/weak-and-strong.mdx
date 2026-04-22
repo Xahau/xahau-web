@@ -31,15 +31,15 @@ A **Strong** connection means:
 A **Weak** connection means:
 
 1. The originating transaction **does not** pay for the execution of the TSH Hook Chain.
-2. The TSH pays for the execution of their own Hook Chain through a feature called [Collect Call Hooks](/docs/hooks/concepts/collect-call).
+2. The TSH pays for the execution of their own Hook Chain through a feature called [Collect Call Hooks](/pt-br/docs/hooks/concepts/collect-call).
 3. The TSH must have set an account flag `asfTshCollect` prior to the execution of the originating transaction.
 4. The TSH **does not** have the right to rollback the whole transaction by calling `rollback()` from their Hook during execution (but can still modify their own Hook state and Emit transactions.)
 
 ### Before or After
 
-Strong TSHes have their hooks executed _before_ the originating transaction is applied to the ledger. This means they have the ability to [rollback](/docs/hooks/functions/control/rollback) the transaction (because it hasn't yet been applied.) This gives strongly executed hooks the ability to completely block a transaction from occurring.
+Strong TSHes have their hooks executed _before_ the originating transaction is applied to the ledger. This means they have the ability to [rollback](/pt-br/docs/hooks/functions/control/rollback) the transaction (because it hasn't yet been applied.) This gives strongly executed hooks the ability to completely block a transaction from occurring.
 
-Weak TSHes have their hooks executed _after_ the originating transaction has been applied to the ledger. This means they have access to the [transaction metadata](/docs/hooks/functions/originating-transaction/meta_slot) but cannot prevent the transaction from occurring.
+Weak TSHes have their hooks executed _after_ the originating transaction has been applied to the ledger. This means they have access to the [transaction metadata](/pt-br/docs/hooks/functions/originating-transaction/meta_slot) but cannot prevent the transaction from occurring.
 
 <Aside type="tip">
   Strongly executed hooks can call <a href="ref:hook_again">hook_again</a> to be executed a second time as a weak execution after the originating transaction has been applied.
@@ -53,7 +53,7 @@ During the execution of `hook`:
 
 * 0 means the Hook is being executed _strongly_
 * 1 means the Hook is being executed _weakly_
-* 2 means the Hook is being executed _weakly_ after being executed _strongly_ due to a [hook_again](/docs/hooks/functions/hook-context/hook_again) call.
+* 2 means the Hook is being executed _weakly_ after being executed _strongly_ due to a [hook_again](/pt-br/docs/hooks/functions/hook-context/hook_again) call.
 
 During the execution of `cbak`:
 

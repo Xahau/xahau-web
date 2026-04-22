@@ -63,15 +63,15 @@ Os seguintes amendments foram implementados ou estão em processo de habilitaç�
 
 ##### XahauGenesis
 
-Permite que a conta gênesis emita XAH e o distribua via [transações GenesisMint](/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn).
+Permite que a conta gênesis emita XAH e o distribua via [transações GenesisMint](/pt-br/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn).
 
 ##### MultiSign
 
-Habilita a funcionalidade de múltiplas assinaturas, permitindo que as contas exijam várias assinaturas para transações. Este amendment introduz [transações SignerListSet](/docs/protocol-reference/transactions/transaction-types/signerlistset) e [objetos de ledger SignerList](/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list) para suportar múltiplas assinaturas.
+Habilita a funcionalidade de múltiplas assinaturas, permitindo que as contas exijam várias assinaturas para transações. Este amendment introduz [transações SignerListSet](/pt-br/docs/protocol-reference/transactions/transaction-types/signerlistset) e [objetos de ledger SignerList](/pt-br/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list) para suportar múltiplas assinaturas.
 
 ##### DepositAuth
 
-Habilita a funcionalidade de autorização de depósito, permitindo que as contas exijam pré-autorização antes de receber pagamentos. Este amendment introduz [transações DepositPreauth](/docs/protocol-reference/transactions/transaction-types/depositpreauth) e [objetos de ledger DepositPreauth](/docs/protocol-reference/ledger-data/ledger-objects-types/deposit-pre-auth) para gerenciar pré-autorizações.
+Habilita a funcionalidade de autorização de depósito, permitindo que as contas exijam pré-autorização antes de receber pagamentos. Este amendment introduz [transações DepositPreauth](/pt-br/docs/protocol-reference/transactions/transaction-types/depositpreauth) e [objetos de ledger DepositPreauth](/pt-br/docs/protocol-reference/ledger-data/ledger-objects-types/deposit-pre-auth) para gerenciar pré-autorizações.
 
 ##### Hooks
 
@@ -83,7 +83,7 @@ Atualizações e melhorias no sistema de Hooks.
 
 ##### Remit
 
-Implementa o [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156). Um novo tipo de transação de pagamento push simples e poderoso do tipo "o que você vê é o que você obtém". Habilita [transações Remit](/docs/protocol-reference/transactions/transaction-types/remit) que permitem pagar múltiplas moedas e URITokens na mesma transação para o mesmo destino. A transação paga automaticamente para criar trustlines ausentes, paga automaticamente as reservas em tokens transferidos e paga automaticamente para criar a conta de destino caso ela não exista. Você pode cunhar um recibo ou URIToken bônus inline dentro da transação. Opcionalmente, informe um Hook de terceiros sobre a transação. Sem pagamentos parciais e sem roteamento.
+Implementa o [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156). Um novo tipo de transação de pagamento push simples e poderoso do tipo "o que você vê é o que você obtém". Habilita [transações Remit](/pt-br/docs/protocol-reference/transactions/transaction-types/remit) que permitem pagar múltiplas moedas e URITokens na mesma transação para o mesmo destino. A transação paga automaticamente para criar trustlines ausentes, paga automaticamente as reservas em tokens transferidos e paga automaticamente para criar a conta de destino caso ela não exista. Você pode cunhar um recibo ou URIToken bônus inline dentro da transação. Opcionalmente, informe um Hook de terceiros sobre a transação. Sem pagamentos parciais e sem roteamento.
 
 ##### ZeroB2M
 
@@ -91,7 +91,7 @@ Desabilita o caminho de queima para cunhagem de XRP para XAH. O comportamento no
 
 ##### Remarks
 
-O amendment Remarks permite que pares chave-valor (semelhante ao estado de hook) sejam armazenados pelos proprietários de objetos nesses objetos. Isso é como virar um documento e escrever uma nota à mão nele. Os Remarks podem ser qualquer coisa e significar coisas diferentes para partes diferentes. Os Remarks também podem ser definidos como imutáveis. Os Remarks seguem um objeto ao longo das mudanças de propriedade e podem ser usados para alcançar casos de uso inovadores, como NFTs dinâmicos e simplificar algumas operações de estado de hook que de outra forma seriam muito complicadas. Habilita [transações SetRemarks](/docs/protocol-reference/transactions/transaction-types/setremarks).
+O amendment Remarks permite que pares chave-valor (semelhante ao estado de hook) sejam armazenados pelos proprietários de objetos nesses objetos. Isso é como virar um documento e escrever uma nota à mão nele. Os Remarks podem ser qualquer coisa e significar coisas diferentes para partes diferentes. Os Remarks também podem ser definidos como imutáveis. Os Remarks seguem um objeto ao longo das mudanças de propriedade e podem ser usados para alcançar casos de uso inovadores, como NFTs dinâmicos e simplificar algumas operações de estado de hook que de outra forma seriam muito complicadas. Habilita [transações SetRemarks](/pt-br/docs/protocol-reference/transactions/transaction-types/setremarks).
 
 ##### Touch
 
@@ -99,11 +99,11 @@ Este amendment garante que todas as contas envolvidas em uma transação (todos 
 
 ##### HookCanEmit
 
-Este amendment adiciona um novo campo aos objetos HookSet: `HookCanEmit` é sintaticamente idêntico ao campo `HookOn`, exceto que controla quais tipos de transação o Hook tem permissão para emitir, em vez de quais tipos de transação acionam o Hook. Observe que ele usa a mesma semântica active-low que `HookOn`, com `SetHook` sendo active-high. No entanto, se o campo estiver ausente, presume-se que o Hook pode emitir qualquer transação, incluindo `SetHook`. Adiciona o campo `HookCanEmit` aos objetos [HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition).
+Este amendment adiciona um novo campo aos objetos HookSet: `HookCanEmit` é sintaticamente idêntico ao campo `HookOn`, exceto que controla quais tipos de transação o Hook tem permissão para emitir, em vez de quais tipos de transação acionam o Hook. Observe que ele usa a mesma semântica active-low que `HookOn`, com `SetHook` sendo active-high. No entanto, se o campo estiver ausente, presume-se que o Hook pode emitir qualquer transação, incluindo `SetHook`. Adiciona o campo `HookCanEmit` aos objetos [HookDefinition](/pt-br/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition).
 
 ##### Clawback
 
-Habilita [transações Clawback](/docs/protocol-reference/transactions/transaction-types/clawback) que permitem aos emissores revogar tokens que foram previamente emitidos por sua conta. Este é um recurso portado do XRPL. _(Introduzido em 2025.7.9-release+1951)_
+Habilita [transações Clawback](/pt-br/docs/protocol-reference/transactions/transaction-types/clawback) que permitem aos emissores revogar tokens que foram previamente emitidos por sua conta. Este é um recurso portado do XRPL. _(Introduzido em 2025.7.9-release+1951)_
 
 ##### DeepFreeze
 
@@ -111,15 +111,15 @@ Habilita a funcionalidade de congelamento profundo para trustlines e ativos. Est
 
 ##### IOUIssuerWeakTSH
 
-Torna os emissores de IOU stakeholders transacionais fracos (TSH) em certos tipos de transação. Garante que os Emissores de Moeda tenham seus hooks executados em transações de terceiros que tocam ou mencionam sua moeda, se optarem pela execução fraca. Consulte [Fraco e Forte](/docs/hooks/concepts/weak-and-strong) para detalhes. _(Introduzido em 2025.7.9-release+1951)_
+Torna os emissores de IOU stakeholders transacionais fracos (TSH) em certos tipos de transação. Garante que os Emissores de Moeda tenham seus hooks executados em transações de terceiros que tocam ou mencionam sua moeda, se optarem pela execução fraca. Consulte [Fraco e Forte](/pt-br/docs/hooks/concepts/weak-and-strong) para detalhes. _(Introduzido em 2025.7.9-release+1951)_
 
 ##### Cron
 
-Habilita a execução agendada de Hook via [transações CronSet](/docs/protocol-reference/transactions/transaction-types/cronset) e [objetos de ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron). Este recurso permite que os Hooks agendem uma série de auto-invocações futuras (semelhante a um cronjob em sistemas Linux), o que pode auxiliar os desenvolvedores de Hook a escrever estruturas de governança complexas, jogos e mais. O número máximo de repetições é 256, no entanto, emitir uma transação `CronSet` adicional pode estender esse limite quando o número de repetições ultrapassar um limite mínimo desejado. _(Introduzido em 2025.10.27-release+2405)_
+Habilita a execução agendada de Hook via [transações CronSet](/pt-br/docs/protocol-reference/transactions/transaction-types/cronset) e [objetos de ledger Cron](/pt-br/docs/protocol-reference/ledger-data/ledger-objects-types/cron). Este recurso permite que os Hooks agendem uma série de auto-invocações futuras (semelhante a um cronjob em sistemas Linux), o que pode auxiliar os desenvolvedores de Hook a escrever estruturas de governança complexas, jogos e mais. O número máximo de repetições é 256, no entanto, emitir uma transação `CronSet` adicional pode estender esse limite quando o número de repetições ultrapassar um limite mínimo desejado. _(Introduzido em 2025.10.27-release+2405)_
 
 ##### ExtendedHookState
 
-Estende as capacidades de gerenciamento de estado de Hook, incluindo o campo `HookStateScale` para objetos [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) para controlar quando as entradas de estado de Hook ficam obsoletas. Este recurso expande a quantidade de dados que os Hooks podem armazenar em seu Hook State (sistema chave-valor para Hooks) para permitir que os Hooks tenham armazenamento de dados mais rico quando necessário. A escala (até 16) afeta tanto o tamanho máximo do valor que você pode armazenar em um único estado de hook, quanto o número de unidades de reserva que esse par k-v consome. Uma escala de 1 (padrão) significa que você paga 1 reserva por até 256 bytes armazenados por Hook State. Uma escala de 4 significa que você paga 4 unidades de reserva por até 1024 bytes por Hook State. É importante notar que você paga essa taxa (a taxa de escala) mesmo que todos os seus Hook States contenham apenas um único byte. É possível aumentar a escala após seu Hook já ter armazenado estado, mas não diminuí-la. Diminuir a escala requer que todo o HookState seja primeiro excluído. _(Introduzido em 2025.10.27-release+2405)_
+Estende as capacidades de gerenciamento de estado de Hook, incluindo o campo `HookStateScale` para objetos [AccountRoot](/pt-br/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) para controlar quando as entradas de estado de Hook ficam obsoletas. Este recurso expande a quantidade de dados que os Hooks podem armazenar em seu Hook State (sistema chave-valor para Hooks) para permitir que os Hooks tenham armazenamento de dados mais rico quando necessário. A escala (até 16) afeta tanto o tamanho máximo do valor que você pode armazenar em um único estado de hook, quanto o número de unidades de reserva que esse par k-v consome. Uma escala de 1 (padrão) significa que você paga 1 reserva por até 256 bytes armazenados por Hook State. Uma escala de 4 significa que você paga 4 unidades de reserva por até 1024 bytes por Hook State. É importante notar que você paga essa taxa (a taxa de escala) mesmo que todos os seus Hook States contenham apenas um único byte. É possível aumentar a escala após seu Hook já ter armazenado estado, mas não diminuí-la. Diminuir a escala requer que todo o HookState seja primeiro excluído. _(Introduzido em 2025.10.27-release+2405)_
 
 #### Amendments de Correção de Bugs
 
@@ -153,7 +153,7 @@ Amendment de correção de bug de 11 de setembro de 2024.
 
 ##### fixFloatDivide
 
-Corrige problemas com operações de divisão de ponto flutuante nos Hooks. Este amendment garante o tratamento adequado da divisão por zero e casos extremos na função `float_divide`. Altera o comportamento da API de hook `float_divide` para corrigir um pequeno erro. Este amendment está configurado com voto padrão: _sim_. Consulte [float_divide](/docs/hooks/functions/float/float_divide) para detalhes. _(Introduzido em 2024.11.18-release+1141)_
+Corrige problemas com operações de divisão de ponto flutuante nos Hooks. Este amendment garante o tratamento adequado da divisão por zero e casos extremos na função `float_divide`. Altera o comportamento da API de hook `float_divide` para corrigir um pequeno erro. Este amendment está configurado com voto padrão: _sim_. Consulte [float_divide](/pt-br/docs/hooks/functions/float/float_divide) para detalhes. _(Introduzido em 2024.11.18-release+1141)_
 
 ##### fixReduceImport
 

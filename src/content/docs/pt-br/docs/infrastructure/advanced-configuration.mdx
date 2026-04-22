@@ -27,7 +27,7 @@ Administradores que operam validadores xahaud podem se beneficiar da clusteriza�
 
 Operadores de servidores não devem clusterizar seus servidores com servidores fora de seu próprio controle. Da mesma forma, servidores clusterizados devem ter conexões de baixa latência, idealmente localizados no mesmo data center.
 
-A geração de seeds de cluster (chaves públicas/privadas) é feita por meio do [método de API](/docs/features/http-websocket-apis/admin-api-methods) `validation_create`. Embora o nome do método inclua o termo 'validation', esse método não é usado para [criar as chaves](/docs/infrastructure/enabling-validation) usadas para assinar mensagens de validação. Em vez disso, é usado para criar chaves para identificar qualquer servidor xahaud, seja validador ou não.
+A geração de seeds de cluster (chaves públicas/privadas) é feita por meio do [método de API](/pt-br/docs/features/http-websocket-apis/admin-api-methods) `validation_create`. Embora o nome do método inclua o termo 'validation', esse método não é usado para [criar as chaves](/pt-br/docs/infrastructure/enabling-validation) usadas para assinar mensagens de validação. Em vez disso, é usado para criar chaves para identificar qualquer servidor xahaud, seja validador ou não.
 
 Para criar um cluster:
 1. Em cada instância do xahaud que será incluída no cluster, gere uma chave pública e seed: `./xahaud validation_create`
@@ -37,7 +37,7 @@ Para criar um cluster:
     * `[cluster_nodes]` - A saída do campo `validation_public_key` do comando `validation_create`. Esta é uma chave pública e deve ser instalada em servidores pares, não no servidor em que foi gerada.
 3. Reinicie o xahaud em cada servidor do cluster: `systemctl restart xahaud`
 4. Faça backup do `xahaud.cfg` de cada servidor.
-5. Verifique a conectividade entre os pares clusterizados por meio do método de API [peers](/docs/features/http-websocket-apis/admin-api-methods): `./xahaud peers`
+5. Verifique a conectividade entre os pares clusterizados por meio do método de API [peers](/pt-br/docs/features/http-websocket-apis/admin-api-methods): `./xahaud peers`
 
 A seção de cluster de um arquivo `xahaud.cfg` pode ser assim:
 ```

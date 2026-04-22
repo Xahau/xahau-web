@@ -46,7 +46,7 @@ Como pseudo-transação, `Cron` usa os valores padrão de pseudo-transação par
 
 ### Comportamento de Execução
 
-Quando um [objeto de ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron) está pronto para executar (com base nos campos `StartTime`, `DelaySeconds` e `RepeatCount`), o motor Cron insere automaticamente uma pseudo-transação `Cron` no ledger.
+Quando um [objeto de ledger Cron](/pt-br/docs/protocol-reference/ledger-data/ledger-objects-types/cron) está pronto para executar (com base nos campos `StartTime`, `DelaySeconds` e `RepeatCount`), o motor Cron insere automaticamente uma pseudo-transação `Cron` no ledger.
 
 A pseudo-transação contém um campo `Owner` que referencia a conta com o Hook agendado. O Hook nessa conta será invocado automaticamente, e a conta é tratada como um **parte interessada transacional fraca (TSH)** durante a execução.
 
@@ -54,7 +54,7 @@ A pseudo-transação contém um campo `Owner` que referencia a conta com o Hook 
 
 ### Documentação Relacionada
 
-* [Transação CronSet](/docs/protocol-reference/transactions/transaction-types/cronset): Cria, atualiza ou exclui execuções de Hook agendadas
-* [Objeto de ledger Cron](/docs/protocol-reference/ledger-data/ledger-objects-types/cron): O objeto de ledger que representa uma execução de Hook agendada
-* [Fraco e Forte](/docs/hooks/concepts/weak-and-strong): Entendendo partes interessadas transacionais
-* [Hooks de Chamada de Coleta](/docs/hooks/concepts/collect-call): Como Hooks de TSH fraco são executados
+* [Transação CronSet](/pt-br/docs/protocol-reference/transactions/transaction-types/cronset): Cria, atualiza ou exclui execuções de Hook agendadas
+* [Objeto de ledger Cron](/pt-br/docs/protocol-reference/ledger-data/ledger-objects-types/cron): O objeto de ledger que representa uma execução de Hook agendada
+* [Fraco e Forte](/pt-br/docs/hooks/concepts/weak-and-strong): Entendendo partes interessadas transacionais
+* [Hooks de Chamada de Coleta](/pt-br/docs/hooks/concepts/collect-call): Como Hooks de TSH fraco são executados

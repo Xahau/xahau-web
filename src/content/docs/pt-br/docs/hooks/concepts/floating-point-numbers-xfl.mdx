@@ -8,7 +8,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 [Floating point numbers](https://en.wikipedia.org/wiki/Floating-point_arithmetic) are widely used in computer science to do calculation of finite precision but arbitrary scale numbers.
 
-Most modern CPUs are capable of performing fast floating point operations using the [IEEE binary floating point standard](https://en.wikipedia.org/wiki/Double-precision_floating-point_format) however `xahaud` does **not** use this format. Instead Xahau uses a [bespoke decimal floating point standard](/docs/protocol-reference/binary-format).
+Most modern CPUs are capable of performing fast floating point operations using the [IEEE binary floating point standard](https://en.wikipedia.org/wiki/Double-precision_floating-point_format) however `xahaud` does **not** use this format. Instead Xahau uses a [bespoke decimal floating point standard](/pt-br/docs/protocol-reference/binary-format).
 
 This custom format has three basic properties:
 
@@ -50,26 +50,26 @@ Once you have an XFL you can use the Float API to do various computations. The F
 
 | Hook API                                                                | What it does                                                          |
 | ----------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [float_set](/docs/hooks/functions/float/float_set)           | Create a float from an exponent and mantissa                          |
-| [float_multiply](/docs/hooks/functions/float/float_multiply) | Multiply two XFL numbers together                                     |
-| [float_mulratio](/docs/hooks/functions/float/float_mulratio) | Multiply an XFL floating point by a non-XFL numerator and denominator |
-| [float_negate](/docs/hooks/functions/float/float_negate)     | Negate an XFL floating point number                                   |
-| [float_compare](/docs/hooks/functions/float/float_compare)   | Perform a comparison on two XFL floating point numbers                |
-| [float_sum](/docs/hooks/functions/float/float_sum)           | Add two XFL numbers together                                          |
-| [float_sto](/docs/hooks/functions/float/float_sto)           | Output an XFL as a serialized object                                  |
-| [float_sto_set](/docs/hooks/functions/float/float_sto_set)  | Read a serialized amount into an XFL                                  |
-| [float_invert](/docs/hooks/functions/float/float_invert)     | Divide one by an XFL floating point number                            |
-| [float_divide](/docs/hooks/functions/float/float_divide)     | Divide an XFL by another XFL floating point number                    |
-| [float_one](/docs/hooks/functions/float/float_one)           | Return the number 1 represented in an XFL enclosing number            |
-| [float_exponent](/docs/hooks/functions/float/float_exponent) | Get the exponent of an XFL enclosing number                           |
-| [float_mantissa](/docs/hooks/functions/float/float_mantissa) | Get the mantissa of an XFL enclosing number                           |
-| [float_sign](/docs/hooks/functions/float/float_sign)         | Get the sign of an XFL enclosing number                               |
+| [float_set](/pt-br/docs/hooks/functions/float/float_set)           | Create a float from an exponent and mantissa                          |
+| [float_multiply](/pt-br/docs/hooks/functions/float/float_multiply) | Multiply two XFL numbers together                                     |
+| [float_mulratio](/pt-br/docs/hooks/functions/float/float_mulratio) | Multiply an XFL floating point by a non-XFL numerator and denominator |
+| [float_negate](/pt-br/docs/hooks/functions/float/float_negate)     | Negate an XFL floating point number                                   |
+| [float_compare](/pt-br/docs/hooks/functions/float/float_compare)   | Perform a comparison on two XFL floating point numbers                |
+| [float_sum](/pt-br/docs/hooks/functions/float/float_sum)           | Add two XFL numbers together                                          |
+| [float_sto](/pt-br/docs/hooks/functions/float/float_sto)           | Output an XFL as a serialized object                                  |
+| [float_sto_set](/pt-br/docs/hooks/functions/float/float_sto_set)  | Read a serialized amount into an XFL                                  |
+| [float_invert](/pt-br/docs/hooks/functions/float/float_invert)     | Divide one by an XFL floating point number                            |
+| [float_divide](/pt-br/docs/hooks/functions/float/float_divide)     | Divide an XFL by another XFL floating point number                    |
+| [float_one](/pt-br/docs/hooks/functions/float/float_one)           | Return the number 1 represented in an XFL enclosing number            |
+| [float_exponent](/pt-br/docs/hooks/functions/float/float_exponent) | Get the exponent of an XFL enclosing number                           |
+| [float_mantissa](/pt-br/docs/hooks/functions/float/float_mantissa) | Get the mantissa of an XFL enclosing number                           |
+| [float_sign](/pt-br/docs/hooks/functions/float/float_sign)         | Get the sign of an XFL enclosing number                               |
 | float_exponent_set                                                    | Set the exponent of an XFL enclosing number                           |
 | float_mantissa_set                                                    | Set the mantissa of an XFL enclosing number                           |
 | float_sign_set                                                        | Set the sign of an XFL enclosing number                               |
-| [float_int](/docs/hooks/functions/float/float_int)           | Convert an XFL floating point into an integer floor                 |
-| [float_root](/docs/hooks/functions/float/float_root)         | Compute the nth root of an XFL                                        |
-| [float_log](/docs/hooks/functions/float/float_log)           | Compute the decimal log of an XFL                                     |
+| [float_int](/pt-br/docs/hooks/functions/float/float_int)           | Convert an XFL floating point into an integer floor                 |
+| [float_root](/pt-br/docs/hooks/functions/float/float_root)         | Compute the nth root of an XFL                                        |
+| [float_log](/pt-br/docs/hooks/functions/float/float_log)           | Compute the decimal log of an XFL                                     |
 
 <Aside type="caution">
   You should never do any direct math or comparison on the _enclosing number_. This will almost always result in incorrect computations.

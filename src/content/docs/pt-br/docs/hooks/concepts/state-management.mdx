@@ -12,13 +12,13 @@ import { Aside } from '@astrojs/starlight/components';
 
 State Management is achieved using
 
-* [state](/docs/hooks/functions/state/state)
-* [state_set](/docs/hooks/functions/state/state_set)
-* [state_foreign](/docs/hooks/functions/state/state_foreign)
+* [state](/pt-br/docs/hooks/functions/state/state)
+* [state_set](/pt-br/docs/hooks/functions/state/state_set)
+* [state_foreign](/pt-br/docs/hooks/functions/state/state_foreign)
 
 ### Storing and fetching
 
-The below example uses the [state_set](/docs/hooks/functions/state/state_set) Hook API to assign the value `0xC001CAFE` to the key `0x0..000001` (uint256 = 1) in the Hook State of the Hook Account.
+The below example uses the [state_set](/pt-br/docs/hooks/functions/state/state_set) Hook API to assign the value `0xC001CAFE` to the key `0x0..000001` (uint256 = 1) in the Hook State of the Hook Account.
 
 ```c
 uint8_t key[32] = {
@@ -58,8 +58,8 @@ After the above code has run the `value` buffer will be populated with the value
 
 ### Foreign state
 
-From time to time it may be advantageous for one Hook running on one account to read the Hook State of another Hook running on another account. The [state_foreign](/docs/hooks/functions/state/state_foreign) Hook API does exactly this. Because the ledger is public there is no reasonable expectation of privacy anyway. Any Hook may therefore _read_ (but not write) the Hook State of any other Hook.
+From time to time it may be advantageous for one Hook running on one account to read the Hook State of another Hook running on another account. The [state_foreign](/pt-br/docs/hooks/functions/state/state_foreign) Hook API does exactly this. Because the ledger is public there is no reasonable expectation of privacy anyway. Any Hook may therefore _read_ (but not write) the Hook State of any other Hook.
 
 ### Namespaces and querying
 
-Please see [Namespaces](/docs/hooks/concepts/namespaces)
+Please see [Namespaces](/pt-br/docs/hooks/concepts/namespaces)

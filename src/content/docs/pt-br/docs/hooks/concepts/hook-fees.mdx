@@ -8,7 +8,7 @@ SetHook transactions are charged per byte of created webassembly. The rate is 50
 
 ### Hook Execution Fees
 
-When Hooks are [Strongly Executed](/docs/hooks/concepts/weak-and-strong) the originating transaction must pay for the Strong Executions in the originating transaction's fee.
+When Hooks are [Strongly Executed](/pt-br/docs/hooks/concepts/weak-and-strong) the originating transaction must pay for the Strong Executions in the originating transaction's fee.
 
 Hook Execution fees are charged at a rate of 1 drop per web assembly instruction in the worst-case execution of the function `hook` (or `cbak` in the case of a callback). Thus a small Hook with a lot of looping may end up attracting high runtime fees.
 
@@ -59,6 +59,6 @@ If there is an invalid value for `tx_blob` or `tx_blob` is missing, a regular JS
 
 ### Emission Fees
 
-Hooks have access to the same computation the _Fee RPC Helper_ does. To use this simply call [etxn_fee_base](/docs/hooks/functions/emitted-transaction/etxn_fee_base) with a buffer containing the serialised transaction as the arguments. As with the RPC call, you must ensure that the `Fee` field is present in the serialised transaction. The value is irrelevant.
+Hooks have access to the same computation the _Fee RPC Helper_ does. To use this simply call [etxn_fee_base](/pt-br/docs/hooks/functions/emitted-transaction/etxn_fee_base) with a buffer containing the serialised transaction as the arguments. As with the RPC call, you must ensure that the `Fee` field is present in the serialised transaction. The value is irrelevant.
 
-When `etxn_fee_base` returns the recommended fee you may use [sto_emplace](/docs/hooks/functions/serialization/sto_emplace) to emplace it into the serialised transaction before emission. The relevant field is `sfFee`.
+When `etxn_fee_base` returns the recommended fee you may use [sto_emplace](/pt-br/docs/hooks/functions/serialization/sto_emplace) to emplace it into the serialised transaction before emission. The relevant field is `sfFee`.

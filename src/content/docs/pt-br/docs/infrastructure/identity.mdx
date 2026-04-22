@@ -167,7 +167,7 @@ Entidades que precisam de verificação de conta podem usar esta seção para re
 ## Verificação de Domínio do Validador
 Hospedar o arquivo `xahau.toml` permite que proprietários de domínio reivindiquem a propriedade de um validador. No entanto, é crítico que o validador também reconheça essa propriedade, para que terceiros possam confiar de forma confiável nos operadores de rede. Como os validadores formam a espinha dorsal do progresso na Rede Xahau, é importante que os operadores protejam adequadamente suas chaves de validação privadas.
 
-Se você não está familiarizado com a Ferramenta de Chaves de Validador, consulte a página sobre [Habilitando a Validação no xahaud](/docs/infrastructure/enabling-validation).
+Se você não está familiarizado com a Ferramenta de Chaves de Validador, consulte a página sobre [Habilitando a Validação no xahaud](/pt-br/docs/infrastructure/enabling-validation).
 
 Usuários que já concluíram as etapas na página Habilitando a Validação não precisam repeti-las. Basta colar o campo `attestation = ""` no arquivo TOML e garantir que o `[validator_token]` correto esteja instalado no `xahaud.cfg`.
 
@@ -176,4 +176,4 @@ Usuários que não configuraram um domínio quando geraram inicialmente um token
 ## Verificação de Endereço de Carteira
 Consistente com a verificação de domínio do validador, verificar a propriedade de um endereço de carteira na Rede Xahau requer dois componentes: um arquivo TOML servido por uma conexão criptografada com TLS (com um certificado devidamente encadeado) do domínio que reivindica a propriedade e uma transação do endereço da carteira verificando a reivindicação de propriedade. Para reivindicar a propriedade de um endereço de carteira:
 1. Inclua o endereço como uma seção `[[accounts]]` no arquivo TOML.
-2. Envie uma [transação AccountSet](/docs/protocol-reference/transactions/transaction-types/accountset) com o campo `Domain` especificado.
+2. Envie uma [transação AccountSet](/pt-br/docs/protocol-reference/transactions/transaction-types/accountset) com o campo `Domain` especificado.

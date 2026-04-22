@@ -4,15 +4,15 @@ description: Prevent state clobbering by using the correct namespace
 ---
 ### Namespaces
 
-To avoid two or more Hooks installed on the same account unintentionally clobbering each-other's [Hook State](/docs/hooks/concepts/state-management), a 32 byte namespace must be provided when creating or installing each Hook.
+To avoid two or more Hooks installed on the same account unintentionally clobbering each-other's [Hook State](/pt-br/docs/hooks/concepts/state-management), a 32 byte namespace must be provided when creating or installing each Hook.
 
 The namespace may be any arbitrary 32 byte value the developer chooses. Provided the namespace is unique in the Hook chain no state clobbering will occur.
 
 We strongly recommended using `SHA256` over the developer's working name for the Hook. SHA256 is one of the two hashing algorithms used in the derivation of Xahau addresses (from an account master key), and, as such, it should be readily available to the developer.
 
-The `HookNamespace` field is supplied as a 32 byte _hex_ blob inside each `Hook` object in a `Hooks` array when [executing a SetHook transaction](/docs/hooks/concepts/sethook-transaction).
+The `HookNamespace` field is supplied as a 32 byte _hex_ blob inside each `Hook` object in a `Hooks` array when [executing a SetHook transaction](/pt-br/docs/hooks/concepts/sethook-transaction).
 
-The configured Namespace a Hook operates under alters the [Keylets](/docs/hooks/concepts/slots-and-keylets) its [State](/docs/hooks/concepts/state-management) is stored under. Therefore two Hooks under two different Namespaces installed on the same Xahau account may use the same state key to refer to different state objects. Conversely, two different Hooks using the same Namespace on the same Xahau account can access and modify eachother's state objects using the same state keys.
+The configured Namespace a Hook operates under alters the [Keylets](/pt-br/docs/hooks/concepts/slots-and-keylets) its [State](/pt-br/docs/hooks/concepts/state-management) is stored under. Therefore two Hooks under two different Namespaces installed on the same Xahau account may use the same state key to refer to different state objects. Conversely, two different Hooks using the same Namespace on the same Xahau account can access and modify eachother's state objects using the same state keys.
 
 ### Example
 
@@ -25,7 +25,7 @@ HookNamespace: addr.codec.sha256('carbon').toString('hex')
 
 ### Default Namespace
 
-The first user to [set a novel Hook](/docs/hooks/concepts/sethook-transaction) defines a `HookNamespace` which becomes the _Default Namespace_ for that Hook. This means any subsequent users who [reference the same _HookDefinition_](/docs/hooks/concepts/reference-counted-hook-definitions) will receive this originally set Namespace by default.
+The first user to [set a novel Hook](/pt-br/docs/hooks/concepts/sethook-transaction) defines a `HookNamespace` which becomes the _Default Namespace_ for that Hook. This means any subsequent users who [reference the same _HookDefinition_](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) will receive this originally set Namespace by default.
 
 The subsequent user may specify their own Namespace, overriding the Default Namespace for their installation only.
 
@@ -33,9 +33,9 @@ The subsequent user may specify their own Namespace, overriding the Default Name
 
 Choice of HookNamespace affects the behaviour of the following Hook APIs:
 
-* [state](/docs/hooks/functions/state/state)
-* [state_set](/docs/hooks/functions/state/state_set)
+* [state](/pt-br/docs/hooks/functions/state/state)
+* [state_set](/pt-br/docs/hooks/functions/state/state_set)
 
 ### Namespace API Helper
 
-See [account_info](/docs/hooks/functions/websocket-apis/account_info) and [account_namespace](/docs/hooks/functions/websocket-apis/account_namespace) for information about how to query the ledger regarding namespaces.
+See [account_info](/pt-br/docs/hooks/functions/websocket-apis/account_info) and [account_namespace](/pt-br/docs/hooks/functions/websocket-apis/account_namespace) for information about how to query the ledger regarding namespaces.

@@ -4,11 +4,11 @@ description: Install-time parameters allow Hooks to be generic and flexible
 ---
 ### Parameters
 
-Hook developers may opt to use _install-time_ parameters (called Hook Parameters) in their Hook. This allows subsequent installers of the Hook to change certain behaviours the programmer defines without recompiling or re-uploading the Hook (assuming at least one account still [references](/docs/hooks/concepts/reference-counted-hook-definitions) the existing Hook Definition.)
+Hook developers may opt to use _install-time_ parameters (called Hook Parameters) in their Hook. This allows subsequent installers of the Hook to change certain behaviours the programmer defines without recompiling or re-uploading the Hook (assuming at least one account still [references](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) the existing Hook Definition.)
 
-Hook Parameters are a set of Key-Value pairs set during the [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) and retrievable by the Hook during runtime. Both the `ParameterName` key and the `ParameterValue` are set as _hex_ blobs, and have a maximum length of 32 bytes and 256 bytes respectively.
+Hook Parameters are a set of Key-Value pairs set during the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction) and retrievable by the Hook during runtime. Both the `ParameterName` key and the `ParameterValue` are set as _hex_ blobs, and have a maximum length of 32 bytes and 256 bytes respectively.
 
-A [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) may define up to _16_ Hook Parameters per installed Hook.
+A [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction) may define up to _16_ Hook Parameters per installed Hook.
 
 ### Setting Parameters
 
@@ -40,7 +40,7 @@ Hooks:
 
 ### Default Parameters
 
-The first user to [set a novel Hook](/docs/hooks/concepts/sethook-transaction) may define Hook Parameters which then become the _Default Parameters_ for that Hook. This means any subsequent users who [references the same _HookDefinition_](/docs/hooks/concepts/reference-counted-hook-definitions) will receive these originally set Hook Parameters by default.
+The first user to [set a novel Hook](/pt-br/docs/hooks/concepts/sethook-transaction) may define Hook Parameters which then become the _Default Parameters_ for that Hook. This means any subsequent users who [references the same _HookDefinition_](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) will receive these originally set Hook Parameters by default.
 
 The subsequent user may specify their own Parameters, overriding the Default Parameters for their installation.
 
@@ -48,10 +48,10 @@ To erase a Parameter in a subsequent installation, specify the `ParameterName` k
 
 ### Using Parameters in Hooks
 
-Parameters can be read by the Hooks they are set on using [hook_param](/docs/hooks/functions/hook-context/hook_param).
+Parameters can be read by the Hooks they are set on using [hook_param](/pt-br/docs/hooks/functions/hook-context/hook_param).
 
-If more than one Hook is installed in a Hook Chain, then [hook_param_set](/docs/hooks/functions/hook-context/hook_param_set) can be used in limited circumstances to modify the Hook Parameters of a Hook further down the chain on the same account.
+If more than one Hook is installed in a Hook Chain, then [hook_param_set](/pt-br/docs/hooks/functions/hook-context/hook_param_set) can be used in limited circumstances to modify the Hook Parameters of a Hook further down the chain on the same account.
 
 ### Runtime Parameters
 
-On Xahau and the Xahau testnet, HookParameters may also be included at the top level of any transaction type according to the foregoing rules and size limits. These parameters can be accessed inside a hook using the [otxn_param](/docs/hooks/functions/originating-transaction/otxn_param) API.
+On Xahau and the Xahau testnet, HookParameters may also be included at the top level of any transaction type according to the foregoing rules and size limits. These parameters can be accessed inside a hook using the [otxn_param](/pt-br/docs/hooks/functions/originating-transaction/otxn_param) API.

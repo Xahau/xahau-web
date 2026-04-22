@@ -5,7 +5,7 @@ title: Cron
 
 _(Adicionado pela [emenda Cron][].)_
 
-Um objeto `Cron` representa uma execução agendada de Hook criada por uma [transação CronSet](/docs/protocol-reference/transactions/transaction-types/cronset). O mecanismo Cron insere automaticamente pseudo-transações do tipo `Cron` no ledger quando execuções agendadas estão vencidas.
+Um objeto `Cron` representa uma execução agendada de Hook criada por uma [transação CronSet](/pt-br/docs/protocol-reference/transactions/transaction-types/cronset). O mecanismo Cron insere automaticamente pseudo-transações do tipo `Cron` no ledger quando execuções agendadas estão vencidas.
 
 ### Exemplo JSON
 
@@ -32,7 +32,7 @@ Um objeto `Cron` tem os seguintes campos:
 | `Owner`             | String    | AccountID           | Sim          | A conta que possui a execução agendada de Hook. Esta é a conta que será invocada quando o cron executar.                                                                                                                                                                           |
 | `OwnerNode`         | String    | UInt64              | Sim          | Uma dica indicando qual página do diretório do proprietário aponta para este objeto, caso o diretório consista em múltiplas páginas. **Nota:** O objeto não contém um link direto para o diretório do proprietário que o contém, pois esse valor pode ser derivado de `Owner`.     |
 | `StartTime`         | Number    | UInt32              | Sim          | Timestamp da Época Ripple para quando a primeira execução deve ocorrer. Use `0` para execução imediata. Consulte \[Especificando Tempo]\[] para detalhes.                                                                                                                           |
-| `RepeatCount`       | Number    | UInt32              | Sim          | Número de vezes que o cron deve executar. Pode ser estendido via [transações CronSet](/docs/protocol-reference/transactions/transaction-types/cronset) subsequentes. Máximo de 256 por transação, mas pode ser estendido além deste limite.                                          |
+| `RepeatCount`       | Number    | UInt32              | Sim          | Número de vezes que o cron deve executar. Pode ser estendido via [transações CronSet](/pt-br/docs/protocol-reference/transactions/transaction-types/cronset) subsequentes. Máximo de 256 por transação, mas pode ser estendido além deste limite.                                          |
 | `DelaySeconds`      | Number    | UInt32              | Sim          | Intervalo de tempo em segundos entre cada execução. Máximo de 31.536.000 segundos (365 dias).                                                                                                                                                                                      |
 | `PreviousTxnID`     | String    | Hash256             | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                                                                                                                                                     |
 | `PreviousTxnLgrSeq` | Number    | UInt32              | Sim          | O \[índice do ledger]\[Índice de Ledger] que contém a transação que mais recentemente modificou este objeto.                                                                                                                                                                       |
@@ -54,4 +54,4 @@ Desenvolvedores de Hook devem habilitar collect calls (flag `hsfCOLLECT`) em seu
 
 ### Transações Relacionadas
 
-* [Transação CronSet](/docs/protocol-reference/transactions/transaction-types/cronset): Cria, atualiza ou exclui um objeto Cron
+* [Transação CronSet](/pt-br/docs/protocol-reference/transactions/transaction-types/cronset): Cria, atualiza ou exclui um objeto Cron

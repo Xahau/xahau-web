@@ -14,16 +14,16 @@ import { Aside } from '@astrojs/starlight/components';
 
 ### Grants
 
-Grants provide a way for a Hook Installer to assign [State Management](/docs/hooks/concepts/state-management) permissions to a _foreign_ Hook on other Xahau accounts.
+Grants provide a way for a Hook Installer to assign [State Management](/pt-br/docs/hooks/concepts/state-management) permissions to a _foreign_ Hook on other Xahau accounts.
 
-A [SetHook Transaction](/docs/hooks/concepts/sethook-transaction) may specify a `HookGrants` array within any `Hook` object in its `Hooks` array. The `HookGrants` array contains one or more `HookGrant` objects (up to 8).
+A [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction) may specify a `HookGrants` array within any `Hook` object in its `Hooks` array. The `HookGrants` array contains one or more `HookGrant` objects (up to 8).
 
-Unlike [Parameters](/docs/hooks/concepts/parameters), the `HookGrants` array is always set exactly as specified in the [SetHook Transaction](/docs/hooks/concepts/sethook-transaction). Therefore if you wish to update a particular `HookGrant` whilst retaining multiple other `HookGrant` entires that were previously set, you must first obtain the old `HookGrants` array, modify it, and then resubmit the entire array in an [_Update_ Operation](/docs/hooks/concepts/sethook-transaction).
+Unlike [Parameters](/pt-br/docs/hooks/concepts/parameters), the `HookGrants` array is always set exactly as specified in the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction). Therefore if you wish to update a particular `HookGrant` whilst retaining multiple other `HookGrant` entires that were previously set, you must first obtain the old `HookGrants` array, modify it, and then resubmit the entire array in an [_Update_ Operation](/pt-br/docs/hooks/concepts/sethook-transaction).
 
 To delete all Grants submit an empty `HookGrants` array.
 
 <Aside type="caution">
-  Unlike [Parameters](/docs/hooks/concepts/parameters), the `HookGrants` array is always set exactly as specified in the [SetHook Transaction](/docs/hooks/concepts/sethook-transaction).
+  Unlike [Parameters](/pt-br/docs/hooks/concepts/parameters), the `HookGrants` array is always set exactly as specified in the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction).
 </Aside>
 
 A Grant permits a foreign XRPL account or Hook to modify the Hook State within the namespace of the specific Hook for which the Grant is defined.
@@ -87,4 +87,4 @@ The _second grant_ above allows:
 
 ### Using the Grant
 
-To make use of a grant, a Hook modifies State objects on a foreign account by calling [state_foreign_set](/docs/hooks/functions/state/state_foreign_set).
+To make use of a grant, a Hook modifies State objects on a foreign account by calling [state_foreign_set](/pt-br/docs/hooks/functions/state/state_foreign_set).
