@@ -23,12 +23,12 @@ export const roadmapItem = z.object({
   // Start quarter (required).
   quarter: quarterId,
   // How many quarters the activity covers, starting from `quarter`. Defaults to 1.
-  span: z.number().int().min(1).max(6).default(1),
+  span: z.number().int().min(1).max(6).default(1).optional(),
   // Alternative to `span`: an explicit end quarter (inclusive). Takes precedence if set.
   endQuarter: quarterId.optional(),
   // Ongoing activity with no firm end date. Stretches to the end of the visible
   // window and renders a "continues" indicator. Overrides `span`/`endQuarter`.
-  openEnded: z.boolean().optional().default(false),
+  openEnded: z.boolean().default(false).optional(),
   tag: localized.optional(),
   title: localized,
   description: localized.optional(),
