@@ -62,7 +62,7 @@ const nav = {
     about: 'Sobre',
     features: 'Recursos',
     ecosystem: 'Ecossistema',
-    roadmap: 'Roteiro',
+    roadmap: 'Roadmap',
     docs: 'Documentação',
     connect: 'Conectar',
     explorers: 'Exploradores',

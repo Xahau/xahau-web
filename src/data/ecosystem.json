@@ -1,4 +1,24 @@
 {
+  "meta": {
+    "title": {
+      "en": "Ecosystem",
+      "es": "Ecosistema",
+      "ja": "エコシステム",
+      "pt-BR": "Ecossistema"
+    },
+    "subtitle_suffix": {
+      "en": "built on or around Xahau",
+      "es": "construido en o alrededor de Xahau",
+      "ja": "Xahauで、またはXahauを中心に構築",
+      "pt-BR": "construído sobre ou ao redor do Xahau"
+    },
+    "trademark": {
+      "en": "All trademarks and logos are the property of their respective owners.",
+      "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",
+      "ja": "すべての商標およびロゴは、各所有者の財産です。",
+      "pt-BR": "Todas as marcas e logotipos são propriedade de seus respectivos donos."
+    }
+  },
   "sections": [
     {
       "id": "enterprise",
@@ -6,12 +26,14 @@
       "label": {
         "en": "Enterprises",
         "es": "Empresas",
-        "ja": "企業"
+        "ja": "企業",
+        "pt-BR": "Empresas"
       },
       "tagline": {
         "en": "Institutions that have adopted Xahau",
         "es": "Instituciones que han adoptado Xahau",
-        "ja": "Xahauを採用した機関"
+        "ja": "Xahauを採用した機関",
+        "pt-BR": "Instituições que adotaram o Xahau"
       },
       "items": [
         {
@@ -50,12 +72,14 @@
       "label": {
         "en": "Wallets",
         "es": "Carteras",
-        "ja": "ウォレット"
+        "ja": "ウォレット",
+        "pt-BR": "Carteiras"
       },
       "tagline": {
         "en": "Store, send and sign with XAH",
         "es": "Almacena, envía y firma con XAH",
-        "ja": "XAHを保管・送金・署名"
+        "ja": "XAHを保管・送金・署名",
+        "pt-BR": "Armazene, envie e assine com XAH"
       },
       "items": [
         {
@@ -91,12 +115,14 @@
       "label": {
         "en": "Exchanges",
         "es": "Exchanges",
-        "ja": "取引所"
+        "ja": "取引所",
+        "pt-BR": "Exchanges"
       },
       "tagline": {
         "en": "Buy, sell and trade XAH",
         "es": "Compra, vende y opera con XAH",
-        "ja": "XAHを売買・取引"
+        "ja": "XAHを売買・取引",
+        "pt-BR": "Compre, venda e negocie XAH"
       },
       "items": [
         {
@@ -131,12 +157,14 @@
       "label": {
         "en": "Explorers & Utilities",
         "es": "Exploradores y utilidades",
-        "ja": "エクスプローラーとユーティリティ"
+        "ja": "エクスプローラーとユーティリティ",
+        "pt-BR": "Exploradores e Utilitários"
       },
       "tagline": {
         "en": "Inspect and interact with the ledger",
         "es": "Inspecciona e interactúa con el ledger",
-        "ja": "台帳を検索・操作"
+        "ja": "台帳を検索・操作",
+        "pt-BR": "Inspecione e interaja com o ledger"
       },
       "items": [
         {
@@ -172,12 +200,14 @@
       "label": {
         "en": "Projects",
         "es": "Proyectos",
-        "ja": "プロジェクト"
+        "ja": "プロジェクト",
+        "pt-BR": "Projetos"
       },
       "tagline": {
         "en": "Apps, tools and experiences built on Xahau",
         "es": "Aplicaciones, herramientas y experiencias construidas en Xahau",
-        "ja": "Xahau上に構築されたアプリ・ツール・体験"
+        "ja": "Xahau上に構築されたアプリ・ツール・体験",
+        "pt-BR": "Apps, ferramentas e experiências construídas no Xahau"
       },
       "items": [
         {

@@ -12,10 +12,9 @@
  */
 
 import connectData from '../data/connect.json'
-import { normalizeLocale } from '../utils/localizedHref'
 
 type Locale = 'en' | 'es' | 'ja' | 'pt-BR'
-const locale = normalizeLocale(Astro.currentLocale ?? 'en') as Locale
+const locale = (Astro.currentLocale ?? 'en') as Locale
 
 // ── Date-based split (build time) ────────────────────────────────────────────
 const today = new Date()

@@ -11,7 +11,7 @@
     },
     "i18n": {
       "defaultLocale": "en",
-      "locales": ["en", "es"]
+      "locales": ["en", "es", "pt-BR"]
     }
   },
 
@@ -95,6 +95,46 @@
         "launch": "Lanzamiento / bien público"
       },
       "foot": "Orientativo - sujeto a cambios - xahau.network"
+    },
+    "pt-BR": {
+      "title": "Roadmap da Xahau",
+      "subtitle": "Rede empresarial com adições mínimas de funcionalidades, máxima confiabilidade",
+      "statement": "Xahau é uma Blockchain Layer-1 de <em>Grau Empresarial</em>. As mudanças de protocolo são deliberadas e poucas. A maior parte do trabalho está nos <em>lançamentos</em>: auditorias, integrações e parcerias que colocam a rede nas mãos de usuários reais. Os itens listados aqui são indicativos e sujeitos a alterações. Este roadmap cobre atualmente apenas o desenvolvimento central e as atividades compartilhadas pela INFTF.",
+      "kpis": {
+        "features": "novas funcionalidades de protocolo",
+        "quarters": "trimestres à frente",
+        "rollouts": "marcos de implantação"
+      },
+      "laneTech": "Funcionalidades de protocolo",
+      "laneRollout": "Implantações e lançamentos",
+      "now": "AGORA",
+      "updated": "atualizado",
+      "philosophy": [
+        {
+          "t": "Postura",
+          "v": "Grau empresarial - mudanças deliberadas, testadas e reversíveis antes de entrar em produção."
+        },
+        {
+          "t": "Novas funcionalidades",
+          "v": "Apenas o que usuários/empresas realmente precisam."
+        },
+        {
+          "t": "Foco",
+          "v": "Implantações, corredores e parcerias - colocando a Xahau para trabalhar."
+        },
+        {
+          "t": "Abertura",
+          "v": "Processo de emendas transparente, auditorias públicas, padrões abertos."
+        }
+      ],
+      "legend": {
+        "feature": "Funcionalidade de protocolo",
+        "live": "Ao vivo",
+        "pilot": "Piloto",
+        "partnership": "Parceria",
+        "launch": "Lançamento / bem público"
+      },
+      "foot": "Direcional - sujeito a alterações - xahau.network"
     }
   },
 
@@ -107,15 +147,18 @@
       "endQuarter": "2026-Q2",
       "tag": {
         "en": "Feature · in beta development",
-        "es": "Función · en desarrollo beta"
+        "es": "Función · en desarrollo beta",
+        "pt-BR": "Funcionalidade · em desenvolvimento beta"
       },
       "title": {
         "en": "Random Number Generator",
-        "es": "Generador de números aleatorios"
+        "es": "Generador de números aleatorios",
+        "pt-BR": "Gerador de Números Aleatórios"
       },
       "description": {
         "en": "Native on-ledger RNG primitive — verifiable, tamper-resistant randomness for Hooks and applications.",
-        "es": "Primitiva RNG nativa en el ledger — aleatoriedad verificable y resistente a manipulación para Hooks y aplicaciones."
+        "es": "Primitiva RNG nativa en el ledger — aleatoriedad verificable y resistente a manipulación para Hooks y aplicaciones.",
+        "pt-BR": "Primitiva RNG nativa no ledger — aleatoriedade verificável e resistente a adulterações para Hooks e aplicações."
       }
     },
     {
@@ -126,12 +169,14 @@
       "endQuarter": "2026-Q3",
       "tag": {
         "en": "Feature · in development",
-        "es": "Función · en desarrollo"
+        "es": "Función · en desarrollo",
+        "pt-BR": "Funcionalidade · em desenvolvimento"
       },
-      "title": { "en": "FeatureExport", "es": "FeatureExport" },
+      "title": { "en": "FeatureExport", "es": "FeatureExport", "pt-BR": "FeatureExport" },
       "description": {
         "en": "Export lets a Xahau user or hook request that the Xahau UNL sign a transaction destined for the XRPL — an ordinary transaction with a MultiSign block in which each UNL member contributes one of the signatures. This allows Xahau hooks to effectively control XRPL accounts and issue and manage assets on XRPL.",
-        "es": "Export permite que un usuario o un Hook de Xahau solicite que la UNL de Xahau firme una transacción destinada al XRPL — una transacción ordinaria con un bloque MultiSign en el que cada miembro de la UNL aporta una de las firmas. Esto permite que los Hooks de Xahau controlen cuentas del XRPL y emitan y gestionen activos en XRPL."
+        "es": "Export permite que un usuario o un Hook de Xahau solicite que la UNL de Xahau firme una transacción destinada al XRPL — una transacción ordinaria con un bloque MultiSign en el que cada miembro de la UNL aporta una de las firmas. Esto permite que los Hooks de Xahau controlen cuentas del XRPL y emitan y gestionen activos en XRPL.",
+        "pt-BR": "O Export permite que um usuário ou Hook da Xahau solicite que a UNL da Xahau assine uma transação destinada ao XRPL — uma transação comum com um bloco MultiSign no qual cada membro da UNL contribui com uma das assinaturas. Isso permite que os Hooks da Xahau controlem contas do XRPL e emitam e gerenciem ativos no XRPL."
       }
     },
     {
@@ -142,12 +187,14 @@
       "span": 2,
       "tag": {
         "en": "Feature · ready for amendment",
-        "es": "Función · lista para enmienda"
+        "es": "Función · lista para enmienda",
+        "pt-BR": "Funcionalidade · pronta para emenda"
       },
-      "title": { "en": "AMM", "es": "AMM" },
+      "title": { "en": "AMM", "es": "AMM", "pt-BR": "AMM" },
       "description": {
         "en": "Automated Market Maker primitive for deep native liquidity on the Xahau DEX. Merged into the xahaud dev branch, awaiting amendment vote.",
-        "es": "Primitiva Automated Market Maker para liquidez nativa profunda en el DEX de Xahau. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda."
+        "es": "Primitiva Automated Market Maker para liquidez nativa profunda en el DEX de Xahau. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
+        "pt-BR": "Primitiva de Automated Market Maker para liquidez nativa profunda no DEX da Xahau. Integrada ao branch dev do xahaud, aguardando votação de emenda."
       }
     },
     {
@@ -158,12 +205,14 @@
       "span": 2,
       "tag": {
         "en": "Feature · ready for amendment",
-        "es": "Función · lista para enmienda"
+        "es": "Función · lista para enmienda",
+        "pt-BR": "Funcionalidade · pronta para emenda"
       },
-      "title": { "en": "PriceOracle", "es": "PriceOracle" },
+      "title": { "en": "PriceOracle", "es": "PriceOracle", "pt-BR": "PriceOracle" },
       "description": {
         "en": "Native on-ledger price feed primitive — tamper-resistant asset prices for DeFi, AMM and Hooks. Merged into the xahaud dev branch, awaiting amendment vote.",
-        "es": "Primitiva nativa de precios en el ledger — precios de activos resistentes a manipulación para DeFi, AMM y Hooks. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda."
+        "es": "Primitiva nativa de precios en el ledger — precios de activos resistentes a manipulación para DeFi, AMM y Hooks. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
+        "pt-BR": "Primitiva nativa de feed de preços no ledger — preços de ativos resistentes a adulterações para DeFi, AMM e Hooks. Integrada ao branch dev do xahaud, aguardando votação de emenda."
       }
     },
     {
@@ -174,12 +223,14 @@
       "endQuarter": "2026-Q3",
       "tag": {
         "en": "Feature · in development",
-        "es": "Función · en desarrollo"
+        "es": "Función · en desarrollo",
+        "pt-BR": "Funcionalidade · em desenvolvimento"
       },
-      "title": { "en": "IOURewardClaim", "es": "IOURewardClaim" },
+      "title": { "en": "IOURewardClaim", "es": "IOURewardClaim", "pt-BR": "IOURewardClaim" },
       "description": {
         "en": "Extends the current RewardClaim for XAH to make it available for IOU tokens as well — letting projects use Hooks to distribute rewards based on a user's token holdings.",
-        "es": "Extiende el RewardClaim actual de XAH para ofrecerlo también a tokens IOU — permitiendo a los proyectos usar Hooks para distribuir recompensas según las tenencias de tokens de un usuario."
+        "es": "Extiende el RewardClaim actual de XAH para ofrecerlo también a tokens IOU — permitiendo a los proyectos usar Hooks para distribuir recompensas según las tenencias de tokens de un usuario.",
+        "pt-BR": "Estende o RewardClaim atual do XAH para torná-lo disponível também para tokens IOU — permitindo que projetos usem Hooks para distribuir recompensas com base nas posições de tokens de um usuário."
       }
     },
     {
@@ -190,12 +241,14 @@
       "endQuarter": "2026-Q4",
       "tag": {
         "en": "Feature · in development",
-        "es": "Función · en desarrollo"
+        "es": "Función · en desarrollo",
+        "pt-BR": "Funcionalidade · em desenvolvimento"
       },
-      "title": { "en": "NamedHook", "es": "NamedHook" },
+      "title": { "en": "NamedHook", "es": "NamedHook", "pt-BR": "NamedHook" },
       "description": {
         "en": "Allows names to be set to identify Hooks, so different Hooks can be invoked even within the same transaction type.",
-        "es": "Permite asignar nombres para identificar Hooks, de modo que se puedan invocar diferentes Hooks incluso dentro del mismo tipo de transacción."
+        "es": "Permite asignar nombres para identificar Hooks, de modo que se puedan invocar diferentes Hooks incluso dentro del mismo tipo de transacción.",
+        "pt-BR": "Permite definir nomes para identificar Hooks, de modo que diferentes Hooks possam ser invocados mesmo dentro do mesmo tipo de transação."
       }
     },
     {
@@ -206,12 +259,14 @@
       "span": 3,
       "tag": {
         "en": "Feature · in alpha development",
-        "es": "Función · en desarrollo alfa"
+        "es": "Función · en desarrollo alfa",
+        "pt-BR": "Funcionalidade · em desenvolvimento alfa"
       },
-      "title": { "en": "JSHooks", "es": "JSHooks" },
+      "title": { "en": "JSHooks", "es": "JSHooks", "pt-BR": "JSHooks" },
       "description": {
         "en": "JavaScript runtime for Hooks — write Xahau smart-contract logic in JavaScript alongside the existing WebAssembly runtime, broadening the developer surface.",
-        "es": "Entorno de ejecución JavaScript para Hooks — escribir la lógica de smart contracts en JavaScript junto al entorno WebAssembly existente, ampliando la superficie para desarrolladores."
+        "es": "Entorno de ejecución JavaScript para Hooks — escribir la lógica de smart contracts en JavaScript junto al entorno WebAssembly existente, ampliando la superficie para desarrolladores.",
+        "pt-BR": "Runtime JavaScript para Hooks — escreva a lógica de smart contracts da Xahau em JavaScript junto ao runtime WebAssembly existente, ampliando a superfície para desenvolvedores."
       }
     },
     {
@@ -222,15 +277,18 @@
       "openEnded": true,
       "tag": {
         "en": "Ongoing · audits + optimisations",
-        "es": "Continuo · auditorías y optimizaciones"
+        "es": "Continuo · auditorías y optimizaciones",
+        "pt-BR": "Contínuo · auditorias e otimizações"
       },
       "title": {
         "en": "Audit & optimisations",
-        "es": "Auditorías y optimizaciones"
+        "es": "Auditorías y optimizaciones",
+        "pt-BR": "Auditorias e otimizações"
       },
       "description": {
         "en": "Continuous security audits and performance work across the protocol, Hooks and tooling.",
-        "es": "Auditorías de seguridad y trabajo de rendimiento continuos en el protocolo, Hooks y herramientas."
+        "es": "Auditorías de seguridad y trabajo de rendimiento continuos en el protocolo, Hooks y herramientas.",
+        "pt-BR": "Auditorias de segurança e melhorias de desempenho contínuas no protocolo, Hooks e ferramentas."
       }
     },
 
@@ -241,14 +299,16 @@
       "quarter": "2026-Q2",
       "openEnded": false,
       "span": 2,
-      "tag": { "en": "Live · remittance", "es": "En vivo · remesas" },
+      "tag": { "en": "Live · remittance", "es": "En vivo · remesas", "pt-BR": "Ao vivo · remessas" },
       "title": {
         "en": "COOP Bank EUR corridor scale-up to entire country.",
-        "es": "Escalado del corredor EUR de COOP Bank a todo el país."
+        "es": "Escalado del corredor EUR de COOP Bank a todo el país.",
+        "pt-BR": "Expansão do corredor EUR do COOP Bank para todo o país."
       },
       "description": {
         "en": "InFTF × Cooperative Bank of Oromia growing EUR → ETB volume.",
-        "es": "InFTF × Cooperative Bank of Oromia aumentando el volumen EUR → ETB."
+        "es": "InFTF × Cooperative Bank of Oromia aumentando el volumen EUR → ETB.",
+        "pt-BR": "InFTF × Cooperative Bank of Oromia expandindo o volume EUR → ETB."
       }
     },
     {
@@ -257,14 +317,16 @@
       "status": "partnership",
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q3",
-      "tag": { "en": "Launch", "es": "Lanzamiento" },
+      "tag": { "en": "Launch", "es": "Lanzamiento", "pt-BR": "Lançamento" },
       "title": {
         "en": "USD stablecoin on Xahau",
-        "es": "Stablecoin USD en Xahau"
+        "es": "Stablecoin USD en Xahau",
+        "pt-BR": "Stablecoin USD na Xahau"
       },
       "description": {
         "en": "Addition of compliant USD stablecoin",
-        "es": "Incorporación de una stablecoin USD que cumple con la normativa"
+        "es": "Incorporación de una stablecoin USD que cumple con la normativa",
+        "pt-BR": "Adição de stablecoin USD em conformidade regulatória"
       }
     },
     {
@@ -273,14 +335,16 @@
       "status": "partnership",
       "quarter": "2026-Q4",
       "openEnded": true,
-      "tag": { "en": "Launch", "es": "Lanzamiento" },
+      "tag": { "en": "Launch", "es": "Lanzamiento", "pt-BR": "Lançamento" },
       "title": {
         "en": "Currencies from multiple countries on Xahau",
-        "es": "Divisas de múltiples países en Xahau"
+        "es": "Divisas de múltiples países en Xahau",
+        "pt-BR": "Moedas de múltiplos países na Xahau"
       },
       "description": {
         "en": "Addition of regulated currencies from multiple countries",
-        "es": "Incorporación de divisas reguladas de múltiples países"
+        "es": "Incorporación de divisas reguladas de múltiples países",
+        "pt-BR": "Adição de moedas regulamentadas de múltiplos países"
       }
     },
     {
@@ -289,14 +353,16 @@
       "status": "partnership",
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
-      "tag": { "en": "Launch", "es": "Lanzamiento" },
+      "tag": { "en": "Launch", "es": "Lanzamiento", "pt-BR": "Lançamento" },
       "title": {
         "en": "GBP stablecoin on Xahau",
-        "es": "Stablecoin GBP en Xahau"
+        "es": "Stablecoin GBP en Xahau",
+        "pt-BR": "Stablecoin GBP na Xahau"
       },
       "description": {
         "en": "Addition of compliant GBP stablecoin",
-        "es": "Incorporación de una stablecoin GBP que cumple con la normativa"
+        "es": "Incorporación de una stablecoin GBP que cumple con la normativa",
+        "pt-BR": "Adição de stablecoin GBP em conformidade regulatória"
       }
     },
     {
@@ -305,11 +371,12 @@
       "status": "pilot",
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
-      "tag": { "en": "Pilot", "es": "Piloto" },
-      "title": { "en": "USD corridor pilot", "es": "Piloto del corredor USD" },
+      "tag": { "en": "Pilot", "es": "Piloto", "pt-BR": "Piloto" },
+      "title": { "en": "USD corridor pilot", "es": "Piloto del corredor USD", "pt-BR": "Piloto do corredor USD" },
       "description": {
         "en": "Second fiat corridor (USD → ETB) opens to selected diaspora markets.",
-        "es": "Un segundo corredor fiat (USD → ETB) se abre a mercados de diáspora seleccionados."
+        "es": "Un segundo corredor fiat (USD → ETB) se abre a mercados de diáspora seleccionados.",
+        "pt-BR": "Segundo corredor fiat (USD → ETB) é aberto para mercados selecionados da diáspora."
       }
     },
     {
@@ -318,14 +385,16 @@
       "status": "partnership",
       "quarter": "2026-Q4",
       "openEnded": true,
-      "tag": { "en": "Partnerships", "es": "Alianzas" },
+      "tag": { "en": "Partnerships", "es": "Alianzas", "pt-BR": "Parcerias" },
       "title": {
         "en": "Additional bank & remittance partners",
-        "es": "Bancos y socios de remesas adicionales"
+        "es": "Bancos y socios de remesas adicionales",
+        "pt-BR": "Bancos e parceiros de remessas adicionais"
       },
       "description": {
         "en": "New regulated remittance partners across East & West Africa.",
-        "es": "Nuevos socios de remesas regulados en África Oriental y Occidental."
+        "es": "Nuevos socios de remesas regulados en África Oriental y Occidental.",
+        "pt-BR": "Novos parceiros regulamentados de remessas no Leste e Oeste da África."
       }
     },
     {
@@ -334,14 +403,16 @@
       "status": "live",
       "quarter": "2027-Q1",
       "span": 1,
-      "tag": { "en": "GA · remittance", "es": "GA · remesas" },
+      "tag": { "en": "GA · remittance", "es": "GA · remesas", "pt-BR": "GA · remessas" },
       "title": {
         "en": "Corridor expansion · GA",
-        "es": "Expansión de corredores · GA"
+        "es": "Expansión de corredores · GA",
+        "pt-BR": "Expansão de corredores · GA"
       },
       "description": {
         "en": "Additional diaspora corridors graduate from pilot to production.",
-        "es": "Corredores adicionales de diáspora pasan de piloto a producción."
+        "es": "Corredores adicionales de diáspora pasan de piloto a producción.",
+        "pt-BR": "Corredores adicionais da diáspora avançam de piloto para produção."
       }
     },
     {
@@ -350,14 +421,16 @@
       "status": "pilot",
       "quarter": "2027-Q2",
       "endQuarter": "2027-Q3",
-      "tag": { "en": "Pilot · payments", "es": "Piloto · pagos" },
+      "tag": { "en": "Pilot · payments", "es": "Piloto · pagos", "pt-BR": "Piloto · pagamentos" },
       "title": {
         "en": "Merchant settlement pilot",
-        "es": "Piloto de liquidación para comercios"
+        "es": "Piloto de liquidación para comercios",
+        "pt-BR": "Piloto de liquidação para comerciantes"
       },
       "description": {
         "en": "Stablecoin settlement with Hooks-based compliance for merchants.",
-        "es": "Liquidación con stablecoins y cumplimiento basado en Hooks para comercios."
+        "es": "Liquidación con stablecoins y cumplimiento basado en Hooks para comercios.",
+        "pt-BR": "Liquidação com stablecoins e conformidade baseada em Hooks para comerciantes."
       }
     },
 
@@ -367,14 +440,16 @@
       "status": "partnership",
       "quarter": "2027-Q3",
       "openEnded": true,
-      "tag": { "en": "Enterprise", "es": "Empresarial" },
+      "tag": { "en": "Enterprise", "es": "Empresarial", "pt-BR": "Empresarial" },
       "title": {
         "en": "Enterprise settlement GA",
-        "es": "GA de liquidación empresarial"
+        "es": "GA de liquidación empresarial",
+        "pt-BR": "GA de liquidação empresarial"
       },
       "description": {
         "en": "Production offering for regulated partners, built on audited Hooks components.",
-        "es": "Oferta de producción para socios regulados, construida sobre componentes Hooks auditados."
+        "es": "Oferta de producción para socios regulados, construida sobre componentes Hooks auditados.",
+        "pt-BR": "Oferta de produção para parceiros regulamentados, construída sobre componentes Hooks auditados."
       }
     },
 
@@ -386,15 +461,18 @@
       "openEnded": true,
       "tag": {
         "en": "Launch · public good",
-        "es": "Lanzamiento · bien público"
+        "es": "Lanzamiento · bien público",
+        "pt-BR": "Lançamento · bem público"
       },
       "title": {
         "en": "NGO donation platform",
-        "es": "Plataforma de donaciones para ONG"
+        "es": "Plataforma de donaciones para ONG",
+        "pt-BR": "Plataforma de doações para ONGs"
       },
       "description": {
         "en": "Multi-currency, on-ledger donations for NGOs and public-good initiatives.",
-        "es": "Donaciones multimoneda en el ledger para ONG e iniciativas de bien público."
+        "es": "Donaciones multimoneda en el ledger para ONG e iniciativas de bien público.",
+        "pt-BR": "Doações multicurrency no ledger para ONGs e iniciativas de bem público."
       }
     },
     {
@@ -405,15 +483,18 @@
       "openEnded": true,
       "tag": {
         "en": "On-off ramps and XAH listings",
-        "es": "Rampas on/off y listados de XAH"
+        "es": "Rampas on/off y listados de XAH",
+        "pt-BR": "Rampas on/off e listagens de XAH"
       },
       "title": {
         "en": "On and off ramps and token listing",
-        "es": "Rampas de entrada y salida y listado del token"
+        "es": "Rampas de entrada y salida y listado del token",
+        "pt-BR": "Rampas de entrada e saída e listagem do token"
       },
       "description": {
         "en": "Work with multiple partners to enhance the ability to on and off ramp on Xahau",
-        "es": "Colaboración con múltiples socios para ampliar las rampas de entrada y salida en Xahau"
+        "es": "Colaboración con múltiples socios para ampliar las rampas de entrada y salida en Xahau",
+        "pt-BR": "Trabalho com múltiplos parceiros para ampliar as rampas de entrada e saída na Xahau"
       }
     },
     {
@@ -422,11 +503,12 @@
       "status": "launch",
       "quarter": "2026-Q2",
       "openEnded": true,
-      "tag": { "en": "Event · quarterly", "es": "Evento · trimestral" },
-      "title": { "en": "Xahau Connect", "es": "Xahau Connect" },
+      "tag": { "en": "Event · quarterly", "es": "Evento · trimestral", "pt-BR": "Evento · trimestral" },
+      "title": { "en": "Xahau Connect", "es": "Xahau Connect", "pt-BR": "Xahau Connect" },
       "description": {
         "en": "Recurring community + ecosystem event, held once each quarter.",
-        "es": "Evento recurrente de comunidad y ecosistema, celebrado una vez por trimestre."
+        "es": "Evento recurrente de comunidad y ecosistema, celebrado una vez por trimestre.",
+        "pt-BR": "Evento recorrente de comunidade e ecossistema, realizado uma vez por trimestre."
       }
     },
     {
@@ -436,12 +518,14 @@
       "quarter": "2026-Q4",
       "tag": {
         "en": "Event · enterprise + devs",
-        "es": "Evento · empresas y desarrolladores"
+        "es": "Evento · empresas y desarrolladores",
+        "pt-BR": "Evento · empresas e desenvolvedores"
       },
-      "title": { "en": "InFTF event", "es": "Evento InFTF" },
+      "title": { "en": "InFTF event", "es": "Evento InFTF", "pt-BR": "Evento InFTF" },
       "description": {
         "en": "InFTF event bringing enterprise partners and developers together.",
-        "es": "Evento InFTF que reúne a socios empresariales y desarrolladores."
+        "es": "Evento InFTF que reúne a socios empresariales y desarrolladores.",
+        "pt-BR": "Evento InFTF que reúne parceiros empresariais e desenvolvedores."
       }
     }
   ]
