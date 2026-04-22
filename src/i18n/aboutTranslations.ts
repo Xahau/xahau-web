@@ -131,4 +131,48 @@ export const aboutTranslations = {
     act3_para3:
       'XAHはBitrue、BitMart、CoinExなどの主要取引所で利用可能で、Ledgerハードウェアウォレットもサポートされており、世界中のユーザーにとってますますアクセスしやすくなっています。カスタムロジックのためにHooksに依存するプロジェクトは、継続的な手数料をカバーするための月次調整を生成するのに十分なXAH残高を維持することをお勧めします。',
   },
+  'pt-BR': {
+    page_title: 'Sobre Xahau',
+    page_subtitle:
+      'Blockchain L1 empresarial com programabilidade baseada em contas',
+    chip1: 'Est. outubro 2023',
+    chip2: '200k+ contas',
+    chip3: '~4s de liquidação',
+    chip4: '10k tx / ledger',
+
+    act1_label: 'A Rede',
+    act1_section_label: 'Visão geral',
+    act1_h3_line1: 'O que é Xahau?',
+    act1_h3_line2: 'A explicação breve',
+    act1_para1:
+      'Xahau é uma blockchain L1 construída para programabilidade séria — combinando tecnologia de ledger comprovada com uma abordagem poderosa e distinta para contratos inteligentes, conhecidos como Hooks.',
+    act1_para2:
+      'A tecnologia liquida transações em aproximadamente 4 segundos a custos de apenas frações de um centavo de USD. Com capacidade para processar até 10.000 transações por ledger, a rede é inerentemente verde e eficiente energeticamente por design.',
+    act1_para3:
+      'Xahau oferece recursos nativos para emitir e negociar moedas na exchange descentralizada integrada, tokens não fungíveis nativos, transações atômicas multi-ativo por meio do transactor Remit, e oportunidades ilimitadas para DeFi através de Hooks — o sistema de contratos inteligentes baseado em contas do Xahau.',
+    act1_para4:
+      'Os Hooks residem diretamente nas contas, respondendo a eventos de transação como pagamentos recebidos, enviados ou roteados. Desenvolvidos originalmente em C, os Hooks agora suportam qualquer linguagem compilável com WebAssembly. O suporte para Hooks em JavaScript (JSHooks) avança por meio de auditorias de segurança, aproximando as finanças programáveis de dezenas de milhões de desenvolvedores em todo o mundo.',
+
+    act2_label: 'O Protocolo',
+    act2_section_label: 'Tecnologia',
+    act2_h3_line1: 'Qual é a tecnologia',
+    act2_h3_line2: 'por trás do Xahau?',
+    act2_para1:
+      'Xahau é tecnologia comprovada e pronta para produção — uma iteração evoluída do código do XRP Ledger, aprimorada com programabilidade de contratos inteligentes baseada em contas (Hooks), suporte nativo igualitário para moedas emitidas em recursos como garantias e canais de pagamento, e uma camada de transações atômicas que permite executar operações complexas e de múltiplas etapas como uma unidade indivisível.',
+    act2_para2:
+      'Xahau utiliza um mecanismo de Consenso Federado para validar transações. Servidores independentes chamados validadores alcançam um acordo sobre a ordem e resultado de cada transação. Todos os servidores processam cada transação de acordo com as mesmas regras, e qualquer transação válida é confirmada em segundos. Toda a atividade é pública e transparente, e qualquer pessoa pode operar um validador.',
+    act2_para3:
+      'A governança da rede é guiada por um jogo de governança estruturado que garante uma tomada de decisão impulsionada pela comunidade. Os participantes em um sistema de mesas de dois níveis emitem votos sobre assentos de rede, emendas de Hooks e parâmetros de recompensas — dando ao ecossistema uma influência genuína e contínua sobre a direção da rede.',
+
+    act3_label: 'A Moeda',
+    act3_section_label: 'Economia',
+    act3_h3_line1: 'XAH, a moeda nativa',
+    act3_h3_line2: 'do Xahau',
+    act3_para1:
+      'A moeda nativa do Xahau é XAH — um ativo inflacionário projetado para recompensar a participação ativa. Cada conta pode reivindicar um ajuste mensal de saldo interagindo com um Hook na conta gênesis, acumulando 4% do saldo da conta a cada mês.',
+    act3_para2:
+      'XAH atua como um mecanismo anti-spam da rede, adicionando um custo a cada transação. Transações padrão custam frações de um único XAH; operações impulsionadas por Hooks têm taxas proporcionalmente mais altas, refletindo sua carga computacional na cadeia. XAH também é necessário como reserva bloqueada para manter contas, possuir objetos e armazenar dados usados por contratos inteligentes.',
+    act3_para3:
+      'XAH está disponível em exchanges principais como Bitrue, BitMart e CoinEx, e conta com suporte em carteiras hardware Ledger — tornando-o cada vez mais acessível para usuários em todo o mundo. Projetos que dependem de Hooks para lógica personalizada devem manter um saldo de XAH suficiente para gerar ajustes mensais que cubram as taxas contínuas.',
+  },
 }
