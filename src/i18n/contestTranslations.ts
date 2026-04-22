@@ -401,4 +401,139 @@ export const contestTranslations = {
     legal5: '',
     legal6: '',
   },
+  'pt-BR': {
+    page_subtitle:
+      'Ecosystem Rising — Construa serviços voltados para o usuário impulsionados por Xahau',
+    chip1: '2ª Edição',
+    chip2: 'Xahau Mainnet',
+    chip3: '3 Prêmios Principais',
+    chip4: 'Recompensas em XAH',
+
+    // Act I
+    act1_label: 'Introdução',
+    act1_about_lbl: 'Sobre',
+    act1_about_h3: 'Bem-vindo ao Ecosystem Rising',
+    act1_about_p1:
+      'Este concurso convida inovadores a construir <strong>serviços voltados para o usuário impulsionados por Xahau</strong> e competir por prêmios enquanto fortalecem o ecossistema Xahau.',
+    act1_about_p2:
+      'Seja você um desenvolvedor solo ou uma equipe, pode enviar quantos projetos quiser — cada um elegível para diferentes prêmios.',
+    act1_prizes_lbl: 'Prêmios',
+    act1_prizes_h3: 'Prêmios Principais em XAH',
+    prize1_place: '1º Prêmio',
+    prize1_value: 'Valor de 4.000 USD em XAH',
+    prize2_place: '2º Prêmio',
+    prize2_value: 'Valor de 2.000 USD em XAH',
+    prize3_place: '3º Prêmio',
+    prize3_value: 'Valor de 1.000 USD em XAH',
+    timeline_lbl: 'Cronograma',
+    timeline1_label: 'Prazo para envio:',
+    timeline1_value: '1º de fevereiro de 2026',
+    timeline2_label: 'Painel de julgamento:',
+    timeline2_value: '5 membros da comunidade Xahau e XRPL',
+
+    // Act II
+    act2_label: 'Painel e Tema',
+    act2_judges_lbl: 'Painel de Juízes',
+    act2_judges_h3: 'Cinco Membros da Comunidade',
+    act2_theme_lbl: 'Tema',
+    act2_theme_h3: 'Serviços na Xahau',
+    act2_theme_p:
+      'Os participantes devem construir <strong>serviços baseados na web que interajam com a Xahau Mainnet</strong> e sejam projetados para o <strong>usuário final</strong> — seja ele um usuário casual, avançado, do setor público ou privado.',
+    example1_heading: 'Ferramentas para usuários do dia a dia',
+    example1_item1: 'Painéis de finanças pessoais',
+    example1_item2: 'Gerenciadores de carteira',
+    example1_item3: 'Apps comunitárias',
+    example2_heading: 'Serviços para negócios',
+    example2_item1: 'Portais de pagamento',
+    example2_item2: 'Plataformas de fidelidade',
+    example2_item3: 'Ferramentas de atendimento ao cliente',
+    example3_heading: 'Plataformas públicas',
+    example3_item1: 'Mercados de NFT',
+    example3_item2: 'Sistemas de votação',
+    example3_item3: 'Centros de doação',
+    example3_item4: 'Apps culturais',
+    example3_item5: 'Utilitários para o bem social',
+
+    // Act III
+    act3_label: 'Regras e Avaliação',
+    act3_rules_lbl: 'Regras de Participação',
+    act3_rules_h3: 'O Que Você Precisa Saber',
+    rule1: 'Você pode enviar <strong>quantos projetos quiser</strong>.',
+    rule2: 'Cada projeto pode ser enviado por um indivíduo ou um grupo.',
+    rule3:
+      'Diferentes projetos do mesmo participante podem ser elegíveis para diferentes prêmios.',
+    rule4: 'Os projetos <strong>devem rodar na Xahau Mainnet</strong>.',
+    rule5:
+      'Cada projeto <strong>deve ser acessível online</strong> para que os juízes e o público possam usá-lo ou visualizá-lo.',
+    rule6:
+      'Cada envio deve incluir <strong>documentação básica</strong>. Material multimídia (vídeos, slides, demos) é bem-vindo.',
+    rule7:
+      '<strong>Ferramentas de IA</strong> podem ser usadas tanto para desenvolvimento quanto para documentação.',
+    rule8:
+      'Se seu projeto usar <strong>Hooks</strong>, o código do Hook deve ser de código aberto. Anexe o código C e o hash do hook em sua submissão.',
+    rule9:
+      'Projetos que oferecem serviços financeiros regulados ou que visam atividades ilegais não são elegíveis.',
+    html_rule10:
+      'Publique no X marcando <a href="https://x.com/XahauNetwork" target="_blank" rel="noopener noreferrer">@XahauNetwork</a> para anunciar sua participação.',
+    act3_eval_lbl: 'Critérios de Avaliação',
+    act3_eval_h3: 'O Que os Juízes Valorizam',
+    crit1_label: 'Originalidade e Criatividade',
+    crit1_desc: 'Quão nova e criativa é a ideia?',
+    crit2_label: 'Ausência de Concorrentes Existentes',
+    crit2_desc:
+      'Ausência de serviços semelhantes na Xahau Mainnet antes do concurso.',
+    crit3_label: 'Impacto e Utilidade',
+    crit3_desc:
+      'Valor para usuários finais — indivíduos, empresas ou setor público.',
+    crit4_label: 'Qualidade de Execução',
+    crit4_desc: 'Estabilidade, documentação e experiência do usuário.',
+    crit5_label: 'Uso de Hooks',
+    crit5_desc:
+      'O uso de smart contracts na Xahau recebe reconhecimento especial.',
+    act3_format_lbl: 'Formato de Submissão',
+    html_format_p1:
+      'Cada projeto deve incluir uma pasta e um <strong>arquivo de submissão</strong> dentro do diretório submissions de <a href="https://github.com/XahauNetwork" target="_blank" rel="noopener noreferrer">XahauNetwork</a>.',
+    format_example:
+      'submissions/NomeGitHub_NomeProjeto/NomeGitHub_NomeProjeto.md',
+    format_p2:
+      'Campos obrigatórios: Título do Projeto · Breve Descrição · Participantes · Mídias Sociais · Email de Contato · Link para o Projeto Online · Endereço Xahau · Link para Documentação · Código C dos Hooks e hash (se aplicável) · Link para Repositório (opcional)',
+
+    // Act IV
+    act4_label: 'Suporte e Recursos',
+    act4_support_lbl: 'Suporte',
+    act4_support_h3: 'Perguntas e Comunidade',
+    html_support_p1:
+      'Junte-se ao <a href="https://discord.gg/ds7nb93mYj" target="_blank" rel="noopener noreferrer">Xahau Builders Discord ↗</a> ou envie um email para <a href="mailto:contests@xahau.org">contests@xahau.org</a>.',
+    ownership_note:
+      'Todos os projetos enviados permanecem como <strong>propriedade de seus criadores originais</strong>.',
+    act4_faq_lbl: 'FAQ',
+    faq1_q: 'Posso enviar mais de um projeto?',
+    faq1_a: 'Sim — quantos quiser, individualmente ou em grupo.',
+    faq2_q: 'Os projetos precisam ser de código aberto?',
+    faq2_a:
+      'Não, mas devem incluir documentação básica. O código dos Hooks deve ser de código aberto se usado.',
+    faq3_q: 'Posso usar IA para construir ou documentar meu projeto?',
+    faq3_a: 'Sim, o uso de IA é totalmente permitido.',
+    faq4_q: 'Há vantagem em usar Hooks?',
+    faq4_a:
+      'Sim — projetos que implementarem Hooks de forma criativa receberão reconhecimento especial.',
+    faq5_q: 'O que acontece com meu projeto após o concurso?',
+    faq5_a: 'Você mantém a propriedade total.',
+    act4_links_lbl: 'Links Úteis',
+    act4_links_h3: 'Recursos para Desenvolvedores Xahau',
+    act4_legal_lbl: 'Aviso Legal Final',
+    legal_intro: 'Ao participar, você concorda que:',
+    legal1:
+      'Os participantes devem atender aos critérios de elegibilidade e aderir a todas as regras. Projetos publicados anteriormente não são elegíveis.',
+    legal2:
+      'Os projetos permanecem propriedade de seus criadores; os organizadores reservam-se o direito de exibir as submissões com o crédito apropriado.',
+    legal3:
+      'Os organizadores podem desqualificar submissões que violem as regras. Todas as decisões do júri são finais.',
+    legal4:
+      'Os organizadores não são responsáveis por danos ou perdas durante a participação e podem modificar os requisitos do concurso a qualquer momento.',
+    legal5:
+      'Sanções e restrições jurisdicionais podem se aplicar. A verificação KYC pode ser necessária para receber recompensas.',
+    legal6:
+      'Todos os impostos e obrigações financeiras relacionados às recompensas são de responsabilidade exclusiva do participante.',
+  },
 }
