@@ -64,13 +64,13 @@ const sections = ecosystemData.sections.map((section) =>
     <div class="xe-head-title">
       <h2>Ecosystem</h2>
       <p class="xe-sub">
-        {sections.map(s => s.label['en']).join(', ')}
+        {sections.map(s => s.label.en).join(', ')}
         built on or around Xahau
       </p>
     </div>
     <div class="xe-chips">
       {sections.map(s => (
-        <span class="xe-chip">{s.items.length} {s.label['en']}</span>
+        <span class="xe-chip">{s.items.length} {s.label.en}</span>
       ))}
     </div>
   </header>
