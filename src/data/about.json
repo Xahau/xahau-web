@@ -214,6 +214,110 @@
         ]
       }
     },
+    "pt": {
+      "title": "Sobre o Xahau",
+      "subtitle": "Blockchain L1 empresarial com programabilidade baseada em contas",
+      "chips": [
+        "Est. outubro de 2023",
+        "200k+ Contas",
+        "~4s Liquidação",
+        "10k tx / ledger"
+      ],
+      "intro": {
+        "label": "Visão Geral",
+        "paragraphs": [
+          "O Xahau é uma blockchain L1 construída para programabilidade séria — combinando tecnologia de ledger testada e comprovada com uma abordagem poderosa e distintiva para contratos inteligentes, conhecidos como Hooks.",
+          "A tecnologia liquida transações em aproximadamente 4 segundos com custos de frações de um centavo de dólar. Capaz de processar até 10.000 transações por ledger, a rede é inerentemente ecológica e eficiente energeticamente por design.",
+          "O Xahau oferece recursos nativos para emissão e negociação de moedas na exchange descentralizada integrada, tokens não fungíveis nativos, transações atômicas multi-ativo via transator Remit, e possibilidades ilimitadas de DeFi por meio dos Hooks — o sistema de contratos inteligentes baseado em contas do Xahau.",
+          "Os Hooks residem diretamente nas contas, respondendo a eventos de transação como pagamentos recebidos, enviados ou roteados. Originalmente desenvolvidos em C, os Hooks agora suportam qualquer linguagem compatível com WebAssembly. O suporte a Hooks em JavaScript (JSHooks) está avançando por auditorias de segurança, colocando as finanças programáveis ao alcance de dezenas de milhões de desenvolvedores em todo o mundo."
+        ]
+      },
+      "tech": {
+        "label": "Protocolo",
+        "heading": "Qual é a tecnologia por trás do Xahau?",
+        "paragraphs": [
+          "O Xahau é uma tecnologia comprovada e pronta para produção — uma iteração evoluída do código-fonte do XRP Ledger, aprimorada com programabilidade de contratos inteligentes baseada em contas (Hooks), suporte nativo igualitário para moedas emitidas em recursos como escrows e canais de pagamento, e uma camada de transação atômica que permite operações complexas de várias etapas serem executadas como uma única unidade indivisível.",
+          "O Xahau utiliza um mecanismo de Consenso Federado para validar transações. Servidores independentes chamados validadores chegam a um acordo sobre a ordem e o resultado de cada transação. Todos os servidores processam cada transação de acordo com as mesmas regras, e qualquer transação válida é confirmada em segundos. Toda a atividade é pública e transparente, e qualquer pessoa pode operar um validador.",
+          "A governança da rede é guiada por um jogo de governança estruturado, garantindo a tomada de decisões conduzida pela comunidade. Participantes em um sistema de mesas de dois níveis votam em assentos da rede, emendas de Hooks e parâmetros de recompensas — conferindo ao ecossistema influência genuína e contínua sobre a direção da rede."
+        ]
+      },
+      "currency": {
+        "label": "Economia",
+        "heading": "XAH, a moeda nativa do Xahau",
+        "paragraphs": [
+          "A moeda nativa do Xahau é o XAH — um ativo inflacionário projetado para recompensar a participação ativa. Cada conta pode reivindicar um ajuste de saldo mensal interagindo com um Hook na conta gênesis, acumulando 4% do saldo da conta a cada mês.",
+          "O XAH serve como mecanismo anti-spam da rede, atribuindo um custo a cada transação. Transações padrão custam frações de um único XAH; operações com Hooks carregam taxas proporcionalmente maiores, refletindo seu peso computacional na cadeia. O XAH também é necessário como reserva bloqueada para manter contas, armazenar objetos e guardar dados usados por contratos inteligentes.",
+          "O XAH está disponível nas principais exchanges, incluindo Bitrue, BitMart e CoinEx, e é compatível com carteiras de hardware Ledger — tornando-o cada vez mais acessível a usuários em todo o mundo. Projetos que dependem de Hooks para lógica personalizada são aconselhados a manter um saldo de XAH suficiente para gerar ajustes mensais que cubram as taxas contínuas."
+        ]
+      },
+      "events": {
+        "label": "Histórico",
+        "heading": "Marcos principais",
+        "intro": "Do lançamento na mainnet a parcerias financeiras globais — o Xahau avançou com propósito.",
+        "milestones": [
+          {
+            "date": "Out 2023",
+            "type": "genesis",
+            "title": "Lançamento da mainnet",
+            "detail": "Desenvolvedores independentes do XRPL lançam a mainnet do Xahau. A Xahau Launch Alliance interina se dissolve imediatamente, transferindo a governança para a comunidade e seu jogo de governança estruturado."
+          },
+          {
+            "date": "Mar 2024",
+            "type": "protocol",
+            "title": "Transator Remit",
+            "detail": "O tipo de transação atômica multi-ativo entra em produção, permitindo distribuições complexas de múltiplos destinatários em uma única operação indivisível."
+          },
+          {
+            "date": "2024",
+            "type": "growth",
+            "title": "100.000 contas ativadas",
+            "detail": "O ecossistema atinge um marco de adoção definitivo, demonstrando crescimento real e sustentado além do ecossistema fundador."
+          },
+          {
+            "date": "2024",
+            "type": "partnership",
+            "title": "InFTF × COOP — remessas",
+            "detail": "Primeiro serviço de remessas internacionais no Xahau é lançado com o Cooperative Bank of Oromia (mais de 15,7 milhões de clientes), permitindo à diáspora africana enviar EUR com custo quase zero, com liquidação em ETB em segundos."
+          },
+          {
+            "date": "2024",
+            "type": "partnership",
+            "title": "MoU com a União Africana",
+            "detail": "A InFTF assina um Memorando de Entendimento com a União Africana para promover o Fundo de Paz da UA por meio de infraestrutura financeira programável no Xahau."
+          },
+          {
+            "date": "2025",
+            "type": "security",
+            "title": "Auditoria de segurança do JSHooks",
+            "detail": "O suporte a Hooks em JavaScript avança por rigorosas auditorias de segurança, caminhando para disponibilidade na mainnet para dezenas de milhões de desenvolvedores em todo o mundo."
+          },
+          {
+            "date": "2025",
+            "type": "access",
+            "title": "Carteira de hardware Ledger",
+            "detail": "O Xahau obtém compatibilidade total com carteiras de hardware Ledger, abrindo a rede para fluxos de custódia institucional e de varejo convencionais."
+          },
+          {
+            "date": "2025",
+            "type": "access",
+            "title": "Expansão nas exchanges",
+            "detail": "XAH listado na CoinEx e BitMart. O roadmap prevê mais acesso a exchanges e on/off-ramps ao longo de 2025–2026."
+          },
+          {
+            "date": "T1 2026",
+            "type": "security",
+            "title": "JSHooks inicia implantação gradual",
+            "detail": "O suporte a Hooks em JavaScript conclui sua fase de auditoria de segurança e inicia a implantação gradual na mainnet — colocando as finanças programáveis ao alcance de dezenas de milhões de desenvolvedores JS."
+          },
+          {
+            "date": "T2 2026",
+            "type": "protocol",
+            "title": "Emendas AMM e PriceOracle",
+            "detail": "Primitivos nativos de Automated Market Maker e PriceOracle no ledger submetidos a votação de emenda — trazendo liquidez DEX profunda e feeds de preço resistentes a manipulação para Hooks e aplicações DeFi no Xahau."
+          }
+        ]
+      }
+    },
     "ja": {
       "title": "Xahauについて",
       "subtitle": "アカウントベースプログラマビリティを持つエンタープライズL1ブロックチェーン",
