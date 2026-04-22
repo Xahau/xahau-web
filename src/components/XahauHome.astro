@@ -11,10 +11,10 @@
 
 import { getRelativeLocaleUrl } from 'astro:i18n'
 import homeData from '../data/home.json'
-import type { IndexLocale } from '../i18n/indexTranslations'
 import { indexTranslations } from '../i18n/indexTranslations'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
-const locale = (Astro.currentLocale ?? 'en') as IndexLocale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 const i = indexTranslations[locale]
 const stats = homeData.stats
 

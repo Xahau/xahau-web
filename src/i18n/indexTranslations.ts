@@ -103,5 +103,3 @@ export const indexTranslations = {
     stats_node_cta: 'ノードを運営したいですか？',
   },
 }
-
-export type IndexLocale = keyof typeof indexTranslations
