@@ -1,4 +1,14 @@
 {
+  "title": {
+    "en": "Ecosystem",
+    "es": "Ecosistema",
+    "ja": "エコシステム"
+  },
+  "buildonxahau": {
+    "en": "built on or around Xahau",
+    "es": "creados en Xahau o en torno a ella",
+    "ja": "がXahauを利用して構築しています"
+  },
   "sections": [
     {
       "id": "enterprise",
@@ -290,5 +300,10 @@
         }
       ]
     }
-  ]
+  ],
+  "trademark": {
+    "en": "All trademarks and logos are the property of their respective owners.",
+    "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",
+    "ja": "すべての商標およびロゴは、各所有者の財産です。"
+  }
 }

@@ -27,6 +27,7 @@ import logoXahscan from '../assets/ecosystem-logos/xahscan.png'
 import logoXaman from '../assets/ecosystem-logos/xaman.png'
 import logoXrplwin from '../assets/ecosystem-logos/xrplwin.png'
 import ecosystemData from '../data/ecosystem.json'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
 const logoMap: Record<string, ImageMetadata> = {
   xaman: logoXaman,
@@ -44,8 +45,7 @@ const logoMap: Record<string, ImageMetadata> = {
   quantoz: logoQuantoz,
 }
 
-type Locale = 'en' | 'es' | 'ja'
-const locale = (Astro.currentLocale ?? 'en') as Locale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 
 // Projects sorted alphabetically at build time; others keep editorial order.
 const sections = ecosystemData.sections.map((section) =>
@@ -62,15 +62,15 @@ const sections = ecosystemData.sections.map((section) =>
   <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
   <header class="xe-head">
     <div class="xe-head-title">
-      <h2>Ecosystem</h2>
+      <h2>{ecosystemData.title[locale]}</h2>
       <p class="xe-sub">
-        {sections.map(s => s.label.en).join(', ')}
-        built on or around Xahau
+        {sections.map(s => s.label[locale]).join(', ')}
+        {ecosystemData.buildonxahau[locale]}
       </p>
     </div>
     <div class="xe-chips">
       {sections.map(s => (
-        <span class="xe-chip">{s.items.length} {s.label.en}</span>
+        <span class="xe-chip">{s.items.length} {s.label[locale]}</span>
       ))}
     </div>
   </header>
@@ -157,13 +157,7 @@ const sections = ecosystemData.sections.map((section) =>
     )
   })}
 
-  <p class="xe-tm">
-    {locale === 'es'
-      ? 'Todas las marcas y logotipos son propiedad de sus respectivos dueños.'
-      : locale === 'ja'
-      ? 'すべての商標およびロゴは、各所有者の財産です。'
-      : 'All trademarks and logos are the property of their respective owners.'}
-  </p>
+  <p class="xe-tm">{ecosystemData.trademark[locale]}</p>
 </section>
 
 <style>
