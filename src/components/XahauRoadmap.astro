@@ -1035,12 +1035,13 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
     }
   }
 
-  /* === Mobile (≤640px) ======================================================
-       * The horizontal timeline metaphor does not survive narrow viewports, so at
-       * phone widths we flip to a linear, stacked card list. The quarter header
-       * row, arrow and column dividers are hidden; every card instead shows its
-       * own period via the .xr-q-badge (populated at build time).
-       */
+  /**
+   * === Mobile (≤640px) ======================================================
+   * The horizontal timeline metaphor does not survive narrow viewports, so at
+   * phone widths we flip to a linear, stacked card list. The quarter header
+   * row, arrow and column dividers are hidden; every card instead shows its
+   * own period via the .xr-q-badge (populated at build time).
+   */
   @media (max-width: 640px) {
     .xroadmap {
       padding: 20px 16px 18px;
