@@ -28,6 +28,7 @@ import logoXahscan from '../assets/ecosystem-logos/xahscan.png'
 import logoXaman from '../assets/ecosystem-logos/xaman.png'
 import logoXrplwin from '../assets/ecosystem-logos/xrplwin.png'
 import ecosystemData from '../data/ecosystem.json'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
 const logoMap: Record<string, ImageMetadata> = {
   xaman: logoXaman,
@@ -45,8 +46,7 @@ const logoMap: Record<string, ImageMetadata> = {
   quantoz: logoQuantoz,
 }
 
-type Locale = 'en' | 'es' | 'ja' | 'pt-BR'
-const locale = (Astro.currentLocale ?? 'en') as Locale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 
 const meta = ecosystemData.meta
 const L = (rec: Record<string, string>) => rec[locale] ?? rec['en'] ?? Object.values(rec)[0]
@@ -66,15 +66,15 @@ const sections = ecosystemData.sections.map((section) =>
   <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
   <header class="xe-head">
     <div class="xe-head-title">
-      <h2>{L(meta.title)}</h2>
+      <h2>{ecosystemData.title[locale]}</h2>
       <p class="xe-sub">
-        {sections.map(s => L(s.label)).join(', ')}
-        {L(meta.subtitle_suffix)}
+        {sections.map(s => s.label[locale]).join(', ')}
+        {ecosystemData.buildonxahau[locale]}
       </p>
     </div>
     <div class="xe-chips">
       {sections.map(s => (
-        <span class="xe-chip">{s.items.length} {L(s.label)}</span>
+        <span class="xe-chip">{s.items.length} {s.label[locale]}</span>
       ))}
     </div>
   </header>
@@ -161,7 +161,7 @@ const sections = ecosystemData.sections.map((section) =>
     )
   })}
 
-  <p class="xe-tm">{L(meta.trademark)}</p>
+  <p class="xe-tm">{ecosystemData.trademark[locale]}</p>
 </section>
 
 <style>

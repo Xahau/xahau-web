@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { useState } from 'react'
 import logo from '../assets/xahau-logo.svg'
+import { defaultLocale } from '../i18n/locales'
 import { getAlternateLocaleHref } from '../utils/localizedHref'
 
 const languages = [
@@ -99,7 +100,7 @@ export default function Header(props) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const pathname = props.url.pathname
-  const currentLocale = props.locale || 'en'
+  const currentLocale = props.locale || defaultLocale
   const t = nav[currentLocale] || nav.en
 
   function langUrl(code) {
@@ -179,7 +180,7 @@ export default function Header(props) {
 
   const pathSegments = pathname.slice(1).split('/')
   const activeSegment =
-    currentLocale !== 'en' ? pathSegments[1] : pathSegments[0]
+    currentLocale !== defaultLocale ? pathSegments[1] : pathSegments[0]
 
   /* ── Shared class fragments ─────────────────────────────────────────────── */
   const linkBase =

@@ -12,9 +12,9 @@
  */
 
 import connectData from '../data/connect.json'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
-type Locale = 'en' | 'es' | 'ja' | 'pt-BR'
-const locale = (Astro.currentLocale ?? 'en') as Locale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 
 // ── Date-based split (build time) ────────────────────────────────────────────
 const today = new Date()

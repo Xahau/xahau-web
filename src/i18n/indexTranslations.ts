@@ -136,5 +136,3 @@ export const indexTranslations = {
     stats_node_cta: 'Quer executar um nó?',
   },
 }
-
-export type IndexLocale = keyof typeof indexTranslations

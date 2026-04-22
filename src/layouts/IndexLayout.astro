@@ -3,13 +3,13 @@ import '../styles/main.css'
 import { getRelativeLocaleUrl } from 'astro:i18n'
 import worldmap from '../assets/worldmap.svg'
 import XahauHome from '../components/XahauHome.astro'
-import type { IndexLocale } from '../i18n/indexTranslations'
 import { indexTranslations } from '../i18n/indexTranslations'
+import { defaultLocale, type Locale } from '../i18n/locales'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
 const _frontmatter = Astro.props.frontmatter
 
-const locale = (Astro.currentLocale ?? 'en') as IndexLocale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 const i = indexTranslations[locale]
 ---
 

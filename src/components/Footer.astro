@@ -2,8 +2,9 @@
 import { Image } from 'astro:assets'
 import { getRelativeLocaleUrl } from 'astro:i18n'
 import logo from '../assets/xahau-logo.svg'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
-const locale = Astro.currentLocale ?? 'en'
+const locale = Astro.currentLocale ?? defaultLocale
 
 const translations = {
   en: {
@@ -88,8 +89,7 @@ const translations = {
   }
 }
 
-type Locale = 'en' | 'es' | 'ja'
-const t = translations[locale as Locale] || translations.en
+const t = translations[locale as Locale] || translations[defaultLocale]
 ---
 
 <footer class="bg-white border-t border-[#e4edef]">

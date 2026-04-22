@@ -1,4 +1,5 @@
 import { getRelativeLocaleUrl } from 'astro:i18n'
+import { nonDefaultLocales } from '../i18n/locales'
 
 function normalizePathname(pathname: string) {
   if (!pathname || pathname === '/') return '/'
@@ -17,7 +18,7 @@ function splitPath(path: string) {
 export function stripLocalePrefix(pathname: string) {
   const normalizedPathname = normalizePathname(pathname)
 
-  for (const locale of ['es', 'ja', 'pt-br'] as const) {
+  for (const locale of nonDefaultLocales) {
     if (normalizedPathname === `/${locale}`) return '/'
     if (normalizedPathname.startsWith(`/${locale}/`)) {
       return normalizePathname(normalizedPathname.slice(locale.length + 1))

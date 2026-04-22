@@ -4,6 +4,7 @@ import CookieConsent from '../components/CookieConsent.astro'
 import DocsMobileMenuToggle from '../components/DocsMobileMenuToggle.astro'
 import Footer from '../components/Footer.astro'
 import Header from '../components/Header.jsx'
+import { defaultLocale } from '../i18n/locales'
 
 const _hasSidebar = Astro.locals.starlightRoute.hasSidebar
 ---
@@ -13,7 +14,11 @@ const _hasSidebar = Astro.locals.starlightRoute.hasSidebar
   rel="stylesheet"
 >
 <div class="font-[Onest] bg-xahau-background min-h-screen flex flex-col">
-  <Header client:load url={Astro.url} locale={Astro.currentLocale ?? 'en'} />
+  <Header
+    client:load
+    url={Astro.url}
+    locale={Astro.currentLocale ?? defaultLocale}
+  />
   <div class="page-content flex-1 container mx-auto p-6">
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
       <div>

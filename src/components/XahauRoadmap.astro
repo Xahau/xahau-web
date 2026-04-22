@@ -6,7 +6,7 @@
 // Usage in a .astro page frontmatter:
 //   import XahauRoadmap from '@/components/XahauRoadmap.astro'
 // Then in the template:
-//   <XahauRoadmap lang={Astro.currentLocale ?? 'en'} />
+//   <XahauRoadmap lang={Astro.currentLocale ?? defaultLocale} />
 //
 // To add/edit/delete an item: edit src/data/roadmap.json and commit.
 
@@ -291,12 +291,13 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
 
 <style>
   .xroadmap {
-    /* Xahau palette (aligned with site tokens):
-                     xahau-gray  #0f2328  — dark panel background
-                     xahau-green #5de48c  — bright accent
-                     xahau-green-dark #007b3d — darker accent
-                     xahau-secondary #fad7ae — warm secondary
-                  */
+    /**
+     *  Xahau palette (aligned with site tokens):
+     *    xahau-gray:       #0f2328 — dark panel background
+     *    xahau-green:      #5de48c — bright accent
+     *    xahau-green-dark: #007b3d — darker accent
+     *    xahau-secondary:  #fad7ae — warm secondary
+     */
     --bg: #0a1619;
     --panel: #0f2328;
     --ink: #e9edf1;
@@ -322,10 +323,13 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
     box-shadow: var(--section-shadow);
   }
 
-  /* === Light theme override ==================================================
-                   Activate by rendering <XahauRoadmap theme="light" />. Rollback is a one-word
-                   prop change in src/pages/roadmap.astro (or remove the prop for the default
-                   "dark"). */
+  /**
+   * Light theme override
+   * ══════════════════════════════════════════════════════════════════════════
+   * Activate by rendering <XahauRoadmap theme="light" />. Rollback is a one-word
+   * prop change in src/pages/roadmap.astro (or remove the prop for the default
+   * "dark").
+   */
   .xroadmap.theme-light {
     /* Panel is a warm off-white so cards don't dissolve into the page bg. */
     --bg: #eef2f1;
@@ -338,8 +342,10 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
     --section-bg: linear-gradient(180deg, #fbfbf9, #f3f6f4);
     --section-shadow: 0 22px 56px -28px rgba(15, 35, 40, 0.28);
   }
-  /* Feature cards: near-white surface + chunky left accent, matching rollouts.
-                   Keeps green as an accent colour instead of a pastel wash. */
+  /**
+   * Feature cards: near-white surface + chunky left accent, matching rollouts.
+   *  Keeps green as an accent colour instead of a pastel wash.
+   */
   .xroadmap.theme-light .xr-feat {
     background: #ffffff;
     border: 1px solid var(--line);
@@ -349,8 +355,10 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
   .xroadmap.theme-light .xr-feat.is-span {
     background: #ffffff;
   }
-  /* Bump tags up a touch — 9px text was fragile on white. Colour stays
-                   per-card-type so status colours (live/pilot/partnership/launch) still apply. */
+  /**
+   * Bump tags up a touch — 9px text was fragile on white. Colour stays
+   * per-card-type so status colours (live/pilot/partnership/launch) still apply.
+   */
   .xroadmap.theme-light .xr-feat .k,
   .xroadmap.theme-light .xr-roll .k {
     font-size: 10px;
@@ -395,8 +403,10 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
   .xroadmap.theme-light .xr-roll.status-launch {
     border-left-color: var(--teal);
   }
-  /* Deepen the status accent colours so tag text and pegs read cleanly on white.
-                   The bright dark-theme palette (teal/violet/rose/green) washes out at small sizes. */
+  /**
+   * Deepen the status accent colours so tag text and pegs read cleanly on white.
+   * The bright dark-theme palette (teal/violet/rose/green) washes out at small sizes.
+   */
   .xroadmap.theme-light .xr-roll.status-live .k {
     color: #2fa84f;
   }
@@ -986,8 +996,10 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
     color: var(--ink-mute);
   }
 
-  /* Per-card quarter badge — hidden on desktop (timeline carries this info)
-                   and shown on mobile where the horizontal arrow is collapsed. */
+  /**
+   * Per-card quarter badge — hidden on desktop (timeline carries this info)
+   * and shown on mobile where the horizontal arrow is collapsed.
+   */
   .xr-q-badge {
     display: none;
   }
@@ -1023,11 +1035,13 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
     }
   }
 
-  /* === Mobile (≤640px) ======================================================
-                   The horizontal timeline metaphor does not survive narrow viewports, so at
-                   phone widths we flip to a linear, stacked card list. The quarter header
-                   row, arrow and column dividers are hidden; every card instead shows its
-                   own period via the .xr-q-badge (populated at build time). */
+  /**
+   * === Mobile (≤640px) ======================================================
+   * The horizontal timeline metaphor does not survive narrow viewports, so at
+   * phone widths we flip to a linear, stacked card list. The quarter header
+   * row, arrow and column dividers are hidden; every card instead shows its
+   * own period via the .xr-q-badge (populated at build time).
+   */
   @media (max-width: 640px) {
     .xroadmap {
       padding: 20px 16px 18px;
@@ -1088,8 +1102,10 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
       display: none !important;
     }
 
-    /* Lanes collapse to a simple block list with a section heading derived
-                     from the existing aria-label (so no extra markup is needed). */
+    /**
+     * Lanes collapse to a simple block list with a section heading derived
+     * from the existing aria-label (so no extra markup is needed).
+     */
     .xr-lane {
       display: block;
       padding: 0 !important;
@@ -1112,8 +1128,10 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
       margin-bottom: 10px;
     }
 
-    /* Cards become full-width blocks; drop peg/open-ended/clip glyphs that
-                     only make sense against a horizontal timeline. */
+    /**
+     * Cards become full-width blocks; drop peg/open-ended/clip glyphs that
+     * only make sense against a horizontal timeline.
+     */
     .xr-feat,
     .xr-roll {
       display: block !important;

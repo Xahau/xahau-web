@@ -1,23 +1,15 @@
 {
-  "meta": {
-    "title": {
-      "en": "Ecosystem",
-      "es": "Ecosistema",
-      "ja": "エコシステム",
-      "pt-BR": "Ecossistema"
-    },
-    "subtitle_suffix": {
-      "en": "built on or around Xahau",
-      "es": "construido en o alrededor de Xahau",
-      "ja": "Xahauで、またはXahauを中心に構築",
-      "pt-BR": "construído sobre ou ao redor do Xahau"
-    },
-    "trademark": {
-      "en": "All trademarks and logos are the property of their respective owners.",
-      "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",
-      "ja": "すべての商標およびロゴは、各所有者の財産です。",
-      "pt-BR": "Todas as marcas e logotipos são propriedade de seus respectivos donos."
-    }
+  "title": {
+    "en": "Ecosystem",
+    "es": "Ecosistema",
+    "ja": "エコシステム",
+    "pt-BR": "Ecossistema"
+  },
+  "buildonxahau": {
+    "en": "built on or around Xahau",
+    "es": "creados en Xahau o en torno a ella",
+    "ja": "がXahauを利用して構築しています",
+    "pt-BR": "construído em ou ao redor do Xahau"
   },
   "sections": [
     {
@@ -320,5 +312,10 @@
         }
       ]
     }
-  ]
+  ],
+  "trademark": {
+    "en": "All trademarks and logos are the property of their respective owners.",
+    "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",
+    "ja": "すべての商標およびロゴは、各所有者の財産です。"
+  }
 }
