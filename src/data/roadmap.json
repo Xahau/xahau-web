@@ -172,7 +172,11 @@
         "es": "Función · en desarrollo",
         "pt-BR": "Funcionalidade · em desenvolvimento"
       },
-      "title": { "en": "FeatureExport", "es": "FeatureExport", "pt-BR": "FeatureExport" },
+      "title": {
+        "en": "FeatureExport",
+        "es": "FeatureExport",
+        "pt-BR": "FeatureExport"
+      },
       "description": {
         "en": "Export lets a Xahau user or hook request that the Xahau UNL sign a transaction destined for the XRPL — an ordinary transaction with a MultiSign block in which each UNL member contributes one of the signatures. This allows Xahau hooks to effectively control XRPL accounts and issue and manage assets on XRPL.",
         "es": "Export permite que un usuario o un Hook de Xahau solicite que la UNL de Xahau firme una transacción destinada al XRPL — una transacción ordinaria con un bloque MultiSign en el que cada miembro de la UNL aporta una de las firmas. Esto permite que los Hooks de Xahau controlen cuentas del XRPL y emitan y gestionen activos en XRPL.",
@@ -208,7 +212,11 @@
         "es": "Función · lista para enmienda",
         "pt-BR": "Funcionalidade · pronta para emenda"
       },
-      "title": { "en": "PriceOracle", "es": "PriceOracle", "pt-BR": "PriceOracle" },
+      "title": {
+        "en": "PriceOracle",
+        "es": "PriceOracle",
+        "pt-BR": "PriceOracle"
+      },
       "description": {
         "en": "Native on-ledger price feed primitive — tamper-resistant asset prices for DeFi, AMM and Hooks. Merged into the xahaud dev branch, awaiting amendment vote.",
         "es": "Primitiva nativa de precios en el ledger — precios de activos resistentes a manipulación para DeFi, AMM y Hooks. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
@@ -226,7 +234,11 @@
         "es": "Función · en desarrollo",
         "pt-BR": "Funcionalidade · em desenvolvimento"
       },
-      "title": { "en": "IOURewardClaim", "es": "IOURewardClaim", "pt-BR": "IOURewardClaim" },
+      "title": {
+        "en": "IOURewardClaim",
+        "es": "IOURewardClaim",
+        "pt-BR": "IOURewardClaim"
+      },
       "description": {
         "en": "Extends the current RewardClaim for XAH to make it available for IOU tokens as well — letting projects use Hooks to distribute rewards based on a user's token holdings.",
         "es": "Extiende el RewardClaim actual de XAH para ofrecerlo también a tokens IOU — permitiendo a los proyectos usar Hooks para distribuir recompensas según las tenencias de tokens de un usuario.",
@@ -299,7 +311,11 @@
       "quarter": "2026-Q2",
       "openEnded": false,
       "span": 2,
-      "tag": { "en": "Live · remittance", "es": "En vivo · remesas", "pt-BR": "Ao vivo · remessas" },
+      "tag": {
+        "en": "Live · remittance",
+        "es": "En vivo · remesas",
+        "pt-BR": "Ao vivo · remessas"
+      },
       "title": {
         "en": "COOP Bank EUR corridor scale-up to entire country.",
         "es": "Escalado del corredor EUR de COOP Bank a todo el país.",
@@ -372,7 +388,11 @@
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
       "tag": { "en": "Pilot", "es": "Piloto", "pt-BR": "Piloto" },
-      "title": { "en": "USD corridor pilot", "es": "Piloto del corredor USD", "pt-BR": "Piloto do corredor USD" },
+      "title": {
+        "en": "USD corridor pilot",
+        "es": "Piloto del corredor USD",
+        "pt-BR": "Piloto do corredor USD"
+      },
       "description": {
         "en": "Second fiat corridor (USD → ETB) opens to selected diaspora markets.",
         "es": "Un segundo corredor fiat (USD → ETB) se abre a mercados de diáspora seleccionados.",
@@ -403,7 +423,11 @@
       "status": "live",
       "quarter": "2027-Q1",
       "span": 1,
-      "tag": { "en": "GA · remittance", "es": "GA · remesas", "pt-BR": "GA · remessas" },
+      "tag": {
+        "en": "GA · remittance",
+        "es": "GA · remesas",
+        "pt-BR": "GA · remessas"
+      },
       "title": {
         "en": "Corridor expansion · GA",
         "es": "Expansión de corredores · GA",
@@ -421,7 +445,11 @@
       "status": "pilot",
       "quarter": "2027-Q2",
       "endQuarter": "2027-Q3",
-      "tag": { "en": "Pilot · payments", "es": "Piloto · pagos", "pt-BR": "Piloto · pagamentos" },
+      "tag": {
+        "en": "Pilot · payments",
+        "es": "Piloto · pagos",
+        "pt-BR": "Piloto · pagamentos"
+      },
       "title": {
         "en": "Merchant settlement pilot",
         "es": "Piloto de liquidación para comercios",
@@ -440,7 +468,11 @@
       "status": "partnership",
       "quarter": "2027-Q3",
       "openEnded": true,
-      "tag": { "en": "Enterprise", "es": "Empresarial", "pt-BR": "Empresarial" },
+      "tag": {
+        "en": "Enterprise",
+        "es": "Empresarial",
+        "pt-BR": "Empresarial"
+      },
       "title": {
         "en": "Enterprise settlement GA",
         "es": "GA de liquidación empresarial",
@@ -503,8 +535,16 @@
       "status": "launch",
       "quarter": "2026-Q2",
       "openEnded": true,
-      "tag": { "en": "Event · quarterly", "es": "Evento · trimestral", "pt-BR": "Evento · trimestral" },
-      "title": { "en": "Xahau Connect", "es": "Xahau Connect", "pt-BR": "Xahau Connect" },
+      "tag": {
+        "en": "Event · quarterly",
+        "es": "Evento · trimestral",
+        "pt-BR": "Evento · trimestral"
+      },
+      "title": {
+        "en": "Xahau Connect",
+        "es": "Xahau Connect",
+        "pt-BR": "Xahau Connect"
+      },
       "description": {
         "en": "Recurring community + ecosystem event, held once each quarter.",
         "es": "Evento recurrente de comunidad y ecosistema, celebrado una vez por trimestre.",
@@ -521,7 +561,11 @@
         "es": "Evento · empresas y desarrolladores",
         "pt-BR": "Evento · empresas e desenvolvedores"
       },
-      "title": { "en": "InFTF event", "es": "Evento InFTF", "pt-BR": "Evento InFTF" },
+      "title": {
+        "en": "InFTF event",
+        "es": "Evento InFTF",
+        "pt-BR": "Evento InFTF"
+      },
       "description": {
         "en": "InFTF event bringing enterprise partners and developers together.",
         "es": "Evento InFTF que reúne a socios empresariales y desarrolladores.",

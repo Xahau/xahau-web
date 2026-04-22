@@ -103,7 +103,8 @@ export const indexTranslations = {
     stats_node_cta: 'ノードを運営したいですか？',
   },
   'pt-BR': {
-    hero_title: 'A Blockchain Mais Inteligente com Programabilidade Baseada em Contas',
+    hero_title:
+      'A Blockchain Mais Inteligente com Programabilidade Baseada em Contas',
     hero_subtitle:
       'Não apenas contratos inteligentes – contas inteligentes. Barato e rápido por design. Construído para o mundo real.',
     hero_learn: 'Aprenda o básico',

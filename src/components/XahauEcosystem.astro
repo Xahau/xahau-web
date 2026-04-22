@@ -11,7 +11,6 @@
  */
 
 import { Image } from 'astro:assets'
-import { normalizeLocale } from '../utils/localizedHref'
 import logoAfricanUnion from '../assets/ecosystem-logos/AUPF.png'
 import logoBithomp from '../assets/ecosystem-logos/bithomp.png'
 import logoBitmart from '../assets/ecosystem-logos/bitmart.png'
@@ -29,6 +28,7 @@ import logoXaman from '../assets/ecosystem-logos/xaman.png'
 import logoXrplwin from '../assets/ecosystem-logos/xrplwin.png'
 import ecosystemData from '../data/ecosystem.json'
 import { defaultLocale, type Locale } from '../i18n/locales'
+import { normalizeLocale } from '../utils/localizedHref'
 
 const logoMap: Record<string, ImageMetadata> = {
   xaman: logoXaman,
@@ -49,7 +49,8 @@ const logoMap: Record<string, ImageMetadata> = {
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 
 const meta = ecosystemData.meta
-const L = (rec: Record<string, string>) => rec[locale] ?? rec['en'] ?? Object.values(rec)[0]
+const L = (rec: Record<string, string>) =>
+  rec[locale] ?? rec['en'] ?? Object.values(rec)[0]
 
 // Projects sorted alphabetically at build time; others keep editorial order.
 const sections = ecosystemData.sections.map((section) =>

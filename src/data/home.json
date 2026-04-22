@@ -24,7 +24,12 @@
     },
     {
       "value": "200K+",
-      "label": { "en": "Accounts", "es": "Cuentas", "ja": "アカウント", "pt-BR": "Contas" },
+      "label": {
+        "en": "Accounts",
+        "es": "Cuentas",
+        "ja": "アカウント",
+        "pt-BR": "Contas"
+      },
       "theme": "light",
       "col": 3
     },

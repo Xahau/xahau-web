@@ -76,12 +76,20 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Get started',
-          translations: { es: 'Primeros pasos', ja: 'はじめる', 'pt-BR': 'Primeiros Passos' },
+          translations: {
+            es: 'Primeros pasos',
+            ja: 'はじめる',
+            'pt-BR': 'Primeiros Passos',
+          },
           items: ['docs', 'docs/what-is-different'],
         },
         {
           label: 'Features',
-          translations: { es: 'Características', ja: '機能', 'pt-BR': 'Recursos' },
+          translations: {
+            es: 'Características',
+            ja: '機能',
+            'pt-BR': 'Recursos',
+          },
           items: [
             'docs/features/public-nodes-rpc',
             'docs/features/amendments',
@@ -142,7 +150,11 @@ export default defineConfig({
           items: [
             {
               label: 'Transactions',
-              translations: { es: 'Transacciones', ja: 'トランザクション', 'pt-BR': 'Transações' },
+              translations: {
+                es: 'Transacciones',
+                ja: 'トランザクション',
+                'pt-BR': 'Transações',
+              },
               collapsed: true,
               items: [
                 'docs/protocol-reference/transactions',
@@ -191,7 +203,11 @@ export default defineConfig({
             },
             {
               label: 'Ledger Data',
-              translations: { es: 'Datos del Ledger', ja: 'レジャーデータ', 'pt-BR': 'Dados do Ledger' },
+              translations: {
+                es: 'Datos del Ledger',
+                ja: 'レジャーデータ',
+                'pt-BR': 'Dados do Ledger',
+              },
               collapsed: true,
               items: [
                 'docs/protocol-reference/ledger-data',
@@ -214,7 +230,11 @@ export default defineConfig({
             },
             {
               label: 'Data Types',
-              translations: { es: 'Tipos de Datos', ja: 'データ型', 'pt-BR': 'Tipos de Dados' },
+              translations: {
+                es: 'Tipos de Datos',
+                ja: 'データ型',
+                'pt-BR': 'Tipos de Dados',
+              },
               collapsed: true,
               items: [
                 'docs/protocol-reference/data-types',
@@ -231,7 +251,11 @@ export default defineConfig({
             'docs/hooks',
             {
               label: 'Concepts',
-              translations: { es: 'Conceptos', ja: 'コンセプト', 'pt-BR': 'Conceitos' },
+              translations: {
+                es: 'Conceptos',
+                ja: 'コンセプト',
+                'pt-BR': 'Conceitos',
+              },
               collapsed: true,
               items: [
                 'docs/hooks/concepts/introduction',
@@ -264,7 +288,11 @@ export default defineConfig({
               items: [
                 {
                   label: 'Overview',
-                  translations: { es: 'Descripción General', ja: '概要', 'pt-BR': 'Visão Geral' },
+                  translations: {
+                    es: 'Descripción General',
+                    ja: '概要',
+                    'pt-BR': 'Visão Geral',
+                  },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/overview' },
                 },
@@ -287,7 +315,11 @@ export default defineConfig({
                 },
                 {
                   label: 'Utilities',
-                  translations: { es: 'Utilidades', ja: 'ユーティリティ', 'pt-BR': 'Utilitários' },
+                  translations: {
+                    es: 'Utilidades',
+                    ja: 'ユーティリティ',
+                    'pt-BR': 'Utilitários',
+                  },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/utilities' },
                 },
@@ -389,7 +421,11 @@ export default defineConfig({
         },
         {
           label: 'Compliance',
-          translations: { es: 'Cumplimiento', ja: 'コンプライアンス', 'pt-BR': 'Conformidade' },
+          translations: {
+            es: 'Cumplimiento',
+            ja: 'コンプライアンス',
+            'pt-BR': 'Conformidade',
+          },
           items: [
             'docs/compliance/security-audit',
             'docs/compliance/responsible-disclosure',
@@ -397,7 +433,11 @@ export default defineConfig({
         },
         {
           label: 'Infrastructure',
-          translations: { es: 'Infraestructura', ja: 'インフラストラクチャ', 'pt-BR': 'Infraestrutura' },
+          translations: {
+            es: 'Infraestructura',
+            ja: 'インフラストラクチャ',
+            'pt-BR': 'Infraestrutura',
+          },
           items: [
             'docs/infrastructure/system-requirements',
             'docs/infrastructure/installing-xahaud',
