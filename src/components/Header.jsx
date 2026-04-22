@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { useState } from 'react'
 import logo from '../assets/xahau-logo.svg'
+import { defaultLocale } from '../i18n/locales'
 import { getAlternateLocaleHref } from '../utils/localizedHref'
 
 const languages = [
