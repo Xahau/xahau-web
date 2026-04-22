@@ -14,7 +14,7 @@ import type { FeaturesLocale } from '../i18n/featuresTranslations'
 import { featuresTranslations } from '../i18n/featuresTranslations'
 
 const locale = (Astro.currentLocale ?? 'en') as FeaturesLocale
-const t = featuresTranslations[locale] ?? featuresTranslations['en']
+const t = featuresTranslations[locale] ?? featuresTranslations.en
 ---
 
 <section class="xfeat" aria-label="Xahau Features">
