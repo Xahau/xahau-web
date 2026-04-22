@@ -1,0 +1,11 @@
+---
+title: Códigos TES
+---
+Os códigos `tesSUCCESS` e `tesPARTIAL` são os únicos códigos que indicam que uma transação foi bem-sucedida. Isso nem sempre significa que ela realizou o que você esperava. (Por exemplo, um \[OfferCancel]\[] pode "ter sucesso" mesmo que não haja nenhuma oferta para cancelar.)&#x20;
+
+O código `tesPARTIAL` indica que uma transação teve sucesso parcial. Especificamente, é usado em cenários onde uma operação, como excluir registros de estado de hook, excede um determinado limite (por exemplo, 512 ou 1024 registros). Nesses casos, a transação exclui até o limite e então exige que você envie transações adicionais com novos números de sequência para continuar o processo de exclusão até que todos os registros sejam removidos. Isso garante que grandes operações sejam divididas em partes gerenciáveis.
+
+| Código       | Explicação                                                                                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tesSUCCESS` | A transação foi aplicada e encaminhada para outros servidores. Se aparecer em um ledger validado, o sucesso da transação é definitivo.                          |
+| `tesPARTIAL` | A transação teve sucesso parcial e requer transações adicionais para concluir grandes operações, como excluir mais do que um limite definido de registros.       |

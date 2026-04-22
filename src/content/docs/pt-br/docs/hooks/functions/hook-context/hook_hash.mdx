@@ -1,0 +1,91 @@
+---
+title: hook_hash
+description: Retreive the 32 byte namespace biased SHA512H of the currently executing Hook
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Look up the hash of the hook installed on hook account at position `hook_no`
+* Write the 32 byte hash to `write_ptr`
+</TabItem>
+<TabItem label="JavaScript">
+* Look up the hash of the hook installed on the hook account at the specified position.
+* The Namespace biased SHA512H of the currently executing Hook, or an error code if the lookup fails.
+</TabItem>
+</Tabs>
+
+
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_hash (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    int32_t  hook_no
+);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_hash(hookno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash[32];
+int64_t bytes_written = 
+    hook_hash(hash, 32, -1);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const hash = hook_hash(hookno)
+```
+</TabItem>
+</Tabs>
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name       | Type      | Description                                                                                    |
+| ---------- | --------- | ---------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Pointer to a buffer of a suitable size to store the output. Should be at least 32 bytes.       |
+| write_len | uint32_t | Length of the output buffer.                                                                   |
+| hook_no   | int32_t  | The position in the hook chain the hook is located at, or -1 for the currently executing hook. |
+</TabItem>
+<TabItem label="JavaScript">
+| Name     | Type   | Description                                                                                    |
+| -------- | ------ | ---------------------------------------------------------------------------------------------- |
+| hook_no | number | The position in the hook chain the hook is located at, or -1 for the currently executing hook. |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                                                                                      |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>DOESNT_EXIST</code><br />- The specified hook sequence number doesn't exist in the hook chain.</p> |
+</TabItem>
+<TabItem label="JavaScript">
+| Type                   | Description                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| ByteArray or ErrorCode | Returns the Namespace biased SHA512H of the currently executing Hook, or an error code if the lookup fails. |
+</TabItem>
+</Tabs>
+

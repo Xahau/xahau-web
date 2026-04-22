@@ -1,0 +1,96 @@
+---
+title: Directory Node
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L44)
+
+O tipo de objeto `DirectoryNode` fornece uma lista de links para outros objetos na árvore de estado do ledger. Um único _Diretório_ conceitual assume a forma de uma lista duplamente encadeada, com um ou mais objetos DirectoryNode, cada um contendo até 32 IDs de outros objetos. O primeiro objeto é chamado de raiz do diretório, e todos os objetos, exceto o objeto raiz, podem ser adicionados ou excluídos conforme necessário.
+
+Existem dois tipos de Diretórios:
+
+* **Diretórios de proprietário** listam outros objetos pertencentes a uma conta, como objetos `RippleState` (linha de confiança) ou `Offer`.
+* **Diretórios de oferta** listam as ofertas disponíveis na exchange descentralizada. Um único diretório de oferta contém todas as ofertas com a mesma taxa de câmbio para o mesmo token (código de moeda e emissor).
+
+### Exemplo JSON
+
+_Diretório de Oferta_
+
+```json
+{
+    "ExchangeRate": "4F069BA8FF484000",
+    "Flags": 0,
+    "Indexes": [
+        "AD7EAE148287EF12D213A251015F86E6D4BD34B3C4A0A1ED9A17198373F908AD"
+    ],
+    "LedgerEntryType": "DirectoryNode",
+    "RootIndex": "1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000",
+    "TakerGetsCurrency": "0000000000000000000000000000000000000000",
+    "TakerGetsIssuer": "0000000000000000000000000000000000000000",
+    "TakerPaysCurrency": "0000000000000000000000004A50590000000000",
+    "TakerPaysIssuer": "5BBC0F22F61D9224A110650CFE21CC0C4BE13098",
+    "index": "1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000"
+}
+```
+
+_Diretório de Proprietário_
+
+```json
+{
+    "Flags": 0,
+    "Indexes": [
+        "AD7EAE148287EF12D213A251015F86E6D4BD34B3C4A0A1ED9A17198373F908AD",
+        "E83BBB58949A8303DF07172B16FB8EFBA66B9191F3836EC27A4568ED5997BAC5"
+    ],
+    "ReferenceCount": "1",
+    "LedgerEntryType": "DirectoryNode",
+    "Owner": "rpR95n1iFkTqpoy1e878f4Z1pVHVtWKMNQ",
+    "RootIndex": "193C591BF62482468422313F9D3274B5927CA80B4DD3707E42015DD609E39C94",
+    "index": "193C591BF62482468422313F9D3274B5927CA80B4DD3707E42015DD609E39C94"
+}
+```
+
+### Campos
+
+| Nome                | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                              |
+| ------------------- | --------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Owner`             | String    | AccountID           | Não          | (Somente Diretórios de Proprietário) O endereço da conta que possui os objetos neste diretório.                                                                                                                                        |
+| `TakerGetsCurrency` | String    | Hash160             | Não          | (Somente Diretórios de Oferta) O código de moeda do valor `TakerGets` das ofertas neste diretório.                                                                                                                                     |
+| `TakerGetsIssuer`   | String    | Hash160             | Não          | (Somente Diretórios de Oferta) O emissor do valor `TakerGets` das ofertas neste diretório.                                                                                                                                             |
+| `TakerPaysCurrency` | String    | Hash160             | Não          | (Somente Diretórios de Oferta) O código de moeda do valor `TakerPays` das ofertas neste diretório.                                                                                                                                     |
+| `TakerPaysIssuer`   | String    | Hash160             | Não          | (Somente Diretórios de Oferta) O emissor do valor `TakerPays` das ofertas neste diretório.                                                                                                                                             |
+| `ExchangeRate`      | String    | UInt64              | Não          | (Somente Diretórios de Oferta) **OBSOLETO**. Não utilizar.                                                                                                                                                                             |
+| `ReferenceCount`    | String    | UInt64              | Não          | A contagem de referências no ledger reduz o custo de armazenamento e as taxas, permitindo que múltiplas instalações do mesmo Hook apontem para o mesmo objeto no ledger, removendo-o apenas quando nenhuma conta tiver o Hook instalado. |
+| `Indexes`           | Array     | Vector256           | Sim          | O conteúdo deste Diretório: um array de IDs de outros objetos.                                                                                                                                                                         |
+| `IndexNext`         | Number    | UInt64              | Não          | Se este Diretório consistir em múltiplas páginas, este ID aponta para o próximo objeto na cadeia, voltando ao início ao chegar ao final.                                                                                                |
+| `IndexPrevious`     | Number    | UInt64              | Não          | Se este Diretório consistir em múltiplas páginas, este ID aponta para o objeto anterior na cadeia, voltando ao final ao chegar ao início.                                                                                               |
+| `NFTokenID`         | String    | Hash256             | Não          | Não utilizado                                                                                                                                                                                                                          |
+
+### Formatos do ID do Diretório
+
+Existem três fórmulas diferentes para criar o ID de um DirectoryNode, dependendo do que o DirectoryNode representa:
+
+* A primeira página (também chamada de raiz) de um Diretório de Proprietário
+* A primeira página de um Diretório de Oferta
+* Páginas posteriores de qualquer tipo
+
+**A primeira página de um Diretório de Proprietário** tem um ID que é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço Owner Directory (`0x004F`)
+* O AccountID do campo `Owner`.
+
+**A primeira página de um Diretório de Oferta** tem um ID especial: os 192 bits superiores definem o livro de ordens, e os 64 bits restantes definem a taxa de câmbio das ofertas nesse diretório. (O ID é big-endian, portanto o livro está nos bits mais significativos, que vêm primeiro, e a qualidade está nos bits menos significativos, que vêm por último.)&#x20;
+
+Isso fornece uma maneira de iterar por um livro de ordens das melhores para as piores ofertas. Especificamente: os primeiros 192 bits são os primeiros 192 bits do \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço Book Directory (`0x0042`)
+* O código de moeda de 160 bits do `TakerPaysCurrency`
+* O código de moeda de 160 bits do `TakerGetsCurrency`
+* O AccountID do `TakerPaysIssuer`
+* O AccountID do `TakerGetsIssuer`
+
+Os 64 bits inferiores do ID de um Diretório de Oferta representam o valor `TakerPays` dividido pelo valor `TakerGets` das ofertas naquele diretório como um número de 64 bits no formato interno de quantidade do Xahau.
+
+**Se o DirectoryNode não for a primeira página do Diretório** (independentemente de ser um Diretório de Proprietário ou de Oferta), então ele tem um ID que é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço DirectoryNode (`0x0064`)
+* O ID do DirectoryNode raiz
+* O número de página deste objeto. (Como 0 é o DirectoryNode raiz, este valor é um inteiro 1 ou maior.)

@@ -1,0 +1,90 @@
+---
+title: slot_size
+description: Compute the serialized size of an object in a slot
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Return the number of bytes the object in the specified slot occupies when serialized
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retrieves the size of the specified slot.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_size (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_size(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t bytes_needed = slot_size(1); // get size of slot 1
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const bytes_needed = slot_size(1); // get size of slot 1
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name     | Type      | Description     |
+| -------- | --------- | --------------- |
+| slot_no | uint32_t | The slot number |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type   | Description                           |
+| ------ | ------ | ------------------------------------- |
+| slotno | number | The slot number to check the size of. |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>The number of bytes the object occupies when serialized<br /><br />If negative, an error:<br /><code>DOESNT_EXIST</code><br />- the specified slot does not contain any object or it is an invalid slot</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                    |
+| ------------------- | ---------------------------------------------- |
+| ErrorCode \| number | Returns an error code or the size of the slot. |
+</TabItem>
+</Tabs>
+

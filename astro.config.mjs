@@ -20,6 +20,7 @@ export default defineConfig({
       locales: {
         root: { label: 'English', lang: 'en' },
         es: { label: 'Español', lang: 'es' },
+        'pt-br': { label: 'Português (Brasil)', lang: 'pt-BR' },
         ja: { label: '日本語', lang: 'ja' },
       },
       tableOfContents: {
@@ -75,12 +76,20 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Get started',
-          translations: { es: 'Primeros pasos', ja: 'はじめる' },
+          translations: {
+            es: 'Primeros pasos',
+            ja: 'はじめる',
+            'pt-BR': 'Primeiros Passos',
+          },
           items: ['docs', 'docs/what-is-different'],
         },
         {
           label: 'Features',
-          translations: { es: 'Características', ja: '機能' },
+          translations: {
+            es: 'Características',
+            ja: '機能',
+            'pt-BR': 'Recursos',
+          },
           items: [
             'docs/features/public-nodes-rpc',
             'docs/features/amendments',
@@ -89,6 +98,7 @@ export default defineConfig({
               translations: {
                 es: 'Firma de Transacciones',
                 ja: 'トランザクション署名',
+                'pt-BR': 'Assinatura de Transações',
               },
               autogenerate: { directory: 'docs/features/transaction-signing' },
               collapsed: true,
@@ -98,6 +108,7 @@ export default defineConfig({
               translations: {
                 es: 'Herramientas para Desarrolladores',
                 ja: '開発者ツール',
+                'pt-BR': 'Ferramentas para Desenvolvedores',
               },
               autogenerate: { directory: 'docs/features/developer-tooling' },
               collapsed: true,
@@ -107,6 +118,7 @@ export default defineConfig({
               translations: {
                 es: 'APIs HTTP / WebSocket',
                 ja: 'HTTP / WebSocket API',
+                'pt-BR': 'APIs HTTP / WebSocket',
               },
               autogenerate: { directory: 'docs/features/http-websocket-apis' },
               collapsed: true,
@@ -116,6 +128,7 @@ export default defineConfig({
               translations: {
                 es: 'Funcionalidades de Red',
                 ja: 'ネットワーク機能',
+                'pt-BR': 'Funcionalidades da Rede',
               },
               autogenerate: { directory: 'docs/features/network-features' },
               collapsed: true,
@@ -132,11 +145,16 @@ export default defineConfig({
           translations: {
             es: 'Referencia del Protocolo',
             ja: 'プロトコルリファレンス',
+            'pt-BR': 'Referência do Protocolo',
           },
           items: [
             {
               label: 'Transactions',
-              translations: { es: 'Transacciones', ja: 'トランザクション' },
+              translations: {
+                es: 'Transacciones',
+                ja: 'トランザクション',
+                'pt-BR': 'Transações',
+              },
               collapsed: true,
               items: [
                 'docs/protocol-reference/transactions',
@@ -145,6 +163,7 @@ export default defineConfig({
                   translations: {
                     es: 'Tipos de Transacción',
                     ja: 'トランザクションタイプ',
+                    'pt-BR': 'Tipos de Transação',
                   },
                   autogenerate: {
                     directory:
@@ -157,6 +176,7 @@ export default defineConfig({
                   translations: {
                     es: 'Tipos de Pseudotransacción',
                     ja: '擬似トランザクションタイプ',
+                    'pt-BR': 'Tipos de Pseudotransação',
                   },
                   autogenerate: {
                     directory:
@@ -169,6 +189,7 @@ export default defineConfig({
                   translations: {
                     es: 'Resultados de Transacción',
                     ja: 'トランザクション結果',
+                    'pt-BR': 'Resultados de Transação',
                   },
                   autogenerate: {
                     directory:
@@ -182,7 +203,11 @@ export default defineConfig({
             },
             {
               label: 'Ledger Data',
-              translations: { es: 'Datos del Ledger', ja: 'レジャーデータ' },
+              translations: {
+                es: 'Datos del Ledger',
+                ja: 'レジャーデータ',
+                'pt-BR': 'Dados do Ledger',
+              },
               collapsed: true,
               items: [
                 'docs/protocol-reference/ledger-data',
@@ -191,6 +216,7 @@ export default defineConfig({
                   translations: {
                     es: 'Tipos de Objetos del Ledger',
                     ja: 'レジャーオブジェクトタイプ',
+                    'pt-BR': 'Tipos de Objetos do Ledger',
                   },
                   autogenerate: {
                     directory:
@@ -204,7 +230,11 @@ export default defineConfig({
             },
             {
               label: 'Data Types',
-              translations: { es: 'Tipos de Datos', ja: 'データ型' },
+              translations: {
+                es: 'Tipos de Datos',
+                ja: 'データ型',
+                'pt-BR': 'Tipos de Dados',
+              },
               collapsed: true,
               items: [
                 'docs/protocol-reference/data-types',
@@ -221,7 +251,11 @@ export default defineConfig({
             'docs/hooks',
             {
               label: 'Concepts',
-              translations: { es: 'Conceptos', ja: 'コンセプト' },
+              translations: {
+                es: 'Conceptos',
+                ja: 'コンセプト',
+                'pt-BR': 'Conceitos',
+              },
               collapsed: true,
               items: [
                 'docs/hooks/concepts/introduction',
@@ -249,12 +283,16 @@ export default defineConfig({
             },
             {
               label: 'Functions',
-              translations: { es: 'Funciones', ja: '関数' },
+              translations: { es: 'Funciones', ja: '関数', 'pt-BR': 'Funções' },
               collapsed: true,
               items: [
                 {
                   label: 'Overview',
-                  translations: { es: 'Descripción General', ja: '概要' },
+                  translations: {
+                    es: 'Descripción General',
+                    ja: '概要',
+                    'pt-BR': 'Visão Geral',
+                  },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/overview' },
                 },
@@ -263,6 +301,7 @@ export default defineConfig({
                   translations: {
                     es: 'Definidas por el Desarrollador',
                     ja: '開発者定義',
+                    'pt-BR': 'Definidas pelo Desenvolvedor',
                   },
                   collapsed: true,
                   autogenerate: {
@@ -276,7 +315,11 @@ export default defineConfig({
                 },
                 {
                   label: 'Utilities',
-                  translations: { es: 'Utilidades', ja: 'ユーティリティ' },
+                  translations: {
+                    es: 'Utilidades',
+                    ja: 'ユーティリティ',
+                    'pt-BR': 'Utilitários',
+                  },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/utilities' },
                 },
@@ -285,6 +328,7 @@ export default defineConfig({
                   translations: {
                     es: 'Serialización',
                     ja: 'シリアライゼーション',
+                    'pt-BR': 'Serialização',
                   },
                   collapsed: true,
                   autogenerate: {
@@ -296,6 +340,7 @@ export default defineConfig({
                   translations: {
                     es: 'Transacción Emitida',
                     ja: '発行トランザクション',
+                    'pt-BR': 'Transação Emitida',
                   },
                   collapsed: true,
                   autogenerate: {
@@ -317,6 +362,7 @@ export default defineConfig({
                   translations: {
                     es: 'Contexto del Hook',
                     ja: 'フックコンテキスト',
+                    'pt-BR': 'Contexto do Hook',
                   },
                   collapsed: true,
                   autogenerate: {
@@ -330,7 +376,7 @@ export default defineConfig({
                 },
                 {
                   label: 'State',
-                  translations: { es: 'Estado', ja: '状態' },
+                  translations: { es: 'Estado', ja: '状態', 'pt-BR': 'Estado' },
                   collapsed: true,
                   autogenerate: { directory: 'docs/hooks/functions/state' },
                 },
@@ -339,6 +385,7 @@ export default defineConfig({
                   translations: {
                     es: 'Traza (Debug)',
                     ja: 'トレース（デバッグ）',
+                    'pt-BR': 'Rastreamento (Debug)',
                   },
                   collapsed: true,
                   autogenerate: {
@@ -350,6 +397,7 @@ export default defineConfig({
                   translations: {
                     es: 'Transacción de Origen',
                     ja: '発信トランザクション',
+                    'pt-BR': 'Transação de Origem',
                   },
                   collapsed: true,
                   autogenerate: {
@@ -373,7 +421,11 @@ export default defineConfig({
         },
         {
           label: 'Compliance',
-          translations: { es: 'Cumplimiento', ja: 'コンプライアンス' },
+          translations: {
+            es: 'Cumplimiento',
+            ja: 'コンプライアンス',
+            'pt-BR': 'Conformidade',
+          },
           items: [
             'docs/compliance/security-audit',
             'docs/compliance/responsible-disclosure',
@@ -381,7 +433,11 @@ export default defineConfig({
         },
         {
           label: 'Infrastructure',
-          translations: { es: 'Infraestructura', ja: 'インフラストラクチャ' },
+          translations: {
+            es: 'Infraestructura',
+            ja: 'インフラストラクチャ',
+            'pt-BR': 'Infraestrutura',
+          },
           items: [
             'docs/infrastructure/system-requirements',
             'docs/infrastructure/installing-xahaud',
@@ -395,6 +451,7 @@ export default defineConfig({
               translations: {
                 es: 'Compilar xahaud (Avanzado)',
                 ja: 'xahaudをビルド（上級）',
+                'pt-BR': 'Compilar xahaud (Avançado)',
               },
               collapsed: true,
               items: [
@@ -407,12 +464,12 @@ export default defineConfig({
         },
         {
           label: 'Resources',
-          translations: { es: 'Recursos', ja: 'リソース' },
+          translations: { es: 'Recursos', ja: 'リソース', 'pt-BR': 'Recursos' },
           items: ['docs/resources/whitepaper', 'docs/resources/media-kit'],
         },
         {
           label: 'Support',
-          translations: { es: 'Soporte', ja: 'サポート' },
+          translations: { es: 'Soporte', ja: 'サポート', 'pt-BR': 'Suporte' },
           autogenerate: { directory: 'docs/support' },
         },
       ],

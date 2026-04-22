@@ -1,0 +1,58 @@
+---
+title: Hook Definition
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(Adicionado pela \[emenda Hooks]\[].)_
+
+Um objeto `HookDefinition` descreve um hook, que é um trecho de código executado em resposta a determinadas transações. O hook pode modificar a transação, emitir novas transações ou realizar outras ações.
+
+### Exemplo JSON
+
+```json
+{
+  "HookHash": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+  "HookOn": "0000000000000000000000000000000000000000000000000000000000000000",
+  "HookNamespace": "0000000000000000000000000000000000000000000000000000000000000000",
+  "HookParameters": {
+    "HookParameter": {
+      "HookParameterName": "DEADBEEF",
+      "HookParameterValue": "DEADBEEF",
+    }
+  },
+  "HookApiVersion": 1,
+  "CreateCode": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "HookSetTxnID": "0000000000000000",
+  "ReferenceCount": "6",
+  "Fee": "100000000",
+  "HookCallbackFee": "200000000",
+  "LedgerEntryType": "HookDefinition",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### Campos
+
+Um objeto `HookDefinition` tem os seguintes campos:
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                              |
+| ----------------- | --------- | ------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `HookHash`        | String    | Hash256             | Sim          | O identificador único do hook.                                                                                         |
+| `HookOn`          | String    | Hash256             | Sim          | A(s) transação(ões) que acionam o hook.                                                                                |
+| `HookCanEmit`     | String    | Hash256             | Não          | A(s) transação(ões) que o hook pode emitir.                                                                            |
+| `HookNamespace`   | String    | Hash256             | Sim          | O namespace do hook.                                                                                                   |
+| `HookParameters`  | String    | Vector              | Sim          | Os parâmetros que o hook aceita.                                                                                       |
+| `HookApiVersion`  | Number    | UInt16              | Sim          | A versão da API do hook utilizada pelo hook.                                                                           |
+| `CreateCode`      | String    | VL                  | Sim          | O código executado quando o hook é criado.                                                                             |
+| `HookSetTxnID`    | String    | Hash256             | Sim          | O ID da transação que definiu o hook.                                                                                  |
+| `ReferenceCount`  | String    | UInt64              | Sim          | O número de referências ao hook.                                                                                       |
+| `Fee`             | String    | Amount              | Sim          | A taxa para execução do hook.                                                                                          |
+| `HookCallbackFee` | String    | Amount              | Não          | A taxa para execução da função de callback do hook.                                                                    |
+| `LedgerEntryType` | String    | UInt16              | Sim          | O valor `0x0043`, mapeado para a string `HookDefinition`, indica que este objeto é um objeto HookDefinition.           |
+
+#### Formato do ID do Hook Definition
+
+O ID de um objeto `HookDefinition` é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço HookDefinition (`0x0044`)
+* O `HookHash` do hook

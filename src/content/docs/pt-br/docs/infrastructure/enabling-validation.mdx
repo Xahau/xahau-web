@@ -1,0 +1,51 @@
+---
+title: Habilitar Validação no xahaud
+---
+import { Aside } from '@astrojs/starlight/components';
+
+
+Os validadores são nós xahaud configurados com um par de chaves público/privado adicional, usado para assinar cada ledger proposto. Assim, os validadores são o principal mecanismo usado para alcançar consenso sobre a ordem em que as transações são aplicadas na Rede Xahau.
+
+## Considerações Preliminares
+Executar um servidor xahaud de validação pode parecer simples; no entanto, há uma série de considerações para operadores de nós de produção, incluindo disponibilidade e segurança. As seções introdutórias a seguir fornecem contexto sobre essas considerações.
+
+### Segurança e Disponibilidade
+Ao executar o xahaud como validador, a segurança e a disponibilidade do sistema são críticas. Os operadores de validadores devem monitorar ativamente seus servidores e responder rapidamente a interrupções. Alguns operadores de validadores optam por hospedar máquinas de espera em data centers diversos, para que possam se recuperar rapidamente de interrupções. Embora seja possível hospedar um validador confiável em casa, é improvável que tal configuração possa fornecer estabilidade e segurança suficientes para que o validador ganhe confiança mais ampla (ex.: inclusão em UNLs publicadas). Da mesma forma, os operadores de validadores são fortemente desencorajados de executar software diferente do xahaud em uma máquina usada como validador xahaud, pois isso aumenta a probabilidade de falta de recursos ou exposição de uma vulnerabilidade de segurança. Administradores de sistema que exigem acesso websocket ou RPC a um servidor são encorajados a executar máquinas diferentes para consultas, para que os recursos não sejam desviados da tarefa crítica de validar ledgers.
+<br></br>
+O par de chaves de validação privado/público deve ser armazenado e com backup em um ambiente seguro e offline. Qualquer pessoa com acesso às chaves de um validador confiável tem potencial para prejudicar a rede. Após instalar um token de validação no arquivo xahaud.cfg, é aconselhável restringir o acesso de leitura (`chmod 400 xahaud.cfg`) e alterar a propriedade do arquivo para "root" ou "xahaud", dependendo do tipo de instalação (`chown root:root xahaud.cfg`).
+
+### Atestação de Identidade
+Para evitar um [ataque Sybil](https://en.wikipedia.org/wiki/Sybil_attack) e construir confiança, os nós xahaud de validação atestam sua identidade assinando criptograficamente um nome de domínio com suas chaves de validação. Esta assinatura é então hospedada no mesmo domínio, em um [arquivo no formato TOML](/pt-br/docs/infrastructure/identity). Além de verificar a identidade de um validador, este arquivo TOML também pode ser usado para verificar a identidade de titulares de contas individuais na Rede Xahau, fornecendo um atestado assinado pela chave privada da conta em vez da chave privada de validação. O arquivo TOML deve ser hospedado em um servidor web com criptografia TLS habilitada em:<br></br><code>https://[seu-dominio.com]/.well-known/xahau.toml</code><br></br>
+
+### Peering
+Para manter um alto nível de segurança, os nós xahaud configurados como validadores devem conectar-se apenas com pares conhecidos e confiáveis. Habilitar a configuração `peer_private` e definir explicitamente `ips_fixed` no arquivo xahaud.cfg forçará um servidor a conectar-se apenas a pares definidos. Proteções no nível do sistema operacional e hardware, como firewalls, fornecem garantia adicional de que o servidor está conectando-se apenas a pares definidos. No entanto, isso pode ser um desafio, pois validadores com poucos pares, tipicamente menos de cinco, correm o risco de perder sincronização com o restante da rede.
+
+### Governança e Confiança
+A Rede Xahau utiliza o [Jogo de Governança](/pt-br/docs/features/governance-game) como método democrático para gerenciar a Rede. Adicionalmente, cada instância xahaud participante da Rede é obrigada a instalar uma lista de servidores de validação confiáveis, chamada de Lista de Nós Únicos ou UNL. Assim, os participantes de governança existentes podem votar para incluir um novo validador em uma cadeira na mesa de governança. Separadamente, publicadores de UNL confiáveis, como o [InFTF](https://inftf.org), podem escolher incluir um validador em sua lista recomendada de validadores confiáveis. Executar um validador não garante inclusão no Jogo de Governança ou em qualquer UNL. Tipicamente, os servidores de validação selecionados para inclusão no processo de governança têm:
+1. Alta disponibilidade
+    - Monitoramento efetivo 24/7/365 com respostas rápidas a interrupções
+2. Alta concordância com o restante da rede
+3. Um proprietário/operador identificado e uma localização geográfica clara
+4. Uma abordagem proativa para atualizar e votar em [emendas](/pt-br/docs/features/amendments) e taxas
+    - Isso requer dedicar tempo para acompanhar o que está em desenvolvimento
+
+## Habilitando a Validação
+Converter um servidor xahaud padrão em validador é um processo simples. Essencialmente, os usuários irão gerar um par de chaves público/privado, que é então usado para gerar um token usando uma chave efêmera derivada do par mestre. Esse token é instalado no arquivo `xahaud.cfg`, instruindo o xahaud a propor validações à Rede.
+
+### Compilando a Ferramenta de Chaves de Validação
+No momento, não há uma versão binária oficial do software usado para gerar chaves de validação. Assim, os usuários podem compilar a ferramenta do zero ou depender de compilações não oficiais. As instruções para compilar a ferramenta são as mesmas que as instruções para [compilar o xahaud](../build-xahaud), e são fornecidas na página do repositório [Xahau/validator-keys-tool](https://github.com/Xahau/validator-keys-tool). Também há alguns [binários empacotados](https://github.com/jscottbranson/xahau-examples/) disponíveis em repositórios não oficiais. Usuários que buscam gerar chaves para validadores de produção devem compilar a ferramenta do zero em uma máquina segura e com air gap.
+
+Embora o xahaud forneça o [Método de API Admin](/pt-br/docs/features/http-websocket-apis/admin-api-methods) `validation_create`, este método NÃO é capaz de gerar o token de validação necessário ou permitir a verificação de domínio. Assim, apesar do nome, o método `validation_create` é usado para criar chaves público/privadas para identificar um servidor de forma geral, por exemplo ao [clusterizar múltiplos servidores](/pt-br/docs/infrastructure/advanced-configuration).
+
+### Gerando e Instalando Chaves de Validação
+Considere usar uma máquina offline para gerar chaves de validação e um token de validação.
+1. Navegue até o diretório contendo a ferramenta de chaves de validação: `cd [/caminho/para/ferramenta]`
+2. Gere um novo par de chaves: `./validator-keys create_keys`
+3. O par de chaves recém-gerado é armazenado em `/home/[usuario]/[.ripple or .xahaud]/validator-keys.json`. O caminho de armazenamento depende de qual versão do validator-keys-tool é usada.
+4. Idealmente, os validadores devem fornecer atestação de identidade. Para isso, defina seu domínio no arquivo validator-keys.json: `./validator-keys set_domain [exemplo.com]`
+    - Se não desejar fornecer um domínio de identificação, gere um token de validação sem domínio: `./validator-keys create_token --keyfile /home/[usuario]/.xahaud/validator-keys.json`
+5. Revise a saída do comando anterior. Anote o `[validator_token]`, pois ele será instalado no xahaud.cfg para habilitar a validação. Se um domínio foi definido, anote a linha `attestation=""`, pois ela precisará ser adicionada ao arquivo TOML servido em seu domínio.
+    - Sempre que a ferramenta é usada para gerar um novo `validator_token`, um campo `token_sequence` é incrementado no arquivo `validator-keys.json`. A Rede ignorará validações de qualquer servidor que tenha um token gerado com um número de sequência menor que o mais alto número observado. Por exemplo, se seu token de validação tiver o número de sequência "3" e você gerar um novo token com número de sequência "2", as validações de qualquer máquina usando o novo token com o número de sequência mais baixo serão ignoradas. Esse recurso permite que operadores de servidores gerem um novo token, em vez de gerar novas chaves de validação mestre, em caso de comprometimento de segurança ou outro incidente.
+6. Abra o xahaud.cfg e cole o `[validation_token]`, depois reinicie o serviço xahaud.
+7. Cole o `attestation=""` em seu arquivo [TOML](/pt-br/docs/infrastructure/identity) para provar a identidade do seu validador.
+8. Certifique-se de que as chaves de validação privadas estejam armazenadas com segurança, idealmente separadas do validador.

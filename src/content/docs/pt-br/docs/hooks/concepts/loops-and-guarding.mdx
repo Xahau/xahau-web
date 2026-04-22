@@ -1,0 +1,90 @@
+---
+title: Loops e Guardas
+description: Guardas são necessárias para realizar loops em um Hook.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### O que são guardas?
+
+Os Hooks deliberadamente não são [Turing Completos](https://en.wikipedia.org/wiki/Turing_completeness). Isso significa que loops arbitrários são proibidos. Em vez disso, você deve _guardar_ seus loops com um limite rígido de "iteração máxima".
+
+Uma guarda é um marcador colocado no seu código no início de cada loop. O marcador informa ao Xahau qual é o limite superior do seu loop _em todos os cenários possíveis_. Assim, se o seu loop normalmente executa duas vezes, mas às vezes executa _500_ vezes, sua guarda dirá 500.
+
+As guardas são usadas pelo Xahau para determinar o _pior tempo de execução_ (em instruções) do seu Hook antes da execução. Esta é a base para a taxa que o Xahau cobra pela execução de um Hook e torna os tempos de execução previsíveis e controláveis.
+
+<Aside type="tip">
+  Desenvolvedores experientes migrando de outras plataformas de contratos inteligentes podem achar as guardas irritantes no início, mas uma vez que se acostumam, elas não são mais difíceis de usar do que um for-loop normal.
+</Aside>
+
+### A função guard
+
+A função guard informa ao ledger o **número máximo de iterações** que um loop realizará. Especificamente, a função aceita dois argumentos:
+
+```c
+int32_t _g (uint32_t id, uint32_t maxiter);
+```
+
+O primeiro argumento `id` é o identificador para esta guarda. Esta é uma constante única escolhida pelo desenvolvedor; tipicamente o número da linha no arquivo fonte é usado.
+
+O segundo argumento `maxiter` é uma promessa que o desenvolvedor faz ao ledger de que esta guarda não será _acionada_ mais de `maxiter` vezes durante a execução do Hook. Se a chamada da guarda for executada mais do que esse número de vezes, o Hook fará automaticamente rollback com um `GUARD_VIOLATION` ([códigos de retorno da API de Hook](/pt-br/docs/hooks/functions/overview/return-codes)). Como a guarda será acionada _antes_ que a condição do loop seja verificada, é importante adicionar um ao número total de iterações esperadas. (Nota: A macro GUARD() já adiciona um).
+
+<Aside type="caution">
+  As guardas devem ser definidas usando literais numéricos. Você não pode usar uma variável ou valor de tempo de execução em uma Guarda.
+</Aside>
+
+### Aplicação das guardas
+
+Considere o seguinte for-loop em C:
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  ...
+}
+```
+
+Em C, o operador vírgula executa cada expressão em uma lista de expressões (por exemplo, `A, B, C`) e retorna a última expressão (por exemplo, `C`). Assim, a condição acima ainda é `i < 3`, mas a guarda é chamada antes que a condição seja verificada. Esta é a única forma de satisfazer a _regra da guarda_ ao usar um for-loop em C.
+
+<Aside type="tip" title="A Regra da Guarda">
+  Uma chamada a <code>_g</code> (a função guard) deve ser a primeira instrução de branch após uma instrução de loop.
+</Aside>
+
+Abaixo aparece a saída webassembly quando o código acima é compilado. Note a função guard sendo chamada no início do loop. As únicas instruções permitidas antes desta chamada são instruções sem branch (tipicamente manipulando constantes).
+
+```
+    block  ;; label = @1
+      loop  ;; label = @2
+        i32.const 3
+        i32.const 14
+=====>  call $_g          <=====
+        drop
+        ...
+```
+
+### Loops Aninhados
+
+Ao usar loops aninhados, o argumento `maxiter` deve refletir o número total de vezes que a guarda será _acionada_. Isso significa que você deve multiplicar os aninhamentos juntos.
+
+Considere o exemplo abaixo:
+
+```c
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+  for (int j = 0; GUARD(15), j < 5; ++j)
+  {
+    ...
+  }
+}
+```
+
+Note que a guarda do loop interno está definida como **15**. Você deve multiplicar os loops juntos para calcular o número máximo de vezes que uma guarda interna será acionada durante a execução do Hook.
+
+### Sem recursão
+
+Chamadas a funções que não são da API de Hook são proibidas na emenda de Hooks. Todo o código do usuário deve caber dentro das duas funções Hook permitidas `cbak` e `hook`.
+
+<Aside type="caution">
+  O não uso correto das guardas causará a rejeição de uma tentativa de transação <code>SetHook</code>.
+</Aside>

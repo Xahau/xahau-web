@@ -1,0 +1,119 @@
+---
+title: Remit
+description: >-
+  A transação Remit permite ao usuário enviar múltiplos tipos de pagamento, mintar um
+  URIToken, transferir uma lista de URITokens e ativar uma conta.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+A transação Remit paga todas as taxas de _Ativação de Conta, Trustlines e Reservas de URIToken._
+</Aside>
+
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Remit.cpp)]
+
+_(Adicionado pela \[emenda Remit]\[].)_
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "Remit",
+    "Account": "rGvbdrdCxG2tk9ZU2673XmsjRdHCDQEpt7",
+    "Amounts": [
+        {
+            "AmountEntry": {
+                "Amount": "1000000"
+            }
+        }, {
+            "AmountEntry": {
+                "Amount": {
+                    "currency": "USD",
+                    "issuer": "rExKpRKXNz25UAjbckCRtQsJFcSfjL9Er3",
+                    "value": "1"
+                }
+            }
+        }
+    ],
+    "Destination": "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn",
+    "URITokenIDs": [
+        "714F206C865D334721B2F3388BEAF33AA91BC1D78C71941D10A2A653C873EDD3"
+    ],
+    "MintURIToken": {
+        "Digest": "6F11A4DF4EE794E2800BB361173D454BFBECB3D7506C4F4CB0EC5AE98BE43747",
+        "Flags": 1,
+        "URI": "697066733A2F2F"
+    }
+}
+```
+
+| Campo            | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                               |
+| ---------------- | --------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `Account`        | String    | AccountID          | O endereço da conta que irá ativar a conta, enviar o pagamento e/ou mintar/transferir o(s) URIToken(s).                 |
+| `Destination`    | String    | AccountID          | O endereço único da conta que receberá o pagamento e/ou o(s) URIToken(s).                                              |
+| `DestinationTag` | Number    | UInt32             | _(Opcional)_ Uma DestinationTag para depósitos em uma conta de custódia compartilhada.                                  |
+| `MintURIToken`   | Object    | STObject           | _(Opcional)_ Um STObject `MintURIToken` contendo os detalhes do URIToken que deseja mintar no `Destination`.            |
+| `URITokenIDs`    | Array     | STArray            | _(Opcional)_ Um array de URITokenIDs (hash de 256 bits) a serem transferidos para o `Destination`. _Limite de 32._      |
+| `Amounts`        | Array     | STArray            | _(Opcional)_ Um array de STObjects `AmountEntry` que a conta deseja enviar ao `Destination`. _Limite de 32._            |
+| `Inform`         | String    | AccountID          | _(Opcional)_ Endereço único de uma conta que pode ter um hook instalado e ser notificada quando uma remessa ocorrer.    |
+| `Blob`           | String    | Blob               | _(Opcional)_ Valor hexadecimal arbitrário que pode ser adicionado à transação para uso em Hooks.                        |
+| `InvoiceID`      | String    | Hash256            | _(Opcional)_ Hash de 256 bits arbitrário representando um motivo específico ou identificador para esta remessa.         |
+
+### Campos de AmountEntry
+
+| Campo    | Tipo JSON                                                                                                                          | \[Tipo Interno]\[] | Descrição                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------- |
+| `Amount` | [Valor de Moeda](/pt-br/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount             | O valor da moeda que a conta deseja enviar ao `Destination`. |
+
+### Campos de MintURIToken
+
+| Campo    | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                          |
+| -------- | --------- | ------------------ | ------------------------------------------------------------------ |
+| `URI`    | String    | String             | A URI associada ao URIToken mintado. (máximo de 256 bytes)         |
+| `Digest` | String    | Hash256            | _(Opcional)_ O digest do URIToken.                                 |
+| `Flags`  | Number    | UInt32             | _(Opcional)_ Flags na transação de mint.                           |
+
+### Flags de MintURIToken
+
+O STObject `MintURIToken` suporta os seguintes valores no campo `Flags`:
+
+| Nome da Flag | Valor Hex    | Valor Decimal | Descrição                                                                                              |
+| ------------ | ------------ | ------------- | ------------------------------------------------------------------------------------------------------ |
+| `tfBurnable` | `0x00000001` | 1             | Permite ao emissor destruir o `URIToken` mintado. (O proprietário do `URIToken` _sempre_ pode fazê-lo.) |
+
+### Custo Especial de Transação
+
+A transação Remit possui um custo de transação padrão, que é a taxa mínima exigida para qualquer transação no Xahau.
+
+Além da taxa mínima exigida, a transação Remit também deduzirá as taxas para o seguinte:
+
+| Ação                 | Taxa                               |
+| -------------------- | ---------------------------------- |
+| `Account Activation` | Requisito de Reserva Padrão        |
+| `Create Trustline`   | Requisito de Reserva Padrão        |
+| `URIToken Mint`      | Requisito de Reserva Padrão        |
+| `URIToken Transfer`  | Requisito de Reserva Padrão        |
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações Remit podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro                 | Descrição                                                                                                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temINVALID_FLAG`              | Ocorre se alguma flag especificar `tfFullyCanonicalSig`.                                                                                                       |
+| `temREDUNDANT`                 | Ocorre se a Account for igual ao Destination.                                                                                                                  |
+| `temMALFORMED (Inform & Blob)` | Ocorre quando: sfInform é igual à origem ou ao destino. O Blob tinha mais de 128 KiB.                                                                          |
+| `temMALFORMED (AmountEntry)`   | Ocorre quando: a contagem de AmountEntry excede `32`. AmountEntry esperado. A moeda nativa aparece mais de uma vez. A moeda emitida aparece mais de uma vez.    |
+| `temMALFORMED (MintURIToken)`  | Ocorre quando: sfMintURIToken contém campo inválido. A URI não foi fornecida. A URI era muito longa/curta. UTF8 inválido dentro do MintURIToken.               |
+| `temMALFORMED (URITokenIDs)`   | Ocorre quando: URITokenIDs muito curto/longo. URITokenID duplicado.                                                                                            |
+| `temBAD_AMOUNT`                | Ocorre quando um Amount no AmountEntry é inválido.                                                                                                             |
+| `terNO_ACCOUNT`                | Ocorre quando a conta de origem não existe.                                                                                                                    |
+| `tecNO_TARGET`                 | Ocorre quando o campo `sfInform` está presente, mas a conta não existe.                                                                                        |
+| `tecNO_PERMISSION`             | Ocorre quando `disallowIncomingRemit` está habilitado no `Destination`.                                                                                        |
+| `tecNO_PERMISSION`             | Ocorre quando o `Destination` possui `DepositAuthorization` habilitado.                                                                                        |
+| `tecDST_TAG_NEEDED`            | Ocorre se a conta de destino exige uma tag de destino, mas a transação não inclui uma.                                                                         |
+| `tecDUPLICATE`                 | Ocorre quando a URI do `MintURIToken` daquele emissor já existe.                                                                                               |
+| `tecDIR_FULL`                  | Ocorre quando o diretório da conta de origem ou de destino está cheio.                                                                                         |
+| `tecNO_ENTRY`                  | Ocorre quando o URIToken não existe.                                                                                                                           |
+| `tecNO_PERMISSION`             | Ocorre quando o URIToken não é de propriedade da conta de origem.                                                                                              |
+| `tecUNFUNDED_PAYMENT`          | Ocorre quando a conta de origem não possui os fundos necessários para executar a transação. (XAH ou Moedas Emitidas)                                           |

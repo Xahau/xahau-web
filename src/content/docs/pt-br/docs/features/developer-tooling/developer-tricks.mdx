@@ -1,0 +1,29 @@
+---
+title: Truques para Desenvolvedores
+---
+## Assinatura Curinga
+
+Para testar e reproduzir facilmente, use `NetworkID` com o valor `65535` (config: `[network_id]`) para desabilitar a verificação de assinatura.
+
+Adicionado: [https://github.com/Xahau/xahaud/pull/201](https://github.com/Xahau/xahaud/pull/201)
+
+## Definições do Servidor
+
+As definições do servidor podem ser facilmente obtidas a partir dos nós públicos. Essas definições incluem informações de codec binário e outros dados específicos da rede necessários para serialização e desserialização de transações.
+
+### Mainnet
+- [`https://xahau.network/server_definitions.json`](https://xahau.network/server_definitions.json)
+
+### Testnet
+- [`https://xahau-test.net/server_definitions.json`](https://xahau-test.net/server_definitions.json)
+
+### JSHooks-Testnet
+- [`https://jshooks.xahau-test.net/server_definitions.json`](https://jshooks.xahau-test.net/server_definitions.json)
+
+Essas definições de servidor são essenciais para:
+- Operações de codec binário
+- Serialização de transações
+- Definições de tipos de campo
+- Constantes específicas da rede
+
+Você pode usar essas definições em suas aplicações para codificar e decodificar corretamente transações para a rede Xahau.

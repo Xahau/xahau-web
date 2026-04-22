@@ -26,6 +26,7 @@ import { getAlternateLocaleHref } from '../utils/localizedHref'
 const languages = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
+  { code: 'pt-BR', label: 'Português (Brasil)' },
   // { code: 'ja', label: '日本語' },
 ]
 
@@ -57,6 +58,20 @@ const nav = {
     protocol: 'Referencia de Protocolo',
     infra: 'Infraestructura',
     discord: 'Discord de la Comunidad',
+  },
+  'pt-BR': {
+    about: 'Sobre',
+    features: 'Recursos',
+    ecosystem: 'Ecossistema',
+    roadmap: 'Roadmap',
+    docs: 'Documentação',
+    connect: 'Conectar',
+    explorers: 'Exploradores',
+    events: 'Eventos',
+    getstarted: 'Primeiros passos',
+    protocol: 'Referência de Protocolo',
+    infra: 'Infraestrutura',
+    discord: 'Discord da Comunidade',
   },
   ja: {
     about: 'Xahauについて',

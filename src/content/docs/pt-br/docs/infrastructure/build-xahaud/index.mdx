@@ -1,0 +1,45 @@
+---
+title: Compilar o xahaud
+description: Configuração do Ambiente de Compilação e Compilação do xahaud
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Compilar software, como o xahaud, a partir do código-fonte disponível publicamente é um processo complexo que requer conhecimento aprofundado e experiência. Assim, existem múltiplas abordagens que os desenvolvedores podem adotar, dependendo do ambiente (ex.: Linux, MacOS, Windows). As instruções nos capítulos de documentação a seguir pretendem simplificar e expandir as do [repositório GitHub do xahaud](https://github.com/Xahau/xahaud/blob/dev/BUILD.md). Os desenvolvedores podem precisar desviar dessas instruções para realizar tarefas específicas ou garantir compatibilidade com sistemas operacionais específicos.
+
+Os artigos a seguir detalham o processo de configuração de um ambiente de compilação e a compilação do xahaud em vários ambientes de sistemas operacionais.
+
+<Aside type="danger">
+Compilar software a partir do código-fonte é uma tarefa complexa que exige conhecimento técnico avançado e experiência. É possível fazer alterações no nível do sistema operacional que não podem ser facilmente revertidas. Realize o processo de compilação por sua conta e risco. Esta documentação foi elaborada para orientar, e não para ser definitivamente precisa.
+</Aside>
+
+## Compilando Software a Partir do Código-Fonte
+Quando os desenvolvedores escrevem software, o fazem em linguagens de programação projetadas para serem legíveis por humanos. No entanto, não é eficiente para os computadores executar esse código legível por humanos. Portanto, há necessidade de o software ser "compilado" de código legível por humanos em bytecode que pode ser lido e interpretado rapidamente por um computador.
+
+Adicionando complexidade a este processo, os desenvolvedores frequentemente dependem de software escrito por outros desenvolvedores, chamado de "dependências", porque um pacote de software depende (requer) do outro. Para que essas dependências sejam incluídas no produto final, elas devem ser "vinculadas" ao código antes de sua compilação. O processo de vinculação pode ser muito intenso, pois as dependências do pacote de software original podem ter suas próprias dependências (que por sua vez podem ter ainda mais dependências, adicionando camadas). Os desenvolvedores dependem de ferramentas, como o Conan, para simplificar o processo de localização, configuração e vinculação de dependências.
+
+Todo o processo de garantir que as dependências sejam atendidas, compilar o software em um formato otimizado para máquina e executar testes no produto final é chamado de "build" (compilação).
+
+Como o xahaud é [publicado como software de código aberto no GitHub](https://github.com/Xahau/xahaud), qualquer pessoa pode visualizar, auditar, modificar, compilar e executar o código. Compilar a partir do código-fonte garante certeza de que o produto em execução está baseado no código-fonte publicamente visível, que também possui uma trilha de auditoria completa. Assim, operadores de validadores que priorizam um nível máximo de segurança devem considerar a compilação a partir do código-fonte.
+
+## Dependências
+
+Para compatibilidade, é importante observar as versões específicas do software usado no processo de compilação. O xahaud é escrito na linguagem C++20.
+
+Os requisitos atuais para compilar o xahaud incluem:
+
+
+| Dependência | Versão    |
+| :---------- | :-------- |
+| Python3     | >= 3.7    |
+| GCC / G++   | >= 14.x   |
+| CMake       | >= 3.16   |
+| Conan2      | 2.x       |
+| openssl     | 1.1.1     |
+| boost       | 1.86.0    |
+| SQLite3     | 3.42.0    |
+| Snappy*     | 1.1.10    |
+| SOCI*       | 4.0.3     |
+| WasmEdge*   | 0.11.2    |
+
+\* Incluídas no repositório GitHub do Xahau/xahaud.

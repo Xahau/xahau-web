@@ -1,0 +1,99 @@
+---
+title: Pay Channel
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/c0a0b79d2d483b318ce1d82e526bd53df83a4a2c/src/ripple/protocol/impl/LedgerFormats.cpp#L180-L198)
+
+_(Adicionado pela \[emenda PayChan]\[].)_
+
+O tipo de objeto `PayChannel` representa um canal de pagamento. Os canais de pagamento permitem pagamentos pequenos e rápidos fora do ledger em XAH ou IOU que podem ser posteriormente reconciliados com o ledger de consenso. Um canal de pagamento mantém um saldo em XAH ou IOU que só pode ser pago a um endereço de destino específico até que o canal seja fechado. Qualquer XAH ou IOU não gasto é devolvido ao proprietário do canal (o endereço de origem que o criou e financiou) quando o canal fecha.
+
+O tipo de \[transação PaymentChannelCreate]\[] cria um objeto `PayChannel`. Os tipos \[PaymentChannelFund]\[] e \[transação PaymentChannelClaim]\[] modificam objetos `PayChannel` existentes.
+
+Quando um canal de pagamento expira, inicialmente permanece no ledger, pois apenas novas transações podem modificar o conteúdo do ledger. O processamento de transações fecha automaticamente um canal de pagamento quando qualquer transação o acessa após a expiração. Para fechar um canal expirado e devolver o XAH ou IOU não gasto ao proprietário, alguns endereços devem enviar uma nova transação PaymentChannelClaim ou PaymentChannelFund acessando o canal.
+
+Para um exemplo de uso de canais de pagamento, consulte o Tutorial de Canais de Pagamento.
+
+### Exemplo JSON
+
+```json
+{
+    "Account": "rBqb89MRQJnMPq8wTwEbtz4kvxrEDfcYvt",
+    "Destination": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Amount": "4325800",
+    "Balance": "2323423",
+    "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A",
+    "SettleDelay": 3600,
+    "Expiration": 536027313,
+    "CancelAfter": 536891313,
+    "SourceTag": 0,
+    "DestinationTag": 1002341,
+    "DestinationNode": "0000000000000000",
+    "Flags": 0,
+    "LedgerEntryType": "PayChannel",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "F0AB71E777B2DA54B86231E19B82554EF1F8211F92ECA473121C655BFC5329BF",
+    "PreviousTxnLgrSeq": 14524914,
+    "index": "96F76F27D8A327FC48753167EC04A46AA0E382E6F57F32FD12274144D00F1797"
+}
+```
+
+### Campos
+
+Um objeto `PayChannel` tem os seguintes campos:
+
+| Nome                | Tipo JSON        | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------- | ---------------- | ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Account`           | String           | AccountID           | Sim          | O endereço de origem que possui este canal de pagamento. Provém do endereço de envio da transação que criou o canal.                                                                                                                                                                                                                                                                                    |
+| `Amount`            | String ou Object | Amount              | Sim          | Valor total alocado para este canal. Isso inclui valores que foram pagos ao endereço de destino. É inicialmente definido pela transação que criou o canal e pode ser aumentado se o endereço de origem enviar uma transação PaymentChannelFund.                                                                                                                                                          |
+| `Balance`           | String ou Object | Amount              | Sim          | Valor total já pago pelo canal. A diferença entre este valor e o campo `Amount` é quanto ainda pode ser pago ao endereço de destino com transações PaymentChannelClaim. Se o canal fechar, a diferença restante é devolvida ao endereço de origem.                                                                                                                                                       |
+| `CancelAfter`       | Number           | UInt32              | Não          | O tempo de expiração imutável para este canal de pagamento, em \[segundos desde a Época Ripple]\[]. Este canal está expirado se este valor estiver presente e for menor que o campo `close_time` do ledger anterior. É opcionalmente definido pela transação que criou o canal e não pode ser alterado.                                                                                                  |
+| `Destination`       | String           | AccountID           | Sim          | O endereço de destino para este canal de pagamento. Enquanto o canal de pagamento estiver aberto, este é o único endereço que pode receber o valor do canal. Provém do campo `Destination` da transação que criou o canal.                                                                                                                                                                              |
+| `DestinationTag`    | Number           | UInt32              | Não          | Uma tag arbitrária para especificar melhor o destino deste canal de pagamento, como um destinatário hospedado no endereço de destino.                                                                                                                                                                                                                                                                   |
+| `DestinationNode`   | String           | UInt64              | Não          | Uma dica indicando qual página do diretório do proprietário do destino aponta para este objeto, caso o diretório consista em múltiplas páginas. Omitido em canais de pagamento criados antes de habilitar a \[emenda fixPayChanRecipientOwnerDir]\[].                                                                                                                                                    |
+| `Expiration`        | Number           | UInt32              | Não          | O tempo de expiração mutável para este canal de pagamento, em \[segundos desde a Época Ripple]\[]. O canal está expirado se este valor estiver presente e for menor que o campo `close_time` do ledger anterior. Consulte Definindo Expiração do Canal para mais detalhes.                                                                                                                               |
+| `Flags`             | Number           | UInt32              | Sim          | Um mapa de bits de flags booleanos habilitados para este objeto. Atualmente, o protocolo não define flags para objetos `PayChannel`. O valor é sempre `0`.                                                                                                                                                                                                                                              |
+| `LedgerEntryType`   | String           | UInt16              | Sim          | O valor `0x0078`, mapeado para a string `PayChannel`, indica que este objeto é um objeto de canal de pagamento.                                                                                                                                                                                                                                                                                         |
+| `OwnerNode`         | String           | UInt64              | Sim          | Uma dica indicando qual página do diretório do proprietário do endereço de origem aponta para este objeto, caso o diretório consista em múltiplas páginas.                                                                                                                                                                                                                                              |
+| `PreviousTxnID`     | String           | Hash256             | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                                                                                                                                                                                                                                                                         |
+| `PreviousTxnLgrSeq` | Number           | UInt32              | Sim          | O \[índice do ledger]\[Índice de Ledger] que contém a transação que mais recentemente modificou este objeto.                                                                                                                                                                                                                                                                                           |
+| `PublicKey`         | String           | Blob                | Sim          | Chave pública, em hexadecimal, do par de chaves que pode ser usado para assinar reivindicações contra este canal. Pode ser qualquer chave pública secp256k1 ou Ed25519 válida. É definida pela transação que criou o canal e deve corresponder à chave pública usada nas reivindicações contra o canal. O endereço de origem do canal também pode enviar valores deste canal ao destino sem reivindicações assinadas. |
+| `SettleDelay`       | Number           | UInt32              | Sim          | Número de segundos que o endereço de origem deve aguardar para fechar o canal se ainda houver algum valor nele. Valores menores significam que o endereço de destino tem menos tempo para resgatar quaisquer reivindicações pendentes após o endereço de origem solicitar o fechamento do canal. Pode ser qualquer valor que caiba em um inteiro sem sinal de 32 bits (0 a 2^32-1). É definido pela transação que cria o canal. |
+| `SourceTag`         | Number           | UInt32              | Não          | Uma tag arbitrária para especificar melhor a origem deste canal de pagamento, como um destinatário hospedado no endereço do proprietário.                                                                                                                                                                                                                                                               |
+| `TransferRate`      | Number           | UInt32              | Não          |                                                                                                                                                                                                                                                                                                                                                                                                        |
+
+### Definindo a Expiração do Canal
+
+O campo `Expiration` de um canal de pagamento é o tempo de expiração mutável, em contraste com o tempo de expiração imutável representado pelo campo `CancelAfter`. A expiração de um canal é sempre considerada relativa ao campo `close_time` do ledger anterior. O campo `Expiration` é omitido quando um objeto `PayChannel` é criado. Existem várias maneiras pelas quais o campo `Expiration` de um objeto `PayChannel` pode ser atualizado, que podem ser resumidas da seguinte forma: o endereço de origem de um canal pode definir a `Expiration` do canal livremente, desde que o canal sempre permaneça aberto por pelo menos `SettleDelay` segundos após a primeira tentativa de fechamento.
+
+#### Endereço de Origem
+
+O endereço de origem pode definir a `Expiration` diretamente com o tipo de transação PaymentChannelFund. O novo valor não deve ser anterior ao menor dos seguintes valores:
+
+* O valor atual de `Expiration` (se definido)
+* O horário de fechamento do ledger anterior mais o `SettleDelay` do canal
+
+Em outras palavras, o endereço de origem pode sempre tornar a `Expiration` mais tarde se uma expiração já estiver definida. A origem pode tornar um valor de `Expiration` mais cedo ou definir uma `Expiration` se uma não estiver definida atualmente, desde que o novo valor seja pelo menos `SettleDelay` segundos no futuro. Se o endereço de origem tentar definir uma data `Expiration` inválida, a transação falha com o código de erro `temBAD_EXPIRATION`.
+
+O endereço de origem também pode definir a `Expiration` com o flag `tfClose` do tipo de transação PaymentChannelClaim. Se o flag estiver habilitado, o ledger define automaticamente a `Expiration` para o menor dos seguintes valores:
+
+* O valor atual de `Expiration` (se definido)
+* O horário de fechamento do ledger anterior mais o `SettleDelay` do canal
+
+O endereço de origem pode remover a `Expiration` com o flag `tfRenew` do tipo de transação PaymentChannelClaim.
+
+#### Endereço de Destino
+
+O endereço de destino não pode definir o campo `Expiration`. No entanto, o endereço de destino pode usar o flag `tfClose` do PaymentChannelClaim para fechar um canal imediatamente.
+
+#### Outros Endereços
+
+Se qualquer outro endereço tentar definir um campo `Expiration`, a transação falha com o código de erro `tecNO_PERMISSION`. No entanto, se o canal já estiver expirado, a transação faz com que o canal feche e resulta em `tesSUCCESS` em vez disso.
+
+### Formato do ID do PayChannel
+
+O ID de um objeto `PayChannel` é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço PayChannel (`0x0078`)
+* O AccountID da conta de origem
+* O AccountID da conta de destino
+* O número de Sequência da \[transação PaymentChannelCreate]\[] que criou o canal. Se a transação PaymentChannelCreate usou um Ticket, use o valor `TicketSequence` em vez disso.

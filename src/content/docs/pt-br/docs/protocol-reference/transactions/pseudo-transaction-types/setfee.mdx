@@ -1,0 +1,42 @@
+---
+title: SetFee
+---
+Uma pseudo-transação `SetFee` marca uma mudança no custo de transação ou nos requisitos de reserva como resultado de Votação de Taxa.
+
+**Nota:** Você não pode enviar uma pseudo-transação, mas pode encontrar uma ao processar ledgers.
+
+### Exemplo de JSON
+
+```json
+{
+    "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+    "BaseFee": "000000000000000A",
+    "Fee": "0",
+    "ReferenceFeeUnits": 10,
+    "ReserveBase": 20000000,
+    "ReserveIncrement": 5000000,
+    "Sequence": 0,
+    "SigningPubKey": "",
+    "TransactionType": "SetFee",
+    "date": 439578860,
+    "hash": "1C15FEA3E1D50F96B6598607FC773FF1F6E0125F30160144BE0C5CBC52F5151B",
+    "ledger_index": 3721729,
+}
+```
+
+| Campo               | Tipo JSON        | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                      |
+| ------------------- | ---------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `BaseFee`           | String           | UInt64              | A cobrança, em drops de XAH, pela transação de referência, em hexadecimal. (Este é o custo de transação antes do escalonamento por carga.)                                                                                     |
+| `ReferenceFeeUnits` | Unsigned Integer | UInt32              | O custo, em unidades de taxa, da transação de referência                                                                                                                                                                       |
+| `ReserveBase`       | Unsigned Integer | UInt32              | A reserva base, em drops                                                                                                                                                                                                       |
+| `ReserveIncrement`  | Unsigned Integer | UInt32              | A reserva incremental, em drops                                                                                                                                                                                                |
+| `LedgerSequence`    | Number           | UInt32              | _(Omitido para algumas pseudo-transações `SetFee` históricas)_ O índice da versão de ledger onde esta pseudo-transação aparece. Isso distingue a pseudo-transação de outras ocorrências da mesma mudança.                      |
+
+Se a _\[emenda XAHFees]\[]_ estiver habilitada, as pseudo-transações `SetFee` usam estes campos em vez disso:
+
+| Campo                   | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                      |
+| ----------------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `BaseFeeDrops`          | String    | Amount              | A cobrança, em drops de XAH, pela transação de referência. (Este é o custo de transação antes do escalonamento por carga.)                                                                                                     |
+| `ReserveBaseDrops`      | String    | Amount              | A reserva base, em drops                                                                                                                                                                                                       |
+| `ReserveIncrementDrops` | String    | Amount              | A reserva incremental, em drops                                                                                                                                                                                                |
+| `LedgerSequence`        | Number    | UInt32              | _(Omitido para algumas pseudo-transações `SetFee` históricas)_ O índice da versão de ledger onde esta pseudo-transação aparece. Isso distingue a pseudo-transação de outras ocorrências da mesma mudança.                      |

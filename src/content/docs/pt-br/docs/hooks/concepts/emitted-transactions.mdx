@@ -1,0 +1,64 @@
+---
+title: Transações Emitidas
+description: Seu Hook pode fazer muito mais do que apenas bloquear ou permitir transações!
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Contexto
+
+**Todas** as mudanças feitas no Xahau _devem_ ser resultado da aplicação de uma transação válida ao ledger. Assim, se alguma mudança _X_ é feita, então alguma transação _Y_ é responsável.
+
+Ao projetar a API de Hooks, precisávamos de uma forma para que os Hooks fizessem mudanças no ledger _além_ de simplesmente aceitar ou rejeitar uma transação. No entanto, anexar essas mudanças à Transação de Origem era confuso e resultava em um grande aumento na complexidade geral do sistema.
+
+Suponha, por exemplo, que um Hook precise enviar alguns fundos para você... a operação de envio seria efetivamente aplicada ao ledger pela Transação de Origem, que poderia ser algo completamente não relacionado, como uma transação AccountSet. Adicionalmente, essa operação de envio precisaria ser capaz de potencialmente acionar outro Hook no lado receptor de um pagamento.
+
+A solução: **Transações Emitidas**. Permitimos que a Transação de Origem faça exatamente o que o conteúdo da Transação diz que fará. Se nosso Hook precisar fazer uma mudança adicional no ledger, como enviar um pagamento, ele cria e então _emite_ uma nova transação.
+
+### O que são Transações Emitidas?
+
+Transações Emitidas são _novas_ transações criadas pela execução de um Hook e inseridas no consenso para processamento no próximo ledger. A transação pode ser de qualquer Tipo de Transação, mas deve seguir regras de emissão estritas.
+
+Para emitir uma transação, o Hook primeiro prepara a transação serializada e então chama [emit](/pt-br/docs/hooks/functions/emitted-transaction/emit-1).
+
+Como as transações emitidas podem acionar Hooks no próximo ledger que, por sua vez, podem emitir mais transações, todas as transações emitidas carregam um campo `burden` e um campo `generation` em seu bloco `EmitDetails`. O bloco `EmitDetails` substitui o campo de assinatura em uma transação tradicional.
+
+Os campos `burden` e `generation` coletivamente previnem ataques de [Fork bomb](https://en.wikipedia.org/wiki/Fork_bomb) ao ledger, aumentando exponencialmente o custo de transações emitidas em expansão exponencial.
+
+É importante notar que a API de Hooks segue a regra estrita de _nenhuma reescrita_. Você _deve_ apresentar uma transação emitida de forma completa, válida e canônica ao xahaud para emissão, ou ela será rejeitada. Não é responsabilidade do xahaud construir sua transação. O Hook deve fazer isso por conta própria.
+
+### Callbacks
+
+Como introduzido em [Introdução e Terminologia](/pt-br/docs/hooks/concepts/terminology), as transações emitidas acionam callbacks quando são aceitas em um ledger. Devido à natureza descentralizada do consenso, a aceitação em um ledger de uma transação emitida **não é uma garantia**, embora seja geralmente quase garantida.
+
+Se uma transação emitida expirar antes de ser aceita em um ledger (por qualquer número de razões: os ledgers podem estar cheios, a taxa pode ser muito alta para a transação emitida, ou a transação emitida pode ser de alguma forma inválida), então uma _pseudo transação_ é criada no ledger para limpar a transação emitida. Essa pseudo transação também chama o callback do seu hook, com `parameter = 1` para indicar que a transação emitida de fato falhou.
+
+### Regras de Emissão
+
+A [emit](/pt-br/docs/hooks/functions/emitted-transaction/emit-1) Hook API aplicará as seguintes regras em uma transação proposta (a ser emitida).
+
+| # | Regra de Emissão                                          | Explicação                                                                                                                                                                                                                                              |
+| - | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | `sfSequence` = 0                                       | Transações Emitidas _não_ incrementam o número de sequência da Conta Hook. Deve ser sempre definido como zero.                                                                                                                                         |
+| 2 | `sfPubSigningKey` = 0                                  | Transações Emitidas não são assinadas, mas este é um campo obrigatório para o processamento pelo xrpld. Deve ser definido como todos zeros.                                                                                                                                      |
+| 3 | `sfEmitDetails` presente e válido                      | Transações Emitidas requerem um bloco `sfEmitDetails` que deve ser preenchido corretamente. Veja a seção EmitDetails abaixo.                                                                                                                                  |
+| 4 | `sfSignature` ausente                                   | Este campo deve estar ausente na transação emitida, pois caso contrário a transação seria ambígua.                                                                                                                                                     |
+| 5 | `LastLedgerSequence` válido e no futuro           | Todas as transações emitidas devem ter um last ledger sequence definido para que o Hook saiba se a transação emitida falhou (pois não recebeu um callback a tempo). Atualmente está definido com um máximo de 5 ledgers após o ledger atual.              |
+| 6 | `FirstLedgerSequence` válido e definido para o próximo ledger | Todas as transações emitidas devem ter um first ledger sequence definido para o próximo ledger (após o ledger atual) para que os Hooks não entrem em cascata recursiva dentro de um único ledger. Atualmente é aplicado como o próximo ledger após o ledger atual. |
+| 7 | Taxa calculada e definida adequadamente                     | A taxa depende do tamanho da transação emitida e da carga na rede (ou seja, se essa transação emitida foi resultado de outra transação emitida.)                                                                         |
+| 8 | Limite de geração não excedido                            | Uma transação emitida pode produzir outras transações emitidas, e estas podem formar uma cadeia. O comprimento da cadeia é o `sfEmitGeneration`. Atualmente está limitado a 10.                                                                            |
+
+### Bloco EmitDetails
+
+Todas as transações emitidas devem conter um objeto `sfEmitDetails` corretamente preenchido com os campos da tabela abaixo.
+
+| Campo             | Valor Necessário                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Descrição                                                                                                                                                                                                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sfEmitGeneration  | <p>Se a Transação de Origem foi ela própria uma transação emitida, então um a mais que o <code>sfEmitGeneration</code> dessa transação.<br /><br />Se a Transação de Origem não foi uma transação emitida, então <code>1</code>.<br /><br />Deve ser preenchido usando <a href="/pt-br/docs/hooks/functions/emitted-transaction/etxn_generation">etxn_generation</a>.</p>                                                                                                                                                                                  | Este campo rastreia uma cadeia de transações emitidas que, por sua vez, causam a emissão de outras transações.                                                                                                                                                                  |
+| sfEmitBurden      | <p>Se a Transação de Origem foi ela própria uma transação emitida, então o <code>burden</code> da Transação de Origem multiplicado pelo número máximo de transações que o Hook declarou que emitirá usando <a href="/pt-br/docs/hooks/functions/emitted-transaction/etxn_reserve">etxn_reserve</a>.<br /><br />Se a Transação de Origem não foi uma transação emitida, então <code>1</code>.<br /><br />Deve ser preenchido usando <a href="/pt-br/docs/hooks/functions/emitted-transaction/etxn_burden">etxn_burden</a>.</p> | Este campo é uma heurística para detectar forkbombs. As taxas são baseadas no burden e aumentarão exponencialmente quando uma reação em cadeia é iniciada, para evitar que a rede seja sobrecarregada por transações emitidas auto-reforçadas.                                   |
+| sfEmitParentTxnID | O ID da transação de origem                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | A Execução do Hook que emitiu a transação está conectada à Transação de Origem. Portanto, este campo é sempre necessário para o rastreamento eficiente do comportamento.                                                                                                    |
+| sfEmitNonce       | Um nonce determinístico especial produzido por uma chamada a [nonce](/pt-br/docs/hooks/functions/emitted-transaction/etxn_nonce)                                                                                                                                                                                                                                                                                                                                                                                                           | Transações Emitidas seriam idênticas com os mesmos campos e, portanto, teriam hashes de transação idênticos se um nonce não fosse usado. No entanto, cada nó da rede precisa concordar com o nonce, então uma API especial de Hook para produzir um nonce determinístico é disponibilizada. |
+| sfEmitCallback    | O ID de 20 bytes da Conta Hook                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Este campo é usado pelo xahaud quando precisa iniciar um callback, para que saiba qual Hook e conta iniciar o callback. Callbacks ocorrem quando uma transação emitida é aceita em um ledger.                                                                                |
+
+<Aside type="tip" title="Confira os exemplos">
+Os [Hooks de Exemplo](https://github.com/XRPL-Labs/xrpld-hooks/tree/hooks-ssvm/hook-api-examples), em particular Peggy, Carbon e Doubler, demonstram como emitir transações simples e mais complexas.
+</Aside>

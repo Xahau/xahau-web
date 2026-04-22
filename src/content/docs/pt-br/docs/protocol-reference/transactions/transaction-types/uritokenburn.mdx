@@ -1,0 +1,38 @@
+---
+title: URITokenBurn
+description: >-
+  A transação URITokenBurn é usada para destruir um URIToken no Xahau. Destruir
+  um URIToken o remove permanentemente de circulação.
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/URIToken.cpp)
+
+_(Adicionado pela \[emenda URIToken]\[].)_
+
+A transação URITokenBurn é usada para destruir um URIToken no Xahau. Destruir um URIToken o remove permanentemente de circulação.
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "URITokenBurn",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA",
+}
+```
+
+| Campo        | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                         |
+| ------------ | --------- | ------------------- | ----------------------------------------------------------------- |
+| `Account`    | String    | AccountID           | O endereço da conta que possui o URIToken a ser destruído.        |
+| `URITokenID` | String    | Hash256             | O ID do URIToken a destruir.                                      |
+
+### Custo Especial de Transação
+
+A transação URITokenBurn não possui requisitos especiais de custo de transação.
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações URITokenBurn podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro     | Descrição                                                             |
+| ------------------ | --------------------------------------------------------------------- |
+| `tecNO_PERMISSION` | Ocorre se a conta não tiver permissão para destruir o token.          |

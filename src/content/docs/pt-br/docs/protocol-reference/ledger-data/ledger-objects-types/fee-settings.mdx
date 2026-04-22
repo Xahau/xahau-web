@@ -1,0 +1,64 @@
+---
+title: Fee Settings
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L115-L120)
+
+O tipo de objeto `FeeSettings` contém o custo base atual de transação e os valores de reserva conforme determinado pela votação de taxas. Cada versão de ledger contém **no máximo um** objeto `FeeSettings`.
+
+### Exemplo JSON
+
+Exemplo de objeto `FeeSettings`:
+
+```json
+{
+   "BaseFee": "000000000000000A",
+   "Flags": 0,
+   "LedgerEntryType": "FeeSettings",
+   "ReferenceFeeUnits": 10,
+   "ReserveBase": 20000000,
+   "ReserveIncrement": 5000000,
+   "XahauActivationLgrSeq": 0,
+   "NetworkID": 21337,
+   "AccountCount": 0,
+   "index": "4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651"
+}
+```
+
+### Campos
+
+O objeto `FeeSettings` tem os seguintes campos:
+
+| Nome                    | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                          |
+| ----------------------- | --------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BaseFee`               | String    | UInt64              | Sim          | O custo de transação da "transação de referência" em drops de XAH como hexadecimal.                                                                |
+| `Flags`                 | Number    | UInt32              | Sim          | Um mapa de bits de flags booleanos habilitados para este objeto. Atualmente, o protocolo não define flags para objetos `FeeSettings`. O valor é sempre `0`. |
+| `LedgerEntryType`       | String    | UInt16              | Sim          | O valor `0x0073`, mapeado para a string `FeeSettings`, indica que este objeto contém as configurações de taxa do ledger.                            |
+| `ReferenceFeeUnits`     | Number    | UInt32              | Sim          | O `BaseFee` traduzido em "unidades de taxa".                                                                                                       |
+| `ReserveBase`           | Number    | UInt32              | Sim          | A reserva base para uma conta no Xahau, em drops de XAH.                                                                                           |
+| `ReserveIncrement`      | Number    | UInt32              | Sim          | A reserva incremental de proprietário para posse de objetos, em drops de XAH.                                                                      |
+| `XahauActivationLgrSeq` | Number    | UInt32              | Não          | O índice do ledger onde o genesis do Xahau foi ativado.                                                                                            |
+| `AccountCount`          | Number    | UInt32              | Não          | O número de contas criadas na rede Xahau.                                                                                                          |
+| `NetworkID`             | Number    | UInt32              | Não          | O ID da rede.                                                                                                                                      |
+
+**Aviso:** O formato JSON para este tipo de objeto de ledger é incomum. O `BaseFee`, `ReserveBase` e `ReserveIncrement` indicam drops de XAH, mas _**não**_ no formato usual para \[especificação de XAH]\[Quantidade de Moeda].
+
+Se a _\[emenda XAHFees]\[]_ estiver habilitada, o objeto `FeeSettings` terá estes campos em vez disso:
+
+| Nome                    | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                            |
+| ----------------------- | --------- | ------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BaseFeeDrops`          | String    | Amount              | Sim          | O custo de transação da "transação de referência" em drops de XAH.                                                                                   |
+| `Flags`                 | Number    | UInt32              | Sim          | Um mapa de bits de flags booleanos habilitados para este objeto. Atualmente, o protocolo não define flags para objetos `FeeSettings`. O valor é sempre `0`. |
+| `LedgerEntryType`       | String    | UInt16              | Sim          | O valor `0x0073`, mapeado para a string `FeeSettings`, indica que este objeto contém as configurações de taxa do ledger.                             |
+| `ReserveBaseDrops`      | String    | Amount              | Sim          | A reserva base para uma conta no XAH Ledger, em drops de XAH.                                                                                       |
+| `ReserveIncrementDrops` | String    | Amount              | Sim          | A reserva incremental de proprietário para posse de objetos, em drops de XAH.                                                                        |
+| `XahauActivationLgrSeq` | Number    | UInt32              | Não          | O índice do ledger onde o genesis do Xahau foi ativado.                                                                                              |
+| `AccountCount`          | Number    | UInt32              | Não          | O número de contas criadas na rede Xahau.                                                                                                            |
+| `NetworkID`             | Number    | UInt32              | Não          |                                                                                                                                                      |
+
+### Formato do ID do FeeSettings
+
+O ID do objeto `FeeSettings` é o hash apenas da chave de espaço `FeeSettings` (`0x0065`). Isso significa que o ID do objeto `FeeSettings` em um ledger é sempre:
+
+```
+4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651
+```

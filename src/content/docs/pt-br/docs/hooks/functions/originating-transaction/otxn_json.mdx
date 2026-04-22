@@ -1,0 +1,53 @@
+---
+title: otxn_json
+description: Output the originating transaction in JSON format.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="JavaScript">
+* Output the originating transaction in JSON format.
+* Returns the originating transaction as a JSON object or Transaction, or an ErrorCode if the retrieval fails.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function otxn_json(): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const tx_json = otxn_json()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+No parameters
+
+### Return Code
+
+<Tabs>
+<TabItem label="JavaScript">
+| Type                                             | Description                                                                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| ErrorCode \| Record\<string, any> \| Transaction | Returns the originating transaction as a JSON object or Transaction, or an ErrorCode if the retrieval fails. |
+</TabItem>
+</Tabs>
+

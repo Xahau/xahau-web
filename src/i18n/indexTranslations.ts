@@ -102,4 +102,38 @@ export const indexTranslations = {
     stats_ledgers: '閉鎖済みレジャー',
     stats_node_cta: 'ノードを運営したいですか？',
   },
+  'pt-BR': {
+    hero_title:
+      'A Blockchain Mais Inteligente com Programabilidade Baseada em Contas',
+    hero_subtitle:
+      'Não apenas contratos inteligentes – contas inteligentes. Barato e rápido por design. Construído para o mundo real.',
+    hero_learn: 'Aprenda o básico',
+    hero_docs: 'Ver documentação',
+    network_title: 'A Rede Xahau',
+    network_subtitle: 'Por que Xahau é a blockchain certa para o seu negócio?',
+    feat1_title: '1. Hooks de Contrato Inteligente',
+    feat1_desc:
+      'Xahau suporta contratos inteligentes leves diretamente nas contas, permitindo lógica automática para aprovações, rejeições ou comportamento personalizado sem exigir que os usuários chamem um contrato.',
+    feat2_title: '2. Baixas Taxas com Queima de Taxas',
+    feat2_desc:
+      'Xahau oferece custos de transação previsíveis e baixos. Uma parte de cada taxa é queimada, reduzindo spam e alinhando incentivos com a saúde a longo prazo da rede.',
+    feat3_title: '3. Governança Pronta para Empresas',
+    feat3_desc:
+      'Com governança estruturada e coordenação de validadores, Xahau fornece um ambiente estável para uso regulado e empresarial, incluindo cadeia de suprimentos, pagamentos e aplicações de conformidade.',
+    feat4_title: '4. Rápido, Verde e Escalável',
+    feat4_desc:
+      'Com um protocolo de consenso eficiente, Xahau processa transações rapidamente sem mineração—ideal para empresas que precisam de desempenho e sustentabilidade.',
+    feat5_title: '5. Controle de Tokens e Ativos por Design',
+    feat5_desc:
+      'As empresas podem emitir ativos ou tokens com controle detalhado sobre como eles são usados ou transferidos, aplicando regras automaticamente no nível do livro-razão.',
+    feat_more: 'Descubra mais recursos',
+    stats_title: 'Estatísticas da rede',
+    stats_subtitle: 'Xahau em números',
+    stats_accounts: 'Contas',
+    stats_hooks: 'Hooks instalados',
+    stats_nodes: 'Nós',
+    stats_txs: 'Transações/24h',
+    stats_ledgers: 'Livros-razão fechados',
+    stats_node_cta: 'Quer executar um nó?',
+  },
 }

@@ -1,0 +1,53 @@
+---
+title: Negative UNL
+---
+_(Adicionado pela \[emenda NegativeUNL]\[].)_
+
+O tipo de objeto `NegativeUNL` contém o status atual da UNL Negativa, uma lista de validadores confiáveis que atualmente se acredita estarem offline.
+
+Cada versão de ledger contém **no máximo um** objeto `NegativeUNL`. Se nenhum validador estiver atualmente desabilitado ou programado para ser desabilitado, não há objeto `NegativeUNL` no ledger.
+
+### Exemplo JSON
+
+```json
+{
+  "DisabledValidators": [
+    {
+      "DisabledValidator": {
+        "FirstLedgerSequence": 1609728,
+        "PublicKey": "ED6629D456285AE3613B285F65BBFF168D695BA3921F309949AFCD2CA7AFEC16FE"
+      }
+    }
+  ],
+  "Flags": 0,
+  "LedgerEntryType": "NegativeUNL",
+  "index": "2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244"
+}
+```
+
+Um objeto `NegativeUNL` tem os seguintes campos:
+
+| Nome                  | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                  |
+| --------------------- | --------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `DisabledValidators`  | Array     | Array               | Não          | Uma lista de objetos `DisabledValidator` (veja abaixo), cada um representando um validador confiável atualmente desabilitado. |
+| `Flags`               | Number    | UInt32              | Sim          | Um mapa de bits de flags booleanos. Nenhum flag é definido para o tipo de objeto NegativeUNL, portanto o valor é sempre `0`. |
+| `LedgerEntryType`     | String    | UInt16              | Sim          | O valor `0x004E`, mapeado para a string `NegativeUNL`, indica que este objeto é a UNL Negativa.                             |
+| `ValidatorToDisable`  | String    | Blob                | Não          | A chave pública de um validador confiável que está programado para ser desabilitado no próximo ledger de flag.              |
+| `ValidatorToReEnable` | String    | Blob                | Não          | A chave pública de um validador confiável na UNL Negativa que está programado para ser reabilitado no próximo ledger de flag. |
+
+### Objetos DisabledValidator
+
+Cada objeto `DisabledValidator` representa um validador desabilitado. Em JSON, um objeto `DisabledValidator` tem um campo, `DisabledValidator`, que por sua vez contém outro objeto com os seguintes campos:
+
+| Nome                  | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                       |
+| --------------------- | --------- | ------------------- | ------------------------------------------------------------------------------- |
+| `FirstLedgerSequence` | Number    | UInt32              | O \[índice do ledger]\[] quando o validador foi adicionado à UNL Negativa.      |
+| `PublicKey`           | String    | Blob                | A chave pública mestre do validador, em hexadecimal.                            |
+
+### Formato do ID do NegativeUNL
+
+O ID do objeto `NegativeUNL` é o hash apenas da chave de espaço `NegativeUNL` (`0x004E`). Isso significa que o ID do objeto `NegativeUNL` em um ledger é sempre:
+
+```
+2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244
+```

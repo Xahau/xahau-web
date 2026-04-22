@@ -1,0 +1,199 @@
+---
+title: Jogo de Governança
+description: >-
+  O Jogo de Governança é um mecanismo inovador de governança dentro do
+  ecossistema Xahau para garantir uma abordagem centrada na comunidade para a
+  tomada de decisões.
+---
+
+### Visão Geral
+
+O Jogo de Governança do Xahau permite que até 400 stakeholders participem democraticamente na gestão da rede Xahau por meio do Hook de Governança instalado na Conta Gênesis.
+
+### Camada 1
+
+O jogo consiste em uma mesa de "Camada 1" com 20 assentos. Uma conta Xahau (endereço-r) pode preencher cada assento, ou ele pode estar vazio. Quando um assento é preenchido, diz-se que um membro da mesa está sentado ali.
+
+Para jogar o jogo, os membros da mesa votam. Os votos são sobre um de três tipos de tópicos:
+
+* Tópicos de Assento
+* Tópicos de Hook
+* Tópicos de Recompensa.
+
+Os tópicos de Assento são S00 a S19 e representam um voto sobre quem (se alguém) está atualmente sentado naquele assento. Um voto de 80% é suficiente para fazer uma mudança. O processo de votação é contínuo, sendo o voto final que cruza o limite que aciona a mudança.
+
+Os tópicos de Hook são H0 a H9 e representam quais Hooks, incluindo o próprio Hook de Governança, estão instalados na conta da mesa. Esses tópicos requerem 100% dos membros sentados naquela mesa para concordar antes que uma mudança possa ser feita. Isso permite que o Jogo de Governança seja atualizado e que mais funcionalidades da conta Gênesis sejam adicionadas ao longo do tempo.
+
+Os tópicos de Recompensa são RR e RD, que significam Taxa de Recompensa e Atraso de Recompensa, respectivamente. Esses tópicos também requerem 100% dos membros na mesa para concordar para fazer uma mudança. Esses parâmetros afetam o sistema de AjustesDeSaldo: quanto cada usuário ativo na rede pode reivindicar e com que frequência.
+
+### Camada 2
+
+Os membros que preenchem assentos na mesa da Camada 1 são contas Xahau (endereços-r). O jogo de governança é projetado para ser estruturalmente recursivo, de forma que uma dessas contas pode ser ela mesma uma mesa composta por outros 20 assentos. Isso é chamado de mesa da Camada 2, e os assentos são assentos da Camada 2.
+
+Dentro de uma mesa da Camada 2, os mesmos tópicos de votação de assento e hook existem, com as mesmas regras de votação da mesa da Camada 1. Isso permite que uma mesa governe sua própria composição e os hooks que rodam lá.
+
+Além desses tópicos, uma mesa da Camada 2 também pode, por votação de 51%, levantar um voto para a mesa da Camada 1. Este é um voto em nome do endereço-r em que a mesa da Camada 2 existe e conta como um único voto na mesa da Camada 1.
+
+O voto da mesa da Camada 2 pode cair abaixo de 51%, caso em que o voto originalmente levantado para a mesa da Camada 1 **não** é retirado. Apenas um novo voto (diferente) atingindo 51% pode mudar o voto da mesa na Camada 1.
+
+As mesas da Camada 2 só podem votar em tópicos de Recompensa por meio de um voto levantado para a Camada 1.
+
+Em resumo, os membros da Camada 2 podem votar em:
+
+* Assentos e Hooks para sua própria mesa, e
+* Assentos, Hooks e tópicos de Recompensa para a mesa L1 via o assento da Camada 1 em que sua mesa da Camada 2 reside.
+
+### Restrições do Jogo
+
+* Qualquer mesa pode ter pelo menos 2 membros e no máximo 20 membros.
+* Um único endereço-r pode ocupar apenas um assento em uma determinada mesa, mas pode ocupar um assento em cada uma de muitas mesas diferentes.
+* O Jogo de Governança não foi projetado para recursão além de duas camadas. Não há inviabilidade técnica em implementar uma mesa da Camada 3, mas o Hook de Governança atual não a suporta.
+
+### Recompensas de Validadores
+
+As recompensas de validadores são um incentivo para executar um validador na rede. As recompensas são geradas pela rede e concedidas à interseção de membros da Camada 1 e validadores UNL ativos. Para se qualificar para recompensas de validadores dentro de um dado bloco de 256 ledgers, o seguinte deve ser verdadeiro:
+
+* O validador está na UNL do Xahau.
+* O validador valida com sucesso aos olhos de outros validadores UNL.
+* Quando a chave pública mestre do validador é convertida em um endereço-r, essa conta está na Mesa L1.
+
+As recompensas são ad-hoc e baseadas nos Ajustes de Saldo dos usuários do Xahau. Quando um usuário realiza um Ajuste de Saldo, uma quantia igual ao seu ajuste dividido por 20 é enviada ao endereço-r de cada um dos validadores ativos que atendem aos critérios acima.
+
+## Especificação Técnica
+
+O Hook de Governança é instalado na conta gênesis pelo amendment XahauGenesis vários ledgers após o ledger 1 em uma nova rede. Esta é a mesa L1. Para criar uma mesa L2, instale o Hook em uma conta diferente e, em seguida, sente essa conta na mesa L1.
+
+### Parâmetros do Hook de Governança
+
+Quando o Hook de Governança é instalado, ele é instalado com um conjunto de HookParameters. Eles especificam a composição inicial da mesa.
+
+Cada HookParameter tem um nome de 3 bytes composto por 3 caracteres Ascii ou 2 caracteres Ascii e um identificador conforme abaixo. LE = Little Endian.
+
+```
+Nome do Parâmetro: {'I', 'R', 'R'}
+Valor do Parâmetro: Taxa de Recompensa Inicial <8 bytes XFL entre 0 e 1, LE>
+Nome do Parâmetro: {'I', 'R', 'D'}
+Valor do Parâmetro: Atraso de Recompensa Inicial <8 bytes LE XFL em segundos entre recompensas>
+Nome do Parâmetro: {'I', 'M', 'C'}
+Valor do Parâmetro: Contagem de Membros Inicial <1 byte>
+Nome do Parâmetro: {'I', 'S', 0x00}
+Valor do Parâmetro: ID de Conta de 20 bytes do membro do assento #0 inicial.
+Nome do Parâmetro: {'I', 'S', 0x01}
+Valor do Parâmetro: ID de Conta de 20 bytes do membro do assento #1 inicial.
+... etc ... até no máximo Assento 19.
+
+```
+
+Para iniciar o jogo, uma transação Invoke deve ser enviada para o Hook. Ela pode ser enviada por qualquer conta. Nenhum Blob ou HookParameters são necessários. Esta transação Invoke aciona o Hook pela primeira vez e o solicita a criar entradas de estado para cada assento inicial, taxa de recompensa e atraso de recompensa.
+
+### Estado do Hook de Governança
+
+O Hook State do Hook de Governança é armazenado no namespace zero: `0000000000000000000000000000000000000000000000000000000000000000.`
+
+Existem vários tipos de entrada de estado. O primeiro são as chamadas chaves de membro diretas e inversas. Elas mapeiam cada número de assento para o membro que está sentado lá e cada membro para o assento em que está sentado.
+
+```
+Chave: 0x0000000000000000000000000000000000000000000000000000000000000005
+Val: <ID de Conta de 20 bytes do membro no assento 5 ou todos 0s ou ausente.>
+
+Chave: <ID de Conta de 20 bytes do membro no assento 3>
+Val: 0x03
+```
+
+Em seguida, há algumas entradas de estado singleton. Contagem de Membros, Taxa de Recompensa e Atraso de Recompensa, respectivamente:
+
+```
+Chave em Ascii: MC
+Chave: 0x0000000000000000000000000000000000000000000000000000000000004D43
+Val: <1 byte de contagem de membros (quantos assentos estão ocupados)>
+
+Chave em Ascii: RR
+Chave: 0x0000000000000000000000000000000000000000000000000000000000005252
+Val: <8 bytes LE XFL taxa de recompensa (entre 0 e 1 (1 sendo 100%))>
+
+Chave em Ascii: RD
+Chave: 0x0000000000000000000000000000000000000000000000000000000000005244
+Val: <8 bytes LE XFL atraso de recompensa em segundos>
+```
+
+Por fim, votos e contadores de votos também são armazenados no estado do Hook. Quando um voto é emitido por um assento, ele é registrado no estado do Hook da seguinte forma:
+
+```
+A chave de voto tem 32 bytes composta por:
+    'V' (0x56) - voto
+    'H' (0x48) ou 'R' (0x52) ou 'S' (0x53) - tipo de tópico
+    'R' (0x52) ou 'D' (0x44) ou 0 (0x00) a 19 (0x13) - detalhe do tópico
+     1  (0x01) ou  2  (0x02) - camada alvo para este voto
+    0x00 00 00 00 00 00 00 00 - 8 bytes de preenchimento
+    ID de Conta de 20 bytes - o votante
+Dados do voto:
+    ID de Conta de 20 bytes ou XFL de 8 bytes
+```
+
+Quando um voto é emitido, ele incrementa uma entrada de estado contador de votos. Este contador acompanha quantos votos há atualmente para este par tópico-dados e permite que o Hook execute o voto quando a votação ultrapassa o limite necessário. O estado do contador é o seguinte:
+
+```
+A chave do contador tem 32 bytes composta por:
+    'C' (0x43) - contagem
+    'H' (0x48) ou 'R' (0x52) ou 'S' (0x53) - tipo de tópico
+    'R' (0x52) ou 'D' (0x44) ou 0 (0x00) a 19 (0x13) - detalhe do tópico
+     1  (0x01) ou  2  (0x02) - camada alvo para este voto
+     0s para preenchimento
+     dados do voto ou dados do voto truncados à esquerda
+```
+
+### Transações do Hook de Governança
+
+O Hook de Governança é interagido pelos seus membros usando transações ttINVOKE. Além disso, o Hook também pode emitir suas próprias transações ttINVOKE se for uma mesa L2 levantando um voto para a mesa L1.
+
+Uma transação de voto contém um array HookParameters no nível superior da transação:
+
+```
+{
+    Account: <conta do membro>,
+    TransactionType: Invoke,
+    NetworkID: 21337,
+    Destination: <conta da mesa>,
+    HookParameters:
+    [
+        {
+            HookParameter:
+            {
+                HookParameterName: "4C",     // L - a camada alvo
+                HookParameterValue: "01",    // 01 para mesa L1, 02 para mesa L2
+                                             // nota: esta é a mesa para a qual o voto é
+                                             // destinado, não a mesa em que você está
+                                             // ou seja, para uma mesa L2 você pode votar
+                                             // em sua própria composição ou na da L1
+            }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "54",    // T - tipo de tópico
+                 HookParameterValue: "4801", // H [0x00-0x09] ou 
+                                             // S [0x00-0x13] ou
+                                             // RR ou RD
+             }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "56",    // V - dados do voto
+                 HookParameterValue: <32 ou 20 ou 8 bytes de dados do voto>
+             }
+         }
+    ]
+}
+    
+```
+
+### Limpar um Voto
+
+Não há como "excluir um voto" em si. Você pode mudar seu voto de volta para refletir a posição atual.&#x20;
+
+Portanto, por exemplo, se ninguém está no assento 8 e você votou para que a conta A se sente lá, e então muda de ideia, você pode fazer um voto para vacar o assento 8 (mesmo que já esteja vago), alinhando assim seu voto com o estado atual do assento.&#x20;
+
+Para fazer isso, você vota com todos os 0s nos dados do voto, no mesmo comprimento que o tópico de voto normalmente requer. Portanto, para um voto de assento, isso equivale a 20 bytes de 0.
+
+

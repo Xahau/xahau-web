@@ -5,7 +5,8 @@
       "label": {
         "en": "Ledgers closed",
         "es": "Ledgers cerrados",
-        "ja": "閉鎖済みレジャー"
+        "ja": "閉鎖済みレジャー",
+        "pt-BR": "Ledgers fechados"
       },
       "theme": "dark",
       "col": 5
@@ -15,14 +16,20 @@
       "label": {
         "en": "Transactions / 24h",
         "es": "Transacciones/24h",
-        "ja": "取引/24時間"
+        "ja": "取引/24時間",
+        "pt-BR": "Transações / 24h"
       },
       "theme": "teal",
       "col": 4
     },
     {
       "value": "200K+",
-      "label": { "en": "Accounts", "es": "Cuentas", "ja": "アカウント" },
+      "label": {
+        "en": "Accounts",
+        "es": "Cuentas",
+        "ja": "アカウント",
+        "pt-BR": "Contas"
+      },
       "theme": "light",
       "col": 3
     },
@@ -31,14 +38,15 @@
       "label": {
         "en": "Hooks installed",
         "es": "Hooks instalados",
-        "ja": "インストール済みHooks"
+        "ja": "インストール済みHooks",
+        "pt-BR": "Hooks instalados"
       },
       "theme": "sage",
       "col": 3
     },
     {
       "value": "300+",
-      "label": { "en": "Nodes", "es": "Nodos", "ja": "ノード" },
+      "label": { "en": "Nodes", "es": "Nodos", "ja": "ノード", "pt-BR": "Nós" },
       "theme": "light",
       "col": 3
     },
@@ -47,7 +55,8 @@
       "label": {
         "en": "Hook executions",
         "es": "Ejecuciones de Hooks",
-        "ja": "Hook実行回数"
+        "ja": "Hook実行回数",
+        "pt-BR": "Execuções de Hooks"
       },
       "theme": "dark",
       "col": 6
@@ -59,7 +68,8 @@
       "label": {
         "en": "Want to run a node?",
         "es": "¿Quieres ejecutar un nodo?",
-        "ja": "ノードを運用しませんか？"
+        "ja": "ノードを運用しませんか？",
+        "pt-BR": "Quer executar um nó?"
       },
       "url": "/docs/infrastructure/system-requirements"
     }

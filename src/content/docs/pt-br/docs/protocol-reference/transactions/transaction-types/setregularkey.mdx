@@ -1,0 +1,33 @@
+---
+title: SetRegularKey
+description: >-
+  Uma transação SetRegularKey atribui, altera ou remove o par de chaves regular
+  associado a uma conta.
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/4239880acb5e559446d2067f00dabb31cf102a23/src/ripple/app/transactors/SetRegularKey.cpp)
+
+Você pode proteger sua conta atribuindo um par de chaves regular a ela e usando-o em vez do par de chaves mestre para assinar transações sempre que possível. Se seu par de chaves regular for comprometido, mas seu par de chaves mestre não, você pode usar uma transação `SetRegularKey` para recuperar o controle de sua conta.
+
+### Exemplo de JSON SetRegularKey
+
+```json
+{
+    "Flags": 0,
+    "TransactionType": "SetRegularKey",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "RegularKey": "rAR8rR8sUkBoCZFawhkWzY4Y5YoyuznwD"
+}
+```
+
+| Campo        | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                                             |
+| ------------ | --------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RegularKey` | String    | AccountID           | _(Opcional)_ Um \[Endereço]\[] codificado em base-58 que indica o par de chaves regular a ser atribuído à conta. Se omitido, remove qualquer par de chaves regular existente da conta. Não deve corresponder ao par de chaves mestre do endereço. |
+
+### Veja Também
+
+Para mais informações sobre pares de chaves regular e mestre, consulte Chaves Criptográficas.
+
+Para um tutorial sobre como atribuir um par de chaves regular a uma conta, consulte Trabalhando com um Par de Chaves Regular.
+
+Para uma segurança ainda maior, você pode usar multi-assinatura, mas a multi-assinatura requer XAH adicional para o \[custo de transação]\[] e a reserva.

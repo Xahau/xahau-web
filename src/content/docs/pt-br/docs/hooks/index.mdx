@@ -1,0 +1,81 @@
+---
+title: Hooks
+description: 'Apresentando os Hooks: A Funcionalidade de Contratos Inteligentes para Xahau.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="note">
+Hooks são módulos WebAssembly pequenos e eficientes projetados especificamente para o Xahau.&#x20;
+
+Hooks podem ser escritos em qualquer linguagem (compilável com WebAssembly), e a maioria dos conceitos de lógica de negócios e contratos inteligentes pode ser implementada em um hook.
+
+[**Desenvolvimento por XRPL Labs**](https://xrpl-labs.com/#team)
+</Aside>
+
+### O que são Hooks? <a href="#what-are-hooks" id="what-are-hooks"></a>
+
+Os Hooks permitem a criação de lógica personalizada e automação dentro do Xahau, tornando as transações mais inteligentes e convenientes. Esses módulos pequenos e eficientes adicionam funcionalidades personalizadas no ledger, como a criação de gatilhos personalizados para eventos específicos no ledger.&#x20;
+
+Esses gatilhos podem ser usados para enviar ações no ledger ou executar outras ações em resposta ao evento especificado. Os Hooks estão disponíveis atualmente na [rede Xahau](https://xahau.network/).
+
+> _Para aprender mais sobre os conceitos teóricos dos Hooks, você pode visitar a seção_ [_Conceitos_](/pt-br/docs/hooks/concepts/introduction)_._
+
+> _Para aprender como programar Hooks em C e suas funções, visite_ [_Hooks C-Functions_](/pt-br/docs/hooks/functions/overview/hook-api-conventions/)_._
+
+> _Existe um_ [_site do Hooks Builder_](https://builder.xahau.network/) _onde você pode desenvolver, testar, depurar e implantar seus próprios Hooks na testnet pelo navegador, usando nossos exemplos ou construindo do zero._
+
+> _O [Hookstore](https://hookstore.xahau.network/) oferece uma plataforma para descobrir, compartilhar e gerenciar Hooks. Use o [Hookstore Console](https://console.hookstore.xahau.network/) para gerenciar seus Hooks e explorar o ecossistema._
+
+> Há um desenvolvimento em andamento para permitir a escrita de Hooks em JavaScript, também conhecido como JSHooks. No momento, é possível testá-lo usando o repositório [JSHooks](https://github.com/Xahau/jshooks-alpha).
+
+### Por que os Hooks são importantes? <a href="#why-are-hooks-a-big-deal" id="why-are-hooks-a-big-deal"></a>
+
+Em resumo, os Hooks adicionam uma funcionalidade robusta de contratos inteligentes ao Xahau, permitindo que você construa e implante aplicações com funcionalidades personalizadas alinhadas às suas necessidades e requisitos específicos.
+
+Os Hooks oferecem uma plataforma versátil, pois podem ser usados para implementar uma ampla gama de lógicas de negócios e paradigmas de contratos inteligentes. Uma vez que um hook é configurado em uma conta, ele permite que você faça o seguinte:
+
+* Bloquear ou permitir transações de e para a conta.
+* Alterar e acompanhar o estado interno e a lógica do hook para informar decisões programáticas.
+* Iniciar autonomamente novas transações em nome da conta.
+
+Hooks podem ser escritos em C ou em qualquer outra linguagem de preferência e, em seguida, compilados em WebAssembly.
+
+<figure>
+![Usando o Hooks Builder, você pode desenvolver, testar, depurar e implantar seus próprios Hooks na testnet, usando nossos exemplos ou construindo do zero.](/assets/cdn.feather-2.webp)
+<figcaption>*Usando o Hooks Builder, você pode desenvolver, testar, depurar e implantar seus próprios Hooks na testnet, usando nossos exemplos ou construindo do zero.*</figcaption>
+</figure>
+
+O Hooks Builder funciona como um ambiente de desenvolvimento integrado, facilitando a criação, teste, depuração e implantação dos seus Hooks na testnet.
+
+Seja utilizando nossos exemplos ou construindo do zero, o Hooks Builder oferece um ambiente útil para aprimorar e implantar suas soluções de contratos inteligentes.
+
+### Alguns Exemplos de Hooks Específicos e Casos de Uso <a href="#some-examples-of-specific-hooks" id="some-examples-of-specific-hooks"></a>
+
+Exemplos concretos que demonstram o potencial dos Hooks, cada um ilustrando uma aplicação única da funcionalidade de contratos inteligentes no Xahau:
+
+* **Hook de Poupança Automática**: Automatize poupanças configurando um Hook para transferir uma quantia definida de XAH para uma conta poupança separada no ledger. Isso pode ser feito para poupar uma parte do XAH e acumular economias em intervalos específicos — diariamente, semanalmente ou mensalmente. Esse mecanismo de transferência recorrente pode ser a base para desenvolver aplicações de finanças pessoais ou modelos baseados em assinatura.
+* **Hook de Compensação de Carbono**: Cada transação aciona uma transferência adicional de 1% do valor para uma conta de compensação de carbono gerenciada por uma organização não governamental (ONG) confiável, que usa o dinheiro para uma boa causa. Esse recurso pode servir de base para construir aplicações que contribuem para a sustentabilidade ambiental a cada transação realizada.
+* **Hook de Firewall**: Filtrando transações de entrada e saída, o Hook de Firewall pode bloquear transações maliciosas originadas de contas de golpes conhecidas ou que contenham memos suspeitos. Ao recuperar uma lista de bloqueio atualizada de um Hook em uma conta diferente, o firewall mantém uma defesa robusta contra fraudes sem necessidade de intervenção manual. Além disso, a implementação de limites de gastos para negar retiradas não autorizadas de alto valor pode ser um recurso crucial para aplicações financeiras.
+
+### **Diferenciando Hooks da Máquina Virtual Ethereum (EVM)**
+
+Os Hooks do Xahau e a EVM permitem que desenvolvedores construam e implantem lógica personalizada e automação em suas plataformas. No entanto, existem diferenças importantes entre essas duas tecnologias que as distinguem.&#x20;
+
+* **Compatibilidade de Plataforma**: Os Hooks são desenvolvidos para o Xahau, enquanto os contratos inteligentes da EVM são projetados para blockchains baseadas em Ethereum.
+* **Eficiência de Execução**: Os Hooks utilizam WebAssembly (WASM), superando o bytecode usado pela EVM em termos de velocidade e eficiência.
+* **Tempo de Execução Previsível**: Os Hooks do Xahau usam guardas para garantir que o tempo máximo de execução seja bem delimitado e conhecido antecipadamente, melhorando a eficiência.
+
+### Alternativas aos Hooks no ecossistema XRPL
+
+Ripple e Peersyst anunciaram que uma sidechain compatível com EVM está agora em funcionamento [na devnet da empresa](https://opensource.ripple.com/docs/evm-sidechain/intro-to-evm-sidechain/). Essa sidechain funciona como uma blockchain autônoma, com seu próprio protocolo de consenso e regras de transação exclusivos. A sidechain EVM é uma alternativa aos Hooks, adicionando funcionalidade de contratos inteligentes ao ecossistema.&#x20;
+
+No entanto, é importante observar que os contratos da sidechain EVM funcionam na Camada 2, o que exige um processo de duas etapas em que o XRP é transferido para a sidechain para execução do contrato e depois de volta ao ledger principal. Primeiro na sidechain e depois no XRPL, o que significa que os contratos inteligentes da Camada 2 não podem influenciar o fluxo. Os Hooks podem decidir se uma transação é permitida desde o início. A Camada 2 pode tomar uma decisão retroativa, mas a transação inicial já ocorreu.
+
+Os Hooks são mais integrados ao XRPL, operando diretamente no Xahau, um fork de Camada 1 do XRPL-core, sendo, portanto, mais estreitamente integrados à tecnologia blockchain subjacente do que a sidechain compatível com EVM, aproveitando os recursos e capacidades específicos da plataforma XRPL. Com a escalabilidade e o desempenho inerentes ao WebAssembly, os Hooks são ideais para aprimorar a funcionalidade do Xahau.
+
+### Os Hooks Expandirão a Funcionalidade no Ledger e Ajudarão o Xahau a Crescer
+
+Os Hooks adicionam capacidades nativas de contratos inteligentes ao Xahau, possibilitando a criação de aplicações personalizadas que atendem às necessidades únicas dos usuários, trazendo novas funcionalidades e abrindo domínios inteiramente novos. Com os Hooks, as possibilidades são virtualmente ilimitadas.
+
+À medida que o Xahau continua a crescer, não há dúvida de que os Hooks desempenharão um papel significativo no impulso à inovação e à adoção da plataforma por usuários individuais e empresariais.

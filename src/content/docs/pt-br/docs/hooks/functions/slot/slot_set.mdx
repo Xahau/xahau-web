@@ -1,0 +1,105 @@
+---
+title: slot_set
+description: Locate an object based on its keylet and place it into a slot
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+* Locate an object given the Keylet provided in `read_ptr`
+* Emplace the located object into the slot specified or into a new slot if no slot (zero) is specified
+</TabItem>
+
+<TabItem label="JavaScript">
+* Sets the data for the specified slot.
+* Returns an error code or the result of the set operation.
+</TabItem>
+</Tabs>
+
+
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t slot_no
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_set(
+    kl: ByteArray | HexString,
+    slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_no = 
+  slot_set(keylet, 34, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const slot_no = slot_set(keylet, 0)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type      | Description                                                                                     |
+| --------- | --------- | ----------------------------------------------------------------------------------------------- |
+| read_ptr | uint32_t | Pointer to a buffer containing the keylet of the object to locate. This can also be a txn hash. |
+| read_len | uint32_t | Length of the read buffer. Should always be 32 or 34.                                           |
+| slot_no  | uint32_t | The slot number to emplace into, or 0 if you wish to pick the next available.                   |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Name   | Type                   | Description                                               |
+| ------ | ---------------------- | --------------------------------------------------------- |
+| kl     | ByteArray \| HexString | The data to set in the slot, can be an array or a string. |
+| slotno | number                 | The slot number to set data for.                          |
+</TabItem>
+</Tabs>
+
+
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>The slot number the object was inserted into<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_len</code> must be either 32 or 34 bytes depending on whether a txn hash or a keylet is being used in <code>read_ptr</code><br />- the hash or keylet was invalid<br /><br /><code>DOESNT_EXIST</code><br />- the requested object was not found</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Type                | Description                                               |
+| ------------------- | --------------------------------------------------------- |
+| ErrorCode or number | Returns an error code or the result of the set operation. |
+</TabItem>
+</Tabs>
+

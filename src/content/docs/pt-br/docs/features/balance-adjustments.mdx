@@ -1,0 +1,70 @@
+---
+title: Ajustes de Saldo
+description: Como reivindicar um Ajuste de Saldo no Xahau
+---
+### Adesão + Reivindicação
+
+Aderir aos Ajustes de Saldo é a mesma transação que reivindicar um ajuste. Você deve fazer isso primeiro para iniciar a capacidade de reivindicar mais tarde.
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}    
+```
+
+### Cancelar Adesão
+
+Para cancelar a adesão aos Ajustes de Saldo, omita o campo Issuer e defina Flags como 1. Fazer isso excluirá suas estatísticas de saldo médio. Elas não serão restauradas. Se você aderir novamente, serão redefinidas para uma posição inicial.
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "NetworkID": 21337,
+    "Flags": 1
+} 
+```
+
+### Detalhes Técnicos
+
+Os Ajustes de Saldo são implementados como uma combinação de duas partes de código:
+
+1. Amendment BalanceRewards (código nativo)
+2. Hook de Recompensa da Conta Gênesis (código de hook).
+
+O BalanceRewards coleta estatísticas de saldo médio sobre as contas nas quais está ativado. Essas estatísticas são então passadas para um Hook alvo quando o usuário deseja reivindicar.
+
+Todas as interações com este amendment são feitas via a transação ClaimReward:
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}    
+```
+
+Quando uma transação ClaimReward é submetida com sucesso com o código de erro **tesSUCCESS**, as estatísticas de saldo médio da conta são redefinidas. A única outra coisa que o amendment faz é invocar os Hooks na conta do Emissor especificado.
+
+O campo _Issuer_ é a conta responsável por cumprir a reivindicação. Dependendo do que está instalado na conta do Emissor, várias coisas podem acontecer:
+
+* Se nenhum Hook estiver instalado na conta do Emissor, nada é feito e as estatísticas do BalanceRewards são simplesmente redefinidas.
+* Se um Hook estiver instalado na conta do Emissor e o Hook realizar um rollback, a transação falha e as estatísticas _não_ são redefinidas.
+* Se um Hook estiver instalado na conta do Emissor e o Hook realizar um accept, a transação é bem-sucedida e as estatísticas são redefinidas. Nesse caso, o Hook também deve emitir uma transação de volta para a conta do usuário contendo sua recompensa.
+
+Na prática, no Xahau, o Emissor provavelmente sempre será a conta gênesis **rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh**.
+
+A menos que:
+
+* A Governança da Rede resulte em uma conta diferente sendo usada para os AjustesDeSaldo.
+* Uma parte não relacionada à Governança execute seu próprio sorteio de BalanceRewards com o qual o usuário deseja participar. Observe que reivindicações bem-sucedidas resultam na redefinição das estatísticas de saldo médio, portanto, apenas um tipo de recompensa pode ser reivindicado por redefinição.
+
+As estatísticas de saldo médio existem como uma coleção de três novos campos no objeto AccountRoot. São eles:
+
+<table><thead><tr><th width="240">Campo</th><th width="95.33333333333331">Tipo</th><th>Explicação</th></tr></thead><tbody><tr><td><code>sfRewardAccumulator</code></td><td>UINT64</td><td>A área sob o gráfico de saldo-tempo da sua conta desde a última transação ClaimReward.</td></tr><tr><td><code>sfRewardLgrFirst</code></td><td>UINT32</td><td>O número do ledger da última transação ClaimReward.</td></tr><tr><td><code>sfRewardLgrLast</code></td><td>UINT32</td><td>O número de sequência do ledger da última transação de entrada ou saída da sua conta.</td></tr><tr><td><code>sfRewardTime</code></td><td>UINT32</td><td>O tempo do ledger em que a última recompensa foi reivindicada.</td></tr></tbody></table>
+
+

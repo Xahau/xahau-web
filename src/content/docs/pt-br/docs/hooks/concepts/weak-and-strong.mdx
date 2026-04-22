@@ -1,0 +1,242 @@
+---
+title: Fraco e Forte
+description: Quais Hooks têm permissão para rodar e quando?
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip" title="Filosofia de Design dos Hooks">
+  Toda parte afetada por uma transação deve ter a oportunidade de ter seus Hooks executados.
+</Aside>
+
+Partes Interessadas Transacionais (TSH, do inglês Transactional Stake Holders) são partes que de alguma forma têm interesse ou são afetadas por uma transação. Seu interesse particular pode ser _fraco_ ou _forte_. O grau de conexão com a transação determina se a parte tem o direito de ter seus Hooks executados e quem deve pagar por essa execução.
+
+Por exemplo:
+
+* Em uma transação de **Pagamento** XAH direta convencional, os dois TSH são a _conta de origem_ e a _conta de destino_.
+* Em uma transação **SetSignerList**, os TSH são a _conta de origem_ e cada conta cujo endereço aparece na lista de signatários, onde tais contas estão ativas no ledger.
+* Em uma transação **OfferCreate**, as ofertas de outras contas que são cruzadas pela transação de origem são todas TSH fracas e podem optar pela execução fraca.
+* Com a emenda **IOUIssuerWeakTSH**, os emissores de moeda têm seus hooks executados em transações de terceiros que tocam ou mencionam sua moeda, se optaram pela execução fraca.
+
+Devido à natureza heterogênea das transações no Xahau, os TSH vêm em todas as formas e tamanhos e podem ser exóticos e não intuitivos. Isso se torna mais verdadeiro à medida que o tempo passa e mais tipos de transação são adicionados ao Ledger.
+
+### Fraco e Forte
+
+Cada TSH tem uma conexão fraca ou forte com a transação.
+
+Uma conexão **Forte** significa:
+
+1. A transação de origem deve pagar a taxa pela execução da Cadeia de Hooks do TSH
+2. O TSH tem o direito de reverter toda a transação chamando `rollback()` de seu Hook durante a execução.
+
+Uma conexão **Fraca** significa:
+
+1. A transação de origem **não** paga pela execução da Cadeia de Hooks do TSH.
+2. O TSH paga pela execução de sua própria Cadeia de Hooks através de um recurso chamado [Chamada Coletiva de Hooks](/pt-br/docs/hooks/concepts/collect-call).
+3. O TSH deve ter definido um flag de conta `asfTshCollect` antes da execução da transação de origem.
+4. O TSH **não** tem o direito de reverter toda a transação chamando `rollback()` de seu Hook durante a execução (mas ainda pode modificar seu próprio estado de Hook e emitir transações).
+
+### Antes ou Depois
+
+Os TSH Fortes têm seus hooks executados _antes_ de a transação de origem ser aplicada ao ledger. Isso significa que têm a capacidade de [reverter](/pt-br/docs/hooks/functions/control/rollback) a transação (porque ainda não foi aplicada). Isso dá aos hooks fortemente executados a capacidade de bloquear completamente uma transação de ocorrer.
+
+Os TSH Fracos têm seus hooks executados _após_ a transação de origem ter sido aplicada ao ledger. Isso significa que têm acesso aos [metadados da transação](/pt-br/docs/hooks/functions/originating-transaction/meta_slot), mas não podem impedir que a transação ocorra.
+
+<Aside type="tip">
+  Hooks fortemente executados podem chamar <a href="ref:hook_again">hook_again</a> para serem executados uma segunda vez como uma execução fraca após a transação de origem ter sido aplicada.
+</Aside>
+
+### Contexto de Execução
+
+O parâmetro `uint32_t` em `hook(uint32_t)` e `cbak(uint32_t)` carrega informações importantes de contexto da Emenda de Hooks para seu Hook.
+
+Durante a execução de `hook`:
+
+* 0 significa que o Hook está sendo executado _fortemente_
+* 1 significa que o Hook está sendo executado _fracamente_
+* 2 significa que o Hook está sendo executado _fracamente_ após ter sido executado _fortemente_ devido a uma chamada [hook_again](/pt-br/docs/hooks/functions/hook-context/hook_again).
+
+Durante a execução de `cbak`:
+
+* 0 significa que o Hook está sendo chamado de volta após uma transação que emitiu ter sido aceita com sucesso em um ledger.
+* 1 significa que o Hook está sendo chamado de volta após uma transação que emitiu ter sido marcada como nunca podendo ser aplicada a qualquer ledger (EmitFailure).
+
+### Tabela de Referência
+
+Se um Tipo de Transação não aparece na tabela, então ele não tem TSHes **além de sua conta de origem.**
+
+
+
+| Tipo de Transação	       | Tipo TSH	     | Quem é o TSH                                                                               |
+| ----------------------- | ------------- | -------------------------------------------------------------------------------------------- |
+| AccountDelete           | Forte        | Conta de destino para a qual os fundos são pagos após a exclusão                                     |
+| AccountSet              | Nenhum          | N/A                                                                                          |
+| CheckCancel             | Fraco          | Conta de destino                                                                          |
+| CheckCash               | Nenhum          | N/A                                                                                          |
+| CheckCreate             | Forte        | Conta de destino                                                                          |
+| ClaimReward             | Forte        | Conta Emissora                                                                               |
+| DepositPreauth          | Forte        | Conta autorizada                                                                           |
+| EscrowCancel            | Fraco          | Conta de destino                                                                          |
+| EscrowCreate            | Forte        | Conta de destino                                                                          |
+| EscrowFinish            | Forte        | Conta de destino                                                                          |
+| GenesisMint             | Fraco          | Cada Destino no Array GenesisMints                                                                   |
+| Import                  | Forte        | Conta Emissora                                                                               |
+| Invoke                  | Forte        | Conta de destino                                                                          |
+| OfferCancel             | Nenhum          | N/A                                                                                          |
+| OfferCreate             | Fraco          | Contas cujas ofertas foram cruzadas por esta ação.                                           |
+| Payment                 | Forte + Fraco | Forte: Conta de destino. Fraco: Qualquer não-emissor pelo qual o pagamento é roteado.            |
+| PaymentChannelClaim     | Fraco          | Conta de destino                                                                          |
+| PaymentChannelCreate    | Forte        | Conta de destino                                                                          |
+| PaymentChannelFund      | Fraco          | Conta de destino                                                                          |
+| SetHook                 | Nenhum          | N/A                                                                                          |
+| SetRegularKey           | Forte        | A conta cujo endereço está sendo definido como a chave.                                           |
+| SignerListSet           | Forte        | Contas cujos endereços são definidos como chaves de assinatura (se existirem e tiverem Hooks instalados). |
+| TicketCreate            | Nenhum          | N/A                                                                                          |
+| TrustSet                | Fraco          | Conta emissora                                                                               |
+| URITokenCancelSellOffer | Nenhum          | N/A                                                                                          |
+| URITokenCreateSellOffer | Forte        | Conta de destino, Emissor se o Flag tfBurnable estiver definido                                        |
+| URITokenBurn            | Forte        | Emissor se o Flag tfBurnable estiver definido                                                             |
+| URITokenBuy             | Forte        | Conta do proprietário, Emissor se o Flag tfBurnable estiver definido                                              |
+| URITokenMint            | Nenhum          | N/A                                                                                          |
+
+**AccountSet**
+
+| OTXN    | TSH     | AccountSet |
+| ------- | ------- | ---------- |
+| Account | Account | Forte     |
+
+**AccountDelete**
+
+| OTXN    | TSH         | AccountDelete |
+| ------- | ----------- | ------------- |
+| Account | Account     | Nenhum          |
+| Account | Beneficiary | Forte        |
+
+**Check**
+
+| OTXN        | TSH         | CheckCancel | CheckCreate | CheckCash |
+| ----------- | ----------- | ----------- | ----------- | --------- |
+| Account     | Account     | Forte      | Forte      | Nenhum      |
+| Account     | Destination | Fraco        | Forte      | Nenhum      |
+| Destination | Destination | Forte      | Nenhum        | Forte    |
+| Destination | Account     | Fraco        | Nenhum        | Fraco      |
+
+**ClaimReward**
+
+| OTXN    | TSH     | ClaimReward |
+| ------- | ------- | ----------- |
+| Account | Account | Forte      |
+| Account | Issuer  | Forte      |
+
+**DepositPreauth**
+
+| OTXN    | TSH        | DepositPreauth |
+| ------- | ---------- | -------------- |
+| Account | Account    | Forte         |
+| Account | Authorized | Forte         |
+
+**Escrow**
+
+| OTXN        | TSH         | EscrowCancel | EscrowCreate | EscrowFinish |
+| ----------- | ----------- | ------------ | ------------ | ------------ |
+| Account     | Account     | Forte       | Forte       | Forte       |
+| Account     | Destination | Fraco         | Forte       | Fraco         |
+| Destination | Destination | Forte       | Nenhum         | Forte       |
+| Destination | Account     | Fraco         | Nenhum         | Fraco         |
+
+**GenesisMint**
+
+| OTXN    | TSH         | GenesisMint |
+| ------- | ----------- | ----------- |
+| Account | Account     | Forte      |
+| Account | Destination | Forte      |
+| Account | Beneficiary | Fraco        |
+
+**Import**
+
+| OTXN    | TSH     | Import |
+| ------- | ------- | ------ |
+| Account | Account | Forte |
+| Account | Issuer  | Forte |
+
+**Invoke**
+
+| OTXN    | TSH         | Invoke |
+| ------- | ----------- | ------ |
+| Account | Account     | Forte |
+| Account | Destination | Fraco   |
+
+**Offer**
+
+| OTXN    | TSH     | OfferCancel | OfferCreate |
+| ------- | ------- | ----------- | ----------- |
+| Account | Account | Forte      | Forte      |
+| Account | Crossed | Nenhum        | Fraco        |
+
+**Payment**
+
+| OTXN    | TSH         | Payment |
+| ------- | ----------- | ------- |
+| Account | Account     | Forte  |
+| Account | Destination | Forte  |
+| Account | Crossed     | Fraco    |
+
+**PaymentChannel**
+
+| OTXN        | TSH         | PaymentChannelClaim | PaymentChannelCreate | PaymentChannelFund |
+| ----------- | ----------- | ------------------- | -------------------- | ------------------ |
+| Account     | Account     | Forte              | Forte               | Forte             |
+| Account     | Destination | Fraco                | Forte               | Fraco               |
+| Destination | Destination | Forte              | Nenhum                 | Nenhum               |
+| Destination | Account     | Fraco                | Nenhum                 | Nenhum               |
+
+**SetHook**
+
+| OTXN    | TSH     | SetHook |
+| ------- | ------- | ------- |
+| Account | Account | Forte  |
+
+**SetRegularKey**
+
+| OTXN    | TSH        | SetRegularKey |
+| ------- | ---------- | ------------- |
+| Account | Account    | Forte        |
+| Account | RegularKey | Forte        |
+
+**SignerListSet**
+
+| OTXN    | TSH     | SignerListSet |
+| ------- | ------- | ------------- |
+| Account | Account | Forte        |
+| Account | Signer  | Forte        |
+
+**Ticket**
+
+| OTXN    | TSH     | TicketCreate |
+| ------- | ------- | ------------ |
+| Account | Account | Forte       |
+
+**TrustSet**
+
+| OTXN    | TSH     | TrustSet |
+| ------- | ------- | -------- |
+| Account | Account | Forte   |
+| Account | Issuer  | Fraco     |
+
+**URIToken**
+
+| OTXN   | Burnable | TSH    | Mint   | Burn   | Buy    | Sell   | Cancel |
+| ------ | -------- | ------ | ------ | ------ | ------ | ------ | ------ |
+| Owner  | False    | Owner  | Nenhum   | Forte | Forte | Forte | Forte |
+| Owner  | False    | Issuer | Nenhum   | Fraco   | Fraco   | Fraco   | Nenhum   |
+| Owner  | False    | Buyer  | Nenhum   | Nenhum   | Nenhum   | Forte | Fraco   |
+| Owner  | True     | Buyer  | Nenhum   | Nenhum   | Nenhum   | Forte | Fraco   |
+| Owner  | True     | Owner  | Nenhum   | Forte | Forte | Forte | Forte |
+| Owner  | True     | Issuer | Nenhum   | Fraco   | Forte | Forte | Nenhum   |
+| Issuer | False    | Owner  | Nenhum   | Nenhum   | Nenhum   | Nenhum   | Nenhum   |
+| Issuer | False    | Issuer | Forte | Nenhum   | Nenhum   | Nenhum   | Nenhum   |
+| Issuer | False    | Buyer  | Fraco   | Nenhum   | Nenhum   | Nenhum   | Nenhum   |
+| Issuer | True     | Owner  | Nenhum   | Fraco   | Nenhum   | Nenhum   | Nenhum   |
+| Issuer | True     | Issuer | Forte | Forte | Nenhum   | Nenhum   | Nenhum   |
+| Issuer | True     | Buyer  | Fraco   | Nenhum   | Nenhum   | Nenhum   | Nenhum   |
+| Buyer  | True     | Buyer  | Nenhum   | Nenhum   | Forte | Nenhum   | Nenhum   |
+| Buyer  | True     | Owner  | Nenhum   | Nenhum   | Fraco   | Nenhum   | Nenhum   |

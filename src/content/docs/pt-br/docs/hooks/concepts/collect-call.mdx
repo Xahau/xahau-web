@@ -1,0 +1,27 @@
+---
+title: Chamada Coletiva
+---
+import { Card, Aside } from '@astrojs/starlight/components';
+
+<Card title="Filosofia de Design dos Hooks">
+_Toda parte afetada por uma transação deve ter a oportunidade de ter seus hooks executados._
+</Card>
+
+Quando os hooks não são Fortemente Executados, não é justo cobrar da transação de origem o custo de sua execução. Por exemplo, um _OfferCreate_ que cruza 20 ofertas na DEX não deve ser obrigado a pagar pela execução dos Hooks de cada uma dessas contas.
+
+Portanto, durante uma execução Fraca típica, a taxa de execução é cobrada do proprietário do Hook. Para habilitar isso:
+
+* O proprietário do Hook deve ter definido `asfTshCollect` em sua conta Xahau usando a transação AccountSet.
+* O proprietário do Hook deve ter definido `hsfCollect` no Hook específico que deseja que seja chamado como um TSH Fraco.
+
+### Tabela de Responsabilidade de Taxa
+
+| Tipo de Execução Fraca                                                                                                                                                   | Taxa                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <p><strong>Again As Weak</strong><br />- Ocorre quando um Hook Fortemente Executado chama <a href="/pt-br/docs/hooks/functions/hook-context/hook_again">hook_again</a></p>  | Gratuita (já paga pela Execução Forte).                                                                                                                                           |
+| <p><strong>Callback</strong><br />- Ocorre quando uma transação emitida entra em um ledger ou é sinalizada como impossível de entrar em qualquer ledger.</p> | Gratuita (já paga durante a Emissão).                                                                                                                                                   |
+| <p><strong>Parte Interessada Transacional Fraca</strong><br />- Ocorre quando uma transação afeta levemente sua conta de alguma forma.</p>                                            | Paga pela sua conta (não pela transação de origem) se e somente se sua conta estiver marcada com o flag `asfTshCollect` e seu Hook estiver marcado com o flag `hsfCollect`. |
+
+<Aside type="caution">
+Este é um recurso avançado que a maioria dos desenvolvedores de Hooks provavelmente não utilizará.
+</Aside>

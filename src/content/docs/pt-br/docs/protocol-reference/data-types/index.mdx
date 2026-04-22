@@ -1,0 +1,86 @@
+---
+title: Tipos de Dados
+---
+Diferentes tipos de objetos são identificados de maneiras únicas:
+
+Contas são identificadas por seu Endereço, por exemplo `"r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59"`. Os endereços sempre começam com "r". Muitos métodos do `rippled` também aceitam uma representação hexadecimal.
+
+Transações são identificadas por um Hash do formato binário da transação. Você também pode identificar uma transação pelo número de Sequência e conta remetente.
+
+Cada Ledger fechado tem um Índice de Ledger e um valor Hash. Ao \[Especificar Ledgers]\[], você pode usar qualquer um deles.
+
+### Endereços
+
+### Hashes
+
+#### Prefixos de Hash
+
+[\[Fonte\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/HashPrefix.h)
+
+Em muitos casos, o Xahau prefixa os dados binários de um objeto com um código de 4 bytes antes de calcular seu hash, para que objetos de tipos diferentes tenham hashes diferentes, mesmo que seus formatos binários sejam iguais. Os códigos de 4 bytes existentes são estruturados como três caracteres alfabéticos, codificados como ASCII, seguidos de um byte zero.
+
+Alguns tipos de hash aparecem em solicitações e respostas de API. Outros são calculados apenas como o primeiro passo de assinatura de um determinado tipo de dado, ou ao calcular um hash de nível superior. A tabela a seguir mostra todos os prefixos de hash de 4 bytes que o Xahau usa:
+
+| Tipo de Objeto                        | Campos de API                    | Prefixo Hash (Hex) | Prefixo Hash (Texto) |
+| ------------------------------------- | -------------------------------- | ------------------ | -------------------- |
+| Proposta de consenso                  | N/A                              | `0x50525000`       | `PRP\0`              |
+| Versão de Ledger                      | `ledger_hash`                    | `0x4C575200`       | `LWR\0`              |
+| Dados de estado do ledger             | `account_state` no cabeçalho    | `0x4D4C4E00`       | `MLN\0`              |
+| Nó interno de dados de ledger         | N/A                              | `0x4D494E00`       | `MIN\0`              |
+| Nó interno de dados de ledger (SHAMapv2) | N/A                           | `0x494E5200`       | `INR\0`              |
+| Reivindicação de Canal de Pagamento   | N/A                              | `0x434C4D00`       | `CLM\0`              |
+| Transação assinada                    | `hash` das transações            | `0x54584E00`       | `TXN\0`              |
+| Transação com metadados               | N/A                              | `0x534E4400`       | `SND\0`              |
+| Transação não assinada (assinatura única) | N/A                          | `0x53545800`       | `STX\0`              |
+| Transação não assinada (multi-assinatura) | N/A                          | `0x534D5400`       | `SMT\0`              |
+| Voto de validação                     | N/A                              | `0x56414C00`       | `VAL\0`              |
+| Manifesto de validador                | N/A                              | `0x4D414E00`       | `MAN\0`              |
+
+Os IDs de objetos de ledger são calculados de forma similar, mas usam um prefixo de 2 bytes chamado "chave de espaço" em vez de um prefixo no formato descrito aqui.
+
+### Sequência da Conta
+
+### Índice de Ledger
+
+#### Especificando Ledgers
+
+Muitos métodos de API exigem que você especifique uma instância do ledger, com os dados recuperados sendo considerados atualizados em relação a essa versão específica do ledger compartilhado. Os comandos que aceitam uma versão de ledger funcionam da mesma forma. Há três maneiras de especificar qual ledger você deseja usar:
+
+1.  Especifique um ledger pelo seu Índice de Ledger no parâmetro `ledger_index`. Cada ledger fechado tem um índice de ledger que é 1 maior que o ledger anterior. (O primeiro ledger tinha índice de ledger 1.)
+
+    ```
+     "ledger_index": 61546724
+    ```
+2.  Especifique um ledger pelo seu valor Hash no parâmetro `ledger_hash`.
+
+    ```
+     "ledger_hash": "8BB204CE37CFA7A021A16B5F6143400831C4D1779E6FE538D9AC561ABBF4A929"
+    ```
+3. Especifique um ledger por um dos seguintes atalhos, no parâmetro `ledger_index`:
+   *   `validated` para o ledger mais recente que foi validado por consenso
+
+       ```
+         "ledger_index": "validated"
+       ```
+   * `closed` para o ledger mais recente que foi fechado para modificações e proposto para validação
+   * `current` para a versão de trabalho atual do servidor do ledger.
+
+Também há um parâmetro `ledger` descontinuado que aceita qualquer um dos três formatos acima. _Não_ use este parâmetro; ele pode ser removido sem aviso prévio.
+
+Se você não especificar um ledger, o servidor decide qual ledger usar para atender à solicitação. Por padrão, o servidor escolhe o ledger `current` (em andamento). No Modo de Relatório, o servidor usa o ledger validado mais recente em vez disso. Não forneça mais de um campo especificando ledgers.
+
+**Nota:** Não dependa do comportamento padrão para especificar um ledger; ele está sujeito a alterações. Sempre especifique uma versão de ledger na solicitação quando puder.
+
+### Especificando Valores em Moeda
+
+Existem dois tipos de moedas no Xahau: XAH e tokens. Esses dois tipos de moedas são especificados em formatos diferentes, com diferentes comportamentos de precisão e arredondamento.
+
+Alguns campos, como o `Amount` de destino de uma \[transação Payment]\[], podem ser de qualquer tipo. Alguns campos aceitam apenas XAH especificamente, como o campo `Fee` (custo de transação).
+
+O XAH é especificado como uma string contendo um número inteiro de "drops" de XAH, onde 1 milhão de drops equivale a 1 XAH. Os tokens, por sua vez, são especificados como um objeto com campos para o valor decimal, código de moeda e emissor.
+
+### Especificando Tempo
+
+O servidor `xahaud` e suas APIs representam o tempo como um inteiro sem sinal. Esse número mede o número de segundos desde a "Época Ripple" de 1º de janeiro de 2000 (00:00 UTC). Isso é similar à forma como a [época Unix](http://en.wikipedia.org/wiki/Unix_time) funciona, exceto que a Época Ripple é 946684800 segundos após a Época Unix.
+
+Não converta os tempos da Época Ripple para tempos da Época UNIX em variáveis de 32 bits: isso pode levar a overflows de inteiro.

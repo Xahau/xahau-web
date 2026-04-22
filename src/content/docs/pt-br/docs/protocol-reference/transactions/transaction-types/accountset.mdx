@@ -1,0 +1,116 @@
+---
+title: AccountSet
+description: Uma transação AccountSet modifica as propriedades de uma conta no Xahau.
+---
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetAccount.cpp)]
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "AccountSet",
+    "Account" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "Sequence": 5,
+    "Domain": "6578616D706C652E636F6D",
+    "SetFlag": 5,
+    "MessageKey": "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB",
+    "HookStateScale": 10
+}
+```
+
+| Campo            | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                                                                                      |
+| ---------------- | --------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ClearFlag`      | Number    | UInt32             | _(Opcional)_ Identificador único de uma flag a ser desabilitada para esta conta.                                                                                                                                                                                                               |
+| `Domain`         | String    | Blob               | _(Opcional)_ O domínio que possui esta conta, como uma string hexadecimal representando o ASCII do domínio em letras minúsculas. [Não pode ter mais de 256 bytes.](https://github.com/Xahau/xahaud/blob/55dc7a252e08a0b02cd5aa39e9b4777af3eafe77/src/ripple/app/tx/impl/SetAccount.h#L34)      |
+| `EmailHash`      | String    | Hash128            | _(Opcional)_ Um valor arbitrário de 128 bits. Convencionalmente, os clientes tratam isso como o hash md5 de um endereço de e-mail para exibir uma imagem [Gravatar](http://en.gravatar.com/site/implement/hash/).                                                                               |
+| `MessageKey`     | String    | Blob               | _(Opcional)_ Chave pública para envio de mensagens criptografadas a esta conta. Para definir a chave, ela deve ter exatamente 33 bytes, com o primeiro byte indicando o tipo: `0x02` ou `0x03` para chaves secp256k1, `0xED` para chaves Ed25519. Para remover a chave, use um valor vazio.    |
+| `NFTokenMinter`  | String    | Blob               | _(Opcional)_ Outra conta autorizada a cunhar NFTokens em seu nome. _(Adicionado pela emenda \[NonFungibleTokensV1_1]\[].)_                                                                                                                                                                     |
+| `SetFlag`        | Number    | UInt32             | _(Opcional)_ Flag inteira a ser habilitada para esta conta.                                                                                                                                                                                                                                    |
+| `TransferRate`   | Number    | UInt32             | _(Opcional)_ A taxa cobrada quando usuários transferem tokens desta conta, representada em bilionésimos de uma unidade. Não pode ser maior que `2000000000` nem menor que `1000000000`, exceto pelo caso especial `0` que significa sem taxa.                                                   |
+| `TickSize`       | Number    | UInt8              | _(Opcional)_ Tamanho do tick para ofertas envolvendo moeda emitida por este endereço. As taxas de câmbio dessas ofertas são arredondadas para este número de dígitos significativos. Valores válidos: `3` a `15` inclusive, ou `0` para desabilitar. _(Adicionado pela emenda \[TickSize]\[])_ |
+| `WalletLocator`  | String    | Hash256            | _(Opcional)_ Um valor arbitrário de 256 bits. Se especificado, o valor é armazenado como parte da conta, mas não possui significado ou requisitos inerentes.                                                                                                                                   |
+| `WalletSize`     | Number    | UInt32             | _(Opcional)_ Não utilizado. Este campo é válido em transações AccountSet, mas não tem efeito.                                                                                                                                                                                                  |
+| `HookStateScale` | Number    | UInt16             | _(Opcional)_ Fator de escala para determinar quando entradas de estado do Hook se tornam obsoletas. Valores válidos: `1` a `16` inclusive. _(Adicionado pela emenda [ExtendedHookState][].)_                                                                                                  |
+
+Se nenhuma dessas opções for fornecida, a transação AccountSet não tem efeito (além de destruir o custo da transação). Consulte Cancelar ou Ignorar uma Transação para mais detalhes.
+
+### Domínio
+
+O campo `Domain` é representado como a string hexadecimal do ASCII em letras minúsculas do domínio. Por exemplo, o domínio _example.com_ seria representado como `"6578616D706C652E636F6D"`.
+
+Para remover o campo `Domain` de uma conta, envie um AccountSet com o Domain definido como uma string vazia.
+
+Você pode colocar qualquer domínio no campo `Domain` da sua conta. Para provar que uma conta e um domínio pertencem à mesma pessoa ou empresa, você precisa de um "link bidirecional":
+
+* As contas que você possui devem ter um domínio seu no campo `Domain`.
+* Nesse domínio, hospede um arquivo [xahau.toml](/pt-br/docs/infrastructure/identity) listando as contas que você possui e, opcionalmente, outras informações sobre como você usa o Xahau.
+
+### Flags do AccountSet
+
+Existem várias opções que podem ser habilitadas ou desabilitadas para uma conta. As opções de conta são representadas por diferentes tipos de flags conforme a situação:
+
+* O tipo de transação `AccountSet` possui várias "AccountSet Flags" (prefixadas com **`asf`**) que podem habilitar uma opção quando passadas como parâmetro `SetFlag`, ou desabilitar uma opção quando passadas como parâmetro `ClearFlag`. Opções mais recentes possuem apenas esse estilo de flag. Você pode habilitar até uma flag `asf` por transação e desabilitar até uma flag `asf` por transação.
+* O tipo de transação `AccountSet` possui várias flags de transação (prefixadas com **`tf`**) que podem ser usadas para habilitar ou desabilitar opções específicas de conta quando passadas no parâmetro `Flags`. Você pode habilitar e desabilitar uma combinação de configurações em uma única transação usando múltiplas flags `tf`, mas nem todas as configurações possuem flags `tf`.
+* O tipo de objeto de ledger `AccountRoot` possui várias flags de estado do ledger (prefixadas com **`lsf`**) que representam o estado de opções específicas da conta em um ledger. Essas configurações se aplicam até que uma transação as altere.
+
+Para habilitar ou desabilitar flags de conta, use os parâmetros `SetFlag` e `ClearFlag` de uma transação AccountSet. As flags do AccountSet têm nomes que começam com **`asf`**.
+
+Todas as flags são desabilitadas por padrão.
+
+As flags do AccountSet disponíveis são:
+
+| Nome da Flag                      | Valor Decimal | Flag de Ledger Correspondente     | Descrição                                                                                                                                                                                                                                                                                                                                          |
+| --------------------------------- | ------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `asfAccountTxnID`                 | 5             | (Nenhuma)                         | Rastreia o ID da transação mais recente desta conta. Necessário para `AccountTxnID`.                                                                                                                                                                                                                                                               |
+| `asfAllowTrustLineClawback`       | 17            | `lsfAllowTrustLineClawback`       | Permite que uma conta recupere tokens que emitiu. Essa flag só pode ser habilitada se o diretório de proprietário da conta estiver vazio (sem linhas de confiança, ofertas, escrows, canais de pagamento, cheques ou listas de signatários). Uma vez definida, não pode ser desfeita.                                                               |
+| `asfAuthorizedNFTokenMinter`      | 10            | (Nenhuma)                         | Habilita outra conta a cunhar tokens não fungíveis (NFTokens) em nome desta conta. Especifique a conta autorizada no campo `NFTokenMinter` do objeto AccountRoot. Para remover um cunhador autorizado, habilite esta flag e omita o campo `NFTokenMinter`. _(Adicionado pela emenda \[NonFungibleTokensV1_1]\[].)_                                  |
+| `asfDefaultRipple`                | 8             | `lsfDefaultRipple`                | Habilita o rippling nas linhas de confiança desta conta por padrão.                                                                                                                                                                                                                                                                                |
+| `asfDepositAuth`                  | 9             | `lsfDepositAuth`                  | Habilita a Autorização de Depósito nesta conta. _(Adicionado pela emenda \[DepositAuth]\[].)_                                                                                                                                                                                                                                                      |
+| `asfDisableMaster`                | 4             | `lsfDisableMaster`                | Impede o uso do par de chaves mestre. Só pode ser habilitado se a conta tiver configurado outra forma de assinar transações, como uma Chave Regular ou uma Lista de Signatários.                                                                                                                                                                    |
+| `asfDisallowIncomingCheck`        | 13            | `lsfDisallowIncomingCheck`        | Bloqueia Cheques recebidos. _Adicionado pela emenda \[DisallowIncoming]\[]._                                                                                                                                                                                                                                                                       |
+| `asfDisallowIncomingNFTokenOffer` | 12            | `lsfDisallowIncomingNFTokenOffer` | Bloqueia NFTokenOffers recebidas. _Adicionado pela emenda \[DisallowIncoming]\[]._                                                                                                                                                                                                                                                                 |
+| `asfDisallowIncomingPayChan`      | 14            | `lsfDisallowIncomingPayChan`      | Bloqueia Canais de Pagamento recebidos. _Adicionado pela emenda \[DisallowIncoming]\[]._                                                                                                                                                                                                                                                           |
+| `asfDisallowIncomingTrustline`    | 15            | `lsfDisallowIncomingTrustline`    | Bloqueia linhas de confiança recebidas. _Adicionado pela emenda \[DisallowIncoming]\[]._                                                                                                                                                                                                                                                           |
+| `asfDisallowIncomingRemit`        | 16            | `lsfDisallowIncomingRemit`        | Bloqueia transações Remit recebidas. _Adicionado pela emenda \[Remit]\[]._                                                                                                                                                                                                                                                                         |
+| `asfDisallowXRP`                  | 3             | `lsfDisallowXRP`                  | XAH não deve ser enviado para esta conta. (Aviso; não é aplicado pelo protocolo Xahau.)                                                                                                                                                                                                                                                            |
+| `asfGlobalFreeze`                 | 7             | `lsfGlobalFreeze`                 | Congela todos os ativos emitidos por esta conta.                                                                                                                                                                                                                                                                                                   |
+| `asfNoFreeze`                     | 6             | `lsfNoFreeze`                     | Renuncia permanentemente à capacidade de congelar linhas de confiança individuais ou desabilitar o Congelamento Global. Esta flag nunca pode ser desabilitada após ser habilitada.                                                                                                                                                                  |
+| `asfRequireAuth`                  | 2             | `lsfRequireAuth`                  | Exige autorização para que usuários mantenham saldos emitidos por este endereço. Só pode ser habilitado se o endereço não tiver linhas de confiança conectadas a ele.                                                                                                                                                                               |
+| `asfRequireDest`                  | 1             | `lsfRequireDestTag`               | Exige uma tag de destino para enviar transações a esta conta.                                                                                                                                                                                                                                                                                      |
+| `asfTshCollect`                   | 11            | `lsfTshCollect`                   | O TSH paga pela execução de sua própria Cadeia de Hooks. _Adicionado pela emenda \[Hooks]\[]._                                                                                                                                                                                                                                                     |
+
+Para habilitar as flags `asfDisableMaster` ou `asfNoFreeze`, você deve autorizar a transação assinando-a com o par de chaves mestre. Não é possível usar um par de chaves regular ou uma assinatura múltipla. Você pode desabilitar `asfDisableMaster` (ou seja, reabilitar o par de chaves mestre) usando um par de chaves regular ou assinatura múltipla.
+
+As seguintes flags de transação (`tf` flags), específicas ao tipo de transação AccountSet, servem ao mesmo propósito. Por limitação de espaço, algumas configurações não possuem flags `tf` associadas e novas flags `tf` não estão sendo adicionadas ao tipo de transação `AccountSet`. Você pode usar uma combinação de flags `tf` e `asf` para habilitar múltiplas configurações em uma única transação.
+
+<table><thead><tr><th>Nome da Flag</th><th>Valor Hex</th><th width="183">Valor Decimal</th><th>Substituída pela Flag AccountSet</th></tr></thead><tbody><tr><td><code>tfRequireDestTag</code></td><td><code>0x00010000</code></td><td>65536</td><td><code>asfRequireDest</code> (<code>SetFlag</code>)</td></tr><tr><td><code>tfOptionalDestTag</code></td><td><code>0x00020000</code></td><td>131072</td><td><code>asfRequireDest</code> (<code>ClearFlag</code>)</td></tr><tr><td><code>tfRequireAuth</code></td><td><code>0x00040000</code></td><td>262144</td><td><code>asfRequireAuth</code> (<code>SetFlag</code>)</td></tr><tr><td><code>tfOptionalAuth</code></td><td><code>0x00080000</code></td><td>524288</td><td><code>asfRequireAuth</code> (<code>ClearFlag</code>)</td></tr><tr><td><code>tfDisallowXRP</code></td><td><code>0x00100000</code></td><td>1048576</td><td><code>asfDisallowXRP</code> (<code>SetFlag</code>)</td></tr><tr><td><code>tfAllowXRP</code></td><td><code>0x00200000</code></td><td>2097152</td><td><code>asfDisallowXRP</code> (<code>ClearFlag</code>)</td></tr></tbody></table>
+
+**Atenção:** Os valores numéricos das flags `tf` e `asf` nas transações não correspondem aos valores que elas definem nas contas "em repouso" no ledger. Para ler as flags de uma conta no ledger, consulte as flags do `AccountRoot`.
+
+#### Bloqueio de Transações Recebidas
+
+Transações recebidas com finalidade pouco clara podem ser um inconveniente para instituições financeiras, que precisariam reconhecer quando um cliente cometeu um erro e, potencialmente, reembolsar contas ou ajustar saldos. As flags `asfRequireDest` e `asfDisallowXRP` têm como objetivo proteger os usuários de enviar fundos acidentalmente de forma ambígua quanto ao motivo do envio.
+
+Por exemplo, uma tag de destino é normalmente usada para identificar qual saldo hospedado deve ser creditado quando uma instituição financeira recebe um pagamento. Se a tag de destino for omitida, pode não ser claro qual conta deve ser creditada, criando a necessidade de reembolsos, entre outros problemas. Ao usar a tag `asfRequireDest`, você garante que todo pagamento recebido tenha uma tag de destino, dificultando que outros lhe enviem um pagamento ambíguo por engano.
+
+Você pode se proteger contra pagamentos recebidos indesejados de moedas não-XAH simplesmente não criando linhas de confiança nessas moedas. Como o XAH não exige confiança, a flag `asfDisallowXRP` é usada para desencorajar usuários de enviar XAH para uma conta. No entanto, essa flag não é aplicada pelo protocolo Xahau, pois poderia tornar contas inutilizáveis caso fiquem sem XAH. Em vez disso, as aplicações clientes devem bloquear ou desencorajar pagamentos em XAH para contas com a flag `asfDisallowXRP` habilitada.
+
+Se você quiser bloquear _todos_ os pagamentos recebidos, pode habilitar a Autorização de Depósito. Isso impede que qualquer transação envie dinheiro para você, inclusive XAH, a menos que sua conta esteja abaixo do requisito de reserva.
+
+Se a emenda \[DisallowIncoming]\[] :not_enabled: estiver habilitada, você também terá a opção de bloquear todos os Cheques, NFTokenOffers, Canais de Pagamento e linhas de confiança recebidos. Geralmente é inofensivo receber esses objetos, mas eles podem impedir que você exclua sua conta e pode ser confuso ter objetos inesperados misturados à lista de objetos que você criou. Para bloquear objetos recebidos, use uma ou mais das seguintes flags de conta:
+
+* `asfDisallowIncomingCheck` - para objetos Check
+* `asfDisallowIncomingNFTOffer` - para objetos NFTokenOffer
+* `asfDisallowIncomingPayChan` - para objetos PayChannel
+* `asfDisallowIncomingTrustline` - para objetos RippleState (linha de confiança)
+
+Quando uma transação criaria uma dessas entradas no ledger, se a conta de destino tiver a flag correspondente habilitada, a transação falhará com o código de resultado `tecNO_PERMISSION`. Ao contrário da Autorização de Depósito, essas configurações não impedem que você receba pagamentos em geral. Além disso, habilitar essa configuração não impede que você crie esses tipos de objetos (a menos que o destino da sua transação também esteja usando a configuração, é claro).
+
+### TransferRate
+
+O campo `TransferRate` especifica uma taxa a ser cobrada sempre que contrapartes transferem a moeda que você emite.
+
+Nas APIs HTTP e WebSocket, a taxa de transferência é representada como um inteiro — o valor que deve ser enviado para que 1 bilhão de unidades chegue ao destino. Por exemplo, uma taxa de transferência de 20% é representada pelo valor `1200000000`. O valor não pode ser menor que 1000000000. (Um valor menor indicaria que você está dando dinheiro para quem faz transações, o que é explorável.) Você pode especificar `0` como atalho para `1000000000`, ou seja, sem taxa.
+
+Consulte Taxas de Transferência para mais informações.

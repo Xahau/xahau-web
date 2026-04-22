@@ -1,0 +1,64 @@
+---
+title: Taxas de Hook
+description: O que esperar quando seu Hook é executado.
+---
+### Taxas de Criação de Hook
+
+As transações SetHook são cobradas por byte de webassembly criado. A taxa é de 500 drops por byte. Assim, um Hook de 1kib custará 0,5 XAH para criar.
+
+### Taxas de Execução de Hook
+
+Quando os Hooks são [Fortemente Executados](/pt-br/docs/hooks/concepts/weak-and-strong), a transação de origem deve pagar pelas Execuções Fortes na taxa da transação de origem.
+
+As taxas de execução de Hook são cobradas a uma taxa de 1 drop por instrução web assembly na execução de pior caso da função `hook` (ou `cbak` no caso de um callback). Assim, um Hook pequeno com muito looping pode acabar atraindo taxas de execução altas.
+
+### Auxiliar RPC de Taxa
+
+As taxas de transação em um ledger com a Emenda de Hooks habilitada tornam-se não triviais de calcular para usuários finais e/ou aplicações de carteira. Isso ocorre porque os hooks fortes devem ser pagos pelo originador de uma transação, e pode haver até 4 hooks fortes na conta de envio e 4 na conta de recebimento, além de quaisquer outras partes interessadas transacionais fortes envolvidas (como pode ser o caso com alguns tipos de transação exóticos). Além disso, se a transação for um SetHook, o tamanho dos parâmetros, o tamanho do código e se é uma operação de _criação_ ou _instalação_ determinam o tamanho da taxa.
+
+Portanto, é altamente recomendável que **todas** as transações sejam processadas pela chamada RPC de taxa atualizada antes de serem enviadas ao ledger.
+
+Para invocar a chamada RPC:
+
+1. Abra uma conexão websocket com o nó Hooks com o qual você trabalhará.
+2. Componha a transação serializada para a qual deseja saber a taxa com o seguinte:
+
+* `Fee: "0"`
+* `SigningPubKey: ""` (Ou seja: VL de 0 bytes do tipo 0x73. Em hex:`0x7300`.)
+* **Não** assine a transação.
+
+3. Envie como um blob hexadecimal para o RPC da seguinte forma:
+
+```json
+{"command":"fee", "tx_blob":"<hex blob>"}
+```
+
+Para HTTP POST RPC, envie da seguinte forma:
+
+```json
+{"method":"fee", "params": [{"tx_blob":"<hex blob>"}] }
+```
+
+A resposta deve parecer algo como
+
+```json
+{
+  result: {
+    drops: {
+      base_fee: '130520',
+    },
+  //...
+  },
+  type: 'response'
+}
+```
+
+Pegue a taxa base e defina-a como o campo `Fee` na transação. Agora assine e envie conforme o processo normal de envio de transação.
+
+Se houver um valor inválido para `tx_blob` ou `tx_blob` estiver ausente, um resultado JSON regular será retornado com um `base_fee` de 10.
+
+### Taxas de Emissão
+
+Os Hooks têm acesso ao mesmo cálculo que o _Auxiliar RPC de Taxa_ faz. Para usar isso, basta chamar [etxn_fee_base](/pt-br/docs/hooks/functions/emitted-transaction/etxn_fee_base) com um buffer contendo a transação serializada como argumentos. Assim como na chamada RPC, você deve garantir que o campo `Fee` esteja presente na transação serializada. O valor é irrelevante.
+
+Quando `etxn_fee_base` retornar a taxa recomendada, você pode usar [sto_emplace](/pt-br/docs/hooks/functions/serialization/sto_emplace) para inseri-la na transação serializada antes da emissão. O campo relevante é `sfFee`.
