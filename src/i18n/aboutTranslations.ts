@@ -132,5 +132,3 @@ export const aboutTranslations = {
       'XAHはBitrue、BitMart、CoinExなどの主要取引所で利用可能で、Ledgerハードウェアウォレットもサポートされており、世界中のユーザーにとってますますアクセスしやすくなっています。カスタムロジックのためにHooksに依存するプロジェクトは、継続的な手数料をカバーするための月次調整を生成するのに十分なXAH残高を維持することをお勧めします。',
   },
 }
-
-export type AboutLocale = keyof typeof aboutTranslations

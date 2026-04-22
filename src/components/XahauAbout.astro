@@ -9,11 +9,11 @@
 import networkGraphic from '../assets/enterprise/about-network.svg'
 import protocolGraphic from '../assets/enterprise/about-protocol.svg'
 import xahGraphic from '../assets/enterprise/about-xah.svg'
-import type { AboutLocale } from '../i18n/aboutTranslations'
 import { aboutTranslations } from '../i18n/aboutTranslations'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
 const videoId = '4pruN6sWJho'
-const locale = (Astro.currentLocale ?? 'en') as AboutLocale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 const t = aboutTranslations[locale]
 ---
 

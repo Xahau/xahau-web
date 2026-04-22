@@ -1,8 +1,8 @@
 ---
-import type { ContestLocale } from '../i18n/contestTranslations'
 import { contestTranslations } from '../i18n/contestTranslations'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
-const locale = (Astro.currentLocale ?? 'en') as ContestLocale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 const t = contestTranslations[locale]
 ---
 

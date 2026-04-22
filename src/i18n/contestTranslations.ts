@@ -402,5 +402,3 @@ export const contestTranslations = {
     legal6: '',
   },
 }
-
-export type ContestLocale = keyof typeof contestTranslations

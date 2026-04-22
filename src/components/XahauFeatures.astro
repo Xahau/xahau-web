@@ -10,10 +10,10 @@
 import consensusGraphic from '../assets/enterprise/consensus.svg'
 import globalGraphic from '../assets/enterprise/global.svg'
 import hooksGraphic from '../assets/enterprise/hooks.svg'
-import type { FeaturesLocale } from '../i18n/featuresTranslations'
 import { featuresTranslations } from '../i18n/featuresTranslations'
+import { defaultLocale, type Locale } from '../i18n/locales'
 
-const locale = (Astro.currentLocale ?? 'en') as FeaturesLocale
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 const t = featuresTranslations[locale] ?? featuresTranslations.en
 ---
 

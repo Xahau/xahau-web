@@ -365,5 +365,3 @@ export const featuresTranslations = {
       'この組み込みNFT標準により、クリエイターはカスタムコードをデプロイすることなく、シンプルな取引（例：URITokenMint、URITokenBuy、URITokenBurn）でNFTをミント、取引、または燃焼させることができます。URITokenの発行者はフラグを設定することで破壊（燃焼）を許可することもでき、NFTの管理方法に柔軟性を与えます。プロトコルレベルでNFTを統合することで、Xahauはデジタルコレクティブルや資格情報の発行・管理をより効率的かつ安全にします。',
   },
 }
-
-export type FeaturesLocale = keyof typeof featuresTranslations
