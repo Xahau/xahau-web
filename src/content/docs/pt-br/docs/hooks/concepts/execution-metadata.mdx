@@ -1,20 +1,20 @@
 ---
-title: Execution Metadata
-description: What to expect when your Hook runs.
+title: Metadados de Execução
+description: O que esperar quando seu Hook é executado.
 ---
 
-When Hooks execute they leave behind information about the status of that execution. This appears in the Originating Transaction metadata as an `sfHookExecutions` block. This block contains the following fields:
+Quando os Hooks são executados, deixam para trás informações sobre o status dessa execução. Isso aparece nos metadados da Transação de Origem como um bloco `sfHookExecutions`. Esse bloco contém os seguintes campos:
 
 
 
-| Field                  | Description                                                                                                                                                  |
+| Campo                  | Descrição                                                                                                                                                  |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| sfHookResult           | <p>Hooks can end in three ways: <code>accept</code>, <code>rollback</code> and <code>error</code>.<br />This is <em>not</em> the same as sfHookReturnCode!</p> |
-| sfHookHash             | The SHA512H of the Hook at the time it was executed.                                                                                                         |
-| sfHookAccount          | The account the Hook ran on.                                                                                                                                 |
-| sfHookReturnCode       | The integer returned as the third parameter of `accept` or `rollback`.                                                                                       |
-| sfHookReturnString     | The string returned in the first two parameters of `accept` or `rollback`, if any.                                                                           |
-| sfHookInstructionCount | The total number of webassembly instructions that were executed when the Hook ran.                                                                           |
-| sfHookEmitCount        | The total number of [Emitted Transactions](/pt-br/docs/hooks/concepts/emitted-transactions) produced by the Hook.                                                                    |
-| sfHookExecutionIndex   | The order in which the Hook was executed (as distinct from other Hook Executions on the same Originating Transaction.)                                       |
-| sfHookStateChangeCount | The number of [Hook State](/pt-br/docs/hooks/concepts/state-management) changes the Hook made during execution.                                                                      |
+| sfHookResult           | <p>Os Hooks podem terminar de três formas: <code>accept</code>, <code>rollback</code> e <code>error</code>.<br />Isso <em>não</em> é o mesmo que sfHookReturnCode!</p> |
+| sfHookHash             | O SHA512H do Hook no momento em que foi executado.                                                                                                         |
+| sfHookAccount          | A conta onde o Hook foi executado.                                                                                                                                 |
+| sfHookReturnCode       | O inteiro retornado como o terceiro parâmetro de `accept` ou `rollback`.                                                                                       |
+| sfHookReturnString     | A string retornada nos dois primeiros parâmetros de `accept` ou `rollback`, se houver.                                                                           |
+| sfHookInstructionCount | O número total de instruções webassembly executadas quando o Hook rodou.                                                                                           |
+| sfHookEmitCount        | O número total de [Transações Emitidas](/pt-br/docs/hooks/concepts/emitted-transactions) produzidas pelo Hook.                                                                    |
+| sfHookExecutionIndex   | A ordem em que o Hook foi executado (distinto de outras Execuções de Hook na mesma Transação de Origem.)                                       |
+| sfHookStateChangeCount | O número de mudanças de [Estado do Hook](/pt-br/docs/hooks/concepts/state-management) que o Hook realizou durante a execução.                                                                      |

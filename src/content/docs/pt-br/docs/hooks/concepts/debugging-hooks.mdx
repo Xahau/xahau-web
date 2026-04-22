@@ -1,30 +1,30 @@
 ---
-title: Debugging Hooks
-description: How to print "hello world" from your Hook!
+title: Depurando Hooks
+description: Como imprimir "hello world" a partir do seu Hook!
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-### How can I debug a Hook?
+### Como posso depurar um Hook?
 
-The Hook API provides a set of functions in the namespace `trace` which write output to the `xrpld` log file when xrpld is configured with the _trace_ log-level. These functions, generally speaking, allow you to see the value of variables, buffers and otherwise trace the execution and state of a Hook at runtime.
+A API de Hooks fornece um conjunto de funções no namespace `trace` que gravam saída no arquivo de log do `xrpld` quando o xrpld está configurado com o nível de log _trace_. Essas funções, em geral, permitem que você veja o valor de variáveis, buffers e rastreie a execução e o estado de um Hook em tempo de execução.
 
 <Aside type="tip">
-At time of writing there is no interactive Hook Debugger. You must use the trace functions.
+No momento da escrita, não existe um Depurador Interativo de Hook. Você deve usar as funções de rastreamento.
 </Aside>
 
-### Trace APIs
+### APIs de Rastreamento
 
-The following `trace` functions are available in the Hooks API
+As seguintes funções `trace` estão disponíveis na API de Hooks
 
-| Hook API                                                                | What it does                                                                              |
+| API de Hook                                                                | O que faz                                                                              |
 | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [trace](/pt-br/docs/hooks/functions/trace-debug/trace)              | Print a utf-8 message, followed by a user-specified buffer (this last optionally as hex.) |
-| [trace_num](/pt-br/docs/hooks/functions/trace-debug/trace_num)     | Print a utf-8 message, followed by an integer.                                            |
-| [trace_float](/pt-br/docs/hooks/functions/trace-debug/trace_float) | Print a utf-8 message, followed by an XFL Floating point number.                          |
+| [trace](/pt-br/docs/hooks/functions/trace-debug/trace)              | Imprime uma mensagem utf-8, seguida por um buffer especificado pelo usuário (opcionalmente como hex.) |
+| [trace_num](/pt-br/docs/hooks/functions/trace-debug/trace_num)     | Imprime uma mensagem utf-8, seguida por um inteiro.                                            |
+| [trace_float](/pt-br/docs/hooks/functions/trace-debug/trace_float) | Imprime uma mensagem utf-8, seguida por um número de ponto flutuante XFL.                          |
 
-### Example
+### Exemplo
 
-The following code will print a single trace line then accept the Originating Transaction.
+O código a seguir imprimirá uma única linha de rastreamento e então aceitará a Transação de Origem.
 
 ```c
 #include "../hookapi.h"
@@ -36,7 +36,7 @@ int64_t hook(int64_t reserved)
 }
 ```
 
-An example of the log-line produced by `xahaud` when a payment is sent out of or into the Hook Account:
+Um exemplo da linha de log produzida pelo `xahaud` quando um pagamento é enviado para fora ou para dentro da Conta Hook:
 
 ```
 2021-Apr-13 13:59:11.083700726 UTC View:TRC
@@ -44,27 +44,27 @@ An example of the log-line produced by `xahaud` when a payment is sent out of or
         A number 10
 ```
 
-The above appears in the log as all-one-line, but split here for visibility.
+O acima aparece no log como uma única linha, mas foi dividido aqui para melhor visibilidade.
 
-<Aside type="tip" title="Use testnet">
-The [Xahau Testnet](https://xahau-test.net/) is the perfect place to test your Hooks.
+<Aside type="tip" title="Use a testnet">
+A [Xahau Testnet](https://xahau-test.net/) é o lugar perfeito para testar seus Hooks.
 </Aside>
 
-### Log format
+### Formato do Log
 
-A breakdown of the log format appears in the table below
+Uma análise do formato de log aparece na tabela abaixo
 
-| Part                                        | Description                                                                                                                                                            | # |
+| Parte                                        | Descrição                                                                                                                                                            | # |
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - |
-| 2021-Apr-13 13:59:11.083700726 UTC View:TRC | `xahaud`'s prefix to the log line                                                                                                                                      | 1 |
-| HookTrace                                   | This is a trace initiated by the Hook itself not some other information about the Hook. Other information is available on tags `HookError`, `HookEmit` and `HookInfo`. | 2 |
-| \[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh        | The first account in the square brackets is the Hook Account.                                                                                                          | 3 |
-| -rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:       | The second account in the square brackets is the Originating Account.                                                                                                  | 4 |
-| A number                                    | This is the message the Hook was told to deliver before the trace payload                                                                                              | 5 |
-| 10                                          | This is the trace payload                                                                                                                                              | 6 |
+| 2021-Apr-13 13:59:11.083700726 UTC View:TRC | Prefixo do `xahaud` para a linha de log                                                                                                                                      | 1 |
+| HookTrace                                   | Este é um rastreamento iniciado pelo próprio Hook, não alguma outra informação sobre o Hook. Outras informações estão disponíveis nas tags `HookError`, `HookEmit` e `HookInfo`. | 2 |
+| \[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh        | A primeira conta entre colchetes é a Conta Hook.                                                                                                                          | 3 |
+| -rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:       | A segunda conta entre colchetes é a Conta de Origem.                                                                                                                  | 4 |
+| A number                                    | Esta é a mensagem que o Hook foi instruído a entregar antes da carga de rastreamento                                                                                              | 5 |
+| 10                                          | Esta é a carga de rastreamento                                                                                                                                              | 6 |
 
 <Aside type="tip">
-`Xahaud` produces a lot of output. It is therefore generally advisible to grep logs for the account/s you are interested in.
+O `Xahaud` produz muita saída. Portanto, geralmente é aconselhável filtrar os logs pela(s) conta(s) de seu interesse.
 
-For example use: `tail -f log | grep HookTrace | grep <account>`
+Por exemplo: `tail -f log | grep HookTrace | grep <conta>`
 </Aside>

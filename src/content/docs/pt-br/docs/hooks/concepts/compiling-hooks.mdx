@@ -1,31 +1,31 @@
 ---
-title: Compiling Hooks
+title: Compilando Hooks
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-### Constraints
+### Restrições
 
-All Hooks are compiled to a single [webassembly module](https://webassembly.github.io/spec/core/syntax/modules.html) before they can be set onto an Xahau account.
+Todos os Hooks são compilados em um único [módulo webassembly](https://webassembly.github.io/spec/core/syntax/modules.html) antes de poderem ser instalados em uma conta Xahau.
 
-A Hook always implements and exports exactly one or both of the following functions:
+Um Hook sempre implementa e exporta exatamente uma ou ambas das seguintes funções:
 
-`int64_t hook(uint32_t ctx) { ... }` _required_
+`int64_t hook(uint32_t ctx) { ... }` _obrigatória_
 
-* Executed whenever a transaction comes into or leaves from the account the Hook is set on (`ctx = 0`) or
-* Executed when executed as a [Weak Transactional Stakeholder](/pt-br/docs/hooks/concepts/weak-and-strong) (`ctx > 0`).
+* Executada sempre que uma transação chega ou sai da conta onde o Hook está instalado (`ctx = 0`) ou
+* Executada quando executada como uma [Parte Interessada Transacional Fraca](/pt-br/docs/hooks/concepts/weak-and-strong) (`ctx > 0`).
 
-`int64_t cbak(uint32_t ctx) { ... }` _optional_
+`int64_t cbak(uint32_t ctx) { ... }` _opcional_
 
-* Executed when an emitted transaction is successfully accepted into a ledger (`ctx = 0`) or
-* Executed when an emitted transaction cannot be accepted into any ledger (`ctx = 1`).
+* Executada quando uma transação emitida é aceita com sucesso em um ledger (`ctx = 0`) ou
+* Executada quando uma transação emitida não pode ser aceita em nenhum ledger (`ctx = 1`).
 
-Hooks are not allowed to specify other functions. Instead they must make clever use of macros to do all their computation within these two functions. This is part of a computational restriction on hooks to keep their runtime predictable.
+Os Hooks não podem especificar outras funções. Em vez disso, devem usar macros de forma inteligente para realizar todos os cálculos dentro dessas duas funções. Essa é parte de uma restrição computacional dos hooks para manter seus tempos de execução previsíveis.
 
-Additionally Hooks are afforded no _heap_ memory. All required memory must be reserved and used on the stack.
+Adicionalmente, os Hooks não têm acesso a memória _heap_. Toda a memória necessária deve ser reservada e utilizada na pilha.
 
-### Example
+### Exemplo
 
-Here is an example Hook written in C. The Hook prints 0...3 to the trace log before accepting the originating transaction.
+Aqui está um exemplo de Hook escrito em C. O Hook imprime 0...3 no log de rastreamento antes de aceitar a transação de origem.
 
 ```c
 #include <stdint.h>
@@ -46,12 +46,12 @@ int64_t hook(uint32_t ctx)
 ```
 
 <Aside type="tip">
-For educational purposes the above example deliberately does not include `hookapi.h` (which developers would typically use.)
+Para fins educacionais, o exemplo acima deliberadamente não inclui `hookapi.h` (que os desenvolvedores normalmente utilizariam.)
 </Aside>
 
-### Compilation
+### Compilação
 
-A [variety of compilers](https://www.google.com/search?q=webassembly+compiler+C) will generate valid webassembly from a C source file. Once compiled, a Hook exists as a binary `.wasm` file. This contains a webassembly module. Using `wasmcc` to compile and the `wasm2wat` tool to convert to human readable webassembly this binary form can be rendered to the human readable form. Below appears the compilation result of the above example.
+Uma [variedade de compiladores](https://www.google.com/search?q=webassembly+compiler+C) irá gerar webassembly válido a partir de um arquivo fonte C. Uma vez compilado, um Hook existe como um arquivo binário `.wasm`. Este contém um módulo webassembly. Usando `wasmcc` para compilar e a ferramenta `wasm2wat` para converter para webassembly legível, essa forma binária pode ser renderizada para a forma legível. Abaixo aparece o resultado da compilação do exemplo acima.
 
 ```
 (module
@@ -201,28 +201,28 @@ A [variety of compilers](https://www.google.com/search?q=webassembly+compiler+C)
   (data (;0;) (i32.const 1024) "test\00"))
 ```
 
-The average Hook developer will never need to examine webassembly directly. However it is a useful conceptual exercise to review the contents of the sample Hook.
+O desenvolvedor médio de Hooks nunca precisará examinar o webassembly diretamente. No entanto, é um exercício conceitual útil revisar o conteúdo do Hook de exemplo.
 
-Above we can see:
+Acima podemos ver:
 
-* Three functions are imported from the Hooks API (`_g`, `accept`, `trace_num`)
-* Two functions are defined by the hook (`cbak`, `hook`)
-* Two functions are exported by the hook (again: `cbak`, `hook`)
-* Some static (constant) data is recorded in the hook (see `data` at the bottom).
+* Três funções são importadas da API de Hooks (`_g`, `accept`, `trace_num`)
+* Duas funções são definidas pelo hook (`cbak`, `hook`)
+* Duas funções são exportadas pelo hook (novamente: `cbak`, `hook`)
+* Alguns dados estáticos (constantes) são registrados no hook (veja `data` no final).
 
-It is very important to note that a Hook _must only_ import functions available to it from the Hooks API and _must_ only export the `cbak` and `hook` functions. In additional all hooks must import `_g` from the Hooks API, which is the `guard` function.
+É muito importante notar que um Hook _deve apenas_ importar funções disponíveis para ele da API de Hooks e _deve_ apenas exportar as funções `cbak` e `hook`. Adicionalmente, todos os hooks devem importar `_g` da API de Hooks, que é a função `guard`.
 
 <Aside type="tip">
-Webassembly is a platform-independent general computation `bytecode` language. It has a one-to-one mapping with a human readable equivalent. These are used interchangeably.
+Webassembly é uma linguagem de `bytecode` de computação geral independente de plataforma. Ela tem um mapeamento um-para-um com um equivalente legível por humanos. Estes são usados de forma intercambiável.
 </Aside>
 
-### Unwanted Exports
+### Exportações Indesejadas
 
-Most webassembly compilers (including the one above) produce additional exports for their own linking purposes. In many cases the generation of these is difficult or impossible to disable.
+A maioria dos compiladores webassembly (incluindo o acima) produz exportações adicionais para seus próprios propósitos de vinculação. Em muitos casos, a geração dessas é difícil ou impossível de desativar.
 
-Unwanted exports will lead to an otherwise valid Hook being rejected. Therefore after compilation developers should use the [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c) to strip out these out. Failure to do so will lead to your Hook being rejected.
+Exportações indesejadas levarão a um Hook de outra forma válido ser rejeitado. Portanto, após a compilação, os desenvolvedores devem usar o [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c) para removê-las. Deixar de fazer isso resultará na rejeição do seu Hook.
 
 
 <Aside type="caution">
-Don't forget to use the [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c) or your Hooks will be rejected.
+Não se esqueça de usar o [Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c) ou seus Hooks serão rejeitados.
 </Aside>

@@ -1,46 +1,46 @@
 ---
-title: Grants
-description: Hook Grants
+title: Concessões
+description: Concessões de Hook
 ---
 import { Aside } from '@astrojs/starlight/components';
 
 <Aside type="caution">
-  Most Hook Developers will rarely need to use HookGrants, and should exercise extreme caution when granting state mutation permission to foreign Hooks and accounts.
+  A maioria dos desenvolvedores de Hooks raramente precisará usar HookGrants, e deve exercer extrema cautela ao conceder permissão de mutação de estado a Hooks e contas externas.
 
-  While a HookGrant cannot be used to directly steal funds, intentional external modification of a Hook's State may lead a Hook to behave in an unintended way, which in some cases could lead to a theft.
+  Embora uma HookGrant não possa ser usada para roubar fundos diretamente, a modificação externa intencional do Estado de um Hook pode levar o Hook a se comportar de forma não intencional, o que em alguns casos poderia levar a um roubo.
   
-  If you think you need to use a Grant, please re-check your design first to ensure you actually need to use one before continuing.
+  Se você acha que precisa usar uma Concessão, por favor verifique novamente seu design primeiro para garantir que realmente precisa usar uma antes de continuar.
 </Aside>
 
-### Grants
+### Concessões
 
-Grants provide a way for a Hook Installer to assign [State Management](/pt-br/docs/hooks/concepts/state-management) permissions to a _foreign_ Hook on other Xahau accounts.
+As Concessões fornecem uma maneira para um Instalador de Hook atribuir permissões de [Gerenciamento de Estado](/pt-br/docs/hooks/concepts/state-management) a um Hook _externo_ em outras contas Xahau.
 
-A [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction) may specify a `HookGrants` array within any `Hook` object in its `Hooks` array. The `HookGrants` array contains one or more `HookGrant` objects (up to 8).
+Uma [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction) pode especificar um array `HookGrants` dentro de qualquer objeto `Hook` em seu array `Hooks`. O array `HookGrants` contém um ou mais objetos `HookGrant` (até 8).
 
-Unlike [Parameters](/pt-br/docs/hooks/concepts/parameters), the `HookGrants` array is always set exactly as specified in the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction). Therefore if you wish to update a particular `HookGrant` whilst retaining multiple other `HookGrant` entires that were previously set, you must first obtain the old `HookGrants` array, modify it, and then resubmit the entire array in an [_Update_ Operation](/pt-br/docs/hooks/concepts/sethook-transaction).
+Ao contrário dos [Parâmetros](/pt-br/docs/hooks/concepts/parameters), o array `HookGrants` é sempre definido exatamente como especificado na [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction). Portanto, se você deseja atualizar um `HookGrant` específico enquanto mantém múltiplas outras entradas `HookGrant` que foram definidas anteriormente, você deve primeiro obter o antigo array `HookGrants`, modificá-lo e depois reenviar o array completo em uma [_Operação de Atualização_](/pt-br/docs/hooks/concepts/sethook-transaction).
 
-To delete all Grants submit an empty `HookGrants` array.
+Para excluir todas as Concessões, envie um array `HookGrants` vazio.
 
 <Aside type="caution">
-  Unlike [Parameters](/pt-br/docs/hooks/concepts/parameters), the `HookGrants` array is always set exactly as specified in the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction).
+  Ao contrário dos [Parâmetros](/pt-br/docs/hooks/concepts/parameters), o array `HookGrants` é sempre definido exatamente como especificado na [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction).
 </Aside>
 
-A Grant permits a foreign XRPL account or Hook to modify the Hook State within the namespace of the specific Hook for which the Grant is defined.
+Uma Concessão permite que uma conta XRPL externa ou um Hook modifique o Estado do Hook dentro do namespace do Hook específico para o qual a Concessão é definida.
 
-The HookGrant must specify at least:
+A HookGrant deve especificar pelo menos:
 
 * `HookHash`\
-  And may also specify an account:
+  E também pode especificar uma conta:
 * `Authorize`
 
-Only the Hook specified by HookHash may modify the Hook State within the namespace of the Hook for which the HookGrant is specified. If `Authorize` is specified then this permission is tightened further to only the Hook specified by the HookHash when it is installed on the account specified by `Authorize`.
+Somente o Hook especificado por HookHash pode modificar o Estado do Hook dentro do namespace do Hook para o qual a HookGrant é especificada. Se `Authorize` for especificado, então essa permissão é restringida ainda mais apenas ao Hook especificado pelo HookHash quando instalado na conta especificada por `Authorize`.
 
 <Aside type="tip">
-  Grants only apply to external Hooks and never limit the operation of Hooks with respect to the Hook State on the account they are installed on.
+  As Concessões se aplicam apenas a Hooks externos e nunca limitam a operação dos Hooks em relação ao Estado do Hook na conta em que estão instalados.
 </Aside>
 
-### Example
+### Exemplo
 
 ```json
 Account: "rALicebv3hMYNBWtu1VEEWkToArgYsYERs",
@@ -54,11 +54,11 @@ Hooks:
             HookGrants:
             [   
                 {   
-                    HookGrant:    // first grant
+                    HookGrant:    // primeira concessão
                     {   
                         HookHash:  "78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8"
                     },
-                    HookGrant:    // second grant
+                    HookGrant:    // segunda concessão
                     {   
                         Authorize: "rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9",
                         HookHash:  "A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6"
@@ -71,20 +71,20 @@ Hooks:
 ... 
 ```
 
-The _first grant_ above allows:
+A _primeira concessão_ acima permite:
 
-* any instance of the Hook whose code that hashes to `78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8`
-* executing on **any account**
-* to modify the Hook State of account `rALicebv3hMYNBWtu1VEEWkToArgYsYERs`
-* inside the Namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`
+* qualquer instância do Hook cujo código gera o hash `78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8`
+* executando em **qualquer conta**
+* modificar o Estado do Hook da conta `rALicebv3hMYNBWtu1VEEWkToArgYsYERs`
+* dentro do Namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`
 
-The _second grant_ above allows:
+A _segunda concessão_ acima permite:
 
-* any instance of the Hook whose code that hashes to `A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6`
-* but only when executed on account `rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9`
-* to modify the Hook State of account `rALicebv3hMYNBWtu1VEEWkToArgYsYERs`
-* inside the Namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`
+* qualquer instância do Hook cujo código gera o hash `A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6`
+* mas somente quando executado na conta `rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9`
+* modificar o Estado do Hook da conta `rALicebv3hMYNBWtu1VEEWkToArgYsYERs`
+* dentro do Namespace `3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`
 
-### Using the Grant
+### Usando a Concessão
 
-To make use of a grant, a Hook modifies State objects on a foreign account by calling [state_foreign_set](/pt-br/docs/hooks/functions/state/state_foreign_set).
+Para fazer uso de uma concessão, um Hook modifica objetos de Estado em uma conta externa chamando [state_foreign_set](/pt-br/docs/hooks/functions/state/state_foreign_set).

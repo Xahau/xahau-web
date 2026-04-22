@@ -1,24 +1,24 @@
 ---
-title: State Management
-description: Hooks can read and save small pieces of on-ledger data 🚀
+title: Gerenciamento de Estado
+description: Hooks podem ler e salvar pequenos pedaços de dados no ledger 🚀
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-### What is Hook State?
+### O que é Estado do Hook?
 
-[State](https://en.wikipedia.org/wiki/State_\(computer_science\)) in computer science describes information held by a system between executions (as distinct from inputs and outputs.) For example your browser leaves you logged in to a website even after you close and reopen it. The login cookie is held in the browser's _state_.
+[Estado](https://en.wikipedia.org/wiki/State_\(computer_science\)) em ciência da computação descreve informações mantidas por um sistema entre execuções (distinto de entradas e saídas). Por exemplo, seu navegador mantém você logado em um site mesmo após você fechá-lo e reabri-lo. O cookie de login é mantido no _estado_ do navegador.
 
-**Hook State** refers to a key-value mapping that logically exists for each account on Xahau whether or not any keys are currently present. The keys are always 32 bytes (unsigned 256 bit integer) and the values are variable length with a maximum size determined by validator voting, at time of writing 256 bytes.
+**Estado do Hook** refere-se a um mapeamento chave-valor que logicamente existe para cada conta no Xahau, independentemente de quaisquer chaves estarem atualmente presentes. As chaves são sempre 32 bytes (inteiro unsigned de 256 bits) e os valores são de comprimento variável com tamanho máximo determinado pela votação dos validadores, no momento da escrita 256 bytes.
 
-State Management is achieved using
+O Gerenciamento de Estado é alcançado usando
 
 * [state](/pt-br/docs/hooks/functions/state/state)
 * [state_set](/pt-br/docs/hooks/functions/state/state_set)
 * [state_foreign](/pt-br/docs/hooks/functions/state/state_foreign)
 
-### Storing and fetching
+### Armazenando e buscando
 
-The below example uses the [state_set](/pt-br/docs/hooks/functions/state/state_set) Hook API to assign the value `0xC001CAFE` to the key `0x0..000001` (uint256 = 1) in the Hook State of the Hook Account.
+O exemplo abaixo usa a API de Hook [state_set](/pt-br/docs/hooks/functions/state/state_set) para atribuir o valor `0xC001CAFE` à chave `0x0..000001` (uint256 = 1) no Estado do Hook da Conta Hook.
 
 ```c
 uint8_t key[32] = {
@@ -30,11 +30,11 @@ uint8_t key[32] = {
 uint8_t value[4] = { 0xC0U, 0x01U, 0xCAU, 0xFEU };
 if (state_set(value, 4, key, 32) == 4)
 {
-    // ... state successfully saved
+    // ... estado salvo com sucesso
 }
 ```
 
-In a subsequent Hook execution this value can now be retrieved using the same key:
+Em uma execução subsequente do Hook, este valor agora pode ser recuperado usando a mesma chave:
 
 ```c
 uint8_t value[4];
@@ -46,20 +46,20 @@ uint8_t key[32] = {
 };
 if (state(value, 4, key, 32) < 0)
 {
-    // ... state fetch failed
+    // ... busca de estado falhou
 }
 ```
 
-After the above code has run the `value` buffer will be populated with the value found at the key.
+Após a execução do código acima, o buffer `value` será preenchido com o valor encontrado na chave.
 
 <Aside type="tip">
-  The buffer that <code>state()</code> reads into (<code>writeptr</code>) must be large enough to store the value currently held at that key. If it isn't, the Hook API returns with a <code>TOO_SMALL</code> error.
+  O buffer no qual <code>state()</code> lê (<code>writeptr</code>) deve ser grande o suficiente para armazenar o valor atualmente mantido naquela chave. Se não for, a API de Hook retorna com um erro <code>TOO_SMALL</code>.
 </Aside>
 
-### Foreign state
+### Estado externo
 
-From time to time it may be advantageous for one Hook running on one account to read the Hook State of another Hook running on another account. The [state_foreign](/pt-br/docs/hooks/functions/state/state_foreign) Hook API does exactly this. Because the ledger is public there is no reasonable expectation of privacy anyway. Any Hook may therefore _read_ (but not write) the Hook State of any other Hook.
+De tempos em tempos pode ser vantajoso para um Hook rodando em uma conta ler o Estado do Hook de outro Hook rodando em outra conta. A API de Hook [state_foreign](/pt-br/docs/hooks/functions/state/state_foreign) faz exatamente isso. Como o ledger é público, não há expectativa razoável de privacidade de qualquer forma. Qualquer Hook pode, portanto, _ler_ (mas não escrever) o Estado do Hook de qualquer outro Hook.
 
-### Namespaces and querying
+### Namespaces e consultas
 
-Please see [Namespaces](/pt-br/docs/hooks/concepts/namespaces)
+Por favor, veja [Namespaces](/pt-br/docs/hooks/concepts/namespaces)

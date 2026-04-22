@@ -1,41 +1,41 @@
 ---
 title: Namespaces
-description: Prevent state clobbering by using the correct namespace
+description: Evite colisão de estado usando o namespace correto
 ---
 ### Namespaces
 
-To avoid two or more Hooks installed on the same account unintentionally clobbering each-other's [Hook State](/pt-br/docs/hooks/concepts/state-management), a 32 byte namespace must be provided when creating or installing each Hook.
+Para evitar que dois ou mais Hooks instalados na mesma conta se sobreponham inadvertidamente ao [Estado do Hook](/pt-br/docs/hooks/concepts/state-management) um do outro, um namespace de 32 bytes deve ser fornecido ao criar ou instalar cada Hook.
 
-The namespace may be any arbitrary 32 byte value the developer chooses. Provided the namespace is unique in the Hook chain no state clobbering will occur.
+O namespace pode ser qualquer valor arbitrário de 32 bytes que o desenvolvedor escolher. Desde que o namespace seja único na cadeia de Hooks, nenhuma colisão de estado ocorrerá.
 
-We strongly recommended using `SHA256` over the developer's working name for the Hook. SHA256 is one of the two hashing algorithms used in the derivation of Xahau addresses (from an account master key), and, as such, it should be readily available to the developer.
+Recomendamos fortemente o uso de `SHA256` sobre o nome de trabalho do desenvolvedor para o Hook. O SHA256 é um dos dois algoritmos de hash usados na derivação de endereços Xahau (a partir de uma chave mestre de conta) e, como tal, deve estar prontamente disponível para o desenvolvedor.
 
-The `HookNamespace` field is supplied as a 32 byte _hex_ blob inside each `Hook` object in a `Hooks` array when [executing a SetHook transaction](/pt-br/docs/hooks/concepts/sethook-transaction).
+O campo `HookNamespace` é fornecido como um blob _hex_ de 32 bytes dentro de cada objeto `Hook` em um array `Hooks` ao [executar uma transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction).
 
-The configured Namespace a Hook operates under alters the [Keylets](/pt-br/docs/hooks/concepts/slots-and-keylets) its [State](/pt-br/docs/hooks/concepts/state-management) is stored under. Therefore two Hooks under two different Namespaces installed on the same Xahau account may use the same state key to refer to different state objects. Conversely, two different Hooks using the same Namespace on the same Xahau account can access and modify eachother's state objects using the same state keys.
+O Namespace configurado sob o qual um Hook opera altera os [Keylets](/pt-br/docs/hooks/concepts/slots-and-keylets) sob os quais seu [Estado](/pt-br/docs/hooks/concepts/state-management) é armazenado. Portanto, dois Hooks sob dois Namespaces diferentes instalados na mesma conta Xahau podem usar a mesma chave de estado para se referir a objetos de estado diferentes. Por outro lado, dois Hooks diferentes usando o mesmo Namespace na mesma conta Xahau podem acessar e modificar os objetos de estado um do outro usando as mesmas chaves de estado.
 
-### Example
+### Exemplo
 
-In javascript, importing the `ripple-address-codec` yields access to SHA256.\
-(It is also possible to use `crypto.subtle` in browser, or `crypto.createHash` in node to access this hash algorithm.)
+Em javascript, importar o `ripple-address-codec` fornece acesso ao SHA256.\
+(Também é possível usar `crypto.subtle` no navegador, ou `crypto.createHash` no node para acessar este algoritmo de hash.)
 
 ```js
 HookNamespace: addr.codec.sha256('carbon').toString('hex')
 ```
 
-### Default Namespace
+### Namespace Padrão
 
-The first user to [set a novel Hook](/pt-br/docs/hooks/concepts/sethook-transaction) defines a `HookNamespace` which becomes the _Default Namespace_ for that Hook. This means any subsequent users who [reference the same _HookDefinition_](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) will receive this originally set Namespace by default.
+O primeiro usuário a [definir um novo Hook](/pt-br/docs/hooks/concepts/sethook-transaction) define um `HookNamespace` que se torna o _Namespace Padrão_ para aquele Hook. Isso significa que qualquer usuário subsequente que [referenciar a mesma _HookDefinition_](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) receberá este Namespace originalmente definido por padrão.
 
-The subsequent user may specify their own Namespace, overriding the Default Namespace for their installation only.
+O usuário subsequente pode especificar seu próprio Namespace, substituindo o Namespace Padrão apenas para sua instalação.
 
-### Hook APIs Affected
+### APIs de Hook Afetadas
 
-Choice of HookNamespace affects the behaviour of the following Hook APIs:
+A escolha do HookNamespace afeta o comportamento das seguintes APIs de Hook:
 
 * [state](/pt-br/docs/hooks/functions/state/state)
 * [state_set](/pt-br/docs/hooks/functions/state/state_set)
 
-### Namespace API Helper
+### Auxiliar de API de Namespace
 
-See [account_info](/pt-br/docs/hooks/functions/websocket-apis/account_info) and [account_namespace](/pt-br/docs/hooks/functions/websocket-apis/account_namespace) for information about how to query the ledger regarding namespaces.
+Veja [account_info](/pt-br/docs/hooks/functions/websocket-apis/account_info) e [account_namespace](/pt-br/docs/hooks/functions/websocket-apis/account_namespace) para informações sobre como consultar o ledger em relação a namespaces.

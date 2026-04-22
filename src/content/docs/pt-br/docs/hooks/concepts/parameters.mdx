@@ -1,18 +1,18 @@
 ---
-title: Parameters
-description: Install-time parameters allow Hooks to be generic and flexible
+title: Parâmetros
+description: Parâmetros de tempo de instalação permitem que Hooks sejam genéricos e flexíveis
 ---
-### Parameters
+### Parâmetros
 
-Hook developers may opt to use _install-time_ parameters (called Hook Parameters) in their Hook. This allows subsequent installers of the Hook to change certain behaviours the programmer defines without recompiling or re-uploading the Hook (assuming at least one account still [references](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) the existing Hook Definition.)
+Os desenvolvedores de Hooks podem optar por usar _parâmetros de tempo de instalação_ (chamados Parâmetros de Hook) em seu Hook. Isso permite que instaladores subsequentes do Hook alterem certos comportamentos definidos pelo programador sem recompilar ou re-enviar o Hook (assumindo que pelo menos uma conta ainda [referencie](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) a definição de Hook existente).
 
-Hook Parameters are a set of Key-Value pairs set during the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction) and retrievable by the Hook during runtime. Both the `ParameterName` key and the `ParameterValue` are set as _hex_ blobs, and have a maximum length of 32 bytes and 256 bytes respectively.
+Os Parâmetros de Hook são um conjunto de pares Chave-Valor definidos durante a [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction) e recuperáveis pelo Hook durante a execução. Tanto a chave `ParameterName` quanto o `ParameterValue` são definidos como blobs _hex_, com comprimento máximo de 32 bytes e 256 bytes, respectivamente.
 
-A [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction) may define up to _16_ Hook Parameters per installed Hook.
+Uma [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction) pode definir até _16_ Parâmetros de Hook por Hook instalado.
 
-### Setting Parameters
+### Definindo Parâmetros
 
-The `HookParameters` array is optionally defined inside each `Hook` in the `Hooks` array as shown below:
+O array `HookParameters` é opcionalmente definido dentro de cada `Hook` no array `Hooks` conforme mostrado abaixo:
 
 ```json
 TransactionType: "SetHook",
@@ -30,7 +30,7 @@ Hooks:
                         HookParameterValue: "12345678"
                     }   
                 },  
-                ...  // optionally up to 15 more Hook Parameters
+                ...  // opcionalmente até mais 15 Parâmetros de Hook
             ]   
         }   
     }   
@@ -38,20 +38,20 @@ Hooks:
 ... 
 ```
 
-### Default Parameters
+### Parâmetros Padrão
 
-The first user to [set a novel Hook](/pt-br/docs/hooks/concepts/sethook-transaction) may define Hook Parameters which then become the _Default Parameters_ for that Hook. This means any subsequent users who [references the same _HookDefinition_](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) will receive these originally set Hook Parameters by default.
+O primeiro usuário a [definir um novo Hook](/pt-br/docs/hooks/concepts/sethook-transaction) pode definir Parâmetros de Hook que então se tornam os _Parâmetros Padrão_ para aquele Hook. Isso significa que qualquer usuário subsequente que [referenciar a mesma _HookDefinition_](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions) receberá esses Parâmetros de Hook originalmente definidos por padrão.
 
-The subsequent user may specify their own Parameters, overriding the Default Parameters for their installation.
+O usuário subsequente pode especificar seus próprios Parâmetros, substituindo os Parâmetros Padrão para sua instalação.
 
-To erase a Parameter in a subsequent installation, specify the `ParameterName` key without specifying a `ParameterValue` key.
+Para apagar um Parâmetro em uma instalação subsequente, especifique a chave `ParameterName` sem especificar uma chave `ParameterValue`.
 
-### Using Parameters in Hooks
+### Usando Parâmetros em Hooks
 
-Parameters can be read by the Hooks they are set on using [hook_param](/pt-br/docs/hooks/functions/hook-context/hook_param).
+Os parâmetros podem ser lidos pelos Hooks nos quais estão definidos usando [hook_param](/pt-br/docs/hooks/functions/hook-context/hook_param).
 
-If more than one Hook is installed in a Hook Chain, then [hook_param_set](/pt-br/docs/hooks/functions/hook-context/hook_param_set) can be used in limited circumstances to modify the Hook Parameters of a Hook further down the chain on the same account.
+Se mais de um Hook estiver instalado em uma Cadeia de Hooks, então [hook_param_set](/pt-br/docs/hooks/functions/hook-context/hook_param_set) pode ser usado em circunstâncias limitadas para modificar os Parâmetros de Hook de um Hook mais adiante na cadeia na mesma conta.
 
-### Runtime Parameters
+### Parâmetros de Tempo de Execução
 
-On Xahau and the Xahau testnet, HookParameters may also be included at the top level of any transaction type according to the foregoing rules and size limits. These parameters can be accessed inside a hook using the [otxn_param](/pt-br/docs/hooks/functions/originating-transaction/otxn_param) API.
+No Xahau e na testnet Xahau, os HookParameters também podem ser incluídos no nível superior de qualquer tipo de transação de acordo com as regras e limites de tamanho anteriores. Esses parâmetros podem ser acessados dentro de um hook usando a API [otxn_param](/pt-br/docs/hooks/functions/originating-transaction/otxn_param).

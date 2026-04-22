@@ -1,14 +1,14 @@
 ---
-title: Reference Counted Hook Definitions
-description: Avoid re-uploading the same bytecode to the ledger
+title: Definições de Hook com Contagem de Referência
+description: Evite re-enviar o mesmo bytecode ao ledger
 ---
-When a novel Hook's web assembly byte-code is uploaded to Xahau, a significant storage burden is imposed on the network. This storage burden is reflected in the [Hook Fees](/pt-br/docs/hooks/concepts/hook-fees) charged by the network.
+Quando o bytecode de web assembly de um novo Hook é enviado ao Xahau, uma carga significativa de armazenamento é imposta à rede. Essa carga de armazenamento se reflete nas [Taxas de Hook](/pt-br/docs/hooks/concepts/hook-fees) cobradas pela rede.
 
-To avoid this burden (and high fees for end users) reference counting is used:
+Para evitar essa carga (e taxas altas para usuários finais), a contagem de referência é utilizada:
 
-* The first time a novel Hook is installed, the [SetHook Transaction](/pt-br/docs/hooks/concepts/sethook-transaction) must provide a significant fee.
-* The Hook's web assembly byte-code becomes an unowned and reference counted object on the ledger (called a `HookDefinition`).
-* Subsequent installations by the same or other users for an identical Hook (i.e. with identical byte-code) increment the reference count. These installations point at the same object on the ledger. These transactions are billed in a similar way to setting a Trust Line, as the storage burden for the Hook was already paid for in the original Set Hook transaction.
-* While the reference count on the Hook Definition is greater than zero (meaning one or more accounts still have the Hook installed) the object remains on the ledger.
+* Na primeira vez que um novo Hook é instalado, a [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction) deve fornecer uma taxa significativa.
+* O bytecode de web assembly do Hook torna-se um objeto não proprietário com contagem de referência no ledger (chamado de `HookDefinition`).
+* Instalações subsequentes pelo mesmo ou outros usuários para um Hook idêntico (ou seja, com bytecode idêntico) incrementam a contagem de referência. Essas instalações apontam para o mesmo objeto no ledger. Essas transações são cobradas de forma similar à definição de uma Trust Line, pois a carga de armazenamento para o Hook já foi paga na transação Set Hook original.
+* Enquanto a contagem de referência na Definição do Hook for maior que zero (significando que uma ou mais contas ainda têm o Hook instalado), o objeto permanece no ledger.
 
-![Reference Counted Hook Definitions](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)
+![Definições de Hook com Contagem de Referência](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)

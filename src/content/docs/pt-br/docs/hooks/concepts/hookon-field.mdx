@@ -1,44 +1,44 @@
 ---
-title: HookOn Field
-description: Specify which transaction types a Hook should be triggered on
+title: Campo HookOn
+description: Especifique em quais tipos de transação um Hook deve ser acionado
 ---
 import { LinkCard } from '@astrojs/starlight/components';
 
-### Understanding the HookOn field
+### Entendendo o campo HookOn
 
-Each bit in this unsigned 256-bit integer indicates whether the Hook should execute on a particular transaction type. All bits are _active low_ **except** bit 22 which is _active high_. Since 22 is ttHOOK_SET this means the default value of all 0's will not fire on a SetHook transaction but will fire on every other transaction type. This is a deliberate design choice to help people avoid bricking their Xahau account with a misbehaving hook.
+Cada bit nesse inteiro sem sinal de 256 bits indica se o Hook deve ser executado em um tipo de transação específico. Todos os bits são _ativos em baixo_ **exceto** o bit 22, que é _ativo em alto_. Como 22 é ttHOOK_SET, isso significa que o valor padrão de todos os 0s não será disparado em uma transação SetHook, mas será disparado em todos os outros tipos de transação. Esta é uma escolha de design deliberada para ajudar as pessoas a evitar bloquear sua conta Xahau com um hook com mau funcionamento.
 
-Bits are numbered from right to left:
+Os bits são numerados da direita para a esquerda:
 
-* bit 0 - right most, i.e. the least significant bit.
-* bit 63 - the left-most, i.e. the most significant bit.
+* bit 0 - mais à direita, ou seja, o bit menos significativo.
+* bit 63 - mais à esquerda, ou seja, o bit mais significativo.
 
-Examples (assuming a 256-bit unsigned integer type):
+Exemplos (assumindo um tipo inteiro sem sinal de 256 bits):
 
-1. If we want to completely disable the hook:
+1. Se quisermos desativar completamente o hook:
 
 ```c
-~(1ULL << 22) /* every bit is 1 except bit 22 which is 0 */
+~(1ULL << 22) /* todo bit é 1 exceto o bit 22 que é 0 */
 ```
 
-2. If we want to disable the hook on everything except ttPAYMENT:
+2. Se quisermos desativar o hook em tudo exceto ttPAYMENT:
 
 ```c
 ~(1ULL << 22) & ~(1ULL)
 ```
 
-3. If we want to enable the hook on everything except ttHOOK_SET
+3. Se quisermos habilitar o hook em tudo exceto ttHOOK_SET
 
 ```c
 0
 ```
 
-4. If we want to enable hook firing on ttHOOK_SET (dangerous) and every other transaction type:
+4. Se quisermos habilitar o disparo do hook em ttHOOK_SET (perigoso) e em todos os outros tipos de transação:
 
 ```c
 (1ULL << 22)
 ```
 
-### HookOn Calculator
+### Calculadora HookOn
 
-<LinkCard title="HookOn Calculator" href="https://richardah.github.io/xrpl-hookon-calculator/" />
+<LinkCard title="Calculadora HookOn" href="https://richardah.github.io/xrpl-hookon-calculator/" />

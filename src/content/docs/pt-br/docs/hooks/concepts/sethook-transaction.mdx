@@ -1,11 +1,11 @@
 ---
-title: SetHook Transaction
+title: Transação SetHook
 ---
-### SetHook Transaction
+### Transação SetHook
 
-Hook web assembly bytecode is installed onto an Xahau account using the `SetHook` transaction.
+O bytecode webassembly de um Hook é instalado em uma conta Xahau usando a transação `SetHook`.
 
-An example appears below:
+Um exemplo aparece abaixo:
 
 ```js
 { 
@@ -26,76 +26,76 @@ An example appears below:
 }
 ```
 
-The transaction is deceptively simple, but hides significant complexity, described below.
+A transação é enganosamente simples, mas esconde uma complexidade significativa, descrita abaixo.
 
-### Hooks Array
+### Array Hooks
 
-The main body of the SetHook transaction is the hooks array:
+O corpo principal da transação SetHook é o array hooks:
 
 ```js
 {
     Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
     TransactionType: "SetHook",
-    Hooks:                         // This is the Hooks Array
+    Hooks:                         // Este é o Array Hooks
     [            
-          {  Hook: { ... }  },     // HookSet Object (position 0)
+          {  Hook: { ... }  },     // Objeto HookSet (posição 0)
           {  Hook: { ... }  },  
           {  Hook: { ... }  },  
-          {  Hook: { ... }  }.     // HookSet Object (position 3)
+          {  Hook: { ... }  }.     // Objeto HookSet (posição 3)
     ]
 }
 ```
 
-This array _mirrors_ the [Hook Chain](/pt-br/docs/hooks/concepts/chaining) installed on the account:
+Este array _espelha_ a [Cadeia de Hooks](/pt-br/docs/hooks/concepts/chaining) instalada na conta:
 
-* Position 0 in the array _corresponds_ to position 0 in the Hook Chain.
-* Position 3 in the array _corresponds_ to position 3 in the Hook Chain, etc.
+* A posição 0 no array _corresponde_ à posição 0 na Cadeia de Hooks.
+* A posição 3 no array _corresponde_ à posição 3 na Cadeia de Hooks, etc.
 
-### HookSet Object and Corresponding Hook
+### Objeto HookSet e Hook Correspondente
 
-Each entry in the Hooks Array (in the SetHook Transaction) is called a _HookSet Object_, and its corresponding Hook in the account's Hook Chain is called the _Corresponding Hook_.
+Cada entrada no Array Hooks (na Transação SetHook) é chamada de _Objeto HookSet_, e seu Hook correspondente na Cadeia de Hooks da conta é chamado de _Hook Correspondente_.
 
 <figure>
-![Example: A user performs an operation on each Hook in his/her Hook chain with a SetHook transaction.](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_NbV5W3McCRKkL4eJeF6v_cdf692e-sethook.png)
-<figcaption>*Example: A user performs an operation on each Hook in his/her Hook chain with a SetHook transaction.*</figcaption>
+![Exemplo: Um usuário realiza uma operação em cada Hook de sua Cadeia de Hooks com uma transação SetHook.](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_NbV5W3McCRKkL4eJeF6v_cdf692e-sethook.png)
+<figcaption>*Exemplo: Um usuário realiza uma operação em cada Hook de sua Cadeia de Hooks com uma transação SetHook.*</figcaption>
 </figure>
 
 ### HookDefinition
 
-Each Corresponding Hook is an object containing a _reference_ (pointer) to a `HookDefinition` object.
+Cada Hook Correspondente é um objeto contendo uma _referência_ (ponteiro) para um objeto `HookDefinition`.
 
-The HookDefinition object is an unowned reference-counted ledger object that provides for de-duplication of identical web assembly bytecode. Two users using an identical hook will both point to the same HookDefinition.
+O objeto HookDefinition é um objeto de ledger não proprietário com contagem de referência que permite a desduplicação de bytecode webassembly idêntico. Dois usuários usando um hook idêntico apontarão para a mesma HookDefinition.
 
 <figure>
-![Example: Hook Definitions on Xahau](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)
-<figcaption>*Example: Hook Definitions on Xahau*</figcaption>
+![Exemplo: Definições de Hook no Xahau](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)
+<figcaption>*Exemplo: Definições de Hook no Xahau*</figcaption>
 </figure>
 
-For more information see: [Reference Counting](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions)
+Para mais informações veja: [Contagem de Referência](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions)
 
-### Hook Defaults
+### Padrões do Hook
 
-When a `HookDefinition` is created it contains the initial [Parameters](/pt-br/docs/hooks/concepts/parameters), [Namespace](/pt-br/docs/hooks/concepts/namespaces) and [Grants](/pt-br/docs/hooks/concepts/grants) supplied by the user. These become the Hook Defaults. Any Hook referencing this Hook Definition will use these defaults _unless_ the SetHook Transaction that creates that reference explicitly overrides those defaults, or a subsequent Update Operation overrides them.
+Quando uma `HookDefinition` é criada, ela contém os [Parâmetros](/pt-br/docs/hooks/concepts/parameters), [Namespace](/pt-br/docs/hooks/concepts/namespaces) e [Concessões](/pt-br/docs/hooks/concepts/grants) iniciais fornecidos pelo usuário. Estes se tornam os Padrões do Hook. Qualquer Hook que referencie esta Definição de Hook usará esses padrões _a menos que_ a Transação SetHook que cria essa referência substitua explicitamente esses padrões, ou uma Operação de Atualização subsequente os substitua.
 
-### HookSet Operations
+### Operações HookSet
 
-There are six possible operations: No Operation, Create, Update, Delete, Install and Namespace Delete
+Existem seis operações possíveis: Nenhuma Operação, Criar, Atualizar, Excluir, Instalar e Exclusão de Namespace
 
-Each operation is specified by the inclusion or omission of certain HookSet Object fields. This might seem confusing at first but by working through a few examples the reader should find it intuitive; Essentially HookSet operations are a type of **diff** between a specific Hook's _defaults_, _existing_ and newly specified fields.
+Cada operação é especificada pela inclusão ou omissão de determinados campos do Objeto HookSet. Isso pode parecer confuso no início, mas ao trabalhar com alguns exemplos o leitor achará intuitivo; Essencialmente as operações HookSet são um tipo de **diff** entre os _padrões_, _existentes_ e os campos recém-especificados de um Hook específico.
 
-Achieving each type of operation is explained in a subsection below.
+A realização de cada tipo de operação é explicada em uma subseção abaixo.
 
-### No Operation
+### Nenhuma Operação
 
-**Occurs when**:
+**Ocorre quando**:
 
-* The HookSet Object is empty
+* O Objeto HookSet está vazio
 
-**Behaviour**:
+**Comportamento**:
 
-* No change of any kind is made.
+* Nenhuma mudança de qualquer tipo é feita.
 
-**Example**:
+**Exemplo**:
 
 ```json
 { 
@@ -111,26 +111,26 @@ Achieving each type of operation is explained in a subsection below.
 }
 ```
 
-### Create Operation
+### Operação de Criação
 
-**Occurs when**:
+**Ocorre quando**:
 
-_All_ of the following conditions are met:
+_Todas_ as seguintes condições são atendidas:
 
-* The Corresponding Hook does not exist _or_`FLAG_OVERRIDE` is specified.
-* `CreateCode` field is specified and is not blank and contains the valid web assembly bytecode for a valid Hook.
-* No instance of the same web assembly bytecode already exists on Xahau. (If it does and all other requirements are met then interpret as an Install Operation — see below.)
+* O Hook Correspondente não existe _ou_ `FLAG_OVERRIDE` é especificado.
+* O campo `CreateCode` é especificado, não está em branco e contém o bytecode webassembly válido para um Hook válido.
+* Nenhuma instância do mesmo bytecode webassembly já existe no Xahau. (Se existir e todos os outros requisitos forem atendidos, interprete como uma Operação de Instalação — veja abaixo.)
 
-**Behaviour**:
+**Comportamento**:
 
-* A reference counted `HookDefinition` object is created on Xahau containing the fields in the HookSet Object, with all specified fields (Namespace, Parameters, HookOn) becoming defaults (but not Grants.)
-* A `Hooks` array is created on the executing account, if it doesn't already exist. (This is the structure that contains the Corresponding Hooks.)
-* A `Hook` object is created at the Corresponding Hook position if one does not already exist.
-* The `Hook` object points at the `HookDefinition`.
-* The `Hook` object contains no fields except `HookHash` which points at the created `HookDefinition`.
-* If `hsfNSDELETE` flag is specified then any HookState entires in the destination namespace are deleted if they currently exist.
+* Um objeto `HookDefinition` com contagem de referência é criado no Xahau contendo os campos no Objeto HookSet, com todos os campos especificados (Namespace, Parâmetros, HookOn) tornando-se padrões (mas não Concessões).
+* Um array `Hooks` é criado na conta em execução, se ainda não existir. (Esta é a estrutura que contém os Hooks Correspondentes.)
+* Um objeto `Hook` é criado na posição do Hook Correspondente se ainda não existir.
+* O objeto `Hook` aponta para a `HookDefinition`.
+* O objeto `Hook` não contém campos exceto `HookHash` que aponta para a `HookDefinition` criada.
+* Se o flag `hsfNSDELETE` for especificado, quaisquer entradas HookState no namespace de destino serão excluídas se atualmente existirem.
 
-**Example**:
+**Exemplo**:
 
 ```json
 { 
@@ -151,26 +151,26 @@ _All_ of the following conditions are met:
 }
 ```
 
-### Install Operation
+### Operação de Instalação
 
-**Occurs when**:
+**Ocorre quando**:
 
-_All_ of the following conditions are met:
+_Todas_ as seguintes condições são atendidas:
 
-* The Corresponding Hook does not exist _or_`FLAG_OVERRIDE` is specified.
-* `HookHash` field is specified and is not blank and contains the hash of a Hook that already exists as a `HookDefinition` on the ledger _or_ `CreateCode` field is specified and is not blank and contains the valid web assembly bytecode for a valid hook that already exists on the ledger as a `HookDefinition`.
+* O Hook Correspondente não existe _ou_ `FLAG_OVERRIDE` é especificado.
+* O campo `HookHash` é especificado e não está em branco e contém o hash de um Hook que já existe como uma `HookDefinition` no ledger _ou_ o campo `CreateCode` é especificado e não está em branco e contém o bytecode webassembly válido para um hook válido que já existe no ledger como uma `HookDefinition`.
 
-**Behaviour**:
+**Comportamento**:
 
-* The reference count of the `HookDefinition` object is incremented.
-* A `Hooks` array is created on the executing account, if it doesn't already exist. (This is the structure that contains the Corresponding Hooks.)
-* A `Hook` object is created at the Corresponding Hook position if one does not already exist.
-* The `Hook` object points at the `HookDefinition`.
-* The `Hook` object contains all the fields in the HookSet Object, except and unless:
-* A field or key-pair within a field is identical to the Hook Defaults set on the `HookDefinition`, in which case it is omitted due to defaults.
-* If `hsfNSDELETE` flag is specified then any HookState entires in the destination namespace are deleted if they currently exist.
+* A contagem de referência do objeto `HookDefinition` é incrementada.
+* Um array `Hooks` é criado na conta em execução, se ainda não existir. (Esta é a estrutura que contém os Hooks Correspondentes.)
+* Um objeto `Hook` é criado na posição do Hook Correspondente se ainda não existir.
+* O objeto `Hook` aponta para a `HookDefinition`.
+* O objeto `Hook` contém todos os campos no Objeto HookSet, exceto quando:
+* Um campo ou par de chave dentro de um campo é idêntico aos Padrões do Hook definidos na `HookDefinition`, caso em que é omitido devido aos padrões.
+* Se o flag `hsfNSDELETE` for especificado, quaisquer entradas HookState no namespace de destino serão excluídas se atualmente existirem.
 
-**Example**:
+**Exemplo**:
 
 ```json
 { 
@@ -190,38 +190,38 @@ _All_ of the following conditions are met:
 }
 ```
 
-### Update Operation
+### Operação de Atualização
 
-**Occurs when**:
+**Ocorre quando**:
 
-_All_ of the following conditions are met:
+_Todas_ as seguintes condições são atendidas:
 
-* The Corresponding Hook exists.
-* `HookHash` is absent.
-* `CreateCode` is absent.
-* One or more of `HookNamespace`, `HookParameters` or `HookGrants` is present.
+* O Hook Correspondente existe.
+* `HookHash` está ausente.
+* `CreateCode` está ausente.
+* Um ou mais de `HookNamespace`, `HookParameters` ou `HookGrants` está presente.
 
-**General Behaviour**:
+**Comportamento Geral**:
 
-* The Corresponding Hook is updated in such a way that the desired changes are reflected in the Corresponding Hook.
+* O Hook Correspondente é atualizado de forma que as mudanças desejadas sejam refletidas no Hook Correspondente.
 
-**Specific Behaviour**:
+**Comportamento Específico**:
 
-If `HookNamespace` is specified and differs from the Corresponding Hook's Namespace:
+Se `HookNamespace` for especificado e diferir do Namespace do Hook Correspondente:
 
-* the Corresponding Hook's `HookNamespace` is updated, and
-* if the `hsfNSDELETE` flag is specified all HookState entires in the old namespace are deleted.
+* o `HookNamespace` do Hook Correspondente é atualizado, e
+* se o flag `hsfNSDELETE` for especificado, todas as entradas HookState no namespace antigo são excluídas.
 
-If `HookParameters` is specified, then for each entry:
+Se `HookParameters` for especificado, então para cada entrada:
 
-* If `HookParameterName` exists but `HookParameterValue` is absent and the Corresponding Hook's Parameters (either specifically or via defaults) contains this `HookParameterName` then the parameter is marked as deleted on the Corresponding Hook.
-* If `HookParameterName` exists and `HookParameterValue` exists then the Corresponding Hook's Parameters are modified to include the new or updated parameter.
+* Se `HookParameterName` existir mas `HookParameterValue` estiver ausente e os Parâmetros do Hook Correspondente (seja especificamente ou via padrões) contiverem este `HookParameterName`, então o parâmetro é marcado como excluído no Hook Correspondente.
+* Se `HookParameterName` existir e `HookParameterValue` existir, então os Parâmetros do Hook Correspondente são modificados para incluir o parâmetro novo ou atualizado.
 
-If `HookGrants` is specified then:
+Se `HookGrants` for especificado então:
 
-* The Corresponding Hook's `HookGrants` array is replaced with the array.
+* O array `HookGrants` do Hook Correspondente é substituído pelo array.
 
-**Example**:
+**Exemplo**:
 
 ```json
 { 
@@ -239,26 +239,26 @@ If `HookGrants` is specified then:
 }
 ```
 
-### Delete Operation
+### Operação de Exclusão
 
-**Occurs when**:
+**Ocorre quando**:
 
-_All_ of the following conditions are met:
+_Todas_ as seguintes condições são atendidas:
 
-* The Corresponding Hook exists.
-* `hsfOVERRIDE` is specified.
-* optionally `hsfNSDELETE` is also specified.
-* `HookHash` is absent.
-* `CreateCode` is present but empty.
+* O Hook Correspondente existe.
+* `hsfOVERRIDE` é especificado.
+* opcionalmente `hsfNSDELETE` também é especificado.
+* `HookHash` está ausente.
+* `CreateCode` está presente mas vazio.
 
-**Behaviour**:
+**Comportamento**:
 
-* The reference count of the `HookDefinition` object is decremented.
-* If the reference count is now zero the `HookDefintion` is removed from the ledger.
-* The `Hook` object in the Corresponding Hook position is deleted, leaving an empty position.
-* If `hsfNSDELETE` is specified the namespace and all HookState entries are also deleted.
+* A contagem de referência do objeto `HookDefinition` é decrementada.
+* Se a contagem de referência agora for zero, a `HookDefinition` é removida do ledger.
+* O objeto `Hook` na posição do Hook Correspondente é excluído, deixando uma posição vazia.
+* Se `hsfNSDELETE` for especificado, o namespace e todas as entradas HookState também são excluídas.
 
-**Example**:
+**Exemplo**:
 
 ```json
 { 
@@ -277,24 +277,24 @@ _All_ of the following conditions are met:
 }
 ```
 
-### Namespace Reset
+### Redefinição de Namespace
 
-**Occurs when**:
+**Ocorre quando**:
 
-_All_ of the following conditions are met:
+_Todas_ as seguintes condições são atendidas:
 
-* `flags` is present and `hsfNSDELETE` is set. `hsfOVERRIDE` can optionally also be specified if the Hook at this position is to be deleted.
-* `HookNamespace` is specified.
-* `CreateCode` is absent.
-* `HookHash` is absent.
-* `HookGrants`, `HookParameters`, `HookOn` and `HookApiVersion` are absent.
+* `flags` está presente e `hsfNSDELETE` está definido. `hsfOVERRIDE` também pode ser opcionalmente especificado se o Hook nesta posição deve ser excluído.
+* `HookNamespace` é especificado.
+* `CreateCode` está ausente.
+* `HookHash` está ausente.
+* `HookGrants`, `HookParameters`, `HookOn` e `HookApiVersion` estão ausentes.
 
-**Behaviour**:
+**Comportamento**:
 
-* If the Corresponding Hook exists, it remains, nothing happens to it.
-* A subset of HookState objects and the HookState directory for the specified namespace are removed from the ledger, up to the defined limit of 512. Further transactions are needed to continue the deletion process until all relevant records are removed.
+* Se o Hook Correspondente existir, ele permanece, nada acontece com ele.
+* Um subconjunto de objetos HookState e o diretório HookState para o namespace especificado são removidos do ledger, até o limite definido de 512. Transações adicionais são necessárias para continuar o processo de exclusão até que todos os registros relevantes sejam removidos.
 
-**Example**:
+**Exemplo**:
 
 ```json
 { 
