@@ -1,12 +1,11 @@
 ---
 import '../styles/main.css'
 import XahauRoadmap from '../components/XahauRoadmap.astro'
+import roadmapData from '../data/roadmap.json'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-const _frontmatter = {
-  title: 'Roadmap',
-  description: 'Xahau roadmap across the upcoming quarters',
-}
+const { title, description } = roadmapData.pageMeta.en
+const _frontmatter = { title, description }
 ---
 
 <BaseLayout frontmatter={_frontmatter}>

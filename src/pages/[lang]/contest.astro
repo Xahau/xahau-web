@@ -1,0 +1,21 @@
+---
+import '../../styles/main.css'
+import XahauContest from '../../components/XahauContest.astro'
+import { contestTranslations } from '../../i18n/contestTranslations'
+import { type Locale, nonDefaultLocales } from '../../i18n/locales'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+export function getStaticPaths() {
+  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+const t = contestTranslations[lang as Locale]
+const _frontmatter = { title: t.page_title, description: t.page_subtitle }
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="flex-none container mx-auto max-w-7xl p-6 pb-12">
+    <XahauContest />
+  </div>
+</BaseLayout>

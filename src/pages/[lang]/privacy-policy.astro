@@ -1,0 +1,21 @@
+---
+import { getEntry, render } from 'astro:content'
+import { nonDefaultLocales } from '../../i18n/locales'
+import PageLayout from '../../layouts/PageLayout.astro'
+
+export function getStaticPaths() {
+  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+const entry = await getEntry('privacy', lang)
+if (!entry) return Astro.redirect('/privacy-policy')
+
+const { Content } = await render(entry)
+const _frontmatter = {
+  title: entry.data.title,
+  description: entry.data.description,
+}
+---
+
+<PageLayout frontmatter={_frontmatter}> <Content /> </PageLayout>

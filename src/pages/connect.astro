@@ -1,13 +1,11 @@
 ---
 import '../styles/main.css'
 import XahauConnect from '../components/XahauConnect.astro'
+import connectData from '../data/connect.json'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-const _frontmatter = {
-  title: 'Xahau Connect',
-  description:
-    'Professional blockchain events for serious discussion and innovation',
-}
+const { title, description } = connectData.meta.en
+const _frontmatter = { title, description }
 ---
 
 <BaseLayout frontmatter={_frontmatter}>

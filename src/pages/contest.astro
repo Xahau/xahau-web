@@ -1,12 +1,11 @@
 ---
 import '../styles/main.css'
 import XahauContest from '../components/XahauContest.astro'
+import { contestTranslations } from '../i18n/contestTranslations'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-const _frontmatter = {
-  title: 'Xahau Dev Contest',
-  description: 'Ecosystem Rising — Build user-facing services powered by Xahau',
-}
+const { page_title: title, page_subtitle: description } = contestTranslations.en
+const _frontmatter = { title, description }
 ---
 
 <BaseLayout frontmatter={_frontmatter}>

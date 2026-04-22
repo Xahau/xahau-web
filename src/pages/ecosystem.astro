@@ -1,11 +1,12 @@
 ---
 import '../styles/main.css'
 import XahauEcosystem from '../components/XahauEcosystem.astro'
+import ecosystemData from '../data/ecosystem.json'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
 const _frontmatter = {
-  title: 'Ecosystem',
-  description: 'Xahau around the world',
+  title: ecosystemData.title.en,
+  description: ecosystemData.description.en,
 }
 ---
 

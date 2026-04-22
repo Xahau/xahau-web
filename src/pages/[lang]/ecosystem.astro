@@ -1,0 +1,22 @@
+---
+import '../../styles/main.css'
+import XahauEcosystem from '../../components/XahauEcosystem.astro'
+import ecosystemData from '../../data/ecosystem.json'
+import { type Locale, nonDefaultLocales } from '../../i18n/locales'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+export function getStaticPaths() {
+  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+const title = ecosystemData.title[lang as Locale]
+const description = ecosystemData.description[lang as Locale]
+const _frontmatter = { title, description }
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
+    <XahauEcosystem />
+  </div>
+</BaseLayout>

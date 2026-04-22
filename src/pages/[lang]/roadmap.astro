@@ -1,0 +1,21 @@
+---
+import '../../styles/main.css'
+import XahauRoadmap from '../../components/XahauRoadmap.astro'
+import roadmapData from '../../data/roadmap.json'
+import { type Locale, nonDefaultLocales } from '../../i18n/locales'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+export function getStaticPaths() {
+  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+}
+
+const { lang } = Astro.params
+const { title, description } = roadmapData.pageMeta[lang as Locale]
+const _frontmatter = { title, description }
+---
+
+<BaseLayout frontmatter={_frontmatter}>
+  <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
+    <XahauRoadmap lang={lang} theme="light" />
+  </div>
+</BaseLayout>

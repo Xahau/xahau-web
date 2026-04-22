@@ -1,12 +1,11 @@
 ---
 import '../styles/main.css'
 import XahauAbout from '../components/XahauAbout.astro'
+import { aboutTranslations } from '../i18n/aboutTranslations'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-const _frontmatter = {
-  title: 'About Xahau',
-  description: 'Enterprise L1 blockchain with account-based programmability',
-}
+const { page_title: title, page_subtitle: description } = aboutTranslations.en
+const _frontmatter = { title, description }
 ---
 
 <BaseLayout frontmatter={_frontmatter}>

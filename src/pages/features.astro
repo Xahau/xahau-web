@@ -1,12 +1,12 @@
 ---
 import '../styles/main.css'
 import XahauFeatures from '../components/XahauFeatures.astro'
+import { featuresTranslations } from '../i18n/featuresTranslations'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-const _frontmatter = {
-  title: 'Features',
-  description: 'Proven technology with a fresh approach',
-}
+const { page_title: title, page_subtitle: description } =
+  featuresTranslations.en
+const _frontmatter = { title, description }
 ---
 
 <BaseLayout frontmatter={_frontmatter}>

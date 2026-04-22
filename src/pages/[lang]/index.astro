@@ -1,0 +1,10 @@
+---
+import { nonDefaultLocales } from '../../i18n/locales'
+import IndexLayout from '../../layouts/IndexLayout.astro'
+
+export function getStaticPaths() {
+  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+}
+---
+
+<IndexLayout />
