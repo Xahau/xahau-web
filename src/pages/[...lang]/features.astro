@@ -2,15 +2,18 @@
 import '../../styles/main.css'
 import XahauFeatures from '../../components/XahauFeatures.astro'
 import { featuresTranslations } from '../../i18n/featuresTranslations'
-import { type Locale, nonDefaultLocales } from '../../i18n/locales'
+import { defaultLocale, type Locale, locales } from '../../i18n/locales'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
 export function getStaticPaths() {
-  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+  return locales.map((lang) => ({
+    params: { lang: lang === defaultLocale ? undefined : lang },
+  }))
 }
 
 const { lang } = Astro.params
-const t = featuresTranslations[lang as Locale] ?? featuresTranslations.en
+const locale = (lang as Locale) ?? defaultLocale
+const t = featuresTranslations[locale] ?? featuresTranslations.en
 const _frontmatter = { title: t.page_title, description: t.page_subtitle }
 ---
 

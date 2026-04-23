@@ -2,15 +2,18 @@
 import '../../styles/main.css'
 import XahauConnect from '../../components/XahauConnect.astro'
 import connectData from '../../data/connect.json'
-import { type Locale, nonDefaultLocales } from '../../i18n/locales'
+import { defaultLocale, type Locale, locales } from '../../i18n/locales'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
 export function getStaticPaths() {
-  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+  return locales.map((lang) => ({
+    params: { lang: lang === defaultLocale ? undefined : lang },
+  }))
 }
 
 const { lang } = Astro.params
-const { title, description } = connectData.meta[lang as Locale]
+const locale = (lang as Locale) ?? defaultLocale
+const { title, description } = connectData.meta[locale]
 const _frontmatter = { title, description }
 ---
 

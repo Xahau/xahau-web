@@ -2,16 +2,19 @@
 import '../../styles/main.css'
 import XahauEcosystem from '../../components/XahauEcosystem.astro'
 import ecosystemData from '../../data/ecosystem.json'
-import { type Locale, nonDefaultLocales } from '../../i18n/locales'
+import { defaultLocale, type Locale, locales } from '../../i18n/locales'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
 export function getStaticPaths() {
-  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+  return locales.map((lang) => ({
+    params: { lang: lang === defaultLocale ? undefined : lang },
+  }))
 }
 
 const { lang } = Astro.params
-const title = ecosystemData.title[lang as Locale]
-const description = ecosystemData.description[lang as Locale]
+const locale = (lang as Locale) ?? defaultLocale
+const title = ecosystemData.title[locale]
+const description = ecosystemData.description[locale]
 const _frontmatter = { title, description }
 ---
 
