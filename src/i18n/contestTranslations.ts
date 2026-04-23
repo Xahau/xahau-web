@@ -1,5 +1,6 @@
 export const contestTranslations = {
   en: {
+    page_title: 'Xahau Dev Contest',
     page_subtitle:
       'Ecosystem Rising — Build user-facing services powered by Xahau',
     chip1: '2nd Edition',
@@ -135,6 +136,7 @@ export const contestTranslations = {
   },
 
   es: {
+    page_title: 'Xahau Dev Contest',
     page_subtitle:
       'Ecosystem Rising — Construye servicios de usuario powered by Xahau',
     chip1: '2ª Edición',
@@ -272,6 +274,7 @@ export const contestTranslations = {
   },
 
   ja: {
+    page_title: 'Xahau Dev Contest',
     page_subtitle:
       'Ecosystem Rising — Xahauを活用したユーザー向けサービスを構築',
     chip1: '第2回',

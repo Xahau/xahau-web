@@ -14,6 +14,20 @@
       "locales": ["en", "es"]
     }
   },
+  "pageMeta": {
+    "en": {
+      "title": "Roadmap",
+      "description": "Xahau roadmap across the upcoming quarters"
+    },
+    "es": {
+      "title": "Hoja de ruta de Xahau",
+      "description": "Hoja de ruta de Xahau para los próximos trimestres"
+    },
+    "ja": {
+      "title": "ロードマップ",
+      "description": "Xahauの今後の四半期のロードマップ"
+    }
+  },
 
   "labels": {
     "en": {

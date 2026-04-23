@@ -1,4 +1,18 @@
 {
+  "meta": {
+    "en": {
+      "title": "Xahau Connect",
+      "description": "Professional blockchain events for serious discussion and innovation"
+    },
+    "es": {
+      "title": "Xahau Connect",
+      "description": "Eventos profesionales de blockchain para debates serios e innovación"
+    },
+    "ja": {
+      "title": "Xahau Connect",
+      "description": "真剣な議論とイノベーションのためのプロフェッショナルなブロックチェーンイベント"
+    }
+  },
   "events": [
     {
       "id": "non-evm-course-2026-02",
