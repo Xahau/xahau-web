@@ -6,22 +6,35 @@ Reference documentation for working on the Xahau website codebase. See [README.m
 
 ## Editorial Component System
 
-Marketing pages (About, Features, Connect, Contest, Home, Roadmap) use a custom editorial component system — **not** Markdown/MDX. Each page is a self-contained `.astro` component inside `src/components/`.
+Marketing pages (About, Features, Connect, Contest, Home, Roadmap, Ecosystem) use a custom editorial component system — **not** Markdown/MDX. Each page is a self-contained `.astro` component inside `src/components/`, and there is exactly **one component per page** for all locales — locale-specific copy is fetched from translation tables in `src/i18n/`.
 
 ### Component map
 
-| URL | Component(s) |
-| :-- | :----------- |
-| `/` | `IndexLayout.astro` → `XahauHome.astro` |
-| `/about` | `XahauAbout.astro` / `XahauAboutEs.astro` / `XahauAboutJa.astro` |
-| `/features` | `XahauFeatures.astro` / `XahauFeaturesEs.astro` / `XahauFeaturesJa.astro` |
-| `/connect` | `XahauConnect.astro` |
-| `/contest` | `XahauContest.astro` / `XahauContestEs.astro` / `XahauContestJa.astro` |
-| `/roadmap` | `XahauRoadmap.astro` |
-| `/ecosystem` | `XahauEcosystem.astro` |
-| `/fraud-report` | `FraudReportPage.astro` |
+| URL | Component | Source of copy |
+| :-- | :-------- | :------------- |
+| `/` | `XahauHome.astro` | `src/i18n/indexTranslations.ts` + `src/data/home.json` (stat numbers) |
+| `/about` | `XahauAbout.astro` | `src/i18n/aboutTranslations.ts` |
+| `/features` | `XahauFeatures.astro` | `src/i18n/featuresTranslations.ts` |
+| `/contest` | `XahauContest.astro` | `src/i18n/contestTranslations.ts` |
+| `/connect` | `XahauConnect.astro` | `src/data/connect.json` |
+| `/roadmap` | `XahauRoadmap.astro` | `src/data/roadmap.json` |
+| `/ecosystem` | `XahauEcosystem.astro` | `src/data/ecosystem.json` |
+| `/fraud-report` | `FraudReportPage.astro` | `src/i18n/fraudReportTranslations.ts` |
 
-Each component lives in `src/components/` and is imported by a thin page wrapper in `src/pages/` (and `src/pages/es/`, `src/pages/ja/`).
+Each component lives in `src/components/` and is imported by a thin page wrapper in `src/pages/` (and `src/pages/es/`, `src/pages/ja/`). The wrapper sets the page frontmatter; the component reads `Astro.currentLocale` and looks up its strings.
+
+```astro
+---
+import { defaultLocale, type Locale } from '../i18n/locales'
+import { aboutTranslations } from '../i18n/aboutTranslations'
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
+const t = aboutTranslations[locale]
+---
+<h2>{t.page_title}</h2>
+```
+
+Locale identifiers are centralized in `src/i18n/locales.ts` (`locales`, `defaultLocale`, `Locale`). Use this module for any new locale-aware code instead of hard-coding `'en' | 'es' | 'ja'`.
 
 ### Design tokens
 
@@ -68,7 +81,28 @@ Alternate `.pip-grn` (green) and `.pip-teal` (teal) across acts to create visual
 
 ---
 
+## i18n Translation Tables
+
+Hand-crafted editorial pages — **About, Features, Contest, the Home hero/feature copy, and the Fraud Report form** — read all of their copy from per-page translation tables in `src/i18n/`. These tables are flat objects keyed by locale (`en` / `es` / `ja`) with string values for each text slot.
+
+| File | Drives |
+| :--- | :----- |
+| `src/i18n/locales.ts` | `locales`, `defaultLocale`, `Locale` type — single source of truth for locale identifiers |
+| `src/i18n/indexTranslations.ts` | Home page: hero, network section, five feature blurbs, stats heading |
+| `src/i18n/aboutTranslations.ts` | All copy on the About page (page title, chips, three acts) |
+| `src/i18n/featuresTranslations.ts` | All copy on the Features page (chips, three acts: Protocol / Finance / Governance) |
+| `src/i18n/contestTranslations.ts` | All copy on the Contest page |
+| `src/i18n/fraudReportTranslations.ts` | Fraud Report intro, form, privacy, attribution, error messages |
+
+Adding or changing copy means editing one of these files — components do not need to change. Keys are flat (e.g. `proto_h3_line1`, `feat3_desc`) so that a missing translation is a quick visual diff against the English block.
+
+`src/data/about.json` and `src/data/features.json` remain in the tree as historical artefacts. The live About and Features components no longer read from them.
+
+---
+
 ## JSON Data Files
+
+JSON drives list-shaped pages where the content has uniform structure (stats, events, ecosystem entries, roadmap items). Each entry's translatable strings are keyed by locale inline.
 
 ### `src/data/home.json`
 
@@ -95,56 +129,6 @@ Controls the statistics tiles on the home page (`XahauHome.astro`).
 | `col` | number | Column span within the 9-column grid |
 
 **Grid rule:** `col` values for each visual row must sum to **9**. Current layout: row 1 = 5 + 4, row 2 = 3 + 3 + 3.
-
----
-
-### `src/data/about.json`
-
-Drives `XahauAbout.astro` (and ES/JA variants). Top-level structure:
-
-```json
-{
-  "meta": {
-    "videoId": "4pruN6sWJho",
-    "launched": "October 2023",
-    "accounts": "100k+",
-    "settlement": "~4s"
-  },
-  "content": {
-    "en": { "title": "...", "subtitle": "...", "chips": [], "intro": {}, "acts": [] },
-    "es": { ... },
-    "ja": { ... }
-  }
-}
-```
-
-Each locale object contains `title`, `subtitle`, `chips[]`, `intro` (label + paragraphs), and `acts[]` (the three thematic acts: Network, Protocol, Currency), each with headings, paragraphs, and graphic keys mapping to SVGs in `src/assets/enterprise/`.
-
----
-
-### `src/data/features.json`
-
-Drives `XahauFeatures.astro` (and ES/JA variants). The `content` object is keyed by locale. Each locale has `title`, `subtitle`, `chips[]`, and `features[]`:
-
-```json
-{
-  "id": "hooks",
-  "label": "Programmability",
-  "type": "protocol",
-  "graphic": "hooks",
-  "heading": "Hooks: Account-Level Smart Contract Logic",
-  "paragraphs": ["...", "..."]
-}
-```
-
-| Field | Description |
-| :---- | :---------- |
-| `id` | Unique slug (used for anchor links) |
-| `label` | Short label shown in the sidebar nav |
-| `type` | Visual category tag: `"protocol"`, `"finance"`, or `"infrastructure"` |
-| `graphic` | Key mapping to an SVG in `src/assets/enterprise/` |
-| `heading` | Full section heading |
-| `paragraphs` | Array of body paragraph strings |
 
 ---
 
@@ -208,7 +192,51 @@ Valid `status` values: `"done"`, `"in-progress"`, `"planned"`, `"research"`.
 
 ### `src/data/ecosystem.json`
 
-Drives `XahauEcosystem.astro`. Contains the ecosystem project list with logos, categories, and external links. Logo image files go in `src/assets/ecosystem-logos/`.
+Drives `XahauEcosystem.astro`. Contains the ecosystem project list (Enterprises, Wallets, Exchanges, Explorers & Utilities, Projects) with section labels, taglines, logos, and external links. Logo image files go in `src/assets/ecosystem-logos/`.
+
+A top-level `trademark` object provides the localized footer disclaimer:
+
+```json
+"trademark": {
+  "en": "All trademarks and logos are the property of their respective owners.",
+  "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",
+  "ja": "すべての商標およびロゴは、各所有者に帰属します"
+}
+```
+
+---
+
+## Cookie Consent
+
+The site uses [vanilla-cookieconsent](https://cookieconsent.orestbida.com/) to show a GDPR-compliant banner. The component (`src/components/CookieConsent.astro`) is mounted in the base layout. Categories, button labels, and per-locale strings live in `src/CookieConsentConfig.ts` — adding a locale means adding a `translations` block keyed by the locale code in that file.
+
+---
+
+## Plugins, Schemas, Utils
+
+Three small directories support the rest of the codebase:
+
+- **`src/plugins/remarkGlobalReferences.ts`** — Remark plugin used by Astro's MDX pipeline (wired up in `astro.config.mjs` under `markdown.remarkPlugins`). Resolves shared `[label]` reference-link definitions across all docs files.
+- **`src/schemas/roadmap.ts`** — Zod schema validating `src/data/roadmap.json` at build time, plus the exported `RoadmapItem` type used by `XahauRoadmap.astro`.
+- **`src/schemas/dataapi.json`** — OpenAPI schema fed to `starlight-openapi` to generate the Data API reference.
+- **`src/utils/localizedHref.ts`** — Helper for building locale-prefixed internal links (e.g. `/es/about`, `/ja/about`). Use this instead of hand-concatenating locale prefixes.
+
+---
+
+## Pre-commit Hooks
+
+[Lefthook](https://github.com/evilmartians/lefthook) runs the Biome formatter on staged files before each commit. Configuration lives in `lefthook.yml` at the repo root. After cloning:
+
+```bash
+npm install
+npx lefthook install
+```
+
+To run the hooks manually:
+
+```bash
+npx lefthook run pre-commit
+```
 
 ---
 
