@@ -298,7 +298,7 @@ Find the TM disclaimer ternary and add the `pt-BR` case:
 {locale === 'es'
   ? 'Todas las marcas y logotipos son propiedad de sus respectivos dueños.'
   : locale === 'ja'
-  ? 'すべての商標およびロゴは、各所有者の財産です。'
+  ? 'すべての商標およびロゴは、各所有者に帰属します'
   : locale === 'pt-BR'
   ? 'Todas as marcas e logotipos são propriedade de seus respectivos donos.'
   : 'All trademarks and logos are the property of their respective owners.'}
