@@ -2,8 +2,9 @@
 import CookieConsent from '../components/CookieConsent.astro'
 import Footer from '../components/Footer.astro'
 import Header from '../components/Header.jsx'
+import { defaultLocale } from '../i18n/locales'
 
-const _lang = Astro.currentLocale ?? 'en'
+const _lang = Astro.currentLocale ?? defaultLocale
 const _canonicalURL = new URL(Astro.url.pathname, Astro.site)
 const _socialImageURL = new URL('/xahau-logo.png', Astro.site)
 const _title = Astro.props.frontmatter?.title

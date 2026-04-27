@@ -20,6 +20,22 @@ Built with [Astro](https://astro.build), [Tailwind CSS](https://tailwindcss.com)
 
 ---
 
+## Pre-commit Hooks
+
+The project uses [Lefthook](https://github.com/evilmartians/lefthook) to run pre-commit hooks. The hooks are defined in the `.lefthook.yml` file.
+
+To install the hooks, use the following command (npm install is required):
+
+```bash
+npx lefthook install
+```
+
+To run the hooks manually, use the following command:
+
+```bash
+npx lefthook run pre-commit
+```
+
 ## Project Structure
 
 ```

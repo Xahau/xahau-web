@@ -3,13 +3,11 @@ import TableOfContents from '@astrojs/starlight/components/TableOfContents.astro
 ---
 
 {Astro.locals.starlightRoute.toc && (
-    <>
       <div class="right-sidebar-panel sl-hidden lg:sl-block">
         <div class="sl-container">
           <TableOfContents />
         </div>
       </div>
-    </>
   )}
 
 <style>

@@ -1,0 +1,6 @@
+pre-commit:
+  commands:
+    check:
+      name: "Biome check"
+      run: npm run check
+      stage_fixed: true
