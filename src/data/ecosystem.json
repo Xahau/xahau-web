@@ -200,7 +200,7 @@
           "name": "Magnetic",
           "url": "https://xmagnetic.org/?network=xahau",
           "logo": null,
-          "desc": "NFT marketplace on Xahau"
+          "desc": "Xahau DEX Interface"
         },
         {
           "name": "Dallipay",
@@ -224,7 +224,7 @@
           "name": "VPRA",
           "url": "https://vpra.app/",
           "logo": null,
-          "desc": "Verified profile and reputation system"
+          "desc": "Virtual Pets Racing Adventure"
         },
         {
           "name": "Xpert Page",
@@ -242,7 +242,7 @@
           "name": "Evergram",
           "url": "https://evergram.app/",
           "logo": null,
-          "desc": "Messaging with on-chain rewards"
+          "desc": "Decentralised messaging platform"
         },
         {
           "name": "XAMINI",
@@ -260,7 +260,7 @@
           "name": "DinoXAHur",
           "url": "https://xaman.app/detect/xapp:dino.xahur",
           "logo": null,
-          "desc": "Collectible dino game via Xaman xApp"
+          "desc": "Dino game via Xaman xApp"
         },
         {
           "name": "Xaman DEX Trade",
