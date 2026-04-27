@@ -26,7 +26,7 @@ import { getAlternateLocaleHref } from '../utils/localizedHref'
 const languages = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
-  // { code: 'ja', label: '日本語' },
+  { code: 'ja', label: '日本語' },
 ]
 
 const nav = {

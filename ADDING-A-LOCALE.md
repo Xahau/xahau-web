@@ -75,12 +75,6 @@ Copy the structure below and fill in the translations (English originals shown a
   feat_more: '', // 'Discover more features'
   stats_title: '', // 'Network statistics'
   stats_subtitle: '', // 'Xahau in numbers'
-  stats_accounts: '', // 'Accounts'
-  stats_hooks: '', // 'Hooks installed'
-  stats_nodes: '', // 'Nodes'
-  stats_txs: '', // 'Transactions/24h'
-  stats_ledgers: '', // 'Ledgers closed'
-  stats_node_cta: '', // 'Want to run a node?'
 },
 ```
 
