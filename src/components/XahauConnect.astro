@@ -174,8 +174,8 @@ const t = ui[locale]
                 </div>
               )}
               {ev.registration && (
-                <a href={ev.registration.url} target="_blank" rel="noopener noreferrer" class="xc-cta-btn btn-teal">
-                  {regLabel} →
+                <a href={ev.registration.url} target="_blank" rel="noopener noreferrer" class="xc-cta-link link-teal">
+                  {regLabel} ↗
                 </a>
               )}
             </article>
@@ -584,6 +584,13 @@ const t = ui[locale]
     transition:
       border-color 0.15s,
       color 0.15s;
+  }
+  .link-teal {
+    color: var(--teal2);
+  }
+  .link-teal:hover {
+    color: #004d60;
+    border-color: #004d60;
   }
   .link-amb {
     color: var(--amb2);
