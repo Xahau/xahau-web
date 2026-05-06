@@ -3,9 +3,9 @@ title: Offer
 ---
 [\[出典\]](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L57)
 
-`Offer` レジャーエントリは、Xahauの分散型取引所で通貨を交換するためのOfferを表します。（金融の文脈では、これはより一般的に_order_と呼ばれます。）`OfferCreate` トランザクションは、レジャー内にある他のOfferを消費してもそのOfferを直ちに完全実行できない場合にのみ、レジャーに `Offer` エントリを作成します。
+`Offer` レジャーエントリは、Xahauの分散型取引所で通貨を交換するためのOfferを表します。（金融の文脈では、これはより一般的に _order_ と呼ばれます。）`OfferCreate` トランザクションは、レジャー内にある他のOfferを消費してもそのOfferを直ちに完全実行できない場合にのみ、レジャーに `Offer` エントリを作成します。
 
-Offerは、レジャーに残ったままネットワーク内の別の活動によってunfundedになることがあります。トランザクションの処理中、ネットワークはそれらのトランザクションが見つけたunfunded Offerを自動的にpruneします。（そうでなければ、レジャーの状態を変更できるのは_トランザクション_だけなので、unfunded Offerは残り続けます。）
+Offerは、レジャーに残ったままネットワーク内の別の活動によってunfundedになることがあります。トランザクションの処理中、ネットワークはそれらのトランザクションが見つけたunfunded Offerを自動的にpruneします。（そうでなければ、レジャーの状態を変更できるのは _トランザクション_ だけなので、unfunded Offerは残り続けます。）
 
 ### JSON例
 

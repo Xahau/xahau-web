@@ -31,7 +31,7 @@ Hooksは[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transa
 
 ### チェーンの操作
 
-[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)で指定される_インストール時_の操作に加えて、Hooksはチェーン実行に対していくつかのランタイム制御を持ちます。
+[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)で指定される _インストール時_ の操作に加えて、Hooksはチェーン実行に対していくつかのランタイム制御を持ちます。
 
 * Hookは[hook_hash](/ja/docs/hooks/functions/hook-context/hook_hash)を呼び出して、自身の`HookHash`を判定できます。
 * Hookは[hook_pos](/ja/docs/hooks/functions/hook-context/hook_pos)を使用して、Hookチェーン内の自身の位置を判定できます。
@@ -44,4 +44,4 @@ Hookチェーンは[Strong実行](/ja/docs/hooks/concepts/weak-and-strong)され
 
 1. これが発行トランザクションだった場合の`cbak`実行。
 2. [Collect Call](/ja/docs/hooks/concepts/collect-call)を許可するようオプトインしたWeak Transactional Stake Holders。実行順序は、TSHがフラグ付けされる原因となったイベント（pathingなど）に従って先着順です。
-3. 任意の_Again as Weak_（AAW）Hooks。AAWの実行順序は、まずアカウントIDの数値順、次にHook位置の数値順です。
+3. 任意の _Again as Weak_ （AAW）Hooks。AAWの実行順序は、まずアカウントIDの数値順、次にHook位置の数値順です。

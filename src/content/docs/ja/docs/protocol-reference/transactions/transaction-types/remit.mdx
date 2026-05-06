@@ -51,9 +51,9 @@ _(\[Remit amendment]\[]により追加。)_
 | `Account`        | String    | AccountID           | アカウントを有効化し、paymentを送信し、URITokenをミント/転送するアカウントのアドレス。                         |
 | `Destination`    | String    | AccountID           | paymentおよび/またはURITokenを受け取るアカウントの固有アドレス。                                            |
 | `DestinationTag` | Number    | UInt32              | _(任意)_ 共有カストディアカウントへの入金に使うDestinationTag。                                               |
-| `MintURIToken`   | Object    | STObject            | _(任意)_ `Destination` にミントしたいURITokenの詳細を含む `MintURIToken` STObject。                           |
-| `URITokenIDs`    | Array     | STArray             | _(任意)_ `Destination` に転送するURITokenIDs（256-bit hash）の配列。_Limit 32._                               |
-| `Amounts`        | Array     | STArray             | _(任意)_ `Destination` に送信したい `AmountEntry` STObjectの配列。_Limit 32._                                 |
+| `MintURIToken`   | Object    | STObject            | _(任意)_ `Destination`にミントしたいURITokenの詳細を含む`MintURIToken`STObject。                           |
+| `URITokenIDs`    | Array     | STArray             | _(任意)_ `Destination`に転送するURITokenIDs（256-bit hash）の配列。 _Limit 32._                               |
+| `Amounts`        | Array     | STArray             | _(任意)_ `Destination`に送信したい`AmountEntry`STObjectの配列。 _Limit 32._                                 |
 | `Inform`         | String    | AccountID           | _(任意)_ hookをインストールでき、Remitが発生したときに通知を受け取れるアカウントの固有アドレス。          |
 | `Blob`           | String    | Blob                | _(任意)_ Hooksで使うためにtxに追加できる任意のhexadecimal値。                                             |
 | `InvoiceID`      | String    | Hash256             | _(任意)_ このremitの特定の理由または識別子を表す任意の256-bit hash。                                        |
@@ -62,7 +62,7 @@ _(\[Remit amendment]\[]により追加。)_
 
 | フィールド    | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                            |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------- |
-| `Amount` | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | アカウントが `Destination` に送信したい通貨の金額。                     |
+| `Amount` | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | アカウントが`Destination`に送信したい通貨の金額。                     |
 
 ### MintURITokenフィールド
 
@@ -78,7 +78,7 @@ _(\[Remit amendment]\[]により追加。)_
 
 | フラグ名    | Hex値    | 10進値 | 説明                                                                                     |
 | ------------ | ------------ | ------------- | ----------------------------------------------------------------------------------------------- |
-| `tfBurnable` | `0x00000001` | 1             | issuerがミントされた `URIToken` を破棄できるようにします。（`URIToken` のownerは_常に_破棄できます。） |
+| `tfBurnable` | `0x00000001` | 1             | issuerがミントされた`URIToken`を破棄できるようにします。（`URIToken`のownerは _常に_ 破棄できます。） |
 
 ### 特別なトランザクションコスト
 
@@ -99,17 +99,17 @@ Remitトランザクションには標準のトランザクションコストが
 
 | エラーコード                     | 説明                                                                                                                                        |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `temINVALID_FLAG`              | `tfFullyCanonicalSig` に固有のフラグが設定されている場合に発生します。                                                                              |
-| `temREDUNDANT`                 | `Account` が `Destination` と同じ場合に発生します。                                                                                               |
-| `temMALFORMED (Inform & Blob)` | `sfInform` がsourceまたはdestinationと同じ、またはBlobが128kibを超える場合に発生します。                                                 |
-| `temMALFORMED (AmountEntry)`   | `AmountEntry` の数が32を超える、期待される `AmountEntry` がない、native currencyが複数回現れる、issued currencyが複数回現れる場合に発生します。 |
+| `temINVALID_FLAG`              | `tfFullyCanonicalSig`に固有のフラグが設定されている場合に発生します。                                                                              |
+| `temREDUNDANT`                 | `Account`が `Destination`と同じ場合に発生します。                                                                                               |
+| `temMALFORMED (Inform & Blob)` | `sfInform`がsourceまたはdestinationと同じ、またはBlobが128kibを超える場合に発生します。                                                 |
+| `temMALFORMED (AmountEntry)`   | `AmountEntry` の数が32を超える、期待される`AmountEntry`がない、native currencyが複数回現れる、issued currencyが複数回現れる場合に発生します。 |
 | `temMALFORMED (MintURIToken)`  | `sfMintURIToken` に無効なフィールドが含まれる、URIが指定されていない、URIが長すぎる/短すぎる、MintURIToken内に無効なUTF8がある場合に発生します。 |
 | `temMALFORMED (URITokenIDs)`   | URITokenIDsが短すぎる/長すぎる、またはURITokenIDが重複している場合に発生します。                                                                 |
 | `temBAD_AMOUNT`                | AmountEntry内のAmountが無効な場合に発生します。                                                                                                 |
 | `terNO_ACCOUNT`                | source accountが存在しない場合に発生します。                                                                                                       |
 | `tecNO_TARGET`                 | `sfInform` フィールドが存在するのにアカウントが存在しない場合に発生します。                                                                      |
-| `tecNO_PERMISSION`             | `disallowIncomingRemit` が `Destination` で有効な場合に発生します。                                                                               |
-| `tecNO_PERMISSION`             | `Destination` で `DepositAuthorization` が有効な場合に発生します。                                                                                |
+| `tecNO_PERMISSION`             | `disallowIncomingRemit`が`Destination`で有効な場合に発生します。                                                                               |
+| `tecNO_PERMISSION`             | `Destination`で`DepositAuthorization`が有効な場合に発生します。                                                                                |
 | `tecDST_TAG_NEEDED`            | destination accountがdestination tagを必要としているのに、トランザクションに含まれていない場合に発生します。                                  |
 | `tecDUPLICATE`                 | そのissuerのMintURIToken URIがすでに存在する場合に発生します。                                                                                 |
 | `tecDIR_FULL`                  | sourceまたはdestination accountのdirectoryがいっぱいの場合に発生します。                                                                   |

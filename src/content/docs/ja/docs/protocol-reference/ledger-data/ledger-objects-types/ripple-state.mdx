@@ -104,7 +104,7 @@ RippleStateオブジェクトには次のフラグ値を指定できます。
 
 **`lsfLowAuth`** と **`lsfHighAuth`** フラグは無効化できないため、デフォルト状態の判定には含まれません。
 
-2つのNo Rippleフラグのデフォルト状態は、それぞれに対応するAccountRootオブジェクトにある `lsfDefaultRipple` フラグの状態によって決まります。Default Rippleが無効（デフォルト）の場合、`lsfNoRipple` フラグのデフォルト状態は、そのアカウントのすべてのトラストラインで_有効_です。アカウントがDefault Rippleを有効にすると、そのアカウントのトラストラインにおける `lsfNoRipple` フラグのデフォルト状態は_無効_（つまりripplingが有効）になります。
+2つのNo Rippleフラグのデフォルト状態は、それぞれに対応するAccountRootオブジェクトにある `lsfDefaultRipple` フラグの状態によって決まります。Default Rippleが無効（デフォルト）の場合、`lsfNoRipple` フラグのデフォルト状態は、そのアカウントのすべてのトラストラインで _有効_ です。アカウントがDefault Rippleを有効にすると、そのアカウントのトラストラインにおける `lsfNoRipple` フラグのデフォルト状態は _無効_ （つまりripplingが有効）になります。
 
 **注:** `rippled` バージョン0.27.3（2015年3月10日）でDefault Rippleフラグが導入される前は、すべてのトラストラインのデフォルト状態では両方のNo Rippleフラグが無効（ripplingが有効）でした。
 

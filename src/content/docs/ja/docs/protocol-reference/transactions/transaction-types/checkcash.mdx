@@ -25,7 +25,7 @@ _(\[Checks amendment]\[]により追加。)_
 | `Amount`     | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(任意)_ 可能であれば、この金額ちょうどでCheckを償還します。通貨は、対応するCheckCreateトランザクションの `SendMax` と一致していなければなりません。このフィールドか `DeliverMin` のどちらかを指定する必要があります。 |
 | `DeliverMin` | \[Currency Amount]\[]                                                                                                              | Amount              | _(任意)_ この金額以上を、可能な限り多く償還します。通貨は、対応するCheckCreateトランザクションの `SendMax` と一致していなければなりません。このフィールドか `Amount` のどちらかを指定する必要があります。                   |
 
-トランザクションには `Amount` または `DeliverMin` のどちらかを_**必ず**_含める必要があります。両方は指定できません。
+トランザクションには `Amount` または `DeliverMin` のどちらかを _**必ず**_ 含める必要があります。両方は指定できません。
 
 ### エラーケース
 
