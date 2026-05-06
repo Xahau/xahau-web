@@ -1,0 +1,70 @@
+---
+title: 残高調整
+description: Xahauで残高調整を請求する方法
+---
+### オプトイン + 請求
+
+残高調整へのオプトインは、調整の請求と同じトランザクションです。後で請求できるようにするには、最初にこれを実行する必要があります。
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}    
+```
+
+### オプトアウト
+
+残高調整をオプトアウトするには、Issuerフィールドを省略し、Flagsを1に設定します。これを行うと、平均残高統計が削除されます。これらは復元されません。再度オプトインした場合、開始位置にリセットされます。
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "NetworkID": 21337,
+    "Flags": 1
+} 
+```
+
+### 技術的な詳細
+
+残高調整は、2つのコードの組み合わせとして実装されています。
+
+1. BalanceRewards Amendment (ネイティブコード)
+2. Genesis AccountのReward Hook (Hookコード)。
+
+BalanceRewardsは、有効化されたアカウントに関する平均残高統計を収集します。これらの統計は、ユーザーが請求したいときに対象のHookへ渡されます。
+
+このAmendmentとのすべてのやり取りは、ClaimRewardトランザクションを介して行われます。
+
+```json
+{
+    "Account": "<rAddr...>",
+    "TransactionType": "ClaimReward",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "NetworkID": 21337
+}    
+```
+
+ClaimRewardトランザクションが**tesSUCCESS**エラーコードで正常に送信されると、アカウントの平均残高統計がリセットされます。このAmendmentが行う他の唯一のことは、指定されたIssuerのアカウント上のHooksを起動することです。
+
+_Issuer_ フィールドは、請求を履行する責任を持つアカウントです。Issuerアカウントにインストールされている内容に応じて、いくつかのことが起こり得ます。
+
+* IssuerのアカウントにHookがインストールされていない場合、何も行われず、BalanceRewards統計が単にリセットされます。
+* IssuerのアカウントにHookがインストールされており、そのHookがロールバックを実行した場合、トランザクションは失敗し、統計はリセット_されません_。
+* IssuerのアカウントにHookがインストールされており、そのHookがacceptを実行した場合、トランザクションは成功し、統計はリセットされます。この場合、Hookはユーザーのアカウントへ報酬を含むトランザクションも発行する必要があります。
+
+実際には、Xahau上ではIssuerはほぼ常にジェネシスアカウント **rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh** になるでしょう。
+
+例外は次の場合です。
+
+* ネットワークガバナンスにより、BalanceAdjustmentsに別のアカウントが使用されることになった場合。
+* ガバナンス以外の当事者が独自のBalanceRewards配布を実行しており、ユーザーがそれに参加したい場合。請求が成功すると平均残高統計がリセットされるため、リセットごとに請求できる報酬タイプは1つだけである点に注意してください。
+
+平均残高統計は、AccountRootオブジェクト上の3つの新しいフィールドの集合として存在します。これらは次のとおりです。
+
+<table><thead><tr><th width="240">フィールド</th><th width="95.33333333333331">タイプ</th><th>説明</th></tr></thead><tbody><tr><td><code>sfRewardAccumulator</code></td><td>UINT64</td><td>直近のClaimRewardトランザクション以降の、アカウントの残高時間グラフの面積。</td></tr><tr><td><code>sfRewardLgrFirst</code></td><td>UINT32</td><td>直近のClaimRewardトランザクションのレジャー番号。</td></tr><tr><td><code>sfRewardLgrLast</code></td><td>UINT32</td><td>アカウントへの入出金に関する直近トランザクションのレジャーシーケンス番号。</td></tr><tr><td><code>sfRewardTime</code></td><td>UINT32</td><td>直近の報酬が請求されたレジャー時刻。</td></tr></tbody></table>
+
+

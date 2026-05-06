@@ -1,0 +1,110 @@
+---
+title: emit
+description: Hookから新しいトランザクションを発行します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/ja/docs/hooks/concepts/emitted-transactions">発行トランザクション</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` からトランザクションを読み取る
+* トランザクションを発行ルールに照らして検証する
+* 有効な場合、トランザクションをコンセンサスに発行する
+* 正規のトランザクションハッシュを `write_ptr` に書き込む
+</TabItem>
+
+<TabItem label="JavaScript">
+* この関数は、指定されたトランザクションJSONを発行します。
+* 成功すると、発行されたトランザクションハッシュの数を返します。&#x20;
+* エラーがある場合は、エラーコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t emit (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function emit(
+    txJson: Record<string, any> | Transaction
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+if (emit(tx, tx_len) < 0)
+    rollback("Failed to emit!", 15, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const emitResult = emit(txJson)
+if(typeof emitResult === 'number')
+    rollback("Failed to emit!", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>名前</th><th width="124">型</th><th>説明</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>トランザクションハッシュを書き込むバッファへのポインター</td></tr><tr><td>write_len</td><td>uint32_t</td><td>トランザクションハッシュを書き込むバッファのサイズ（32である必要があります）</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>発行するトランザクションへのポインター</td></tr><tr><td>read_len</td><td>uint32_t</td><td>トランザクションの長さ</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th>名前</th><th width="124">型</th><th>説明</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>発行するTX JSON。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="127">型</th><th>説明</th></tr></thead><tbody><tr><td>int64_t</td><td>成功すると、書き込まれたトランザクションハッシュのバイト数（32）を返します。<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-ポインター/長さがHookメモリの範囲外に指定されています。<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- <code>emit_reserve</code> を先に呼び出す必要があります。<br /><br /><code>TOO_MANY_EMITTED_TXN</code><br />-発行されたトランザクション数が、以前に <code>emit_reserve</code> を呼び出したときの約束より多くなっています。<br /><br /><code>EMISSION_FAILURE</code><br />-トランザクションが発行ルールに従って不正でした。</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="231">型</th><th>説明</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>エラーがある場合はErrorCodeを返し、成功すると発行されたトランザクションハッシュの配列を返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

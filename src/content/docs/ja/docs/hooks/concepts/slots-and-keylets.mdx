@@ -1,0 +1,61 @@
+---
+title: SlotsとKeylets
+description: レジャー上のオブジェクトを検査し操作する。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 背景
+
+Xahauには、Hookが読み取りアクセスできる多数の異種オブジェクトタイプが含まれています。たとえば、_トランザクション_、_アカウント_、_レジャー_、そしてそれぞれのサブコンポーネントなどです。
+
+同じ基礎データに規律ある形でアクセスする（つまりビューを通じてアクセスする）だけで十分な場面でも、注意せずにプログラムを書くと、多くの不要なコピー操作をコンピューターに行わせてしまいがちです。プログラミングにおいてコピー操作を意図的に避けることは、[Zero copy](https://en.wikipedia.org/wiki/Zero-copy)と呼ばれます。
+
+Hooksにも同じ原則が当てはまります。可能な限りコピーを避けたいのです。特に、レジャー全体のような大きなオブジェクトを不要にコピーすることをできるだけ避けたいですし、可能であればそれらのシリアライズとデシリアライズも避けたいです。
+
+### Slotsとは？
+
+SlotsはHook APIの一部であり、レジャー上のオブジェクトとトランザクションに対するゼロコピーの _異種_ アクセスシステムを提供します。
+
+* 各Hookはランタイム中に255個のSlotsにアクセスできます。
+* 各Slotは空であるか、_Slotに入れられた_オブジェクトを含むことができます。
+* slot APIは内部オブジェクトへの走査を可能にし、それらの内部オブジェクト自体もSlotに入れられるようにします。
+* slot APIは、Slotに入れられたオブジェクトをバッファへダンプしたり、Hookが別の方法で読み取ったりできるようにします。
+
+利用可能なslot APIは次のとおりです。
+
+| Hook API                                                             | 機能                                                                           |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [slot](/ja/docs/hooks/functions/slot/slot)                    | Slotに入れられたオブジェクトをシリアライズして出力します                                                  |
+| [slot_clear](/ja/docs/hooks/functions/slot/slot_clear)       | 現在使用中のSlotを解放します                                                      |
+| [slot_count](/ja/docs/hooks/functions/slot/slot_count)       | Slot内の配列オブジェクトの要素数を数えます                                        |
+| [slot_set](/ja/docs/hooks/functions/slot/slot_set)           | Keyletに基づいてオブジェクトを見つけ、Slotに配置します                          |
+| [slot_subarray](/ja/docs/hooks/functions/slot/slot_subarray) | Slot内の配列にインデックスし、サブオブジェクトを別のSlotに割り当てます                     |
+| [slot_subfield](/ja/docs/hooks/functions/slot/slot_subfield) | Slot内のオブジェクトにインデックスし、サブオブジェクトを別のSlotに割り当てます                    |
+| [slot_type](/ja/docs/hooks/functions/slot/slot_type)         | Slot内のオブジェクトのフィールドコードと、任意で他の情報を取得します |
+| [slot_float](/ja/docs/hooks/functions/slot/slot_float)       | 指定されたSlot内のSTI_AMOUNTを解析し、XFLの囲い込み数として返します    |
+| [slot_size](/ja/docs/hooks/functions/slot/slot_size)         | Slot内のオブジェクトのシリアライズ後サイズを計算します                                     |
+
+### Keyletsとは？
+
+Keyletsは、レジャー上のオブジェクトを見つける（指す）ために使用されます。簡潔に言うと、Keyletはオブジェクトの識別情報の_ハッシュ_であり、そのオブジェクトの正規の_ハンドル_です。
+
+Hooksは、重要な[util_keylet](/ja/docs/hooks/functions/utilities/util_keylet)関数を使用して導出できる、シリアライズされた34バイトのKeylet形式を使用します。これがなければ、一般にオブジェクトを検索してSlotに入れることは不可能です。
+
+<Aside type="tip">
+  34バイトのKeyletを受け取るHook APIは、通常32バイトの正規トランザクションハッシュも受け取ります。
+</Aside>
+
+### 例
+
+次の例では、`signers`オブジェクトの34バイトKeyletを使用して、そのオブジェクトをSlotに入れます。
+
+```c
+uint8_t keylet[34];
+if (util_keylet(SBUF(keylet), KEYLET_SIGNERS, SBUF(hook_accid), 0, 0, 0, 0) != 34)
+    rollback(SBUF("Notary: Internal error, could not generate keylet"), 10);
+
+// then requesting XRPLD slot that keylet into a new slot for us
+int64_t slot_no = slot_set(SBUF(keylet), 0);
+if (slot_no < 0)
+   rollback(SBUF("Notary: Could not set keylet in slot"), 10);
+```

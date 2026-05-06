@@ -1,0 +1,106 @@
+---
+title: state
+description: >-
+  Hook状態キーが指すデータを取得して出力バッファに書き込む
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `kread_ptr` から32バイトのHook状態キーを読み取る
+* そのキーにあるデータ（値）を `write_ptr` が指すバッファに書き込む
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定したキーに関連付けられたHook状態の値を取得する。
+* エラーコード、またはそのキーのHook状態の値を返す。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state(key: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+if (state(SBUF(vault), SBUF(vault_key)) != 16)
+    rollback(SBUF("Error: could not read state!"), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const value = state(SBUF(vault), SBUF(vault_key))
+if (typeof value === 'number' || value.length != 16)
+    rollback("Error: could not read state!", 1);
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前       | 型        | 説明                                                             |
+| ---------- | --------- | ---------------------------------------------------------------- |
+| write_ptr | uint32_t | Hook状態のデータを書き込むバッファへのポインター。              |
+| write_len | uint32_t | 書き込みバッファの長さ。                                          |
+| kread_ptr | uint32_t | Hook状態キーを含むバッファへのポインター。                        |
+| kread_len | uint32_t | Hook状態キーの長さ。（32である必要があります。）                 |
+
+<Aside type="tip">
+必ず戻り値を確認してください。状態の検索はさまざまな理由で失敗する可能性があり、その場合バッファには呼び出し前の内容がそのまま残ります（通常はすべて0です）。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前 | 型                     | 説明                                                         |
+| ---- | ---------------------- | ------------------------------------------------------------ |
+| key  | ByteArray or HexString | 値を取得するHook状態のキー。                         |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込みバッファに書き込まれたバイト数。<br /><br />負の値の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />-指定されたポインター／長さがHookメモリの外にあります。<br /><br /><code>DOESNT_EXIST</code><br />-指定したHook状態キーに、呼び出し時点のレジャー上で関連付けられた値がありません。<br /><br /><code>TOO_BIG</code><br />- <code>read_ptr</code> と <code>read_len</code> で指定したキーが32バイトを超えています。<br /><br /><code>TOO_SMALL</code><br />-出力バッファがHook状態データを格納するには小さすぎます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                     | 説明                                                      |
+| ---------------------- | ---------------------------------------------------------- |
+| ByteArray or ErrorCode | エラーコード、またはそのキーのHook状態の値を返します。   |
+</TabItem>
+</Tabs>

@@ -1,0 +1,64 @@
+---
+title: Hook手数料
+description: Hookが実行されるときに何が起こるか。
+---
+### Hook作成手数料
+
+SetHookトランザクションでは、作成されるWebAssemblyのバイトごとに課金されます。レートは1バイトあたり500 dropsです。したがって、1kibのHookを作成するには0.5 XAHかかります。
+
+### Hook実行手数料
+
+Hooksが[Strong実行](/ja/docs/hooks/concepts/weak-and-strong)される場合、発信トランザクションはそのStrong実行の費用を発信トランザクションの手数料で支払わなければなりません。
+
+Hook実行手数料は、関数`hook`（コールバックの場合は`cbak`）の最悪ケース実行におけるWebAssembly命令1つあたり1 dropのレートで課金されます。したがって、多くのループを含む小さなHookでも、高いランタイム手数料が発生する場合があります。
+
+### Fee RPCヘルパー
+
+Hooks Amendmentが有効なレジャーでのトランザクション手数料は、エンドユーザーやウォレットアプリケーションにとって計算が簡単ではありません。これは、Strong Hooksの費用をトランザクションの発信者が支払う必要があり、送信元アカウントに最大4つ、受信アカウントに最大4つのStrong Hooksが存在する可能性があり、さらに関係する他のStrong Transactional Stakeholders（いくつかの特殊なトランザクションタイプではそうなる場合があります）も存在し得るためです。さらに、トランザクションがSetHookである場合、パラメーターのサイズ、コードのサイズ、そして_create_操作か_install_操作かによって手数料のサイズが決まります。
+
+したがって、**すべての**トランザクションはレジャーに送信する前に、更新されたfee RPC呼び出しに通すことを強く推奨します。
+
+RPC呼び出しを実行するには:
+
+1. 作業対象となるHooksノードへのWebSocket接続を開きます。
+2. 手数料を知りたいシリアライズ済みトランザクションを、以下の内容で構成します。
+
+* `Fee: "0"`
+* `SigningPubKey: ""`（つまり:タイプ0x73の0バイトVL。hexでは`0x7300`。）
+* トランザクションに署名**しない**でください。
+
+3. 次のようにhex BlobとしてRPCに送信します。
+
+```json
+{"command":"fee", "tx_blob":"<hex blob>"}
+```
+
+HTTP POST RPCでは次のように送信します。
+
+```json
+{"method":"fee", "params": [{"tx_blob":"<hex blob>"}] }
+```
+
+レスポンスは次のようになります。
+
+```json
+{
+  "result": {
+    "drops": {
+      "base_fee": "130520",
+    },
+  //...
+  },
+  "type": "response"
+}
+```
+
+base feeを取得し、トランザクションの`Fee`フィールドに設定します。その後、通常のトランザクション送信プロセスに従って署名し、送信します。
+
+`tx_blob`に無効な値がある場合、または`tx_blob`がない場合、通常のJSON結果が返され、`base_fee`は10になります。
+
+### 発行手数料
+
+Hooksは _Fee RPCヘルパー_ と同じ計算にアクセスできます。これを使用するには、シリアライズ済みトランザクションを含むバッファを引数として[etxn_fee_base](/ja/docs/hooks/functions/emitted-transaction/etxn_fee_base)を呼び出すだけです。RPC呼び出しと同様に、シリアライズ済みトランザクションに`Fee`フィールドが存在することを確認する必要があります。値は関係ありません。
+
+`etxn_fee_base`が推奨手数料を返したら、発行前に[sto_emplace](/ja/docs/hooks/functions/serialization/sto_emplace)を使用して、それをシリアライズ済みトランザクションにemplaceできます。関連するフィールドは`sfFee`です。

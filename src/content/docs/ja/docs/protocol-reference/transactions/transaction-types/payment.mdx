@@ -1,0 +1,111 @@
+---
+title: Payment
+description: >-
+  Paymentトランザクションは、あるアカウントから別のアカウントへの価値の移転を表します。（経路によっては、追加の価値交換が原子的に発生することがあります。）このトランザクションはXahauで価値を移転する基本的な方法です。
+---
+[\[ソース\]](https://github.com/ripple/rippled/blob/5425a90f160711e46b2c1f1c93d68e5941e4bfb6/src/ripple/app/transactors/Payment.cpp)
+
+### 例
+
+```json
+{
+  "TransactionType" : "Payment",
+  "Account" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Destination" : "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+  "Amount" : {
+     "currency" : "USD",
+     "value" : "1",
+     "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+  },
+  "Fee": "12",
+  "Flags": 2147483648,
+  "Sequence": 2,
+}
+```
+
+| フィールド            | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Amount`         | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | 送信する通貨の金額。XAH以外の金額では、ネストされたフィールド名は必ず小文字にする必要があります。`tfPartialPayment` フラグが設定されている場合は、この金額_まで_を届けます。                                                                                                                                                                                                                                                               |
+| `Destination`    | String                                                                                                                             | AccountID           | 支払いを受け取るアカウントの固有アドレス。                                                                                                                                                                                                                                                                                                                                                                                         |
+| `DestinationTag` | Number                                                                                                                             | UInt32              | _(任意)_ 支払いの理由を宛先に伝える任意のタグ、または支払い先のホスト型受取人。                                                                                                                                                                                                                                                                                                                          |
+| `InvoiceID`      | String                                                                                                                             | Hash256             | _(任意)_ この支払いの特定の理由または識別子を表す任意の256-bit hash。                                                                                                                                                                                                                                                                                                                                               |
+| `Paths`          | Array of path arrays                                                                                                               | PathSet             | _(任意, 自動入力可能)_ このトランザクションで使うpayment pathの配列。XAH-to-XAHトランザクションでは省略する必要があります。                                                                                                                                                                                                                                                                                                                   |
+| `SendMax`        | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(任意)_ このトランザクションが費用として支払ってよい送信元通貨の最大額。送金手数料、為替レート、および [slippage](http://en.wikipedia.org/wiki/Slippage_\(finance\))を含みます。トランザクション送信コストとして消費されるXAHは含みません。XAH以外の金額では、ネストされたフィールド名は必ず小文字にする必要があります。クロス通貨/クロスissuerの支払いでは必須です。XAH-to-XAH支払いでは省略する必要があります。 |
+| `DeliverMin`     | \[Currency Amount]\[]                                                                                                              | Amount              | _(任意)_ このトランザクションが届けるべき宛先通貨の最小額。部分支払いの場合のみ有効です。XAH以外の金額では、ネストされたフィールド名は小文字にします。                                                                                                                                                                                                                                                        |
+
+### 支払いの種類
+
+Paymentトランザクションタイプは、いくつかの抽象的な操作を表現できる汎用ツールです。次の表に示すように、トランザクションのフィールドから種類を判別できます。
+
+| 支払いタイプ                 | `Amount`                        | `SendMax`                       | `Paths`          | `Address` = `Destination`? | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------------------- | ------------------------------- | ------------------------------- | ---------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Direct XAH-to-XAH Payment    | String (XAH)                    | Omitted                         | Omitted          | No                         | XAHをあるアカウントから別のアカウントへ直接送ります。常に正確な金額が届けられます。基本のトランザクションコスト以外の手数料はかかりません。                                                                                                                                                                                                                                                                                                                                                                                           |
+| Creating or redeeming tokens | Object                          | Object (optional)               | Optional         | No                         | Xahauで追跡されるXAH以外の通貨またはアセットの金額を増減します。直接送付・償還する場合、送金手数料とfreezeは適用されません。                                                                                                                                                                                                                                                                                                                                                                        |
+| Cross-currency Payment       | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Usually required | No                         | ある保有者から別の保有者へtokenを送ります。`Amount` または `SendMax` はXAHでもtokenでもかまいませんが、両方をXAHにすることはできません。トランザクションがpath setを指定している場合、これらの支払いはissuerを経由して波及し、複数の仲介者を通る長いpathを取ることがあります。この種類のトランザクションにはissuerが設定したtransfer feeが適用されます。これらのトランザクションは、decentralized exchangeのofferを消費して異なる通貨間をつなぎます。場合によっては、同じcurrency codeだがissuerが異なる通貨間でもつなぎます。 |
+| Partial payment              | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | Usually required | No                         | 任意の通貨を特定金額_まで_送ります。`tfPartialPayment` フラグを使います。トランザクションが成功するために最低限届ける必要がある金額として `DeliverMin` を含めることができます。`DeliverMin` を指定しない場合、_正の金額であれば任意_を届けるだけで成功できます。                                                                                                                                                                                                                                 |
+| Currency conversion          | Object (non-XAH) / String (XAH) | Object (non-XAH) / String (XAH) | 必須         | Yes                        | decentralized exchangeのofferを消費してある通貨を別の通貨に変換し、[arbitrage](https://en.wikipedia.org/wiki/Arbitrage)の機会を取ることもあります。`Amount` と `SendMax` の両方をXAHにすることはできません。送信者にお金を届けるため、_circular payment_とも呼ばれます。Data APIはこの種類のトランザクションを "exchange" として追跡し、"payment" ではありません。                                                                                                                                                     |
+
+### SendMaxとAmountの特別なissuer値
+
+通常、XAH以外の \[Currency Amount]\[]の `issuer` フィールドはtokenのissuerを示します。ただし、paymentを説明する場合は、paymentの `Amount` フィールドと `SendMax` フィールドの `issuer` には特別なルールがあります。
+
+* 同じcurrency codeについて、2つのアドレス間に存在できるbalanceは1つだけです。つまり、amountの `issuer` フィールドは、tokenを発行したアドレスではなく、counterpartyを指すことがあります。
+* 宛先 `Amount` フィールドの `issuer` が `Destination` アドレスと一致する場合、それは「宛先が受け入れる任意のissuer」という特別ケースとして扱われます。これには、宛先が正のlimitを持つtrust lineを持つすべてのアドレスと、宛先自身が発行した同じcurrency codeのtokenが含まれます。
+* `SendMax` フィールドの `issuer` が送信元アカウントのアドレスと一致する場合、それは「送信元が使える任意のissuer」という特別ケースとして扱われます。これには、他のアカウントが送信元アカウントに延長したtrust line上で新しいtokenを作成することや、送信元アカウントが保有する他のissuerのtokenを送ることが含まれます。
+
+### アカウントの作成
+
+Paymentトランザクションタイプは、資金供給されていないアドレスに十分なXAHを送ることでXahauに新しいアカウントを作成できます。資金供給されていないアドレス宛ての他のトランザクションは常に失敗します。
+
+詳細はAccountsを参照してください。
+
+### Paths
+
+存在する場合、`Paths` フィールドは_path set_、つまりpath配列の配列でなければなりません。各個別のpathは、さまざまな仲介アカウントやorder bookを通って送信者から受信者へ価値が流れる1つの経路を表します。1つのトランザクションで複数のpathを使える場合があり、たとえばより良いレートを得るために複数の異なるorder bookを使って通貨を交換するようなケースです。
+
+次のような直接支払いでは、`Paths` フィールドを省略しなければなりません。
+
+* XAH-to-XAHの送金。
+* 送信者と受信者を結ぶtrust line上の直接送金。
+
+`Paths` フィールドが指定されると、サーバーはトランザクション処理時に、指定された集合と_default path_（指定されたアカウントを結ぶ最も直接的な経路）からどのpathを使うかを決定します。この決定は決定論的で、コスト最小化を試みますが、完全である保証はありません。
+
+`Paths` フィールドは空配列でも、要素がすべて空配列である配列でもいけません。
+
+詳細はPathsを参照してください。
+
+### Paymentフラグ
+
+Paymentタイプのトランザクションは、`Flags` フィールドで次の追加値をサポートします。
+
+| フラグ名          | Hex値    | 10進値 | 説明                                                                                                                                                                          |
+| ------------------ | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tfNoDirectRipple` | `0x00010000` | 65536         | default pathを使わず、`Paths` フィールドに含まれるpathだけを使います。これはトランザクションにarbitrageの機会を取らせるためのものです。ほとんどのクライアントには不要です。 |
+| `tfPartialPayment` | `0x00020000` | 131072        | 指定した `Amount` を `SendMax` より多く消費せずには送れない場合、完全に失敗する代わりに受取額を減らします。詳細はPartial Paymentsを参照してください。        |
+| `tfLimitQuality`   | `0x00040000` | 262144        | すべての変換のinput:output ratioが `Amount`:`SendMax` の比率以上であるpathだけを使います。詳細はLimit Qualityを参照してください。                    |
+
+### 部分支払い
+
+部分支払いでは、受取額を減らすことでpaymentを成功させられます。部分支払いは、自分に追加コストをかけずに支払いを返すのに役立ちます。ただし、部分支払いは、成功したトランザクションの `Amount` フィールドが常に正確な受取額を表すと安易に仮定する統合を悪用するためにも使えます。
+
+部分支払いとは、`tfPartialPayment` フラグが有効な任意の \[Payment transaction]\[]です。部分支払いは、`SendMax` を超えずに、`DeliverMin` フィールド以上の正の金額（`DeliverMin` が指定されていない場合は正の金額なら何でも）を届けられれば成功できます。
+
+paymentのmetadataにある `delivered_amount` フィールドは、宛先アカウントが実際に受け取った通貨の金額を示します。
+
+詳細はPartial Paymentsの記事を参照してください。
+
+### 品質制限
+
+Xahauでは、通貨交換の "quality" を、入力された数値金額に対する出力された数値金額の比として定義します。たとえば、$2 USDを使って £1 GBPを受け取る場合、その交換の "quality" は `0.5` です。
+
+`tfLimitQuality` フラグを使うと、受け入れたい変換の最小qualityを設定できます。このlimit qualityは、宛先 `Amount` を `SendMax` の金額で割った値として定義されます（通貨に関係なく数値だけを使います）。設定すると、payment処理エンジンは、quality（変換レート）がlimit qualityより悪い（数値が小さい）pathを使いません。
+
+`tfLimitQuality` フラグ単体では、トランザクションが成功できる状況の数を減らします。具体的には、payment全体の変換の_平均_ qualityがlimit qualityと同等以上でも、paymentの一部で不利な変換が使われる支払いは拒否します。この方法で拒否されると、トランザクション結果は `tecPATH_DRY` になります。
+
+次の例を考えてみてください。20米ドル（`SendMax` = 20 USD）以下で100中国人民元（`Amount` = 100 CNY）を送ろうとしている場合、limit qualityは `5` です。あるtraderが $15で ¥95を提示しており（およそ `6.3` CNY / USD）、市場の次点のofferは $2で ¥5（およそ `2.5` CNY / USD）だとします。両方のofferを使って100 CNYを送ると、17 USDかかり、平均qualityはおよそ `5.9` になります。
+
+`tfLimitQuality` フラグが設定されていなければ、このトランザクションは成功します。支払う17 USDが指定した `SendMax` の範囲内だからです。しかし `tfLimitQuality` フラグが有効な場合は、2つ目のofferを使うpathのqualityが `2.5` で、limit qualityの `5` より悪いため、失敗します。
+
+`tfLimitQuality` フラグは、部分支払いと組み合わせると最も役立ちます。トランザクションに `tfPartialPayment` と `tfLimitQuality` の両方が設定されている場合、transactionはlimit qualityより悪い変換を使わずに、宛先 `Amount` の届けられるだけの分を届けます。
+
+上の ¥95/$15のofferと ¥5/$2のofferの例では、トランザクションに `tfPartialPayment` と `tfLimitQuality` の両方が有効だと状況が変わります。`SendMax` を20 USD、宛先 `Amount` を100 CNYのままにすると、limit qualityは依然として `5` です。しかし部分支払いなので、全額を送れない場合でも失敗せず、送れるだけ送ります。つまり、このtransactionはqualityが約 `6.3` の ¥95/$15のofferは消費しますが、qualityが `2.5` の ¥5/$2のofferはquality limit `5` より悪いため拒否します。結果として、transactionは全額の ¥100ではなく ¥95だけを届けますが、悪いexchange rateで無駄に支払うことは避けられます。

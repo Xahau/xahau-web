@@ -1,0 +1,94 @@
+---
+title: hook
+description: あなたのHookのメイン関数
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/ja/docs/hooks/concepts/compiling-hooks">Hooksのコンパイル</LinkButton>
+
+### 動作
+
+* `hook` は、Hookを実行するために `xahaud` によって呼び出されるユーザー定義関数です。
+* `hook` 関数は `accept` または `reject` を呼び出して、発信トランザクションを受理または拒否します。
+* 実行が関数の末尾に到達した場合、暗黙に `accept` になります。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook (
+    uint32_t reserved
+)
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+type Hook = (reserved: number) => number
+```
+
+
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook(uint32_t reserved)
+{
+  return 0;
+}
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const Hook = (reserved: number) => {
+    return 0
+}
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="183">名前</th><th>型</th><th>説明</th></tr></thead><tbody><tr><td>reserved</td><td>uint32_t</td><td>将来の利用のために予約されています。</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="183">名前</th><th>型</th><th>説明</th></tr></thead><tbody><tr><td>reserved</td><td>number</td><td>将来の利用のために予約されています。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                         |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | Hookから返したい任意の戻りコードです。これは発信トランザクションのメタデータに含まれます。 |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型     | 説明                                                                                                                                         |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| number | Hookから返したい任意の戻りコードです。これは発信トランザクションのメタデータに含まれます。 |
+</TabItem>
+</Tabs>

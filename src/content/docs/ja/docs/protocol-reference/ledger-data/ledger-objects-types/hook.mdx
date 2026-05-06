@@ -1,0 +1,57 @@
+---
+title: Hook
+---
+[\[出典\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(\[Hooks amendment]\[]によって追加されました。)_
+
+`Hook` オブジェクトはスマートコントラクトを表します。これはトランザクションによってトリガーされ、あらかじめ定義された操作を実行できます。操作は `Hook` の作成者によって定義され、レジャーやトランザクションと相互作用できます。
+
+### JSON例
+
+```json
+{
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "Hooks": [
+    {
+      "HookHash": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+      "HookParameters": []
+    }
+  ],
+  "LedgerEntryType": "Hook",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### フィールド
+
+`Hook` オブジェクトには、次のフィールドがあります。
+
+| 項目                | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                                                                                     |
+| ------------------- | --------- | ------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Account`           | String    | Account       | はい | Hookを作成したアカウントです。                                                                                                                                              |
+| `OwnerNode`         | String    | UInt64        | はい | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクするownerのdirectoryのページを示すヒントです。                                                   |
+| `PreviousTxnID`     | String    | Hash256       | はい | このオブジェクトを最後に変更したトランザクションのIDです。                                                                                                              |
+| `PreviousTxnLgrSeq` | Number    | UInt32        | はい | このオブジェクトを最後に変更したトランザクションを含む \[レジャーインデックス]\[]です。                                                                     |
+| `Hooks`             | Array     | Array         | はい | Hookオブジェクトの配列です。各オブジェクトには、`HookHash`、`CreateCode`、`HookGrants`、`HookNamespace`、`HookParameters`、`HookOn`、`HookApiVersion`、`Flags` のフィールドがあります。 |
+| `LedgerEntryType`   | String    | UInt16        | はい | `0x0043` の値が文字列 `Hook` に対応し、このオブジェクトがHookオブジェクトであることを示します。                                                                                   |
+
+### Hookフィールド
+
+hookオブジェクトでは次のフィールドが使用されます。
+
+| 項目             | JSON型 | 内部型  | 説明                    |
+| ---------------- | ------- | ------- | ---------------------- |
+| `HookHash`       | String  | Hash256 | Hookのハッシュです。          |
+| `HookParameters` | Array   | Array   | Hookのパラメーターです。    |
+| `Flags`          | Number  | UInt32  | Hookの追加フラグです。 |
+
+#### Hook ID形式
+
+`Hook` オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
+
+* Hookスペースキー (`0x0048`)
+* `Hook` オブジェクトを作成した \[SetHook transaction]\[]の送信元のAccountID

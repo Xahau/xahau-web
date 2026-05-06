@@ -1,0 +1,228 @@
+---
+title: Hooksのコンパイル
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### 制約
+
+すべてのHooksは、Xahauアカウントに設定できるようになる前に、単一の[WebAssemblyモジュール](https://webassembly.github.io/spec/core/syntax/modules.html)へコンパイルされます。
+
+Hookは常に、次の関数のうち正確に1つ、または両方を実装してエクスポートします。
+
+`int64_t hook(uint32_t ctx) { ... }` _必須_
+
+* Hookが設定されているアカウントにトランザクションが入ってくる、またはそのアカウントから出ていくたびに実行される（`ctx = 0`）、または
+* [Weak Transactional Stakeholder](/ja/docs/hooks/concepts/weak-and-strong)として実行されるときに実行される（`ctx > 0`）。
+
+`int64_t cbak(uint32_t ctx) { ... }` _任意_
+
+* 発行トランザクションがレジャーに正常に受け入れられたときに実行される（`ctx = 0`）、または
+* 発行トランザクションがどのレジャーにも受け入れられない場合に実行される（`ctx = 1`）。
+
+Hooksは他の関数を指定できません。代わりに、これら2つの関数内ですべての計算を行うため、マクロをうまく利用する必要があります。これは、Hooksのランタイムを予測可能に保つための計算上の制約の一部です。
+
+さらに、Hooksには_ヒープ_メモリが提供されません。必要なすべてのメモリはスタック上に予約して使用する必要があります。
+
+### 例
+
+以下はCで書かれたHookの例です。このHookは発信トランザクションをacceptする前に、traceログへ0...3を出力します。
+
+```c
+#include <stdint.h>
+#define GUARD(maxiter) _g(__LINE__, (maxiter)+1)
+extern int32_t _g (uint32_t id, uint32_t maxiter);
+extern int64_t accept (uint32_t read_ptr, uint32_t read_len, int64_t error_code);
+extern int64_t trace_num (uint32_t read_ptr, uint32_t read_len, int64_t number);
+
+int64_t hook(uint32_t ctx)
+{
+    for (int i = 0; GUARD(3), i < 3; ++i)
+    {
+        trace_num("test", 4, i);
+    }
+    accept (0,0,0); 
+    return 0;
+}
+```
+
+<Aside type="tip">
+教育目的のため、上記の例では開発者が通常使用する`hookapi.h`を意図的に含めていません。
+</Aside>
+
+### コンパイル
+
+[さまざまなコンパイラ](https://www.google.com/search?q=webassembly+compiler+C)が、Cソースファイルから有効なWebAssemblyを生成します。コンパイル後、Hookはバイナリ`.wasm`ファイルとして存在します。これにはWebAssemblyモジュールが含まれます。`wasmcc`でコンパイルし、`wasm2wat`ツールで人間が読めるWebAssemblyに変換すると、このバイナリ形式を人間が読める形式にレンダリングできます。以下に、上記の例のコンパイル結果を示します。
+
+```wat
+(module
+  (type (;0;) (func (param i32 i32) (result i32)))
+  (type (;1;) (func (param i32 i32 i64) (result i64)))
+  (type (;2;) (func))
+  (type (;3;) (func (param i32) (result i64)))
+  (import "env" "_g" (func $_g (type 0)))
+  (import "env" "trace_num" (func $trace_num (type 1)))
+  (import "env" "accept" (func $accept (type 1)))
+  (func $__wasm_call_ctors (type 2))
+  (func $cbak (type 3) (param i32) (result i64)
+    (local i32 i32 i32 i64)
+    global.get 0
+    local.set 1
+    i32.const 16
+    local.set 2
+    local.get 1
+    local.get 2
+    i32.sub
+    local.set 3
+    i64.const 0
+    local.set 4
+    local.get 3
+    local.get 0
+    i64.store offset=8
+    local.get 4
+    return)
+  (func $hook (type 3) (param i32) (result i64)
+    (local i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i64 i32 i32 i32 i64 i32 i32 i32)
+    global.get 0
+    local.set 1
+    i32.const 16
+    local.set 2
+    local.get 1
+    local.get 2
+    i32.sub
+    local.set 3
+    local.get 3
+    global.set 0
+    i32.const 0
+    local.set 4
+    local.get 3
+    local.get 0
+    i64.store offset=8
+    local.get 3
+    local.get 4
+    i32.store offset=4
+    block  ;; label = @1
+      loop  ;; label = @2
+        i32.const 3
+        local.set 5
+        i32.const 14
+        local.set 6
+        i32.const 4
+        local.set 7
+        local.get 6
+        local.get 7
+        call $_g
+        drop
+        local.get 3
+        i32.load offset=4
+        local.set 8
+        local.get 8
+        local.set 9
+        local.get 5
+        local.set 10
+        local.get 9
+        local.get 10
+        i32.lt_s
+        local.set 11
+        i32.const 1
+        local.set 12
+        local.get 11
+        local.get 12
+        i32.and
+        local.set 13
+        local.get 13
+        i32.eqz
+        br_if 1 (;@1;)
+        i32.const 1024
+        local.set 14
+        i32.const 4
+        local.set 15
+        local.get 3
+        i32.load offset=4
+        local.set 16
+        local.get 16
+        local.set 17
+        local.get 17
+        i64.extend_i32_s
+        local.set 18
+        local.get 14
+        local.get 15
+        local.get 18
+        call $trace_num
+        drop
+        local.get 3
+        i32.load offset=4
+        local.set 19
+        i32.const 1
+        local.set 20
+        local.get 19
+        local.get 20
+        i32.add
+        local.set 21
+        local.get 3
+        local.get 21
+        i32.store offset=4
+        br 0 (;@2;)
+      end
+    end
+    i64.const 0
+    local.set 22
+    i32.const 0
+    local.set 23
+    local.get 23
+    local.get 23
+    local.get 22
+    call $accept
+    drop
+    i32.const 16
+    local.set 24
+    local.get 3
+    local.get 24
+    i32.add
+    local.set 25
+    local.get 25
+    global.set 0
+    local.get 22
+    return)
+  (table (;0;) 1 1 funcref)
+  (memory (;0;) 2)
+  (global (;0;) (mut i32) (i32.const 66576))
+  (global (;1;) i32 (i32.const 1029))
+  (global (;2;) i32 (i32.const 1024))
+  (global (;3;) i32 (i32.const 66576))
+  (global (;4;) i32 (i32.const 1024))
+  (export "memory" (memory 0))
+  (export "__wasm_call_ctors" (func $__wasm_call_ctors))
+  (export "__data_end" (global 1))
+  (export "__global_base" (global 2))
+  (export "__heap_base" (global 3))
+  (export "__dso_handle" (global 4))
+  (export "cbak" (func $cbak))
+  (export "hook" (func $hook))
+  (data (;0;) (i32.const 1024) "test\00"))
+```
+
+通常、Hook開発者はWebAssemblyを直接調べる必要はありません。しかし、サンプルHookの内容を確認することは、概念を理解するための有益な練習になります。
+
+上記から次のことがわかります。
+
+* Hooks APIから3つの関数（`_g`、`accept`、`trace_num`）がインポートされています。
+* Hookによって2つの関数（`cbak`、`hook`）が定義されています。
+* Hookによって2つの関数（再び`cbak`、`hook`）がエクスポートされています。
+* いくつかの静的（定数）データがHookに記録されています（末尾の`data`を参照）。
+
+HookはHooks APIから利用可能な関数のみをインポートしなければならず、`cbak`関数と`hook`関数のみをエクスポートしなければならない点は非常に重要です。加えて、すべてのHooksはHooks APIから`_g`をインポートしなければなりません。これは`guard`関数です。
+
+<Aside type="tip">
+WebAssemblyはプラットフォーム非依存の汎用計算`bytecode`言語です。人間が読める同等表現と一対一に対応しています。これらは相互に使用されます。
+</Aside>
+
+### 不要なエクスポート
+
+ほとんどのWebAssemblyコンパイラ（上記のものを含む）は、独自のリンク用途のために追加のエクスポートを生成します。多くの場合、これらの生成を無効にするのは困難、または不可能です。
+
+不要なエクスポートがあると、それ以外は有効なHookでも拒否されます。したがって、コンパイル後、開発者は[Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c)を使用してこれらを取り除くべきです。そうしないと、Hookは拒否されます。
+
+
+<Aside type="caution">
+[Hook Cleaner Utility](https://github.com/XRPLF/hook-cleaner-c)を使用することを忘れないでください。使用しないとHooksは拒否されます。
+</Aside>

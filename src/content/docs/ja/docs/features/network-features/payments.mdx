@@ -1,0 +1,46 @@
+---
+title: Payment
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+XahauネットワークのPayment機能は、ネットワーク内でアセットや資金の転送を可能にする重要なコンポーネントです。この機能はシームレスなトランザクションを促進し、ネットワークの円滑で効率的な運用を確保するように設計されています。
+
+### トランザクションタイプ
+
+Payment機能はいくつかのトランザクションタイプで構成されており、それぞれがネットワーク内で固有の目的を果たします。各トランザクションタイプの概要は次のとおりです。
+
+**DepositPreauth**
+
+このトランザクションタイプでは、アカウントが指定された送信元からの着信トランザクションを事前承認できます。これはアカウントを許可リストに登録する方法であり、承認済みトランザクションだけが処理されるようにします。
+
+<LinkCard title="DepositPreauth" href="/ja/docs/protocol-reference/transactions/transaction-types/depositpreauth" />
+
+**TrustSet**
+
+このトランザクションタイプでは、ユーザーが別のアカウントとのトラストラインを作成できます。これは2つのアカウント間に信頼関係を確立し、相互にトランザクションできるようにする方法です。
+
+<LinkCard title="TrustSet" href="/ja/docs/protocol-reference/transactions/transaction-types/trustset" />
+
+**Payment**
+
+これはアカウント間でアセットを転送できる基本的なトランザクションタイプです。ネットワーク上のあらゆる支払い操作の基礎となるトランザクションタイプです。
+
+<LinkCard title="Payment" href="/ja/docs/protocol-reference/transactions/transaction-types/payment" />
+
+**PaymentChannelCreate**
+
+このトランザクションタイプでは、2つのアカウント間にPayment Channelを作成できます。Payment Channelは、2者間で高頻度かつ低コストのトランザクションを可能にするオフレジャーのスケーラビリティソリューションです。
+
+<LinkCard title="PaymentChannelCreate" href="/ja/docs/protocol-reference/transactions/transaction-types/paymentchannelcreate" />
+
+**PaymentChannelFund**
+
+このトランザクションタイプでは、アカウントが既存のPayment Channelに資金を追加できます。Payment Channelにさらにアセットを追加し、より多くのトランザクションを実行できるようにする方法です。
+
+<LinkCard title="PaymentChannelFund" href="/ja/docs/protocol-reference/transactions/transaction-types/paymentchannelfund" />
+
+**PaymentChannelClaim**
+
+このトランザクションタイプでは、アカウントがPayment Channelから資金を請求できます。Payment Channelを閉じて残りのアセットを回収する方法です。
+
+<LinkCard title="PaymentChannelClaim" href="/ja/docs/protocol-reference/transactions/transaction-types/paymentchannelclaim" />

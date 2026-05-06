@@ -1,0 +1,57 @@
+---
+title: Cron
+---
+[出典](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/LedgerFormats.cpp)
+
+_(\[Cron amendment]\[]により追加。)_
+
+`Cron` オブジェクトは、`CronSet` トランザクションによって作成されたスケジュール済みのHook実行を表します。スケジュールされた実行時刻になると、Cronエンジンは `Cron` 型の擬似トランザクションを自動的にレジャーへ挿入します。
+
+### JSONの例
+
+```json
+{
+  "Owner": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+  "OwnerNode": "0000000000000000",
+  "StartTime": 816348759,
+  "RepeatCount": 3,
+  "DelaySeconds": 120,
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "LedgerEntryType": "Cron",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### フィールド
+
+`Cron` オブジェクトには、次のフィールドがあります。
+
+| フィールド         | JSON型   | \[内部型]\[]        | 必須?    | 説明                                                                                                                                                                                                                                                                    |
+| ------------------- | --------- | ------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Owner`             | String    | AccountID           | はい       | スケジュールされたHook実行を所有するアカウント。Cronが実行されると、このアカウントが呼び出されます。                                                                                                                                                            |
+| `OwnerNode`         | String    | UInt64              | はい       | ディレクトリが複数ページで構成される場合に、このオブジェクトへリンクする所有者のディレクトリのページを示すヒント。**注:** このオブジェクトには、それを含むownerディレクトリへの直接リンクはありません。値は `Owner` から導出できるためです。 |
+| `StartTime`         | Number    | UInt32              | はい       | 最初の実行が発生するRipple Epochタイムスタンプ。即時実行には `0` を使用します。詳細は \[Specifying Time][]を参照してください。                                                                                                                                          |
+| `RepeatCount`       | Number    | UInt32              | はい       | Cronを実行する回数。後続の [CronSetトランザクション](/ja/docs/protocol-reference/transactions/transaction-types/cronset)で延長できます。1トランザクションあたりの上限は256ですが、この上限を超えて延長することもできます。                                                          |
+| `DelaySeconds`      | Number    | UInt32              | はい       | 各実行の間隔を秒単位で示します。最大値は31,536,000秒（365日）です。                                                                                                                                                                                    |
+| `PreviousTxnID`     | String    | Hash256             | はい       | このオブジェクトを最後に変更したトランザクションの識別ハッシュ。                                                                                                                                                                                               |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | はい       | このオブジェクトを最後に変更したトランザクションを含む [レジャーのインデックス][Ledger Index]。                                                                                                                                                             |
+| `LedgerEntryType`   | String    | UInt16              | はい       | 文字列 `Cron` に対応する値 `0x0061` は、このオブジェクトがCronオブジェクトであることを示します。                                                                                                                                                                                 |
+
+### CronのID形式
+
+`Cron` オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half][]です。
+
+* Cronスペースキー (`0x0076`)
+* `StartTime` フィールドのタイムスタンプ
+* `Owner` フィールドのランダム化されたAccountID
+
+### 実行動作
+
+Cronの実行時刻になると、Cronエンジンは `Cron` 型の擬似トランザクションをレジャーへ挿入します。この擬似トランザクションには、元のHookアカウントを参照する `Owner` フィールドが含まれます。スケジュールされたHookは、外部トリガーを必要とせず、指定された間隔で自動的に呼び出されます。
+
+Hook開発者は、自分のHookでcollect呼び出し（`hsfCOLLECT` フラグ）を有効にする必要があります。`Owner` は、Cron擬似トランザクションの実行時に弱いtransactional stakeholder (TSH)となるためです。
+
+### 関連トランザクション
+
+* [CronSetトランザクション](/ja/docs/protocol-reference/transactions/transaction-types/cronset): Cronオブジェクトを作成、更新、または削除します

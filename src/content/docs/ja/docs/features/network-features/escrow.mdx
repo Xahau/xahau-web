@@ -1,0 +1,28 @@
+---
+title: Escrow
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Escrow機能はXahauネットワークの重要な部分です。当事者間のトランザクションに対して、安全でトラストレスな方法を提供します。Escrow機能は、トランザクションのすべての条件が満たされるまで、関係するアセットが安全に保持されることを保証します。
+
+### トランザクションタイプ
+
+Escrow機能には3種類のトランザクションがあります。
+
+#### EscrowCreate
+
+`EscrowCreate`トランザクションは、新しいEscrow契約を作成するために使用されます。このトランザクションでは、関係する当事者、Escrowで保持されるアセット、アセットが解放される条件など、Escrowの条件を指定します。
+
+<LinkCard title="EscrowCreate" href="/ja/docs/protocol-reference/transactions/transaction-types/escrowcreate" />
+
+#### EscrowFinish
+
+`EscrowFinish`トランザクションは、Escrow契約を完了するために使用されます。このトランザクションは、Escrowのすべての条件が満たされたときに実行されます。実行されると、Escrowで保持されていたアセットが適切な当事者へ解放されます。
+
+<LinkCard title="EscrowFinish" href="/ja/docs/protocol-reference/transactions/transaction-types/escrowfinish" />
+
+#### EscrowCancel
+
+`EscrowCancel`トランザクションは、Escrow契約をキャンセルするために使用されます。このトランザクションは、指定された期間内にEscrowの条件が満たされない場合に実行できます。キャンセルされると、Escrowで保持されていたアセットはEscrowを開始した当事者へ返されます。
+
+<LinkCard title="EscrowCancel" href="/ja/docs/protocol-reference/transactions/transaction-types/escrowcancel" />

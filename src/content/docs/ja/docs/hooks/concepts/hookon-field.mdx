@@ -1,0 +1,44 @@
+---
+title: HookOnフィールド
+description: Hookがどのトランザクションタイプでトリガーされるかを指定する
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+### HookOnフィールドの理解
+
+この符号なし256ビット整数の各ビットは、Hookが特定のトランザクションタイプで実行されるべきかどうかを示します。ビット22を**除く**すべてのビットは_active low_で、ビット22だけが_active high_です。22はttHOOK_SETであるため、すべて0のデフォルト値ではSetHookトランザクションで発火しませんが、他のすべてのトランザクションタイプで発火します。これは、誤動作するHookによってXahauアカウントを使えなくしてしまうことを避けるための意図的な設計上の選択です。
+
+ビットは右から左に番号付けされます。
+
+* bit 0 -最も右、つまり最下位ビット。
+* bit 63 -最も左、つまり最上位ビット。
+
+例（256ビット符号なし整数型を想定）:
+
+1. Hookを完全に無効にしたい場合:
+
+```c
+~(1ULL << 22) /* every bit is 1 except bit 22 which is 0 */
+```
+
+2. ttPAYMENT以外のすべてでHookを無効にしたい場合:
+
+```c
+~(1ULL << 22) & ~(1ULL)
+```
+
+3. ttHOOK_SET以外のすべてでHookを有効にしたい場合
+
+```c
+0
+```
+
+4. ttHOOK_SET（危険）および他のすべてのトランザクションタイプでHookの発火を有効にしたい場合:
+
+```c
+(1ULL << 22)
+```
+
+### HookOn計算ツール
+
+<LinkCard title="HookOn計算ツール" href="https://richardah.github.io/xrpl-hookon-calculator/" />

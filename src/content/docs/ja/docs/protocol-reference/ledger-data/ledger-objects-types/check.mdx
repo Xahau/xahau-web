@@ -1,0 +1,58 @@
+---
+title: Check
+---
+[出典](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(\[`Checks` amendment][]により追加。)_
+
+`Check` オブジェクトは、小切手に似たチェックを表します。宛先はこれを現金化して、送信元から資金を受け取れます。（想定される支払いは送信元によってすでに承認されていますが、現金化されるまでは資金は動きません。Escrowとは異なり、Checkの資金は別途確保されないため、残高不足で現金化に失敗する可能性があります。）
+
+### JSONの例
+
+```json
+{
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "Destination": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+  "DestinationNode": "0000000000000000",
+  "DestinationTag": 1,
+  "Expiration": 570113521,
+  "Flags": 0,
+  "InvoiceID": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+  "LedgerEntryType": "Check",
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "SendMax": "100000000",
+  "Sequence": 2,
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### フィールド
+
+`Check` オブジェクトには、次のフィールドがあります。
+
+| フィールド         | JSON型          | \[内部型]\[]        | 必須?    | 説明                                                                                                                                                                                                                                                                        |
+| ------------------- | ---------------- | ------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String           | Account             | はい       | Checkの送信元。Checkを現金化すると、このアドレスの残高が引き落とされます。                                                                                                                                                                                                          |
+| `Destination`       | String           | Account             | はい       | Checkの想定受取人。このアドレスだけが、\[CheckCashトランザクション][]を使ってCheckを現金化できます。                                                                                                                                                                    |
+| `DestinationNode`   | String           | UInt64              | いいえ    | ディレクトリが複数ページで構成される場合に、このオブジェクトへリンクする宛先のownerディレクトリのページを示すヒント。                                                                                                                                          |
+| `DestinationTag`    | Number           | UInt32              | いいえ    | このCheckの宛先をさらに指定するための任意のタグ。たとえば、宛先アドレスでホストされている受取人などです。                                                                                                                                                         |
+| `Expiration`        | Number           | UInt32              | いいえ    | このCheckが期限切れと見なされる時刻を示します。詳細は \[Specifying Time][]を参照してください。                                                                                                                                                                            |
+| `Flags`             | Number           | UInt32              | はい       | このオブジェクトで有効な真偽値フラグのビットマップ。現在、プロトコルは `Check` オブジェクト向けのフラグを定義していません。値は常に `0` です。                                                                                                                                         |
+| `InvoiceID`         | String           | Hash256             | いいえ    | このCheckの特定の理由や識別子として送信元が提供する任意の256ビットハッシュ。                                                                                                                                                                                   |
+| `LedgerEntryType`   | String           | UInt16              | はい       | 文字列 `Check` に対応する値 `0x0043` は、このオブジェクトがCheckオブジェクトであることを示します。                                                                                                                                                                                    |
+| `OwnerNode`         | String           | UInt64              | はい       | ディレクトリが複数ページで構成される場合に、このオブジェクトへリンクする送信元のownerディレクトリのページを示すヒント。**注:** このオブジェクトには、それを含むownerディレクトリへの直接リンクはありません。値は `Account` から導出できるためです。 |
+| `PreviousTxnID`     | String           | Hash256             | はい       | このオブジェクトを最後に変更したトランザクションの識別ハッシュ。                                                                                                                                                                                                   |
+| `PreviousTxnLgrSeq` | Number           | UInt32              | はい       | このオブジェクトを最後に変更したトランザクションを含む [レジャーのインデックス][Ledger Index]。                                                                                                                                                                   |
+| `SendMax`           | String or Object | Amount              | はい       | このCheckが送信元から引き落とせる通貨の最大額。Checkが正常に現金化されると、宛先には同じ通貨でこの金額までが入金されます。                                                                                                       |
+| `Sequence`          | Number           | UInt32              | はい       | このCheckを作成した \[CheckCreateトランザクション][]のシーケンス番号。                                                                                                                                                                                                  |
+| `SourceTag`         | Number           | UInt32              | いいえ    | このCheckの送信元をさらに指定するための任意のタグ。たとえば、送信元アドレスでホストされている受取人などです。                                                                                                                                                                 |
+
+### CheckのID形式
+
+`Check` オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half][]です。
+
+* Checkスペースキー (`0x0043`)
+* `Check` オブジェクトを作成した \[CheckCreateトランザクション][]の送信元のAccountID
+* `Check` オブジェクトを作成した \[CheckCreateトランザクション][]の `Sequence` 番号。CheckCreateトランザクションがTicketを使用した場合は、代わりに `TicketSequence` の値を使います。

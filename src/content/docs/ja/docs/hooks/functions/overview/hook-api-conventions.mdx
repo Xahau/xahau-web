@@ -1,0 +1,69 @@
+---
+title: Hook APIの規約
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 命名規則
+
+すべてのHook APIは標準的な命名規則に従います。
+
+|           |                 |              |                 |
+| --------- | --------------- | ------------ | --------------- |
+| 名前空間 | \[ _名詞 #1 ] | \[ _動詞] | \[ _名詞 #2 ] |
+
+最初は分かりにくく見えるかもしれませんが、実際にはとても単純です。
+
+* 最初の名詞がない場合、それは暗黙に名前空間と同じです。
+* 動詞がない場合、それは暗黙に `get` です。
+
+したがって:
+
+* `state()` はHook状態を取得することを意味します。
+* `state_set()` はHook状態を設定することを意味します。
+* `state_foreign()` は他のHook状態を取得することを意味します。
+
+### メモリモデル
+
+各Hookは単一のスタックフレームとして実行されます。すべての作業用メモリはこのスタックフレーム内に存在しなければなりません。ヒープも動的メモリもありません。
+
+Hookが `xahaud` と通信するときに渡せるのは_整数_値だけです。通常、これらの整数はHookのメモリ内のポインターです。Hookはxahaud内で実行されるため、これらのポインターはxahaudによって解決され、Hook APIの機能を実行するために必要に応じて書き込みや読み取りに使われます。
+
+### 許可される関数
+
+Hook内で許可される関数は `hook()` と `cbak()` の2つだけです。詳しくは[こちら](/ja/docs/hooks/concepts/compiling-hooks)をご覧ください。
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+Hook APIに渡されるすべてのパラメーターは、`uint32_t, int32_t, uint64_t, int64_t` のいずれかでなければなりません。通常、これらはHookのスタックフレーム内にあるバッファのポインターと長さです。場合によっては [Integer Encoded Floating Point Numbers (XFL)](/ja/docs/hooks/concepts/floating-point-numbers-xfl)やその他のデータです。
+
+Hook APIのパラメーターは常に次の順序になります。
+
+1. 書き込みポインター_ある場合_
+2. 書き込み長_ある場合_
+3. 読み取りポインター_ある場合_
+4. 読み取り長_ある場合_
+5. 詳細/その他のフィールド_ある場合_
+
+Hook APIの中には書き込みのみ、または読み取りのみを行うものもあり、どちらも行わず戻りコードだけで値を返すものもあります。
+</TabItem>
+
+<TabItem label="JavaScript">
+Hook APIに渡されるすべてのパラメーターは、`string, number[], bigint(xfl), object(json)` のいずれかでなければなりません。通常、これらはHookのスタックフレーム内にあるバッファのポインターと長さです。場合によっては [Integer Encoded Floating Point Numbers (XFL)](/ja/docs/hooks/concepts/floating-point-numbers-xfl)やその他のデータです。
+
+Hook APIのパラメーターは常に次の順序になります。
+
+1. 書き込み変数_ある場合_
+2. 読み取り変数_ある場合_
+3. 詳細/その他のフィールド_ある場合_
+
+Hook APIの中には書き込みのみ、または読み取りのみを行うものもあり、どちらも行わず戻りコードだけで値を返すものもあります。
+</TabItem>
+</Tabs>
+
+
+
+### 戻りコード
+
+すべてのHook APIは_符号付き整数_を返します。戻りコードについては[こちら](/ja/docs/hooks/functions/overview/return-codes)をご覧ください。

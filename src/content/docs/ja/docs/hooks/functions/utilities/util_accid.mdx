@@ -1,0 +1,109 @@
+---
+title: util_accid
+description: r-addressを20バイトのアカウントIDに変換する
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` からr-addressを読み取る
+* 20バイトのアカウントIDを `write_ptr` に書き込む
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+* `raddress` からr-addressを読み取る
+* 20バイトのアカウントID、またはErrorCodeを返す
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_accid (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_accid(raddress: string): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t accid_out[20];
+uint8_t raddr_in[] = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh";
+
+int64_t bytes_written = 
+    util_accid(accid_out, 20, raddr_in, sizeof(raddr_in)-1);
+// NB: if specified as a c-string as above, account for the nul char
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const accId = util_accid('rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh')
+```
+
+
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>名前</th><th width="102">型</th><th>説明</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>出力アカウントIDを格納するのに十分なサイズのバッファへのポインター。少なくとも20バイト必要です。</td></tr><tr><td>write_len</td><td>uint32_t</td><td>出力バッファの長さ。</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>r-addressへのポインター。</td></tr><tr><td>read_len</td><td>uint32_t</td><td>r-addressの長さ。</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>名前</th><th width="102">型</th><th>説明</th></tr></thead><tbody><tr><td>raddress</td><td>string</td><td>HEXアカウントIDとして整形するr-address。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>書き込まれたバイト数（出力r-addressの長さ）。<br /><br />負の値の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />-指定されたポインター／長さがHookメモリの外にあります。<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_ptr</code> が有効なr-addressではないものを指していました。<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> が生成されたアカウントIDを格納するには十分な大きさではありませんでした。（20バイトである必要があります）。<br /><br /><code>TOO_BIG</code><br />- <code>read_len</code> がr-addressの最大長を超えていました。</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型             | 説明                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------------ |
+| string / number | フォーマットにエラーがある場合はその値を返し、それ以外はHEXアカウントIDを数値配列として返します。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,47 @@
+---
+title: チェーン
+description: 複数のHooksをつなげて、より有用なタスクを実行する
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip" title="Hook設計哲学">
+_各Hookは1つのことを行い、それを本当にうまく行うべきです。_
+</Aside>
+
+### 歴史
+
+Hooksの初期には、1つのアカウントにインストールできるHookは1つだけでした。これは、ユーザーが複数のことを行いたい場合、たとえばカーボンオフセットとファイアウォールを同時に行いたい場合、包括的なHooksを作らざるを得なかったことを意味します。
+
+これはHook設計哲学に反していたため、Hookチェーンが導入されました。
+
+### チェーン
+
+Hookチェーンは、Xahauアカウントにインストールされた最大**10**個のHooksのシーケンスです。
+
+* Hookチェーンは、チェーン内のすべてのHookが個別に実行され、その後[accept](/ja/docs/hooks/functions/control/accept)を呼び出したときに正常に実行されます。
+* 各チェーンの実行はチェーン位置0から始まり、チェーン位置9で終わります。位置が空白の場合（そこに一度も設定されていない、またはそこにインストールされていたHookが削除されたため）、その位置はスキップされ、成功したものとして扱われます。
+* トランザクションが成功するには、トランザクションの両端（送信側と受信側）の実行が成功している必要があります。これは、両側にHookチェーンがインストールされている場合、トランザクションが成功するには両方のHookチェーンが正常に実行されなければならないことを意味します。
+
+Hooksは[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)を使用してチェーンにインストールされます。インストール時に、インストーラーはインストール時[パラメーター](/ja/docs/hooks/concepts/parameters)を指定できます。これにより、インストールされたHookの挙動が変わる場合があります。
+
+<figure>
+![例: 2つのHookチェーンを通過するトランザクションの実行フロー](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_0OucxySTRinbe13SITJT_5561b32-sethook-Page-3.png)
+<figcaption>*例: 2つのHookチェーンを通過するトランザクションの実行フロー*</figcaption>
+</figure>
+
+### チェーンの操作
+
+[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)で指定される_インストール時_の操作に加えて、Hooksはチェーン実行に対していくつかのランタイム制御を持ちます。
+
+* Hookは[hook_hash](/ja/docs/hooks/functions/hook-context/hook_hash)を呼び出して、自身の`HookHash`を判定できます。
+* Hookは[hook_pos](/ja/docs/hooks/functions/hook-context/hook_pos)を使用して、Hookチェーン内の自身の位置を判定できます。
+* Hookは[hook_skip](/ja/docs/hooks/functions/hook-context/hook_skip)を使用して、チェーンの後方にある別のHookをスキップ（または再有効化）できます。
+* Hookは[hook_param_set](/ja/docs/hooks/functions/hook-context/hook_param_set)を使用して、チェーンの後方にあるHookの[パラメーター](/ja/docs/hooks/concepts/parameters)を変更できます。
+
+### Weak実行
+
+Hookチェーンは[Strong実行](/ja/docs/hooks/concepts/weak-and-strong)されます。ただし、任意のチェーン内の任意のHookは、[hook_again](/ja/docs/hooks/functions/hook-context/hook_again)を呼び出すことで、2回目のWeak実行が必要であることを示すフラグを立てることができます。すべてのHookチェーンが正常に実行されると、発信トランザクションが適用されます。発信トランザクションが適用された後、Weak実行が次の順序で発生する場合があります。
+
+1. これが発行トランザクションだった場合の`cbak`実行。
+2. [Collect Call](/ja/docs/hooks/concepts/collect-call)を許可するようオプトインしたWeak Transactional Stake Holders。実行順序は、TSHがフラグ付けされる原因となったイベント（pathingなど）に従って先着順です。
+3. 任意の_Again as Weak_（AAW）Hooks。AAWの実行順序は、まずアカウントIDの数値順、次にHook位置の数値順です。

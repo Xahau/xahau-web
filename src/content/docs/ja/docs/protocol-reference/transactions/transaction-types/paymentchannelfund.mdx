@@ -1,0 +1,44 @@
+---
+title: PaymentChannelFund
+description: >-
+  開いているpayment channelに追加のAmountを入れ、必要に応じてchannelのexpiration timeを更新します。このトランザクションを使えるのはchannelのsource addressだけです。
+---
+[\[ソース\]](https://github.com/ripple/rippled/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_(\[PayChan amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "PaymentChannelFund",
+    "Channel": "C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
+    "Amount" : {
+         "currency" : "USD",
+         "value" : "1",
+         "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+      },
+    "Expiration": 543171558
+}
+```
+
+| フィールド        | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Channel`    | String                                                                                                                             | Hash256             | 資金を追加するchannelの固有ID。64文字のhexadecimal文字列です。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `Amount`     | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | channelに追加する金額。正の値でなければなりません。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Expiration` | Number                                                                                                                             | UInt32              | _(任意)_ channelに設定する新しい `Expiration` 時刻。\[seconds since the Ripple Epoch]\[]で指定します。これは、現在時刻にchannelの `SettleDelay` を加えた時刻より後、またはchannelの既存 `Expiration` より後でなければなりません。`Expiration` 時刻以降は、channelにアクセスしようとするtransactionは通常の動作を行わずにchannelを閉じます。未使用のAmountはchannelが閉じるとsource addressに戻ります。(`Expiration` はchannelの変更不可能な `CancelAfter` 時刻とは別です。)詳細はPayChannel ledger object typeを参照してください。 |
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、PaymentChannelFundトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード                | 説明                                                                                                                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tecINSUFFICIENT_RESERVE` | 送信アカウントのXAHがreserve要件より少ない場合。                                                                                                                                             |
+| `tecNO_DST`               | channelのdestination accountが削除されている場合。これは、payment channelがfixPayChanRecipientOwnerDir amendmentの有効化（2020-05-01）より前に作成されていた場合にのみ起こりえます。 |
+| `tecNO_ENTRY`             | `Channel` フィールドで識別されたPayment Channelが存在しない場合。                                                                                                                              |
+| `tecNO_PERMISSION`        | トランザクションの送信者がchannelのsource addressでない場合。                                                                                                                               |
+| `tecUNFUNDED`             | 送信アカウントが、要求されたamountでchannelに資金を入れつつreserve要件も満たせるだけのAmountを持っていない場合。                                                                       |
+| `temBAD_AMOUNT`           | トランザクションの `Amount` フィールドが無効な場合。amountは0または負の値にできません。                                                                                                       |
+| `temBAD_EXPIRATION`       | `Expiration` フィールドが無効な場合。                                                                                                                                                             |

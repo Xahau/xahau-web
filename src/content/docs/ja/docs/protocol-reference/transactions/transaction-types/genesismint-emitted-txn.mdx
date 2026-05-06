@@ -1,0 +1,56 @@
+---
+title: GenesisMint - (Emitted Txn)
+description: >-
+  GenesisMintトランザクションは、新しいXAHをミントして複数のアカウントに配布するために使います。このトランザクションはgenesis accountだけが使用できます。
+---
+\[[ソース](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/GenesisMint.cpp)]
+
+_\[XahauGenesis amendment]\[]と \[Hooks amendment]\[]により追�_
+
+### 例
+
+```json
+{
+    "TransactionType": "GenesisMint",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "GenesisMints": [
+        {
+            "GenesisMint": {
+                "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+                "Amount": "1000000000"
+            },
+        }
+    ]
+}
+```
+
+### フィールド
+
+| フィールド          | JSON型 | 内部型 | 説明                                                                      |
+| -------------- | --------- | ------------- | -------------------------------------------------------------------------------- |
+| `Account`      | String    | AccountID     | XAHをミントして配布するgenesis accountのアドレス。                            |
+| `GenesisMints` | Array     | Array         | ミントされたXAHの宛先と金額を表すオブジェクトの配列。                          |
+
+### GenesisMintオブジェクト
+
+GenesisMintトランザクションには、`GenesisMints` と呼ばれるオブジェクト配列が含まれます。各オブジェクトは、宛先アカウントと、そのアカウントにミントして配布するXAHの金額を表します。
+
+| フィールド             | JSON型 | 内部型 | 説明                                                                |
+| ----------------- | --------- | ------------- | -------------------------------------------------------------------------- |
+| `Destination`     | String    | AccountID     | ミントされたXAHを受け取るアカウントのアドレス。                         |
+| `Amount`          | String    | Amount        | 宛先アカウントにミントして配布するXAHの金額。                            |
+| `GovernanceFlags` | String    | Hash256       | _(任意)_ 宛先アカウントに関連付けられたgovernance flags。              |
+| `GovernanceMarks` | String    | Hash256       | _(任意)_ 宛先アカウントに関連付けられたgovernance marks。              |
+
+### 特別なトランザクションコスト
+
+GenesisMintトランザクションには標準のトランザクションコストが適用されます。これは、すべてのトランザクションに必要な最小トランザクションコストです。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、GenesisMintトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード     | 説明                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `temDISABLED`  | "Hooks" または "XahauGenesis" amendmentが有効でない場合に発生します。                   |
+| `temMALFORMED` | 必須フィールドの欠落や無効な値などにより、トランザクションが不正な形式である場合に発生します。 |

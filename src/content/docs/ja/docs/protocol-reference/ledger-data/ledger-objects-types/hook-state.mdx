@@ -1,0 +1,42 @@
+---
+title: Hook状態
+---
+[\[出典\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(\[Hooks amendment]\[]によって追加されました。)_
+
+`HookState` オブジェクトはHookの状態を表します。Hookは、Xahau上で動作し、トランザクションと相互作用できるコード片です。`HookState` オブジェクトはHookの状態を保存し、その状態はHookのコードによって変更できます。
+
+### JSON例
+
+```json
+{
+  "OwnerNode": "0000000000000000",
+  "HookStateKey": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+  "HookStateData": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+  "LedgerEntryType": "HookState",
+  "index": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924"
+}
+```
+
+### フィールド
+
+`HookState` オブジェクトには、次のフィールドがあります。
+
+| 項目              | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                                   |
+| ----------------- | --------- | ------------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
+| `OwnerNode`       | String    | UInt64        | はい | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクするownerのdirectoryのページを示すヒントです。 |
+| `HookStateKey`    | String    | Hash256       | はい | このHook状態を一意に識別するkeyです。                                                                             |
+| `HookStateData`   | String    | VL            | はい | Hookによって保存されるデータです。Hookのコードが保存することを決めた任意のデータを格納できます。                                      |
+| `LedgerEntryType` | String    | UInt16        | はい | `0x0043` の値が文字列 `HookState` に対応し、このオブジェクトがHookStateオブジェクトであることを示します。                       |
+
+#### HookState ID形式
+
+[\[出典\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/Indexes.cpp#L193-L200)
+
+`HookState` オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
+
+* HookStateスペースキー (`0x0076`)
+* Hookを所有するアカウントのAccountID
+* `HookState` オブジェクトの `HookStateKey`
+* Hookの `HookNamespace`

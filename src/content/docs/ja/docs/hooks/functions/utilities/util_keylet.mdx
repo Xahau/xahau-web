@@ -1,0 +1,147 @@
+---
+title: util_keylet
+description: 指定した種類のシリアライズ済みKeyletを計算する
+---
+import { Tabs, TabItem, Aside, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/ja/docs/hooks/concepts/slots-and-keylets">SlotとKeylet</LinkButton>
+
+<Aside type="tip">
+このユーティリティ関数でサポートされているKeyletタイプはすべてではありません。別のKeyletタイプが必要な場合は、[util_sha512h](https://xrpl-hooks.readme.io/reference/util_sha512h)を使い、必要なフィールドを [ここ](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/Indexes.cpp)で確認することで自分で導出できます。別のKeyletツールが [役立つかもしれません。](https://richardah.github.io/xrpl-keylet-tools/)
+</Aside>
+
+### 動作
+
+* 種類に応じて、`a` から `f` のパラメーターに従い、指定した `keylet_type` のKeyletを計算する
+* シリアライズ済みの34バイトのKeyletを `write_ptr` に書き込む
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_keylet (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t keylet_type,
+    uint32_t a,
+    uint32_t b,
+    uint32_t c,
+    uint32_t d,
+    uint32_t e,
+    uint32_t f
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_keylet(
+    keylet_type: number,
+    accountid: ByteArray | HexString,
+    statekey: ByteArray | HexString,
+    namespace: ByteArray | HexString
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t keylet[34];
+if (util_keylet(keylet, 34, KEYLET_LINE,
+              hook_accid, 20,
+              account_field, 20,
+              currency_code, 20) != 34)
+	rollback("Keylet Failed.", 14, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (util_keylet(
+        KEYLET_LINE, hook_accid, account_field, currency_code
+        ).length < 34) 
+    rollback("Keylet Failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="155">名前</th><th>型</th><th>説明</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>シリアライズ済みKeyletを書き込むバッファへのポインター</td></tr><tr><td>write_len</td><td>uint32_t</td><td>出力バッファの長さ。少なくとも34バイト必要です。</td></tr><tr><td>keylet_type</td><td>uint32_t</td><td><code>hookapi.h</code> で定義されたKeyletタイプのいずれか。たとえばtrustlineの場合は <code>KEYLET_LINE</code>。</td></tr><tr><td>a</td><td>uint32_t</td><td>下のKeylet表を参照</td></tr><tr><td>b</td><td>uint32_t</td><td>下のKeylet表を参照</td></tr><tr><td>c</td><td>uint32_t</td><td>下のKeylet表を参照</td></tr><tr><td>d</td><td>uint32_t</td><td>下のKeylet表を参照</td></tr><tr><td>e</td><td>uint32_t</td><td>下のKeylet表を参照</td></tr><tr><td>f</td><td>uint32_t</td><td>下のKeylet表を参照</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="155">名前</th><th>型</th><th>説明</th></tr></thead><tbody><tr><td>keylet_type</td><td></td><td>作成するKeyletのタイプ</td></tr><tr><td>accountid</td><td></td><td>（省略可）Keyletの1つ目のデータ。数値配列、文字列、または数値を指定できます。</td></tr><tr><td>statekey</td><td></td><td>（省略可）Keyletの2つ目のデータ。数値配列、文字列、または数値を指定できます。</td></tr><tr><td>namespace</td><td></td><td>（省略可）Keyletの3つ目のデータ。数値配列、文字列、または数値を指定できます。</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### Keylet表
+
+<Tabs>
+<TabItem label="C">
+| Keyletタイプ                                                                      | パラメーター                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| KEYLET_HOOK_STATE                                                                  | <p><code>a</code> はアカウントIDを指す<br /><code>b</code> はアカウントIDの長さ（20である必要がある）<br /><code>c</code> はHook状態キーを指す<br /><code>d</code> はキーの長さ（32である必要がある）<br /><code>e</code> はHook状態名前空間を指す<br /><code>f</code> は名前空間の長さ（32である必要がある）</p>                                     |
+| <p>KEYLET_AMENDMENTS<br />KEYLET_FEES<br />KEYLET_NEGATIVE_UNL<br />KEYLET_EMITTED_DIR</p> | `a`, `b`, `c`, `d`, `e`, `f` はすべて0でなければならない                                                                                                                                                                                                                                                                                                                                |
+| KEYLET_SKIP                                                                         | <p>どちらか:<br /><code>a</code>, <code>b</code>, <code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> がすべて0<br />または:<br /><code>a</code> が <code>LedgerIndex</code><br /><code>b</code> が1<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> はすべて0</p>                                                                                  |
+| KEYLET_LINE                                                                         | <p><code>a</code> は上位アカウントIDを指す<br /><code>b</code> はその長さ（20である必要がある）<br /><code>c</code> は下位アカウントIDを指す<br /><code>d</code> はその長さ（20である必要がある）<br /><code>e</code> は通貨コードを指す<br /><code>f</code> はその長さ（20である必要がある）</p>                                         |
+| KEYLET_QUALITY                                                                      | <p><code>a</code> はシリアライズ済みKeyletを指す<br /><code>b</code> はその長さ（34である必要がある）<br /><code>c</code> は渡すuint64の上位32ビット<br /><code>d</code> は渡すuint64の下位32ビット<br /><code>e</code>, <code>f</code> はすべて0でなければならない</p>                                                                                    |
+| KEYLET_DEPOSIT_PREAUTH                                                             | <p><code>a</code> はアカウントIDを指す<br /><code>b</code> は長さ（20である必要がある）<br /><code>c</code> はアカウントIDを指す<br /><code>d</code> は長さ（20である必要がある）<br /><code>e</code>, <code>f</code> はすべて0でなければならない</p>                                                                                                                                     |
+| <p>KEYLET_UNCHECKED<br />KEYLET_CHILD<br />KEYLET_EMITTED_TXN</p>                        | <p><code>a</code> はキーを指す。<br /><code>b</code> はキーの長さ（32である必要がある。）<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> はどちらも0でなければならない</p>                                                                                                                                                                                       |
+| <p>KEYLET_OWNER_DIR<br />KEYLET_SIGNERS<br />KEYLET_ACCOUNT<br />KEYLET_HOOK</p>           | <p><code>a</code> はアカウントIDを指す。<br /><code>b</code> は長さ（20である必要がある。）<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> はすべて0でなければならない。</p>                                                                                                                                                                                           |
+| KEYLET_PAGE                                                                         | <p><code>a</code> はキーを指す。<br /><code>b</code> はキーの長さ（32である必要がある。）<br /><code>c</code> は渡すuint64の上位32ビット<br /><code>d</code> は渡すuint64の下位32ビット<br /><code>e</code>, <code>f</code> はどちらも0でなければならない</p>                                                                                                |
+| <p>KEYLET_OFFER<br />KEYLET_CHECK<br />KEYLET_ESCROW<br />KEYLET_NFT_OFFER</p>             | <p><code>a</code> はアカウントIDを指す。<br /><code>b</code> は長さ（20である必要がある。）<br />さらにどちらか:<br /><code>c</code> は32ビットの符号なし整数（シーケンス）<br /><code>d</code> は0<br />または:<br /><code>c</code> は32バイトのキーを指す<br /><code>d</code> はキーの長さ（32）。<br />どちらの場合も:<br /><code>e</code> と <code>f</code> は0でなければならない。</p>            |
+| KEYLET_PAYCHAN                                                                      | <p><code>a</code> はアカウントIDを指す<br /><code>b</code> は長さ（20である必要がある）<br /><code>c</code> はアカウントIDを指す<br /><code>d</code> は長さ（20である必要がある）<br />さらにどちらか:<br /><code>e</code> は渡す32ビット符号なし整数<br /><code>f</code> は0<br />または:<br /><code>e</code> は32バイトのキーを指す<br /><code>f</code> はキーの長さ（32）</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数。常に34である必要があります。<br /><br />負の値の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />-指定されたポインター／長さがHookメモリの外にあります。<br /><br /><code>INVALID_ARGUMENT</code><br />-呼び出しが上の表に従っていませんでした。<br /><br /><code>TOO_SMALL</code><br />-書き込みバッファが34バイト未満でした。</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型     | 説明                                                                                                           |
+| ------ | --------------------------------------------------------------------------------------------------------------------- |
+| number | Keyletの作成にエラーがある場合はErrorCode、そうでなければ生成されたKeyletを数値配列として返します。 |
+</TabItem>
+</Tabs>

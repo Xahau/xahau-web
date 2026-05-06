@@ -1,0 +1,99 @@
+---
+title: etxn_nonce
+description: 発行トランザクションで使用する32バイトのnonceを生成します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/ja/docs/hooks/concepts/emitted-transactions">発行トランザクション</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 32バイトのハッシュを `write_ptr` に書き込む
+</TabItem>
+
+<TabItem label="JavaScript">
+* エラーがある場合はErrorCodeを返し、成功するとnonce値を含む配列を返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_nonce (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_nonce(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t n[32];
+int64_t bytes_written = 
+    etxn_nonce(n, 32);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const nonce = etxn_nonce()
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+
+
+| 名前       | 型        | 説明                                                                              |
+| ---------- | --------- | ---------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | 出力を格納するのに十分なサイズのバッファへのポインター。少なくとも32バイト必要です。 |
+| write_len | uint32_t | 出力バッファの長さ。                                                                 |
+</TabItem>
+
+<TabItem label="JavaScript">
+パラメーターはありません
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="187">型</th><th>説明</th></tr></thead><tbody><tr><td>int64_t</td><td>書き込まれたバイト数<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-ポインター/長さがHookメモリの範囲外に指定されています。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="187">型</th><th>説明</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>エラーがある場合はErrorCodeを返し、成功するとnonce値を含む配列を返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

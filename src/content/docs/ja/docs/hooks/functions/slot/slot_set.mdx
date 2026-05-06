@@ -1,0 +1,104 @@
+---
+title: slot_set
+description: keyletに基づいてオブジェクトを探し、Slotに配置する
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr` で指定されたKeyletを使ってオブジェクトを探す
+* 見つかったオブジェクトを指定されたSlotに配置する。Slotが指定されていない（0）の場合は新しいSlotに配置する
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定されたSlotのデータを設定する。
+* エラーコードまたは設定操作の結果を返す。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t slot_no
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_set(
+    kl: ByteArray | HexString,
+    slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_no = 
+  slot_set(keylet, 34, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const slot_no = slot_set(keylet, 0)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前      | 型      | 説明                                                                                     |
+| --------- | --------- | ----------------------------------------------------------------------------------------------- |
+| read_ptr | uint32_t | 見つける対象のオブジェクトのkeyletを含むバッファへのポインター。txnハッシュでもよい。 |
+| read_len | uint32_t | 読み取りバッファの長さ。常に32または34でなければならない。                               |
+| slot_no  | uint32_t | 配置先のSlot番号。次に利用可能なSlotを選びたい場合は0。                                 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前   | 型                   | 説明                                               |
+| ------ | ---------------------- | --------------------------------------------------------- |
+| kl     | ByteArray \| HexString | Slotに設定するデータ。配列または文字列にできる。 |
+| slotno | number                 | データを設定するSlot番号。                      |
+</TabItem>
+</Tabs>
+
+
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| 型     | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>オブジェクトが挿入されたSlot番号<br /><br />負の値ならエラー:<br /><code>OUT_OF_BOUNDS</code><br />-指定されたポインター/長さがHookメモリの外を指している。<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_ptr</code> でtxnハッシュまたはkeyletを使う場合、<code>read_len</code> は32バイトまたは34バイトのいずれかでなければならない<br />-ハッシュまたはkeyletが無効だった<br /><br /><code>DOESNT_EXIST</code><br />-要求されたオブジェクトが見つからなかった</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                | 説明                                               |
+| ------------------- | --------------------------------------------------------- |
+| ErrorCode or number | エラーコードまたは設定操作の結果を返す。 |
+</TabItem>
+</Tabs>

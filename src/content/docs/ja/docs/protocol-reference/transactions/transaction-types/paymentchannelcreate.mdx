@@ -1,0 +1,39 @@
+---
+title: PaymentChannelCreate
+description: >-
+  payment channelを作成し、Amountを資金として入れます。このトランザクションを送信するアドレスがpayment channelの「source address」になります。
+---
+[\[ソース\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_(\[PayChan amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "PaymentChannelCreate",
+    "Amount" : {
+       "currency" : "USD",
+       "value" : "1",
+       "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+    },
+    "Destination": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+    "SettleDelay": 86400,
+    "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A",
+    "CancelAfter": 533171558,
+    "DestinationTag": 23480,
+    "SourceTag": 11747
+}
+```
+
+| フィールド            | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                                                                                                                                                                                                                                                                                   |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Amount`         | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | 送信者の残高から差し引いてこのchannelに確保する金額。channelが開いている間は、このAmountは `Destination` アドレスにしか送れません。channelが閉じると、未請求のAmountはsource addressの残高に戻ります。                                                                          |
+| `Destination`    | String                                                                                                                             | AccountID           | このchannelに対するclaimを受け取るアドレス。channelの「destination address」とも呼ばれます。送信者（`Account`）と同じにはできません。                                                                                                                                                                |
+| `SettleDelay`    | Number                                                                                                                             | UInt32              | source addressが、未請求のAmountがあるchannelを閉じる前に待たなければならない時間。                                                                                                                                                                                                                            |
+| `PublicKey`      | String                                                                                                                             | Blob                | sourceがこのchannelに対するclaimの署名に使うkey pairの33-byte public keyをhexadecimalで表したもの。secp256k1またはEd25519のpublic keyを指定できます。key pairの詳細はKey Derivationを参照してください。                                                                                                        |
+| `CancelAfter`    | Number                                                                                                                             | UInt32              | _(任意)_ このchannelが期限切れになる時刻。\[seconds since the Ripple Epoch]\[]で指定します。この時刻以降にchannelを変更しようとするtransactionは、他に影響を与えずにchannelを閉じます。この値は不変であり、この時刻より早く閉じることはできますが、この時刻を過ぎて開いたままにはできません。 |
+| `DestinationTag` | Number                                                                                                                             | UInt32              | _(任意)_ このpayment channelのdestinationをさらに特定する任意のタグ。たとえばdestination addressでのhosted recipientなどです。                                                                                                                                                                                |
+
+`Destination` アカウントがincoming payment channelsをブロックしている場合、トランザクションは `tecNO_PERMISSION` で失敗します。_(\[DisallowIncoming amendment]\[]が必要:not_enabled:)_

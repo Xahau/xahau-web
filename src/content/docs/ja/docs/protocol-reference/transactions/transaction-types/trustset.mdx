@@ -1,0 +1,65 @@
+---
+title: TrustSet
+description: 2つのアカウントを結ぶtrust lineを作成または変更します。
+---
+[\[ソース\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/app/tx/impl/SetTrust.cpp)
+
+### 例
+
+```json
+{
+    "TransactionType": "TrustSet",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 262144,
+    "LastLedgerSequence": 8007750,
+    "LimitAmount": {
+      "currency": "USD",
+      "issuer": "rsP3mgGb2tcYUrxiLFiHJiQXhsziegtwBc",
+      "value": "100"
+    },
+    "Sequence": 12
+}
+```
+
+| フィールド                    | JSON型 | \[Internal Type]\[] | 説明                                                                                                                                                                                   |
+| ------------------------ | --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LimitAmount`            | Object    | Amount              | 作成または変更するtrust lineを定義するオブジェクト。\[Currency Amount]\[]形式で指定します。                                                                                               |
+| `LimitAmount`.`currency` | String    | (Amount.currency)   | このtrust lineに適用される通貨。3文字の [ISO 4217 Currency Code](https://www.xe.com/iso4217.php)またはcurrency formatに従う160-bit hexadecimal値です。"XAH" は無効です。          |
+| `LimitAmount`.`value`    | String    | (Amount.value)      | このtrust lineに設定するlimitの引用付きdecimal表記。                                                                                                                          |
+| `LimitAmount`.`issuer`   | String    | (Amount.issuer)     | trustを拡張する相手アカウントのアドレス。                                                                                                                                               |
+| `QualityIn`              | Number    | UInt32              | _(任意)_ このtrust lineのincoming balanceを、1,000,000,000単位あたりこの数の比率で評価します。`0` は残高を額面どおりに扱う省略形です。                                   |
+| `QualityOut`             | Number    | UInt32              | _(任意)_ このtrust lineのoutgoing balanceを、1,000,000,000単位あたりこの数の比率で評価します。`0` は残高を額面どおりに扱う省略形です。                                  |
+
+`LimitAmount.issuer` で指定されたアカウントがincoming trust linesをブロックしている場合、トランザクションは `tecNO_PERMISSION` で失敗します。_(\[DisallowIncoming amendment]\[]が必要:not_enabled:)_
+
+### TrustSetフラグ
+
+TrustSetタイプのトランザクションは、`Flags` フィールドで次の追加値をサポートします。
+
+| フラグ名         | Hex値    | 10進値 | 説明                                                                                                                                        |
+| ----------------- | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfSetfAuth`      | `0x00010000` | 65536         | 相手方がこのアカウント発行の通貨を保有することを承認します。（`asfRequireAuth` AccountSetフラグを使っている場合にのみ有効です。）解除できません。 |
+| `tfSetNoRipple`   | `0x00020000` | 131072        | No Rippleフラグを有効にします。これが両方のtrust lineに設定されている場合、同じ通貨の2つのtrust line間でのripplingを防ぎます。      |
+| `tfClearNoRipple` | `0x00040000` | 262144        | No Rippleフラグを無効にし、このtrust lineでのripplingを許可します。                                                                       |
+| `tfSetFreeze`     | `0x00100000` | 1048576       | trust lineをfreezeします。                                                                                                                     |
+| `tfClearFreeze`   | `0x00200000` | 2097152       | trust lineのfreezeを解除します。                                                                                                               |
+| `tfSetDeepFreeze` | `0x00400000` | 4194304       | trust lineをdeep freezeします。 _(\[DeepFreeze amendment]\[]が必要)_                                                                          |
+| `tfClearDeepFreeze` | `0x00800000` | 8388608       | trust lineのdeep-freezeを解除します。 _(\[DeepFreeze amendment]\[]が必要)_                                                                   |
+
+トランザクションがNo Rippleを有効にしようとしてできない場合、`tecNO_PERMISSION` で失敗します。\[fix1578 amendment]\[]が有効になる前は、そのようなトランザクションは、可能な他の変更を行ったうえで `tesSUCCESS` になっていました。
+
+trust lineのAuthフラグは、そのtrust lineが所有者のXAH reserve要件に含まれるかどうかを決めません。ただし、有効なAuthフラグはtrust lineが既定状態になるのを防ぎます。承認済みのtrust lineは削除できません。issuerは、trust lineのlimitとbalanceが0であっても、`tfSetfAuth` フラグだけでtrust lineを事前承認できます。
+
+### Deep Freezeのルール
+
+\[DeepFreeze amendment]\[]が有効な場合、deep freeze操作には次のルールが適用されます。
+
+`tfSetDeepFreeze` を設定しようとするTrustSetトランザクションは、次のいずれかが真のときのみ成功します。
+
+* 保有者がすでにfrozenであり、trust lineの `lsfLowFreeze` / `lsfHighFreeze` で示されている。
+* 同じTrustSetトランザクションで `tfSetFreeze` も設定されている。
+
+trust lineがissuerによってdeep-frozenされている（`lsfLowDeepFreeze` / `lsfHighDeepFreeze` で示される）場合、issuerが `tfClearDeepFreeze` フラグを設定せずに `tfClearFreeze` フラグを設定すると、TrustSetトランザクションは失敗します。言い換えると、issuerはdeep freezeを解除せずに通常のfreezeだけを解除することはできません。
+
+low accountとhigh accountの決まり方については、[High vs. Low Account](/ja/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state#high-vs-low-account)を参照してください。

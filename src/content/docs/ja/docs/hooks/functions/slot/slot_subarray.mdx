@@ -1,0 +1,106 @@
+---
+title: slot_subarray
+description: Slot内の配列をたどり、サブオブジェクトを別のSlotに割り当てる
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `parent_slot` のSlotにある配列を探す
+* `array_id` で指定されたインデックスのサブオブジェクトを取得する
+* サブオブジェクトを `new_slot` のSlotに入れる。`new_slot` が0なら次に利用可能なSlotに入れる
+* 新しいSlot番号を返す
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定された親Slotにサブ配列を作成する。
+* エラーコードまたはサブ配列作成の結果を返す。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_subarray (
+    uint32_t parent_slot,
+    uint32_t array_id,
+    uint32_t new_slot
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_subarray(
+    parent_slotno: number,
+    array_id: number,
+    new_slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t subslot = 0;
+subslot =
+    slot_subarray(slot_no, i, (uint32_t)subslot);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+let subslot = 0
+subslot = slot_subarray(slot_no, i, subslot)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前         | 型      | 説明                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| parent_slot | uint32_t | 親配列が入っているSlot。                                                                                                                                                                                                                                                                                                                                                                                |
+| array_id    | uint32_t | <p>検索対象のフィールドの <code>sf</code> コード。<br /><br />これを手動で求めるには、シリアライズ済みの <code>type</code> をuint32_tの上位16ビットにシフトし、<code>field</code> を下位16ビットに配置する。<br /><br />たとえば、<code>sfEmitNonce</code> は <code>type</code> が5、<code>field</code> が11なので、その値は <code>0x050BU</code> になる。</p> |
+| new_slot    | uint32_t | 選択した配列インデックスのオブジェクトを入れる新しいSlot番号。<code>null</code> の場合は次に利用可能なSlotを選ぶ。_nullにできます。_                                                                                                                                                                                                                                                                            |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前           | 型   | 説明                                   |
+| -------------- | ------ | --------------------------------------------- |
+| parent_slotno | number | 親Slot番号。                       |
+| array_id      | number | サブ配列を作成する配列のID。        |
+| new_slotno    | number | サブ配列用の新しいSlot番号。       |
+</TabItem>
+</Tabs>
+
+
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| 型     | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>新しく割り当てられたオブジェクトのSlot番号<br /><br />負の値ならエラー:<br /><br /><code>DOESNT_EXIST</code><br />-指定された <code>array_id</code> が <code>parent_slot</code> の配列内に存在しない。<br /><br /><code>NO_FREE_SLOTS</code><br />- APIが新しいSlotの割り当てを必要とするが、HookのSlot数はすでに最大である。<br /><br /><code>NOT_AN_ARRAY</code><br />-指定された <code>parent_slot</code> にSTArrayが含まれていない。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型   | 説明                                                   |
+| ------ | ------------------------------------------------------------- |
+| number | エラーコードまたはサブ配列作成の結果を返す。 |
+</TabItem>
+</Tabs>

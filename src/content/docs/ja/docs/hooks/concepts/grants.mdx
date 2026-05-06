@@ -1,0 +1,90 @@
+---
+title: Grants
+description: Hook Grantsについて
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+  ほとんどのHook開発者がHookGrantsを使用する必要はほとんどありません。外部のHooksやアカウントに状態変更権限を付与する際は、極めて慎重に行うべきです。
+
+  HookGrantを直接資金の盗難に使うことはできませんが、Hookの状態を意図的に外部から変更すると、Hookが意図しない方法で動作する可能性があり、場合によっては盗難につながる可能性があります。
+  
+  Grantを使用する必要があると思う場合は、続行する前に、実際に使用する必要があるかどうか設計を再確認してください。
+</Aside>
+
+### Grants
+
+Grantsは、Hook Installerが他のXahauアカウント上の_外部_ Hookに[状態管理](/ja/docs/hooks/concepts/state-management)権限を割り当てる方法を提供します。
+
+[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)は、`Hooks`配列内の任意の`Hook`オブジェクトに`HookGrants`配列を指定できます。`HookGrants`配列には、1つ以上（最大8個）の`HookGrant`オブジェクトが含まれます。
+
+[パラメーター](/ja/docs/hooks/concepts/parameters)とは異なり、`HookGrants`配列は常に[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)で指定されたとおり正確に設定されます。したがって、以前に設定された複数の他の`HookGrant`エントリを保持しながら特定の`HookGrant`を更新したい場合は、まず古い`HookGrants`配列を取得し、それを変更したうえで、配列全体を[_Update Operation（更新操作）_](/ja/docs/hooks/concepts/sethook-transaction)で再送信する必要があります。
+
+すべてのGrantsを削除するには、空の`HookGrants`配列を送信します。
+
+<Aside type="caution">
+  [パラメーター](/ja/docs/hooks/concepts/parameters)とは異なり、`HookGrants`配列は常に[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)で指定されたとおり正確に設定されます。
+</Aside>
+
+Grantは、外部XRPLアカウントまたはHookが、そのGrantが定義されている特定のHookの名前空間内のHook状態を変更することを許可します。
+
+HookGrantには少なくとも次を指定する必要があります。
+
+* `HookHash`\
+  また、アカウントも指定できます。
+* `Authorize`
+
+HookHashで指定されたHookだけが、HookGrantが指定されたHookの名前空間内のHook状態を変更できます。`Authorize`が指定された場合、この権限はさらに厳格になり、`Authorize`で指定されたアカウントにインストールされているときのHookHashで指定されたHookだけに限定されます。
+
+<Aside type="tip">
+  Grantsは外部Hooksにのみ適用され、Hooksがインストールされているアカウント上のHook状態に関するHooksの操作を制限することはありません。
+</Aside>
+
+### 例
+
+```js
+Account: "rALicebv3hMYNBWtu1VEEWkToArgYsYERs",
+TransactionType: "SetHook",
+Hooks:
+[   
+    {   
+        Hook: {
+            ...,
+            HookNamespace: "3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8",
+            HookGrants:
+            [   
+                {   
+                    HookGrant:    // first grant
+                    {   
+                        HookHash:  "78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8"
+                    },
+                    HookGrant:    // second grant
+                    {   
+                        Authorize: "rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9",
+                        HookHash:  "A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6"
+                    }
+                },  
+            ]   
+        }   
+    }   
+],  
+... 
+```
+
+上記の_最初のgrant_は次を許可します。
+
+* `78CAF69EEE950A6C55A450AC2A980DE434D624CD1B13148E007E28B7B6461CC8`にハッシュされるコードを持つHookの任意のインスタンス
+* **任意のアカウント**上で実行されるもの
+* アカウント`rALicebv3hMYNBWtu1VEEWkToArgYsYERs`のHook状態を変更すること
+* 名前空間`3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`内で
+
+上記の_2番目のgrant_は次を許可します。
+
+* `A5B8D62154DA1C329BE13582086B52612476720CEBD097EB85CEE1455E1C70A6`にハッシュされるコードを持つHookの任意のインスタンス
+* ただし、アカウント`rCLairev2ma2gNZdcHJeTk7fCQ1ki84vr9`上で実行される場合に限る
+* アカウント`rALicebv3hMYNBWtu1VEEWkToArgYsYERs`のHook状態を変更すること
+* 名前空間`3963ADEB1B0E8934C0963680531202FD511FF1E16D5864402C2DA63861C420A8`内で
+
+### Grantの使用
+
+Grantを利用するには、Hookが[state_foreign_set](/ja/docs/hooks/functions/state/state_foreign_set)を呼び出して外部アカウント上の状態オブジェクトを変更します。

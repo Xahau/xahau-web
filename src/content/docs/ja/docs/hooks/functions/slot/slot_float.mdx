@@ -1,0 +1,93 @@
+---
+title: slot_float
+description: >-
+  指定されたSlot内のSTI_AMOUNTを解析し、XFLでエンコードされた
+  数値として返す
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定されたSlot内のSTI_AMOUNTを解析し、XFLでエンコードされた数値として返す
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定されたSlotに関連付けられたbigint値を取得する。
+* エラーコードまたはbigint値を返す。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_float (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_float(slotno: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t xfl =
+  	slot_float(amt_slot);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const xfl = slot_float(amt_slot)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前     | 型      | 説明     |
+| -------- | --------- | --------------- |
+| slot_no | uint32_t | Slot番号 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前   | 型   | 説明                                        |
+| ------ | ------ | -------------------------------------------------- |
+| slotno | number | bigint値を取得する対象のSlot番号。 |
+</TabItem>
+</Tabs>
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| 型     | 説明                                                                                                                                                                                                                                                                          |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>XFLでエンコードされた数値<br /><br />負の値ならエラー:<br /><code>DOESNT_EXIST</code><br />-指定されたSlotにオブジェクトが存在しないか、無効なSlotである<br /><br /><code>NOT_AN_AMOUNT</code><br />-指定されたSlotに <code>STI_AMOUNT</code> オブジェクトが含まれていない</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                | 説明                                |
+| ------------------- | ------------------------------------------ |
+| bigint or ErrorCode | エラーコードまたはbigint値を返す。 |
+</TabItem>
+</Tabs>

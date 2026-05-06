@@ -1,0 +1,118 @@
+---
+title: state_set
+description: 指定したキーと値に対してHook状態を設定する
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `kread_ptr` から32バイトのHook状態キーを読み取る
+* `read_ptr` から任意長のデータ（値）を読み取る
+* その値でHook状態キーを更新する
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した値とキーでHook状態を設定する。
+* Hook状態に書き込まれたバイト数（データの長さ）を返す。エラー時は負の値。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_set(
+    value: ByteArray | HexString | undefined | null,
+    key: ByteArray | HexString
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+if (state_set(SBUF(vault), SBUF(vault_key)) < 0)
+		rollback(SBUF("Error: could not set state!"), 1);
+```
+
+<Aside type="tip">
+状態を削除するには `state_set(0, 0, SBUF(key);` を使います。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const result = state_set(vault, vault_key)
+if (result < 0)
+    rollback("Error: could not set state!", 1);
+```
+
+<Aside type="tip">
+状態を削除するには `state_set(null, key);` を使います。
+</Aside>
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前       | 型        | 説明                                                                                                                                              |
+| ---------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr  | uint32_t | <p>Hook状態に書き込むデータ（値）へのポインター。<br />これが <code>0</code>（null）の場合は、このキーのデータを削除します。<em>null可。</em></p> |
+| read_len  | uint32_t | <p>データの長さ。<br />これが <code>0</code>（null）の場合は、このキーのデータを削除します。<em>null可。</em></p>                               |
+| kread_ptr | uint32_t | 値を保存するHook状態キーへのポインター。                                                                                                              |
+| kread_len | uint32_t | キーの長さ。（常に32である必要があります。）                                                                                                         |
+
+<Aside type="caution">
+Xahaudは内部的にHookデータサイズの上限を設定しています。執筆時点ではメインネット向けに256バイトへハードコードされていますが、将来的にはバリデーター投票可能な値になります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前  | 型                     | 説明                                              |
+| ----- | ---------------------- | ------------------------------------------------- |
+| value | ByteArray or HexString | 永続化するデータの値。                          |
+| key   | ByteArray or HexString | 値を設定するHook状態のキー。                   |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>Hook状態に書き込まれたバイト数（データの長さ）。<br /><br />負の値の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />-指定されたポインター／長さがHookメモリの外にあります。<br /><br /><code>TOO_BIG</code><br />- <code>kread_len</code> が32を超えている、または<br />- <code>read_len</code> が最大Hookデータサイズを超えています。<br /><br /><code>TOO_SMALL</code><br />- <code>kread_len</code> が0です。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------------- |
+| number or ErrorCode | Hook状態に書き込まれたバイト数（データの長さ）を返します。エラー時は負の値です。               |
+</TabItem>
+</Tabs>

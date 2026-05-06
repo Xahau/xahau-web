@@ -1,0 +1,38 @@
+---
+title: TicketCreate
+description: >-
+  TicketCreateトランザクションは、1つ以上の [sequence numbers][Sequence Number]をTicketとして取り置きします。
+---
+[\[ソース\]](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/CreateTicket.cpp)
+
+_(\[TicketBatch amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "TransactionType": "TicketCreate",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "10",
+    "Sequence": 381,
+    "TicketCount": 10
+}
+```
+
+| フィールド         | JSON型 | \[Internal Type]\[] | 説明                                                                                                                                            |
+| ------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TicketCount` | Number    | UInt32              | 作成するTicketの数。正の数でなければならず、このトランザクション実行後にアカウントが250 Ticketを超えて所有することはできません。 |
+
+トランザクションが要求されたTicketを_すべて_作成できない場合（250 Ticketの上限またはowner reserveが原因）、失敗してTicketは1つも作成されません。アカウントが現在いくつTicketを所有しているかを調べるには、\[account_info method]\[]を使って `account_data.TicketCount` フィールドを確認します。
+
+**Tip:** このトランザクションは、送信アカウントの \[sequence number]\[Sequence Number]を1に、作成したticket数（`TicketCount`）を_加えた_分だけ増やします。アカウントのsequence numberを1より多く増やすのは、このトランザクションだけです。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、TicketCreateトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード                | 説明                                                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temINVALID_COUNT`        | `TicketCount` フィールドが無効です。1から250までの整数でなければなりません。                                                                           |
+| `tecDIR_FULL`             | このトランザクションにより、アカウントが一度に250 Ticketの上限を超えて所有するか、一般にレジャーオブジェクトの最大数を超えることになります。            |
+| `tecINSUFFICIENT_RESERVE` | 送信アカウントが、要求されたすべてのTicketのowner reserveを満たすだけのXAHを持っていません。                                                      |

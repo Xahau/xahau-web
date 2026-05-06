@@ -1,0 +1,51 @@
+---
+title: Clawback
+description: >-
+  自分のアカウントが以前に発行したトークンを取り消します。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Clawback.cpp)]
+
+_(\[Clawback amendment]\[]により追加。)_
+
+自分のアカウントが以前に発行したトークンを取り消します。**Clawback** 機能は既定では無効です。利用するには、まず *Allow Trust Line Clawback* を有効にする **AccountSet** トランザクションを送信する必要があります。アカウントがすでにトークンを発行している場合、その後でClawbackを有効化することはできません。*Allow Trust Line Clawback* を有効にできるのは、owner directoryが完全に空のときだけです。つまり、trust line、offer、escrow、payment channel、check、またはsigner listを作成する前でなければなりません。一度有効化すると、Clawbackはアカウントの恒久的な機能となり、取り消すことはできません。
+
+---
+
+## 例
+
+```json
+{
+  "TransactionType": "Clawback",
+  "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "Amount": {
+    "currency": "USD",
+    "issuer": "rfkE1aSy9G8Upk4JssnwBxhEv5p4mn2KTy",
+    "value": "123.45"
+  }
+}
+````
+
+---
+
+### フィールド
+
+**Clawback** トランザクションには次が含まれます。
+
+| フィールド    | JSON型         | 説明                                                                                                                                                                                                                                                        |
+| -------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Amount` | *Currency Amount* | 取り消す数量と、その対象となるカウンターパーティーです。`value` は0であってはなりません。保有者の残高を超える場合は、残高全体が取り消されます。`issuer` サブフィールドには、issuerではなく保有者のアドレスを指定します。 |
+
+Xahauでは、trust line上のIOU / Non-XAH tokenには常にissuerがありますが、trust lineは双方向であり、設定によっては両側がissuerとして振る舞うことがあります。このトランザクションでは、issuerのアドレスを `Account` フィールドに、保有者のアドレスを `Amount` の `issuer` サブフィールドに入れます。
+
+---
+
+## エラーケース
+
+標準のトランザクションエラーに加えて、Clawbackは次の理由で失敗することがあります。
+
+| エラーコード         | 説明                                                                                                                                                                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`      | Xahauで **Clawback** amendmentが有効になっていない場合。                                                                                                                                                                                             |
+| `temBAD_AMOUNT`    | 保有者の残高が0の場合。（指定したamountが保有者の残高を超えていてもエラーではなく、その場合は利用可能な残高全体が取り消されます。）また、`Amount` のcounterpartyがトランザクションを送信するアカウントと同じ場合にも発生します。 |
+| `tecNO_LINE`       | 指定されたcounterpartyとのtrust lineが存在しないか、trust lineの残高が0の場合。                                                                                                                                                                 |
+| `tecNO_PERMISSION` | `lsfNoFreeze` がすでに有効な状態で `lsfAllowTrustLineClawback` を有効にしようとした場合、またはその逆の場合に発生します。                                                                                                                             |

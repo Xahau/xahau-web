@@ -1,0 +1,76 @@
+---
+title: float_exponent
+description: XFL格納数の指数部を取得します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+<Tabs>
+<TabItem label="C">
+<Aside type="caution" title="マクロに置き換え済み">
+この関数はマクロに置き換えられました。代わりに、以下のマクロをコードで使用してください。
+XFLの有効性を確認するには、このマクロとあわせてfloat_mantissaを使用してください。
+</Aside>
+</TabItem>
+</Tabs>
+
+
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFLの指数部を符号付き整数として返します
+</TabItem>
+</Tabs>
+
+
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+指数は負の値になる可能性があり、負の値はエラー状態用に予約されているため、指数を関数から返すことはできません。そのため、この関数は以下に示すマクロになりました。
+
+```c
+#define float_exponent(f)\
+        (((int32_t)(((f) >> 54U) & 0xFFU)) - 97)
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t exponent =
+    float_exponent(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前   | 型       | 説明                                   |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | XFL浮動小数点格納数                    |
+</TabItem>
+</Tabs>

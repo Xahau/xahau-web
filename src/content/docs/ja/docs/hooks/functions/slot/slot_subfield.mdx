@@ -1,0 +1,104 @@
+---
+title: slot_subfield
+description: Slot内オブジェクトをたどり、サブオブジェクトを別のSlotに割り当てる
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `parent_slot` のSlotにあるオブジェクトを探す
+* `field_id` のサブオブジェクトを取得する
+* サブオブジェクトを `new_slot` のSlotに入れる。`new_slot` が0なら次に利用可能なSlotに入れる
+* 新しいSlot番号を返す
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定された親Slotにサブフィールドを作成する。
+* エラーコードまたはサブフィールド作成の結果を返す。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_subfield (
+    uint32_t parent_slot,
+    uint32_t field_id,
+    uint32_t new_slot
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_subfield(
+    parent_slotno: number,
+    field_id: number,
+    new_slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t amt_slot = 
+  	slot_subfield(oslot, sfAmount, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const amt_slot = slot_subfield(oslot, sfAmount, 0)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前         | 型      | 説明                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| parent_slot | uint32_t | 親オブジェクトが入っているSlot。                                                                                                                                                                                                                                                                                                                                                                               |
+| field_id    | uint32_t | <p>検索対象のフィールドの <code>sf</code> コード。<br /><br />これを手動で求めるには、シリアライズ済みの <code>type</code> をuint32_tの上位16ビットにシフトし、<code>field</code> を下位16ビットに配置する。<br /><br />たとえば、<code>sfEmitNonce</code> は <code>type</code> が5、<code>field</code> が11なので、その値は <code>0x050BU</code> になる。</p> |
+| new_slot    | uint32_t | 選択したフィールドのオブジェクトを入れる新しいSlot番号。<code>null</code> の場合は次に利用可能なSlotを選ぶ。_nullにできます。_                                                                                                                                                                                                                                                                                  |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前           | 型   | 説明                                   |
+| -------------- | ------ | --------------------------------------------- |
+| parent_slotno | number | 親Slot番号。                       |
+| field_id      | number | サブフィールドを作成するフィールドのID。 |
+| new_slotno    | number | サブフィールド用の新しいSlot番号。   |
+</TabItem>
+</Tabs>
+
+
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| 型     | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>新しく割り当てられたオブジェクトのSlot番号<br /><br />負の値ならエラー:<br /><br /><code>DOESNT_EXIST</code><br />-探しているフィールドが親Slotに存在しないか、親Slotが空である。<br /><br /><code>NO_FREE_SLOTS</code><br />- APIが新しいSlotの割り当てを必要とするが、HookのSlot数はすでに最大である。<br /><br /><code>INVALID_FIELD</code><br />-指定されたフィールドが有効な <code>sf</code> フィールドではない。<br /><br /><code>NOT_AN_OBJECT</code><br />- Slotに入っているオブジェクトが有効なSTObjectではない。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                | 説明                                                   |
+| ------------------- | ------------------------------------------------------------- |
+| number or ErrorCode | エラーコードまたはサブフィールド作成の結果を返す。 |
+</TabItem>
+</Tabs>

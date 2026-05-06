@@ -1,0 +1,37 @@
+---
+title: URITokenBurn
+description: >-
+  URITokenBurnトランザクションは、XahauでURITokenを焼却するために使います。URITokenを焼却すると、そのtokenは永久に流通から取り除かれます。
+---
+[\[ソース\]](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/URIToken.cpp)
+
+_(\[URIToken amendment]\[]により追加。)_
+
+URITokenBurnトランザクションは、XahauでURITokenを焼却するために使います。URITokenを焼却すると、そのtokenは永久に流通から取り除かれます。
+
+### 例
+
+```json
+{
+    "TransactionType": "URITokenBurn",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA",
+}
+```
+
+| フィールド        | JSON型 | \[Internal Type]\[] | 説明                                                     |
+| ------------ | --------- | ------------------- | --------------------------------------------------------------- |
+| `Account`    | String    | AccountID           | 焼却するURITokenを所有しているアカウントのアドレス。        |
+| `URITokenID` | String    | Hash256             | 焼却するURITokenのID。                                       |
+
+### 特別なトランザクションコスト
+
+URITokenBurnトランザクションには、特別なトランザクションコスト要件はありません。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、URITokenBurnトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード         | 説明                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `tecNO_PERMISSION` | アカウントにtokenを焼却する権限がない場合に発生します。       |

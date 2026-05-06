@@ -1,0 +1,63 @@
+---
+title: UNLレポート
+---
+_（[Hooks Amendment][]により追加。）_
+
+`UNLReport` オブジェクトは、Unique Node List (UNL)のレポートを表します。UNLは、ネットワークがトランザクションの検証を信頼するバリデーターノードの一覧です。
+
+### JSON例
+
+```json
+{
+  "LedgerEntryType": "UNLReport",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "ImportVLKeys": [
+    {
+      "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+      "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo"
+    }
+  ],
+  "ActiveValidators": [
+    {
+      "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+      "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo"
+    }
+  ],
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### フィールド
+
+`UNLReport` オブジェクトには次のフィールドがあります。
+
+| フィールド | JSON型 | \[内部型]\[] | 必須? | 説明 |
+| --- | --- | --- | --- | --- |
+| `LedgerEntryType` | String | UInt16 | はい | `0x0073` の値は、文字列 `UNLReport` に対応し、このオブジェクトがUNLReportオブジェクトであることを示します。 |
+| `PreviousTxnID` | String | Hash256 | はい | このオブジェクトを最後に変更したトランザクションの識別ハッシュです。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | はい | このオブジェクトを最後に変更したトランザクションを含むレジャーのインデックスです。 |
+| `ImportVLKeys` | Array | Array | いいえ | インポートされたバリデーターキーをそれぞれ表すオブジェクトの配列です。各オブジェクトには `PublicKey` フィールドと、任意の `Account` フィールドがあります。 |
+| `ActiveValidators` | Array | Array | いいえ | アクティブなバリデーターをそれぞれ表すオブジェクトの配列です。各オブジェクトには `PublicKey` フィールドと、任意の `Account` フィールドがあります。 |
+
+### ImportVLKeyのフィールド
+
+| フィールド | JSON型 | \[内部型]\[] | 必須? | 説明 |
+| --- | --- | --- | --- | --- |
+| `PublicKey` | String | VL | はい | インポートされたバリデーターの公開鍵です。 |
+| `Account` | String | Account | いいえ | インポートされたバリデーターキーに関連付けられたアカウントです。このフィールドは任意です。 |
+
+### ActiveValidatorのフィールド
+
+| フィールド | JSON型 | \[内部型]\[] | 必須? | 説明 |
+| --- | --- | --- | --- | --- |
+| `PublicKey` | String | VL | はい | アクティブなバリデーターの公開鍵です。 |
+| `Account` | String | Account | いいえ | アクティブなバリデーターに関連付けられたアカウントです。このフィールドは任意です。 |
+
+### UNLReport ID形式
+
+`UNLReport` オブジェクトのIDは、`UNLReport` のスペースキー（`0x0052`）だけのハッシュです。つまり、レジャー内の `UNLReport` オブジェクトのIDは常に次のとおりです。
+
+```
+61E32E7A24A238F1C619D5F9DDCC41A94B33B66C0163F7EFCC8A19C9FD6F28DC
+```

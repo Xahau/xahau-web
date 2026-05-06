@@ -1,0 +1,98 @@
+---
+title: 署名者リスト
+---
+[\[出典\]](https://github.com/ripple/rippled/blob/6d2e3da30696bd10e3bb11a5ff6d45d2c4dae90f/src/ripple/protocol/impl/LedgerFormats.cpp#L127)
+
+_（[MultiSign Amendment][]により追加。）_
+
+`SignerList` オブジェクト型は、個別のアカウントの代わりに、グループとしてトランザクションに署名する権限を持つ当事者の一覧を表します。`SignerListSet` トランザクションを使って、署名者リストを作成、置換、または削除できます。
+
+### JSON例
+
+```json
+{
+    "Flags": 0,
+    "LedgerEntryType": "SignerList",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "5904C0DC72C58A83AEFED2FFC5386356AA83FCA6A88C89D00646E51E687CDBE4",
+    "PreviousTxnLgrSeq": 16061435,
+    "SignerEntries": [
+        {
+            "SignerEntry": {
+                "Account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                "SignerWeight": 2
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "raKEEVSGnKSD9Zyvxu4z6Pqpm4ABH8FS6n",
+                "SignerWeight": 1
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "rUpy3eEg8rqjqfUoLeBnZkscbKbFsKXC3v",
+                "SignerWeight": 1
+            }
+        }
+    ],
+    "SignerListID": 0,
+    "SignerQuorum": 3,
+    "index": "A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7"
+}
+```
+
+### フィールド
+
+`SignerList` オブジェクトには次のフィールドがあります。
+
+| 名前 | JSON型 | 内部型 | 必須? | 説明 |
+| --- | --- | --- | --- | --- |
+| `Flags` | Number | UInt32 | はい | この署名者リストで有効なブールフラグのビットマップです。詳細はSignerListのフラグを参照してください。 |
+| `LedgerEntryType` | String | UInt16 | はい | `0x0053` の値は、文字列 `SignerList` に対応し、このオブジェクトがSignerListオブジェクトであることを示します。 |
+| `OwnerNode` | String | UInt64 | はい | ディレクトリが複数ページに分かれている場合に、このオブジェクトへリンクする所有者ディレクトリのどのページかを示すヒントです。 |
+| `PreviousTxnID` | String | Hash256 | はい | このオブジェクトを最後に変更したトランザクションの識別ハッシュです。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | はい | このオブジェクトを最後に変更したトランザクションを含む [レジャーのインデックス][Ledger Index]です。 |
+| `SignerEntries` | Array | Array | はい | この署名者リストに含まれる当事者を表すSigner Entryオブジェクトの配列です。 |
+| `SignerListID` | Number | UInt32 | はい | この署名者リストのIDです。現在は常に `0` に設定されています。将来のAmendmentで1アカウントに複数の署名者リストが許可された場合、これは変わる可能性があります。 |
+| `SignerQuorum` | Number | UInt32 | はい | 署名ウェイトの目標値です。`SignerList` の所有者に対して有効な署名を生成するには、署名者が提供する有効な署名のウェイト合計がこの値以上でなければなりません。 |
+
+`SignerEntries` には、secp256k1またはed25519キーを使用する、資金ありアドレスと資金なしアドレスの任意の組み合わせを含めることができます。
+
+#### Signer Entryオブジェクト
+
+`SignerEntries` フィールドの各要素は、一覧内のその署名者を説明するオブジェクトです。Signer Entryには次のフィールドがあります。
+
+| 名前 | JSON型 | 内部型 | 説明 |
+| --- | --- | --- | --- |
+| `Account` | String | AccountID | マルチシグネチャに署名が寄与するXahauアドレスです。レジャー内で資金があるアドレスである必要はありません。 |
+| `SignerWeight` | Number | UInt16 | この署名者による署名のウェイトです。マルチシグネチャは、提供された署名のウェイト合計が署名者リストの `SignerQuorum` 値以上である場合にのみ有効です。 |
+| `WalletLocator` | String | Hash256 | _（任意）_任意の16進データです。署名者の識別やその他の関連目的に使用できます。_（[ExpandedSignerList Amendment][]により追加。）_ |
+
+マルチ署名トランザクションを処理するとき、サーバーはトランザクション実行時点のレジャーを基準に `Account` 値を参照します。アドレスが資金のあるAccountRootオブジェクトに対応しない場合、そのアドレスに関連付けられたマスタープライベートキーだけが有効な署名の生成に使用できます。アカウントがレジャーに_存在する_場合は、そのアカウントの状態によります。アカウントにRegular Keyが設定されていれば、Regular Keyを使用できます。アカウントのマスターキーは、無効化されていない場合にのみ使用できます。マルチシグネチャを別のマルチシグネチャの一部として使用することはできません。
+
+### SignerListのフラグ
+
+_（[MultiSignReserve Amendment][]により追加。）_
+
+SignerListオブジェクトには次のフラグ値があります。
+
+| フラグ名 | 16進値 | 10進値 | 説明 |
+| --- | --- | --- | --- |
+| `lsfOneOwnerCount` | `0x00010000` | 65536 | このフラグが有効な場合、このSignerListは所有者リザーブの観点で1項目として数えられます。そうでない場合、このリストはN+2項目として数えられます。Nは含まれる署名者の数です。[MultiSignReserve Amendment][]が有効になった後に署名者リストを追加または更新すると、このフラグは自動的に有効になります。 |
+
+### Signer Lists and Reserves
+
+署名者リストは、所有者のリザーブ要件に寄与します。
+
+[MultiSignReserve Amendment][]（2019-04-17に有効化）により、各署名者リストはメンバー数にかかわらず1オブジェクトとして数えられるようになりました。その結果、新しい署名者リストに関連付けられる所有者リザーブは2 XAHです。
+
+[MultiSignReserve Amendment][]以前に作成された署名者リストは、それ自体が2オブジェクトとして数えられ、リストの各メンバーは1として数えられます。その結果、署名者リストに関連付けられる合計所有者リザーブは、レジャー内の単一のトラストライン（RippleState）またはOfferオブジェクト1つに必要なリザーブの3倍から10倍の範囲になります。署名者リストを更新して新しい少ないリザーブを使うには、`SignerListSet` トランザクションを送信して署名者リストを更新します。
+
+### SignerList ID形式
+
+署名者リストオブジェクトのIDは、次の値を順番に連結したもののSHA-512Halfです。
+
+* RippleStateのスペースキー（`0x0053`）
+* 署名者リストの所有者のAccountID
+* `SignerListID`（現在は常に `0`）

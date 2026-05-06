@@ -1,0 +1,44 @@
+---
+title: OfferCancel
+description: OfferCancelトランザクションはXahauからOfferオブジェクトを削除します。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+### OfferSequenceでキャンセル
+
+```json
+{
+    "TransactionType": "OfferCancel",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108629,
+    "OfferSequence": 6,
+    "Sequence": 7
+}
+```
+
+### OfferIDでキャンセル
+
+```json
+{
+    "TransactionType": "OfferCancel",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108629,
+    "OfferID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Sequence": 7
+}
+```
+
+### フィールド
+
+| フィールド           | JSON型 | \[Internal Type]\[] | 説明                                                                                                                                                                                                                                               |
+| --------------- | --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OfferSequence` | Number    | UInt32              | _(任意)_ 以前のOfferCreateトランザクションのシーケンス番号（またはTicket番号）。指定すると、そのトランザクションによって作成されたレジャー内の任意のofferオブジェクトをキャンセルします。指定したofferが存在しなくてもエラーにはなりません。 |
+| `OfferID`       | String    | Hash256             | _(任意)_ キャンセルするOfferレジャーオブジェクトのID。64文字のhexadecimal文字列です。                                                                                                                                                           |
+
+_Tip:_古いofferを削除して新しいofferで置き換えるには、OfferCancelと別のOfferCreateを使う代わりに、`OfferSequence` パラメーター付きの \[OfferCreate transaction]\[]を使えます。
+
+OfferCancelメソッドは、対応するシーケンス番号のofferが見つからなくても `tesSUCCESS` を返します。

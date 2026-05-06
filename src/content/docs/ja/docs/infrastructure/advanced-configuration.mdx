@@ -1,0 +1,57 @@
+---
+title: xahaudの高度な設定
+---
+xahaudの運用者が利用できる設定オプションは多数あります。このセクションでは、サーバーのクラスタリングやデータベース設定に必要なものを含め、より一般的に使われるオプションをいくつか扱います。
+
+設定オプションの完全なドキュメントについては、[xahaud GitHubリポジトリ](https://github.com/Xahau/xahaud/tree/dev/cfg)のサンプル設定ファイルを参照してください。
+
+## データベースをメモリ上で実行する
+xahaudの性能を最大化したいユーザーは、専用のストレージメディアではなく、データベースをメモリ上で実行することを選べます。メモリデータベースは、xahaudの再起動後にデータベースが永続化されないため、履歴を保存するマシンには適していません。同様に、保存できる履歴量は利用可能なシステムメモリに依存します。そのため、メモリ不足エラーを防ぐには、`xahaud.cfg` に `online_delete` と `advisory_delete` が必要です。メモリデータベースを使う場合は、SWAPを無効にすることを推奨します。SWAPはメモリの内容を書き出してしまうため、データベースをメモリ上に置く利点が失われる可能性があります。
+
+メモリデータベースを有効にするには、`xahaud.cfg` ファイルを編集します。
+
+```
+[relational_db]
+type=RWDB
+
+[node_db]
+type=RWDB # RWDB is the memory database
+online_delete=256 # This value should be low on machines using memory databases. '256' is the minimum value.
+advisory_delete=0 # Do not require human intervention to delete history. This is necessary for preventing out of memory errors.
+```
+
+## クラスタリング
+クラスタリングを使うと、xahaudの運用者は複数のxahaudサーバーを相互信頼するように構成でき、これにより負荷を軽減できます。適切にクラスタ化されたサーバーは、悪意のある、または問題のあるWebSocket、RPC、ピア接続に関する情報を共有でき、送信されたトランザクションをクラスタ全体に自動伝播できます。そのため、トランザクションの手数料で許容される以上の負荷がかかったサーバーでトランザクションが送信されても、そのトランザクションはクラスタ内の他のサーバーへ伝播し続けるため、次のレジャーに含まれる可能性が高まります。
+
+xahaud validatorを運用する管理者もクラスタリングの恩恵を受けられます。クラスタが高いセキュリティを要するvalidatorの接続性を提供するため、validatorが未知または信頼できないサーバーへ接続する必要がなくなるからです。
+
+サーバー運用者は、自分たちの管理外のサーバーとクラスタを組むべきではありません。同様に、クラスタ化されたサーバーは低遅延の接続を持つべきであり、理想的には同じデータセンターに配置されるべきです。
+
+クラスタシード (公開鍵/秘密鍵)の生成は、`validation_create` [APIメソッド](/ja/docs/features/http-websocket-apis/admin-api-methods)で行います。メソッド名に `validation` が含まれていますが、このメソッドはvalidation messageに署名するための [鍵を作成する](/ja/docs/infrastructure/enabling-validation)目的では使いません。代わりに、検証の有無を問わず任意のxahaudサーバーを識別するための鍵を作成します。
+
+クラスタを作成するには:
+1. クラスタに含める各xahaudインスタンスで、公開鍵とseedを生成します: `./xahaud validation_create`
+2. 各サーバーの `xahaud.cfg` を開き、次のセクションを追加または編集します。
+    * `[ips_fixed]` -クラスタに含める他のサーバーのIPv4/6アドレスとピア待受ポート (例: `10.1.1.2 21337`)を含めます。待受ポートは、着信接続を受けるサーバー側の `xahaud.cfg` の `[port_peer]` スタンザで定義されます。Main Xahau Networkの既定の待受ポートは `21337` です。
+    * `[node_seed]` - `validation_create` コマンドの `validation_seed` フィールドの出力です。これは秘密鍵であり、生成されたのと同じサーバーにインストールする必要があります。
+    * `[cluster_nodes]` - `validation_create` コマンドの `validation_public_key` フィールドの出力です。これは公開鍵であり、生成されたサーバーではなく、ピアサーバーにインストールする必要があります。
+3. クラスタ内の各サーバーでxahaudを再起動します: `systemctl restart xahaud`
+4. 各サーバーの `xahaud.cfg` をバックアップします。
+5. [peers](/ja/docs/features/http-websocket-apis/admin-api-methods) APIメソッド: `./xahaud peers` でクラスタ化されたピア間の接続性を確認します。
+
+`xahaud.cfg` ファイルのクラスタセクションは、次のようになる場合があります。
+```
+[ips_fixed]
+10.1.1.2 21337 # Clustered peer 1
+10.1.1.3 21337 # Clustered peer 2
+10.1.1.4 21337 # Clustered peer 3
+
+[cluster_nodes]
+n9LzAHaB7ka318dAJWLQD1WkpGR86NyvaCzrtUAt4PuNtDCTCqxn # validation_public_key from clustered peer 1
+n9KWNMsRdQ66jYHLCVgFBAQAzb16DwDioVdXSuV8pTcfEfaHkdvZ # validation_public_key from clustered peer 2
+n9JFK8xUcy9S9TBmCcZKKmY28LEVjTurcpzC5XkXnyAAj1Svytee # validation_public_key from clustered peer 3
+
+[node_seed]
+sn8QEFTpBM8nydnLD6FjxKN845uRG # Private validation_seed from the local xahaud instance
+
+```

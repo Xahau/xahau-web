@@ -1,0 +1,364 @@
+---
+title: SetHook
+description: >-
+  SetHookトランザクションを使用すると、XahauのHookに対してインストール、
+  更新、削除、その他の操作を行えます。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetHook.cpp)]
+
+_(\[Hooks amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "TransactionType": "SetHook",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 0,
+    "Hooks": [
+        {
+            "Hook": {
+                "HookHash": "610F33B8EBF7EC795F822A454FB852156AEFE50BE0CB8326338A81CD74801864",
+                "CreateCode": "697066733A2F2F4445414442454546697066733A2F2F44454144424545467878",
+                "HookGrants": [],
+                "HookNamespace": "0000000000000000000000000000000000000000000000000000000000000000",
+                "HookParameters": [],
+                "HookOn": "0000000000000000000000000000000000000000000000000000000000000000",
+                "HookApiVersion": 0,
+                "Flags": 0
+            }
+        }
+    ]
+}
+```
+
+| フィールド | JSON型   | \[内部型]\[] | 説明                                         |
+| ---------- | --------- | ------------------- | -------------------------------------------- |
+| `Account` | String    | AccountID           | Hookを所有するアカウントのアドレス。      |
+| `Hooks`   | Array     | Array               | 設定するHookの配列。                       |
+
+### 特別なトランザクションコスト
+
+SetHookトランザクションには標準のトランザクションコストがあり、これはすべてのトランザクションに必要な最小コストです。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、SetHookトランザクションでは次のトランザクション結果コードが発生することがあります。
+
+| エラーコード    | 説明                                                                     |
+| --------------- | ------------------------------------------------------------------------ |
+| `tecDUPLICATE`  | 同じハッシュのHookがすでに存在する場合に発生します。                    |
+| `tecDIR_FULL`   | 所有者ディレクトリがいっぱいで新しいHookを格納できない場合に発生します。 |
+| `terNO_ACCOUNT` | 送信元アカウントが存在しない場合に発生します。                              |
+| `terNO_HOOK`    | 指定したハッシュのHookが存在しない場合に発生します。                      |
+| `temDISABLED`   | Hooks Amendmentが有効化されていない場合に発生します。                      |
+| `temMALFORMED`  | トランザクションが不正な形式の場合に発生します。                            |
+
+### SetHookの操作
+
+可能な操作は6つあります。操作なし、作成、更新、削除、インストール、Namespace削除です。
+
+各操作は、特定のHookSetオブジェクトのフィールドを含めるか省略するかで決まります。最初は少し分かりにくいかもしれませんが、いくつかの例を見れば直感的に理解できるはずです。要するにHookSetの操作は、特定のHookの_既定値_、_既存値_、そして新しく指定されたフィールドの間に生じる一種の **diff** です。
+
+各操作の成立条件は、以下の小節で説明します。
+
+### 操作なし
+
+**該当条件**:
+
+* HookSetオブジェクトが空である
+
+**動作**:
+
+* いかなる変更も行われません。
+
+**例**:
+
+JSON
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {}
+        }
+    ]
+}
+```
+
+### 作成操作
+
+**該当条件**:
+
+次の条件をすべて満たす場合:
+
+* 対応するHookが存在しない、_または_ `FLAG_OVERRIDE` が指定されている。
+* `CreateCode` フィールドが指定されており、空ではなく、有効なHookに対する有効なWebAssemblyバイトコードを含んでいる。
+* 同じWebAssemblyバイトコードのインスタンスがすでにXRPL上に存在しない。（存在し、かつ他の要件をすべて満たす場合は、下記のインストール操作として解釈します。）
+
+**動作**:
+
+* 参照カウント付きの `HookDefinition` オブジェクトがXRPL上に作成され、HookSetオブジェクト内のフィールドが含まれます。指定されたフィールドのうち、`Namespace`、`Parameters`、`HookOn` は既定値になります。（ただしGrantsは除きます。）
+* 実行アカウントに `Hooks` 配列がまだ存在しない場合は作成されます。（これが対応するHookを格納する構造です。）
+* 対応するHookの位置に `Hook` オブジェクトがまだ存在しない場合は作成されます。
+* `Hook` オブジェクトは `HookDefinition` を参照します。
+* `Hook` オブジェクトには、作成された `HookDefinition` を指す `HookHash` 以外のフィールドはありません。
+* `hsfNSDELETE` フラグが指定されている場合、宛先名前空間内のHookStateエントリは、存在していればすべて削除されます。
+
+**例**:
+
+JSON
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                CreateCode: fs.readFileSync('accept.wasm').toString('hex').toUpperCase(),
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                HookApiVersion: 0
+            }
+        }
+    ]
+}
+```
+
+### インストール操作
+
+**該当条件**:
+
+次の条件をすべて満たす場合:
+
+* 対応するHookが存在しない、_または_ `FLAG_OVERRIDE` が指定されている。
+* `HookHash` フィールドが指定されており、空ではなく、レジャー上ですでに `HookDefinition` として存在するHookのハッシュを含んでいる。_または_ `CreateCode` フィールドが指定されており、空ではなく、レジャー上ですでに `HookDefinition` として存在する有効なHookの有効なWebAssemblyバイトコードを含んでいる。
+
+**動作**:
+
+* `HookDefinition` オブジェクトの参照カウントが増加します。
+* 実行アカウントに `Hooks` 配列がまだ存在しない場合は作成されます。（これが対応するHookを格納する構造です。）
+* 対応するHookの位置に `Hook` オブジェクトがまだ存在しない場合は作成されます。
+* `Hook` オブジェクトは `HookDefinition` を参照します。
+* `Hook` オブジェクトにはHookSetオブジェクト内のすべてのフィールドが含まれます。ただし、次の場合を除きます。
+* フィールドまたはフィールド内のキーと値の組が `HookDefinition` に設定されたHookの既定値と同一の場合、既定値によって省略されます。
+* `hsfNSDELETE` フラグが指定されている場合、宛先名前空間内のHookStateエントリは、存在していればすべて削除されます。
+
+**例**:
+
+JSON
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                HookHash: "A5663784D04ED1B4408C6B97193464D27C9C3334AAF8BBB4FA5EB8E557FC4A2C",
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+            }
+        }
+    ]
+}
+```
+
+### 更新操作
+
+**該当条件**:
+
+次の条件をすべて満たす場合:
+
+* 対応するHookが存在する。
+* `HookHash` が存在しない。
+* `CreateCode` が存在しない。
+* `HookNamespace`、`HookParameters`、`HookGrants` のいずれか1つ以上が存在する。
+
+**全般的な動作**:
+
+* 対応するHookが、指定された変更を反映するように更新されます。
+
+**個別の動作**:
+
+`HookNamespace` が指定され、かつ対応するHookのNamespaceと異なる場合:
+
+* 対応するHookの `HookNamespace` が更新されます。
+* `hsfNSDELETE` フラグが指定されている場合、古いNamespaceのすべてのHookStateエントリが削除されます。
+
+`HookParameters` が指定されている場合、各エントリについて:
+
+* `HookParameterName` が存在し、`HookParameterValue` が存在しない、かつ対応するHookのParameters（明示指定または既定値経由のいずれか）にこの `HookParameterName` が含まれている場合、そのパラメーターは対応するHook上で削除済みとして扱われます。
+* `HookParameterName` が存在し、`HookParameterValue` も存在する場合、対応するHookのParametersは新規または更新済みのパラメーターを含むように変更されます。
+
+`HookGrants` が指定されている場合:
+
+* 対応するHookの `HookGrants` 配列は、その配列で置き換えられます。
+
+**例**:
+
+JSON
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+                HookNamespace: addr.codec.sha256('new_accept').toString('hex').toUpperCase(),
+            }
+        }
+    ]
+}
+```
+
+### 削除操作
+
+**該当条件**:
+
+次の条件をすべて満たす場合:
+
+* 対応するHookが存在する。
+* `hsfOVERRIDE` が指定されている。
+* 必要に応じて `hsfNSDELETE` も指定されている。
+* `HookHash` が存在しない。
+* `CreateCode` が存在するが空である。
+
+**動作**:
+
+* `HookDefinition` オブジェクトの参照カウントが減少します。
+* 参照カウントが0になった場合、`HookDefinition` はレジャーから削除されます。
+* 対応するHookの位置にある `Hook` オブジェクトは削除され、その位置は空になります。
+* `hsfNSDELETE` が指定されている場合、NamespaceとすべてのHookStateエントリも削除されます。
+
+**例**:
+
+JSON
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+                CreateCode: "",
+                Flags: 1,
+            }
+        }
+    ]
+}
+```
+
+### Namespaceのリセット
+
+**該当条件**:
+
+次の条件をすべて満たす場合:
+
+* `flags` が存在し、`hsfNSDELETE` が設定されている。さらに、この位置のHookを削除する場合は `hsfOVERRIDE` も指定できます。
+* `HookNamespace` が指定されている。
+* `CreateCode` が存在しない。
+* `HookHash` が存在しない。
+* `HookGrants`、`HookParameters`、`HookOn`、`HookApiVersion` が存在しない。
+
+**動作**:
+
+* 対応するHookが存在する場合は、そのまま残り、何も起こりません。
+* 指定されたNamespaceに対するHookStateオブジェクトとHookStateディレクトリの一部が、定義された上限（512）までレジャーから削除されます。関連レコードがすべて削除されるまで、削除処理を続けるには追加のトランザクションが必要です。[`tesPARTIAL`](/ja/docs/protocol-reference/transactions/transaction-results/tes-codes)を参照してください。&#x20;
+
+**例**:
+
+JSON
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+              	HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                Flags: 3,
+            }
+        }
+    ]
+}
+```
+
+### Hookフィールド
+
+Hookオブジェクトでは次のフィールドが使用されます。
+
+| フィールド       | JSON型   | 内部型        | 説明                                                      |
+| ---------------- | --------- | ------------- | --------------------------------------------------------- |
+| `HookHash`       | String    | Hash256       | Hookのハッシュ。                                         |
+| `CreateCode`     | String    | Blob          | HookのWebAssemblyコード。                              |
+| `HookGrants`     | Array     | Array         | Hookに関連付けられたgrants。                            |
+| `HookNamespace`  | String    | Hash256       | HookのNamespace。                                       |
+| `HookParameters` | Array     | Array         | Hookのパラメーター。                                     |
+| `HookOn`         | String    | Hash256       | Hookがトリガーされるトランザクション。                   |
+| `HookCanEmit`    | String    | Hash256       | Hookが発行できるトランザクション。                       |
+| `HookApiVersion` | Number    | UInt16        | HookのAPIバージョン。                                  |
+| `Flags`          | Number    | UInt32        | Hookに対する追加フラグ。                                 |
+
+### フラグ
+
+Hookオブジェクトの `Flags` フィールドは、Hookに対する追加フラグを指定します。次のフラグがサポートされています。
+
+| フラグ名      | 説明                                                                     |
+| ------------- | ------------------------------------------------------------------------ |
+| `hsfOVERRIDE` | 他のオブジェクトから参照されていてもHookを削除できるようにします。    |
+| `hsfNSDELETE` | HookのNamespace全体を削除します。                                    |
+| `hsfCOLLECT`  | Hookに関連付けられたオブジェクトを収集します。                         |
+
+### Hookの権限付与
+
+`HookGrants` フィールドは、Hookに関連するgrantsを指定するオブジェクト配列です。各grantオブジェクトには次のフィールドがあります。
+
+| フィールド  | JSON型   | 内部型        | 説明                                               |
+| ----------- | --------- | ------------- | -------------------------------------------------- |
+| `HookHash`  | String    | Hash256       | grantを適用するHook。                             |
+| `Authorize` | String    | AccountID     | アクセス権を付与されたアカウントのアドレス。       |
+| `Flags`     | Number    | Uint32        | フラグ                                              |
+
+### Hookパラメーター
+
+`HookParameters` フィールドは、Hookのパラメーターを指定するオブジェクト配列です。各パラメーターオブジェクトには次のフィールドがあります。
+
+| フィールド            | JSON型   | 内部型        | 説明                       |
+| -------------------- | --------- | ------------- | --------------------------- |
+| `HookParameterName`  | String    | Blob          | パラメーター名。           |
+| `HookParameterValue` | String    | Blob          | パラメーター値。           |
+
+### Hookの実行
+
+Hookが実行されると、その実行状態に関する情報が残されます。これは発信トランザクションのメタデータ内に `sfHookExecutions` ブロックとして表示されます。このブロックには次のフィールドが含まれます。
+
+| フィールド             | JSON型   | 内部型        | 説明                                                                                                                                                         |
+| ---------------------- | --------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `HookAccount`          | String    | AccountID     | Hookが実行されたアカウント。                                                                                                                               |
+| `HookEmitCount`        | Number    | UInt16        | Hookによって生成されたEmitted Transactionの総数。                                                                                                       |
+| `HookExecutionIndex`   | Number    | UInt16        | 実行時点のHookのSHA512H。                                                                                                                                |
+| `HookHash`             | String    | Hash256       | パラメーターの値。                                                                                                                                           |
+| `HookInstructionCount` | String    | UInt64        | Hook実行時に実行されたWebAssembly命令の総数。                                                                                                             |
+| `HookResult`           | Number    | UInt8         | <p>Hooksの終了方法は <code>accept</code>、<code>rollback</code>、<code>error</code> の3通りです。<br />これは <em>sfHookReturnCode</em> とは同じではありません。</p> |
+| `HookReturnCode`       | String    | UInt64        | `accept` または `rollback` の3番目の引数として返される整数。                                                                                              |
+| `HookReturnString`     | String    | Blob          | `accept` または `rollback` の最初の2つの引数として返される文字列。該当するものがある場合。                                                                 |
+| `HookStateChangeCount` | Number    | UInt16        | 実行中にHookが行ったHook State変更の回数。                                                                                                               |

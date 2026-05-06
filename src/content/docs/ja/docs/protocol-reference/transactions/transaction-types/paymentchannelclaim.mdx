@@ -1,0 +1,58 @@
+---
+title: PaymentChannelClaim
+description: >-
+  payment channelからAmountを請求したり、payment channelのexpirationを調整したり、その両方を行ったりします。このトランザクションは、指定したchannelにおけるトランザクション送信者の役割によって、異なる使い方ができます。
+---
+[\[ソース\]](https://github.com/ripple/rippled/blob/master/src/ripple/app/tx/impl/PayChan.cpp)
+
+_(\[PayChan amendment]\[]により追加。)_
+
+channelの **source address** は次のことができます。
+
+* 署名付きClaimが_あってもなくても_、channelからdestinationにAmountを送る。
+* channelの `SettleDelay` が経過したらすぐにchannelが期限切れになるように設定する。
+* 保留中の `Expiration` 時刻を解除する。
+* 先にclaimを処理してもしなくても、channelを即時に閉じる。channelにAmountが残っている場合、source addressはchannelを即時に閉じられません。
+
+channelの **destination address** は次のことができます。
+
+* 署名付きClaimを使ってchannelからAmountを受け取る。
+* Claimを処理した直後にchannelを閉じ、未請求のAmountをchannelのsourceに払い戻す。
+
+このトランザクションを送信する **任意のアドレス** は次のことができます。
+
+* channelの `Expiration` または `CancelAfter` 時刻が前回レジャーのclose timeより古い場合、channelを閉じる。正しく構成されたPaymentChannelClaimトランザクションは、内容にかかわらずこの効果を持ちます。
+
+### 例
+
+```json
+{
+  "Channel": "C1AE6DDDEEC05CF2978C0BAD6FE302948E9533691DC749DCDD3B9E5992CA6198",
+  "Amount" : {
+     "currency" : "USD",
+     "value" : "1",
+     "issuer" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn"
+  },
+  "Signature": "30440220718D264EF05CAED7C781FF6DE298DCAC68D002562C9BF3A07C1E721B420C0DAB02203A5A4779EF4D2CCC7BC3EF886676D803A9981B928D3B8ACA483B80ECA3CD7B9B",
+  "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A"
+}
+```
+
+| フィールド       | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Channel`   | String                                                                                                                             | Hash256             | channelの固有ID。64文字のhexadecimal文字列です。                                                                                                                                                                                                                                                                                                                                                                      |
+| `Balance`   | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(任意)_ このclaimを処理した後に、このchannelが届ける合計金額。Amountを届ける場合に必要です。これまでにchannelが届けた合計金額より大きくなければなりませんが、署名付きclaimの `Amount` を超えてはなりません。channelを閉じる場合を除き、指定が必要です。 |
+| `Amount`    | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(任意)_ `Signature` により承認された金額。署名済みメッセージの金額と一致していなければなりません。これは、これまでに償還されたXAHを含む、channelから払い出せるAmountの累計です。                                                                                                                                                                                                    |
+| `Signature` | String                                                                                                                             | Blob                | _(任意)_ このclaimの署名。hexadecimalで指定します。署名済みメッセージにはchannel IDとclaimの金額が含まれます。トランザクション送信者がchannelのsource addressでない限り必要です。                                                                                                                                                                                                        |
+| `PublicKey` | String                                                                                                                             | Blob                | _(任意)_ 署名に使うpublic key。hexadecimalで指定します。channelに対してレジャーに保存されている `PublicKey` と一致していなければなりません。トランザクション送信者がchannelのsource addressであり、`Signature` フィールドを省略している場合を除き、必要です。（`rippled` がトランザクションをレジャーに適用する前に署名の有効性を確認できるよう、トランザクションにはpublic keyが含まれます。） |
+
+payment channelがfixPayChanRecipientOwnerDir amendmentの有効化（2020-05-01）より前に作成されていた場合、payment channelのdestinationが削除され、現在レジャー内に存在しない可能性があります。destinationが削除されている場合、source accountはchannelからdestinationへXAHを送れません。その代わり、トランザクションは `tecNO_DST` で失敗します。（もちろん、削除されたアカウントはどのトランザクションも送信できません。）destination accountが削除されていても、channelのexpirationの調整、Amountなしでのchannelのクローズ、期限切れになったchannelの削除など、このトランザクションタイプの他の使い方には影響しません。
+
+### PaymentChannelClaimフラグ
+
+PaymentChannelClaimタイプのトランザクションは、`Flags` フィールドで次の追加値をサポートします。
+
+| フラグ名 | Hex値    | 10進値 | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| --------- | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfRenew` | `0x00010000` | 65536         | channelの `Expiration` 時刻を解除します。（`Expiration` はchannelの変更不可能な `CancelAfter` 時刻とは異なります。）このフラグを使えるのはpayment channelのsource addressだけです。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `tfClose` | `0x00020000` | 131072        | channelを閉じるよう要求します。このフラグを使えるのはchannelのsourceとdestinationのアドレスだけです。このフラグは、現在のclaimを処理した後にchannelに割り当てられたAmountが残っていない場合、またはdestination addressが使った場合に、channelを即時に閉じます。source addressがこのフラグを使い、channelにま�Amountが残っている場合は、`SettleDelay` 秒経過後にchannelを閉じるよう予約します。（具体的には、channelにより早い `Expiration` 時刻がすでにない限り、channelの `Expiration` を前のレジャーのclose timeにchannelの `SettleDelay` 時間を足した時刻に設定します。）destination addressがこのフラグを使い、channelにま�Amountが残っている場合は、claimの処理後に残ったAmountがsource addressに戻されます。 |

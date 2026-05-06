@@ -1,0 +1,291 @@
+---
+title: Burn 2 Mint (B2M)
+description: >-
+  Burn2Mintは低レベルのチェーン間プリミティブであり、エンタープライズユーザーが
+  自身の目的に応じて必要な流動性を自力で供給するためのものです。
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+ZeroB2M AmendmentがXahauで可決されたため、Burn 2 Mint (B2M)は新しいアセットをミントする用途では利用できなくなりました。B2Mは引き続き利用できますが、**キー同期**またはアカウントの有効化のためだけです (そのため、以下の情報と手順は引き続き関連します)。
+
+[https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0](https://xahscan.com/amendment/7CA0426E7F411D39BB014E57CD9E08F61DE1750F0D41FCD428D9FB80BB7596B0)
+</Aside>
+
+## Burn2Mint技術マニュアル (Xahau Testnet)
+
+<Aside type="caution">
+**このプロセスは意図的に複雑であり、エンドユーザー向けには設計されていません。** ミスがあると、バーンをミントへ変換できなくなります。
+
+これは、このドキュメントの本番版に表示される警告です。ここでは無料のテストネットXRPをバーンするため、この警告は無視して構いません。
+</Aside>
+
+Burn2Mintは、エンタープライズユーザーが自身の目的に応じて必要な流動性を自力で供給するための低レベルのチェーン間プリミティブです。自分のノードを運用し、そのノード上でこの操作を自分で実行するということは、手順の結果についてあなた自身だけが責任を負うことを意味します。
+
+XPOPの生成と収集は、基本的にオーバーレイネットワーク上の検証メッセージの収集に依存しており、これらのメッセージは本質的に一時的なものです。ノードが確実に接続されていない場合、またはハードウェア、ネットワーク接続、オペレーティングシステムが悪いタイミングで失敗した場合、バーントランザクションのXPOPが生成されない、または正しく生成されない可能性があります。バーントランザクションのXPOPを時間内に取得できなかったことで資金を失う可能性があり、検証メッセージが永久に失われると、バーントランザクションが成功していてもミントトランザクションが不可能になることがあります。
+
+これらの技術的リスクを受け入れられない場合、自分が何をしているのか理解していない場合、またはエンタープライズユーザーではない場合は、他の扱いやすい代替手段を通じて流動性を調達してください。
+
+### セットアップ
+
+B2Mを実行するには、ユーザーが _2つ_ のXRPLプロトコルノードを運用する必要があります。
+
+1. **バーンからxPOPを取得**
+
+<Tabs>
+<TabItem label="xPOPコレクター & サーバー (簡単)">
+これを実行します (例: Docker Composeを使用。repo Docsを参照)。\
+[**https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP**](https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP)
+
+* このサービスはXRPL検証メッセージ、クローズ済みレジャー、トランザクションをリッスンします。
+* このデータを整理されたファイルシステムに保存します。
+* XRPL検証メッセージは一時的であるため、xPOPの生成には不可欠です。保存しなければ、トランザクションのバーンをミントへ変換できません。
+* **仕組み**:
+  * watcherが複数のXRPLノードへ接続し、特定のデータをリッスンします。
+  * 取得されたデータは保存、整理され、xPOPの生成に使用されます
+
+あとは次からxPOPを取得するだけです。\
+`http[s]://{your-host}:{your-port}/xpop/{tx-hash}`
+
+上記のrepoを使用したノードから、このNPMパッケージを使ってxPOPを簡単に取得/作成できます。
+
+[**https://www.npmjs.com/package/xpop**](https://www.npmjs.com/package/xpop)
+</TabItem>
+
+<TabItem label='または:専用"Burning Node"'>
+**Burn Node**の構成:
+
+* 変更済みRippledインスタンス (XPOPを記録するよう変更)
+* Universal linuxバイナリ: [https://tvntezq.dlvr.cloud/rippled_with_xpop](https://tvntezq.dlvr.cloud/rippled_with_xpop)
+* [https://github.com/RichardAH/rippled/tree/proof-of-burn](https://github.com/RichardAH/rippled/tree/proof-of-burn)
+* 次を含むrippled.cfgで実行します。
+  * 生成されたXPOPの出力ディレクトリを指定する**\[xpop_dir]** stanza。
+  * network_id: 1を指定する**\[network_id]** stanza。
+    * (本番環境ではこれはnetwork 0になります)
+  *   次を含む`validators.txt`:\\
+
+      ```
+      [validator_list_sites]
+      https://vl.altnet.rippletest.net
+      [validator_list_keys]
+      ED264807102805220DA0F312E71FC2C69E1552C9C5790F6C25E3729DEB573D5860
+      ```
+</TabItem>
+</Tabs>
+
+2. **ミント**
+
+* このテストシナリオでは、Xahauへ直接接続します。自分のノードを実行する必要はありません。本番シナリオでは、Mintノードを実行する必要があります。これは対象ネットワーク用の通常のノードです。法的リスクにより、パブリックノードはImportトランザクションの受け入れをオプトアウトする可能性が高いためです。
+  * **wss://xahau-test.net**へ接続します
+  * またはダウンロードして実行します: [**https://github.com/Xahau/Xahau-Testnet-Docker**](https://github.com/Xahau/Xahau-Testnet-Docker)
+
+## サンプル (nodejs)
+
+この例では、テストネットアカウントを作成し、10 XRPをバーンした後、上記のツールで取得したxPOPを使用してこれをXahau Testnetへインポートします。
+
+```js
+import { derive, utils, signAndSubmit } from 'xrpl-accountlib'
+import { TxData } from 'xrpl-txdata'
+import { XrplClient } from 'xrpl-client'
+import { xpop, setEndpoints as xpopEndpoints } from 'xpop'
+import fetch from 'node-fetch'
+
+// The above needs:
+//   npm install xrpl-accountlib xrpl-txdata xrpl-client xpop node-fetch 
+
+console.log('Obtaining XRPL Testnet account (faucet)')
+const faucet = await (await fetch('https://faucet.altnet.rippletest.net/accounts', { method: 'POST' })).json()
+console.log(' -->', faucet.account.address)
+const account = derive.familySeed(faucet.account.secret)
+
+xpopEndpoints((await (await fetch('https://xrpl.ws-stats.com/xpop/list?json=true')).json()).bestguess)
+
+const nodes = {
+  testnet: [
+    new XrplClient('wss://s.altnet.rippletest.net:51233'),
+    new XrplClient('wss://testnet.xrpl-labs.com'),
+  ],
+  xahau: [
+    new XrplClient('wss://xahau-test.net'),
+  ]
+}
+
+console.log('Waiting for network connections to be ready')
+await Promise.all(Object.keys(nodes).map(k => Promise.race(nodes[k].map(n => n.ready()))))
+
+console.log('Waiting for faucet account funding & obtaining network values...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // Wait till ledger is closed
+
+const [
+  testnetParams,
+  xahauParams,
+] = await Promise.all([
+  Promise.race(nodes.testnet.map(n => utils.accountAndLedgerSequence(n, account))),
+  Promise.race(nodes.xahau.map(n => utils.accountAndLedgerSequence(n, account))),
+])
+
+const testnetTx = {
+  ...testnetParams.txValues,
+  TransactionType: 'AccountSet',
+  Fee: String(10_000_000),
+  OperationLimit: xahauParams.txValues.NetworkID,
+  NetworkID: undefined, // Testnet has a NetworkID < 1024, so none should be provided
+}
+
+console.log('Submitting burn...', testnetTx)
+const testnetSubmitted = await Promise.race(nodes.testnet.map(n => signAndSubmit(testnetTx, n, account)))
+console.log('Submitted burn to testnet')
+console.log(' -->', 'https://testnet.xrpl.org/transactions/' + testnetSubmitted.tx_id)
+
+console.log('Obtaining burn tx data...')
+
+const txdata = new TxData(nodes.testnet.map(n => n.getState().server.uri), {
+  AllowNoFullHistory: true,
+  EndpointTimeoutMs: 2_000,
+  OverallTimeoutMs: 10_000,
+})
+
+const appliedtx = await txdata.getOne(testnetSubmitted.tx_id)
+console.log(' -->', 'Burn validated in ledger', appliedtx?.result?.ledger_index)
+
+console.log('Waiting for closed ledger before fetching xPOP...')
+await new Promise(resolve => setTimeout(resolve, 4000)) // Wait till ledger is closed
+
+console.log('Fetching xPOP...')
+
+const Blob = await xpop(testnetSubmitted.tx_id, appliedtx?.result?.ledger_index, 1)
+
+console.log(' -->', 'xPOP fetched, hex strlen:', Blob.length)
+
+const hooksTx = {
+  ...xahauParams.txValues,
+  TransactionType: 'Import',
+  Fee: '0',
+  Blob,
+}
+
+console.log('Submitting for mint of xPOP...')
+
+const b2mSubmitted = await Promise.race(nodes.xahau.map(n => signAndSubmit(hooksTx, n, account)))
+
+console.log(' -->', 'B2M submitted! TX on Xahau Testnet:')
+console.log(' -->', 'https://test.xahauexplorer.com/explorer/' + b2mSubmitted?.tx_id)
+console.log('     -->', b2mSubmitted.response.engine_result, b2mSubmitted.response.engine_result_message)
+
+// Closing connections
+Object.keys(nodes).map(k => nodes[k].map(n => n.close()))
+```
+[ソース](https://gist.github.com/WietseWind/cd8a7a8c88f218fe7b768f59a665685d)
+
+## B2M手順の技術的概要
+
+#### 新しいトランザクションタイプ: `Import`
+
+Xahau Testnet (_network_id=21338_)は、_**Import**_ という新しいトランザクションタイプを導入します。これはRipple testnetチェーン (_network_id=1_)からのXPOPを受け入れ、「burn-to-mint」の一方向価値転送とキー/アカウント同期を提供します。
+
+### バーントランザクション
+
+_**バーントランザクション**_ は、送信元XRPLチェーン上でXRPをバーンするトランザクションであり、宛先XRPLチェーン上でミントするための証明 (XPOP)として使用されます。
+
+サポートされているトランザクションタイプは次のとおりです。
+
+* AccountSet
+* SetRegularKey
+* SignerListSet.
+
+<Aside type="caution">
+Ticketsは**どの**バーントランザクションでも _**受け入れられず**_、バーントランザクションがミントに対して無効になります。スパムを防ぐため、トランザクションは実際の自然なシーケンス番号で検証される必要があります。
+</Aside>
+
+他のトランザクションタイプは現在サポートされておらず、Xahau Testnetでのミントには使用できない点に注意してください。(ただし、これは変更される可能性があります)。
+
+3つのトランザクションタイプはすべてミントに使用できます。つまり、バーントランザクションでバーンされた _**Fee**_ は、`Import`が成功した後にXahau Testnet上でミントされます。
+
+`SetRegularKey`または`SignerListSet`が使用される場合、キー同期はそのトランザクションタイプの標準ルールに従って行われます。`AccountSet`が使用される場合、宛先チェーン (Xahau Testnet)上ではキー同期は行われません。
+
+バーントランザクションには、宛先チェーンのNetwork IDである _**OperationLimit**_ フィールドが存在する必要があります。このフィールドは、他のB2M統合チェーン上でのリプレイ攻撃を防ぐためのものです。
+
+バーントランザクションは、**tesSUCCESS**トランザクションコードまたは _任意_ の**tec**トランザクションコードを持つ場合、ミントに使用できます。つまり、手数料がバーンされた _場合_、そのトランザクションはミントに使用できます。ただし、キー同期はバーントランザクション結果がtesSUCCESSだった場合 _のみ_ 行われます。
+
+バーントランザクションの例:
+
+```json
+{
+	"TransactionType": "AccountSet",
+	"Fee": 10000000,
+	"OperationLimit": 21338
+}
+```
+
+### XPOP収集
+
+バーントランザクションを送信する前に、Burn Nodeがテストネットチェーン (Network ID: `1`)と同期していることを確認してください。
+
+Burn Nodeの状態を確認した後、署名済みバーントランザクションをBurn Nodeへ送信します。
+
+Burn Nodeは、**OperationLimit**フィールドを含むトランザクションについてクローズ済みレジャーを監視し、収集した検証メッセージを使用してXPOP (Proof Of Burn)を生成します。これらは、Burn Nodeの`rippled.cfg`内の**\[xpop_dir]** stanzaで指定されたディレクトリ配下のファイルへ書き込まれます。
+
+レジャーが閉じるのを待ってから、TXIDに従ってxpop_dir内のバーントランザクションのXPOPを探します。このファイルにはJSONドキュメントが含まれており、これが宛先XRPLチェーン (HooksV3)へ中継するXPOPです。
+
+このファイルの生の内容を取得し、HEXとしてエンコードします。これが`Import`トランザクションの _Blob_ フィールドの内容になります。
+
+### ミントトランザクション
+
+使用しているバイナリコーデックには、`Import` (Mint)トランザクションを構築するために必要なフィールドが不足しています。ripple-binary-codecを使用している場合は、次の方法で`definitions.json`ファイルを更新できます。
+
+1. `node_modules`へディレクトリを変更します
+2. `find . | grep 'dist/enums/definitions.json'`を実行し、更新対象の関連ファイルを見つけます
+3. **wss://hooks-testnet-v3.xrpl-labs.com**へ接続します
+4. リクエスト: `{"command":"server_definitions"}`
+5. `"result"`キーの内容を、手順2の`definitions.json`へ書き出します。
+
+`Import`トランザクションタイプが取る非共通フィールドは _**Blob**_ の1つだけです。これには、XPOP収集フェーズで取得したHEXエンコード済みXPOPを含める必要があります。
+
+* これは`cat xpopjsonfile | xxd -p | tr -d '\n'`で実行できます
+
+`Account`フィールドと`SigningPubKey`フィールド (またはSigners配列)は、バーントランザクションとミントトランザクションの間で完全に一致する必要があります。ユーザーは、バーン元と同じアカウントにのみミントできます。
+
+`Account`フィールドがXahau Testnet上にまだ存在しないアカウントを指定している場合、そのアカウントが作成されます。この場合、ミントトランザクションの`Sequence`フィールドには0を使用します。アカウントがすでにXahau Testnet上に存在する場合は、Xahau Testnet上のそのアカウントで次に利用可能なSequence番号を使用します。
+
+Importの例:
+
+```json
+{
+	"Account": "<same as it was in the Burn Transaction>",
+	"TransactionType": "Import",
+	"Blob": "<hex encoded (upper case) XPOP>",
+	"Sequence": 0
+} 
+```
+
+重要: **ミントトランザクションは、バーントランザクションとまったく同じ方法で、同じアカウントによって署名されている必要があります。**
+
+トランザクションを適切にエンコードして署名し、署名済みトランザクションBlob (hex)を生成します。
+
+自分のMintノードを実行していない場合:
+
+* **wss://xahau-testn.et**へ接続します
+* トランザクションをノードへ送信します。
+
+```json
+{
+	"command": "submit",
+	"tx_blob": "<HEX ENCODED IMPORT TXN>"
+}
+```
+
+または、自分のMintノードを実行している場合:
+
+* Mint Nodeが実行中であり、Network ID 21338へ同期していることを確認します。
+* `submit` RPC呼び出しを使用してミントトランザクションを送信します。
+  * これはコマンドラインから`./hooksv3d submit <hex here>`を使用して実行できます
+
+### 考慮事項
+
+Xahau Testnet上でAccountを作成する必要があるものの、バーントランザクションのコンテキストからそのアカウントのキー設定が不明確な場合、Accountはblackholedモードで作成されます。その後、いずれかのキー設定トランザクションタイプを使用して再キー化できます。
+
+バーントランザクションが`SignerListSet`または`SetRegularKey`トランザクションのいずれかであり、送信元XRPLチェーン (testnet)上でtesSUCCESSトランザクション結果を持っていた場合、同じキー設定操作が宛先XRPLチェーン (Xahau Testnet)上の同じアカウントに適用されます。
+
+テスト中は、Xahau Testnet上のAccountsは削除 _できます_。ただし、本番のHooks対応チェーン上では削除できません。
+
+Xahau Testnet上のAccountsには、AccountRoot内に任意の _**ImportSequence**_ フィールドがあります。そのアカウントでXahau Testnet上の**Import**が使用されたことがある場合、このフィールドが存在し、直近にインポートされたバーントランザクションのSequence番号が設定されます。これはリプレイ攻撃を防ぐためですが、Burn2Mintをシーケンス順から外して送信してはいけないことも意味します。そうしないと、スキップされたトランザクションはミントで決して受け入れられません。

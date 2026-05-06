@@ -1,0 +1,127 @@
+---
+title: state_foreign
+description: >-
+  他のアカウント上でHook状態キーが指すデータを取得して出力バッファに書き込む
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `aread_ptr` から20バイトのアカウントIDを読み取る
+* `kread_ptr` から32バイトのHook状態キーを読み取る
+* そのアカウントID上のそのキーにあるデータ（値）を `write_ptr` が指すバッファに書き込む
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定したキーに対する、別アカウントに属する外部Hook状態の値を取得する。
+* エラーコード、またはそのキーのHook状態の値を返す。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_foreign (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t nread_ptr,
+    uint32_t nread_len,
+    uint32_t aread_ptr,
+    uint32_t aread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_foreign(
+    key: ByteArray | HexString,
+    namespace: ByteArray | HexString | undefined | null,
+    accountid: ByteArray | HexString | undefined | null
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+uint8_t ns[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int64_t lookup =
+    state_foreign(SBUF(blacklist_status), SBUF(otxn_accid), SBUF(ns), SBUF(blacklist_accid));
+if (lookup < 0)
+     rollback(SBUF("Error: could not find key on foreign state."), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const ns = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+const blacklist_status =
+    state_foreign(otxn_accid, ns, blacklist_accid)
+if (typeof blacklist_status === 'number')
+     rollback("Error: could not find key on foreign state.", 1);
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前       | 型        | 説明                                                                           |
+| ---------- | --------- | ------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Hook状態のデータを書き込むバッファへのポインター。                            |
+| write_len | uint32_t | 書き込みバッファの長さ。                                                      |
+| kread_ptr | uint32_t | Hook状態キーを含むバッファへのポインター。                                    |
+| kread_len | uint32_t | Hook状態キーの長さ。（32である必要があります。）                             |
+| nread_ptr | uint32_t | 状態を検索するための32バイトの名前空間を含むバッファへのポインター。       |
+| nread_len | uint32_t | 名前空間バッファの長さ。（32である必要があります。）                        |
+| aread_ptr | uint32_t | 状態を検索する20バイトのアカウントIDを含むバッファへのポインター。         |
+| aread_len | uint32_t | アカウントバッファの長さ。（常に20である必要があります。）                 |
+
+<Aside type="tip">
+必ず戻り値を確認してください。状態の検索はさまざまな理由で失敗する可能性があり、その場合バッファには呼び出し前の内容がそのまま残ります（通常はすべて0です）。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前      | 型                     | 説明                                                         |
+| --------- | ---------------------- | ------------------------------------------------------------ |
+| key       | ByteArray or HexString | 値を取得するHook状態のキー。                         |
+| namespace | ByteArray or HexString | 検索対象のHook名前空間。                             |
+| accountid | ByteArray or HexString | 状態の所有者。                                        |
+|           |                        |                                                       |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>書き込みバッファに書き込まれたバイト数。<br /><br />負の値の場合はエラーです。<br /><code>OUT_OF_BOUNDS</code><br />-指定されたポインター／長さがHookメモリの外にあります。<br /><br /><code>DOESNT_EXIST</code><br />-指定したHook状態キーに、呼び出し時点のレジャー上で関連付けられた値がありません。<br /><br /><code>TOO_BIG</code><br />- <code>read_ptr</code> と <code>read_len</code> で指定したキーが32バイトを超えています。<br /><br /><code>TOO_SMALL</code><br />-出力バッファがHook状態データを格納するには小さすぎます。<br /><br /><code>INVALID_ACCOUNT</code><br />- <code>aread_ptr</code> で指定したアカウントが無効か、存在しません。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                     | 説明                                                      |
+| ---------------------- | ---------------------------------------------------------- |
+| ErrorCode or ByteArray | エラーコード、またはそのキーのHook状態の値を返します。   |
+</TabItem>
+</Tabs>

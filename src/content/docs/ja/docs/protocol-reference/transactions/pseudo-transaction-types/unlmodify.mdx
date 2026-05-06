@@ -1,0 +1,30 @@
+---
+title: UNLModify
+---
+_(\[NegativeUNL amendment]\[]により追加。)_
+
+`UNLModify` 擬似トランザクションはNegative UNLの変更を示し、信頼済みバリデーターがオフラインになったか、あるいはオンラインに戻ったことを示します。
+
+**注:** 擬似トランザクションを送信することはできませんが、レジャーの処理中に見つかることがあります。
+
+### JSON例
+
+```json
+{
+  "Account": "",
+  "Fee": "0",
+  "LedgerSequence": 1600000,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TransactionType": "UNLModify",
+  "UNLModifyDisabling": 1,
+  "UNLModifyValidator": "ED6629D456285AE3613B285F65BBFF168D695BA3921F309949AFCD2CA7AFEC16FE",
+}
+```
+
+| 名前                | JSON型   | \[内部型]\[]        | 説明                                                                                                                                                                      |
+| -------------------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TransactionType`    | String    | UInt16              | 文字列 `UNLModify` に対応する値 `0x0066` は、このオブジェクトが `UNLModify` 擬似トランザクションであることを示します。                                                           |
+| `LedgerSequence`     | Number    | UInt32              | この擬似トランザクションが現れる \[ledger index]\[]です。同じ変更の他の出現と区別するために使われます。                               |
+| `UNLModifyDisabling` | Number    | UInt8               | `1` の場合、この変更はNegative UNLへのバリデーター追加を表します。`0` の場合、この変更はNegative UNLからのバリデーター削除を表します。（他の値は許可されません。） |
+| `UNLModifyValidator` | String    | Blob                | 追加または削除対象のバリデーターです。master public keyで識別されます。                                                                                                          |
