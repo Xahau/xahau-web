@@ -1,6 +1,42 @@
 {
   "events": [
     {
+      "id": "xahau-course-2026-06",
+      "date": "2026-06-12",
+      "time": "16:00",
+      "timezone": "CEST",
+      "dateLabel": {
+        "en": "Friday, 12 Jun 2026 · 16:00 CEST",
+        "es": "Viernes, 12 jun 2026 · 16:00 CEST",
+        "ja": "2026年6月12日（金）16:00 CEST"
+      },
+      "title": {
+        "en": "Xahau Blockchain Programming Course",
+        "es": "Curso de Programación Blockchain Xahau",
+        "ja": "Xahauブロックチェーンプログラミングコース"
+      },
+      "location": {
+        "name": "MIL (Madrid Innovation Lab)",
+        "address": "Calle Bravo Murillo 37-39, Madrid, Spain",
+        "mapsUrl": "https://www.google.com/maps/place/MIL+(+Madrid+Innovation+Lab+)/@40.434491,-3.7064685,906m/data=!3m1!1e3!4m6!3m5!1s0xd4229d08548c999:0x5f5190cb07369de2!8m2!3d40.4366246!4d-3.7048174!16s%2Fg%2F11snptdnc1"
+      },
+      "speakers": [],
+      "registration": {
+        "url": "https://luma.com/ksznuz3k",
+        "label": {
+          "en": "Register to attend",
+          "es": "Regístrate para asistir",
+          "ja": "参加登録する"
+        }
+      },
+      "recording": null,
+      "description": {
+        "en": "A free introductory course on Xahau blockchain programming, designed to help you take your first steps in this type of technology. This 4-hour in-person course focuses on learning fundamental concepts and tools through practical exercises. Whether you're a developer curious about Non-EVM alternatives, an entrepreneur, or someone with no prior blockchain experience, this course will cover topics from basic architecture and wallet creation to smart contracts in Non-EVM environments. Language: Spanish & English.",
+        "es": "Un curso introductorio gratuito sobre programación blockchain en Xahau, diseñado para ayudarte a dar tus primeros pasos en este tipo de tecnología. Este curso presencial de 4 horas se centra en aprender conceptos y herramientas fundamentales a través de ejercicios prácticos. Tanto si eres un desarrollador curioso sobre alternativas Non-EVM, un emprendedor, o alguien sin experiencia previa en blockchain, este curso cubrirá temas desde arquitectura básica y creación de wallets hasta contratos inteligentes en entornos Non-EVM. Idioma: Español e Inglés.",
+        "ja": "Xahauブロックチェーンプログラミングの無料入門コースです。この4時間の対面コースは、実践的な演習を通じて基本的な概念とツールを学ぶことに焦点を当てています。非EVM代替手段に興味を持つ開発者、起業家、またはブロックチェーンの経験がない方を対象としています。言語：スペイン語・英語。"
+      }
+    },
+    {
       "id": "non-evm-course-2026-02",
       "date": "2026-02-27",
       "time": "16:00",
