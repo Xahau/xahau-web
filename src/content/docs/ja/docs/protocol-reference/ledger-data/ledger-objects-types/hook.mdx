@@ -5,7 +5,7 @@ title: Hook
 
 _(\[Hooks amendment]\[]によって追加されました。)_
 
-`Hook` オブジェクトはスマートコントラクトを表します。これはトランザクションによってトリガーされ、あらかじめ定義された操作を実行できます。操作は `Hook` の作成者によって定義され、レジャーやトランザクションと相互作用できます。
+`Hook`オブジェクトはスマートコントラクトを表します。これはトランザクションによってトリガーされ、あらかじめ定義された操作を実行できます。操作は `Hook` の作成者によって定義され、レジャーやトランザクションと相互作用できます。
 
 ### JSON例
 
@@ -28,7 +28,7 @@ _(\[Hooks amendment]\[]によって追加されました。)_
 
 ### フィールド
 
-`Hook` オブジェクトには、次のフィールドがあります。
+`Hook`オブジェクトには、次のフィールドがあります。
 
 | 項目                | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                                                                                     |
 | ------------------- | --------- | ------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -36,8 +36,8 @@ _(\[Hooks amendment]\[]によって追加されました。)_
 | `OwnerNode`         | String    | UInt64        | はい | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクするownerのdirectoryのページを示すヒントです。                                                   |
 | `PreviousTxnID`     | String    | Hash256       | はい | このオブジェクトを最後に変更したトランザクションのIDです。                                                                                                              |
 | `PreviousTxnLgrSeq` | Number    | UInt32        | はい | このオブジェクトを最後に変更したトランザクションを含む \[レジャーインデックス]\[]です。                                                                     |
-| `Hooks`             | Array     | Array         | はい | Hookオブジェクトの配列です。各オブジェクトには、`HookHash`、`CreateCode`、`HookGrants`、`HookNamespace`、`HookParameters`、`HookOn`、`HookApiVersion`、`Flags` のフィールドがあります。 |
-| `LedgerEntryType`   | String    | UInt16        | はい | `0x0043` の値が文字列 `Hook` に対応し、このオブジェクトがHookオブジェクトであることを示します。                                                                                   |
+| `Hooks`             | Array     | Array         | はい | Hookオブジェクトの配列です。各オブジェクトには、`HookHash`、`CreateCode`、`HookGrants`、`HookNamespace`、`HookParameters`、`HookOn`、`HookApiVersion`、`Flags`のフィールドがあります。 |
+| `LedgerEntryType`   | String    | UInt16        | はい | `0x0043`の値が文字列`Hook`に対応し、このオブジェクトがHookオブジェクトであることを示します。                                                                                   |
 
 ### Hookフィールド
 
@@ -51,7 +51,7 @@ hookオブジェクトでは次のフィールドが使用されます。
 
 #### Hook ID形式
 
-`Hook` オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
+`Hook`オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
 
 * Hookスペースキー (`0x0048`)
-* `Hook` オブジェクトを作成した \[SetHook transaction]\[]の送信元のAccountID
+* `Hook`オブジェクトを作成した \[SetHook transaction]\[]の送信元のAccountID

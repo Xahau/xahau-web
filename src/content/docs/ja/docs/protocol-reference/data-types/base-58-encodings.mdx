@@ -1,7 +1,7 @@
 ---
 title: Base 58エンコーディング
 ---
-XahauのAPIでは、アカウントアドレスや暗号鍵に関連する他の種類の値を表すために、チェックサム付きの "base58" エンコーディング（"Base58Check" とも呼ばれます）がよく使われます。このエンコーディングは [Bitcoinアドレスで使われているもの](https://en.bitcoin.it/wiki/Base58Check_encoding)と同じですが、Xahauでは次の辞書を使用します: `rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz`。
+XahauのAPIでは、アカウントアドレスや暗号鍵に関連する他の種類の値を表すために、チェックサム付きの"base58"エンコーディング（"Base58Check"とも呼ばれます）がよく使われます。このエンコーディングは [Bitcoinアドレスで使われているもの](https://en.bitcoin.it/wiki/Base58Check_encoding)と同じですが、Xahauでは次の辞書を使用します: `rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz`。
 
 Xahauでは、異なるデータ型を区別するために、エンコードする前に値の種類ごとに特定の8ビット数を接頭辞として付けます。Xahauのbase58辞書の文字配置により、エンコードされた値の種類ごとのbase58表現は、型ごとに特定の文字で始まります。
 

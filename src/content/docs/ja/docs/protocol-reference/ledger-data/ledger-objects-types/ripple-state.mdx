@@ -3,13 +3,13 @@ title: RippleState
 ---
 [\[出典\]](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L70)
 
-`RippleState` オブジェクト型は、2つのアカウントを1つの通貨で結びます。概念的には、`RippleState` オブジェクトはアカウント間の2本のトラストラインを表し、それぞれが片側からのものです。各アカウントは `RippleState` オブジェクトの自分側の設定を変更できますが、残高は1つの共有値です。完全にデフォルト状態にあるトラストラインは、存在しないトラストラインと同じものとして扱われるため、`rippled` はそのプロパティが完全にデフォルトになった `RippleState` オブジェクトを削除します。
+`RippleState`オブジェクトタイプは、2つのアカウントを1つの通貨で結びます。概念的には、`RippleState`オブジェクトはアカウント間の2本のトラストラインを表し、それぞれが片側からのものです。各アカウントは`RippleState`オブジェクトの自分側の設定を変更できますが、残高は1つの共有値です。完全にデフォルト状態にあるトラストラインは、存在しないトラストラインと同じものとして扱われるため、`rippled`はそのプロパティが完全にデフォルトになった`RippleState`オブジェクトを削除します。
 
 ### HighアカウントとLowアカウント <a id="high-vs-low-account" />
 
-任意の2つのアカウントの組み合わせにつき、同じ通貨に対して存在できる `RippleState` オブジェクトは1つだけです。Xahauではどのアカウントも優越しないため、`RippleState` オブジェクトは正規化された形式を保証するために、アカウントアドレスを数値順に並べます。デコードしたときに数値が小さい方のアドレスが "low account" と見なされ、もう一方が "high account" です。トラストラインの純残高はlow accountの視点で保存されます。
+任意の2つのアカウントの組み合わせにつき、同じ通貨に対して存在できる`RippleState`オブジェクトは1つだけです。Xahauではどのアカウントも優越しないため、`RippleState`オブジェクトは正規化された形式を保証するために、アカウントアドレスを数値順に並べます。デコードしたときに数値が小さい方のアドレスが"low account"と見なされ、もう一方が"high account"です。トラストラインの純残高はlow accountの視点で保存されます。
 
-トラストラインの残高に対する "issuer" は、その残高が正か負かによって決まります。`RippleState` オブジェクトの残高が正なら、high accountがissuerです。残高が負なら、low accountがissuerです。多くの場合、issuerのlimitは `0` に設定され、もう一方のアカウントには正のlimitが設定されますが、既存の残高には影響せずにlimitを変更できるため、これは信頼できません。
+トラストラインの残高に対する"issuer"は、その残高が正か負かによって決まります。`RippleState`オブジェクトの残高が正なら、high accountがissuerです。残高が負なら、low accountがissuerです。多くの場合、issuerのlimitは`0`に設定され、もう一方のアカウントには正のlimitが設定されますが、既存の残高には影響せずにlimitを変更できるため、これは信頼できません。
 
 ### JSON例
 
@@ -48,21 +48,21 @@ title: RippleState
 
 ### フィールド
 
-`RippleState` オブジェクトには次のフィールドがあります。
+`RippleState`オブジェクトには次のフィールドがあります。
 
 | 名前                | JSON型 | 内部型 | 必須? | 説明                                                                                                                                                                                                                            |
 | ------------------- | ------- | ------ | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Balance`           | Object  | Amount | はい  | low accountの視点から見たトラストラインの残高です。残高が負であれば、high accountがlow accountによって発行されたトークンを保有していることを示します。ここでのissuerは常に中立値 `ACCOUNT_ONE` に設定されます。 |
+| `Balance`           | Object  | Amount | はい  | low accountの視点から見たトラストラインの残高です。残高が負であれば、high accountがlow accountによって発行されたトークンを保有していることを示します。ここでのissuerは常に中立値`ACCOUNT_ONE`に設定されます。 |
 | `Flags`             | Number  | UInt32 | はい  | このオブジェクトで有効になっている真偽値オプションのビットマップです。                                                                                                                                                                                  |
-| `HighLimit`         | Object  | Amount | はい  | high accountがトラストラインに設定したlimitです。`issuer` は、このlimitを設定したhigh accountのアドレスです。                                                                                                        |
+| `HighLimit`         | Object  | Amount | はい  | high accountがトラストラインに設定したlimitです。`issuer`は、このlimitを設定したhigh accountのアドレスです。                                                                                                        |
 | `HighNode`          | String  | UInt64 | はい  | （一部の歴史的なレジャーでは省略）ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクするhigh accountのowner directoryのどのページかを示すヒントです。                                                        |
-| `HighQualityIn`     | Number  | UInt32 | いいえ | high accountが設定したinbound qualityです。暗黙の比率は `HighQualityIn`:1,000,000,000です。特例として、値 `0` は10億、つまりface valueと同じです。                                               |
-| `HighQualityOut`    | Number  | UInt32 | いいえ | high accountが設定したoutbound qualityです。暗黙の比率は `HighQualityOut`:1,000,000,000です。特例として、値 `0` は10億、つまりface valueと同じです。                                             |
-| `LedgerEntryType`   | String  | UInt16 | はい  | 文字列 `RippleState` に対応付けられる値 `0x0072` は、このオブジェクトがRippleStateオブジェクトであることを示します。                                                                                                                            |
-| `LowLimit`          | Object  | Amount | はい  | low accountがトラストラインに設定したlimitです。`issuer` は、このlimitを設定したlow accountのアドレスです。                                                                                                          |
+| `HighQualityIn`     | Number  | UInt32 | いいえ | high accountが設定したinbound qualityです。暗黙の比率は `HighQualityIn`:1,000,000,000です。特例として、値`0`は10億、つまりface valueと同じです。                                               |
+| `HighQualityOut`    | Number  | UInt32 | いいえ | high accountが設定したoutbound qualityです。暗黙の比率は `HighQualityOut`:1,000,000,000です。特例として、値`0`は10億、つまりface valueと同じです。                                             |
+| `LedgerEntryType`   | String  | UInt16 | はい  | 文字列`RippleState`に対応付けられる値`0x0072`は、このオブジェクトがRippleStateオブジェクトであることを示します。                                                                                                                            |
+| `LowLimit`          | Object  | Amount | はい  | low accountがトラストラインに設定したlimitです。`issuer`は、このlimitを設定したlow accountのアドレスです。                                                                                                          |
 | `LowNode`           | String  | UInt64 | はい  | （一部の歴史的なレジャーでは省略）ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクするlow accountのowner directoryのどのページかを示すヒントです。                                                         |
-| `LowQualityIn`      | Number  | UInt32 | いいえ | low accountが設定したinbound qualityです。暗黙の比率は `LowQualityIn`:1,000,000,000です。特例として、値 `0` は10億、つまりface valueと同じです。                                                 |
-| `LowQualityOut`     | Number  | UInt32 | いいえ | low accountが設定したoutbound qualityです。暗黙の比率は `LowQualityOut`:1,000,000,000です。特例として、値 `0` は10億、つまりface valueと同じです。                                               |
+| `LowQualityIn`      | Number  | UInt32 | いいえ | low accountが設定したinbound qualityです。暗黙の比率は `LowQualityIn`:1,000,000,000です。特例として、値`0`は10億、つまりface valueと同じです。                                                 |
+| `LowQualityOut`     | Number  | UInt32 | いいえ | low accountが設定したoutbound qualityです。暗黙の比率は `LowQualityOut`:1,000,000,000です。特例として、値`0`は10億、つまりface valueと同じです。                                               |
 | `PreviousTxnID`     | String  | Hash256 | はい  | このオブジェクトを最後に変更したトランザクションの識別ハッシュです。                                                                                                                                                       |
 | `PreviousTxnLgrSeq` | Number  | UInt32 | はい  | このオブジェクトを最後に変更したトランザクションを含むレジャーの \[インデックス]\[Ledger Index]です。                                                                                                                       |
 | `LockCount`         | Number  | UInt32 | いいえ | RippleStateレジャーオブジェクト上のロック残高の総数です。                                                                                                                                                                       |
@@ -89,30 +89,30 @@ RippleStateオブジェクトには次のフラグ値を指定できます。
 
 ### Owner Reserveへの寄与
 
-アカウントがトラストラインを変更してデフォルト以外の状態にすると、そのトラストラインはそのアカウントの所有者リザーブに算入されます。RippleStateオブジェクトでは、`lsfLowReserve` と `lsfHighReserve` のフラグが、どのアカウントが所有者リザーブの責任を負うかを示します。`rippled` サーバーはトラストラインを変更するときに、これらのフラグを自動的に設定します。
+アカウントがトラストラインを変更してデフォルト以外の状態にすると、そのトラストラインはそのアカウントの所有者リザーブに算入されます。RippleStateオブジェクトでは、`lsfLowReserve`と`lsfHighReserve`のフラグが、どのアカウントが所有者リザーブの責任を負うかを示します。`rippled`サーバーはトラストラインを変更するときに、これらのフラグを自動的に設定します。
 
 トラストラインがデフォルト以外の状態として数えられる条件は次のとおりです。
 
 | Highアカウントが責任を負うのは...                          | Lowアカウントが責任を負うのは...                          |
 | ------------------------------------------------------- | ------------------------------------------------------ |
-| `Balance` が負である（highアカウントが通貨を保有している） | `Balance` が正である（lowアカウントが通貨を保有している） |
-| `HighLimit` が `0` ではない                              | `LowLimit` が `0` ではない                              |
-| `LowQualityIn` が `0` でも `1000000000` でもない          | `HighQualityIn` が `0` でも `1000000000` でもない        |
-| `LowQualityOut` が `0` でも `1000000000` でもない         | `HighQualityOut` が `0` でも `1000000000` でもない       |
-| `lsfHighNoRipple` フラグがデフォルト状態ではない      | `lsfLowNoRipple` フラグがデフォルト状態ではない      |
-| `lsfHighFreeze` フラグが有効                         | `lsfLowFreeze` フラグが有効                         |
+| `Balance`が負である（highアカウントが通貨を保有している） | `Balance`が正である（lowアカウントが通貨を保有している） |
+| `HighLimit`が`0`ではない                              | `LowLimit`が`0`ではない                              |
+| `LowQualityIn`が`0`でも`1000000000`でもない          | `HighQualityIn`が`0`でも`1000000000`でもない        |
+| `LowQualityOut`が`0`でも`1000000000`でもない         | `HighQualityOut`が`0`でも`1000000000`でもない       |
+| `lsfHighNoRipple`フラグがデフォルト状態ではない      | `lsfLowNoRipple`フラグがデフォルト状態ではない      |
+| `lsfHighFreeze`フラグが有効                         | `lsfLowFreeze`フラグが有効                         |
 
 **`lsfLowAuth`** と **`lsfHighAuth`** フラグは無効化できないため、デフォルト状態の判定には含まれません。
 
-2つのNo Rippleフラグのデフォルト状態は、それぞれに対応するAccountRootオブジェクトにある `lsfDefaultRipple` フラグの状態によって決まります。Default Rippleが無効（デフォルト）の場合、`lsfNoRipple` フラグのデフォルト状態は、そのアカウントのすべてのトラストラインで _有効_ です。アカウントがDefault Rippleを有効にすると、そのアカウントのトラストラインにおける `lsfNoRipple` フラグのデフォルト状態は _無効_ （つまりripplingが有効）になります。
+2つのNo Rippleフラグのデフォルト状態は、それぞれに対応するAccountRootオブジェクトにある`lsfDefaultRipple`フラグの状態によって決まります。Default Rippleが無効（デフォルト）の場合、`lsfNoRipple`フラグのデフォルト状態は、そのアカウントのすべてのトラストラインで _有効_ です。アカウントがDefault Rippleを有効にすると、そのアカウントのトラストラインにおける`lsfNoRipple`フラグのデフォルト状態は _無効_ （つまりripplingが有効）になります。
 
-**注:** `rippled` バージョン0.27.3（2015年3月10日）でDefault Rippleフラグが導入される前は、すべてのトラストラインのデフォルト状態では両方のNo Rippleフラグが無効（ripplingが有効）でした。
+**注:** `rippled`バージョン0.27.3（2015年3月10日）でDefault Rippleフラグが導入される前は、すべてのトラストラインのデフォルト状態では両方のNo Rippleフラグが無効（ripplingが有効）でした。
 
-幸いなことに、`rippled` は所有者リザーブの計算に遅延評価を使います。つまり、アカウントがDefault Rippleフラグを変更してすべてのトラストラインのデフォルト状態を変えたとしても、そのアカウントのリザーブは最初は同じままです。アカウントがトラストラインを変更すると、`rippled` はその個々のトラストラインがデフォルト状態にあるか、そして所有者リザーブに寄与すべきかを再評価します。
+幸いなことに、`rippled`は所有者リザーブの計算に遅延評価を使います。つまり、アカウントがDefault Rippleフラグを変更してすべてのトラストラインのデフォルト状態を変えたとしても、そのアカウントのリザーブは最初は同じままです。アカウントがトラストラインを変更すると、`rippled`はその個々のトラストラインがデフォルト状態にあるか、そして所有者リザーブに寄与すべきかを再評価します。
 
 ### RippleStateのID形式
 
-`RippleState` オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half]\[]です。
+`RippleState`オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half]\[]です。
 
 * RippleStateスペースキー（`0x0072`）
 * low accountのAccountID

@@ -5,7 +5,7 @@ title: Hook定義
 
 _(\[Hooks amendment]\[]によって追加されました。)_
 
-`HookDefinition` オブジェクトはHookを表します。Hookは、特定のトランザクションに応答して実行されるコード片です。Hookはトランザクションを変更したり、新しいトランザクションを発行したり、その他の処理を実行したりできます。
+`HookDefinition`オブジェクトはHookを表します。Hookは、特定のトランザクションに応答して実行されるコード片です。Hookはトランザクションを変更したり、新しいトランザクションを発行したり、その他の処理を実行したりできます。
 
 ### JSON例
 
@@ -33,7 +33,7 @@ _(\[Hooks amendment]\[]によって追加されました。)_
 
 ### フィールド
 
-`HookDefinition` オブジェクトには、次のフィールドがあります。
+`HookDefinition`オブジェクトには、次のフィールドがあります。
 
 | 項目              | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                       |
 | ----------------- | --------- | ------------- | ----- | ---------------------------------------------------------------------------------------------------------- |
@@ -48,11 +48,11 @@ _(\[Hooks amendment]\[]によって追加されました。)_
 | `ReferenceCount`  | String    | UInt64        | はい | Hookへの参照数です。                                                                             |
 | `Fee`             | String    | Amount        | はい | Hook実行の手数料です。                                                                                   |
 | `HookCallbackFee` | String    | Amount        | いいえ | Hookのコールバック関数実行に対する手数料です。                                                               |
-| `LedgerEntryType` | String    | UInt16        | はい | `0x0043` の値が文字列 `HookDefinition` に対応し、このオブジェクトがHookDefinitionオブジェクトであることを示します。 |
+| `LedgerEntryType` | String    | UInt16        | はい | `0x0043`の値が文字列`HookDefinition`に対応し、このオブジェクトがHookDefinitionオブジェクトであることを示します。 |
 
 #### Hook定義ID形式
 
-`HookDefinition` オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
+`HookDefinition`オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
 
 * HookDefinitionスペースキー (`0x0044`)
-* Hookの `HookHash`
+* Hookの`HookHash`

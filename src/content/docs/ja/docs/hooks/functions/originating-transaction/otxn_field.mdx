@@ -8,7 +8,7 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 <Tabs>
 <TabItem label="C">
-* 発信トランザクション内で指定された `sf` フィールドを検索する
+* 発信トランザクション内で指定された`sf`フィールドを検索する
 * フィールドのシリアライズ済み表現を出力バッファに書き込む
 </TabItem>
 
@@ -74,7 +74,7 @@ const account_field = otxn_field(sfAccount)
 <Aside type="caution" title="重要">
 フィールドコードは出力バッファに _書き込まれず_ 、フィールドの _ペイロード_ のみが書き込まれる。
 
-記述時点では、Hooks Public Testnetにおいて `sfAccount` のような `STI_ACCOUNT` フィールドは、先頭の可変長バイトなしで返される。
+記述時点では、Hooks Public Testnetにおいて`sfAccount`のような`STI_ACCOUNT`フィールドは、先頭の可変長バイトなしで返される。
 </Aside>
 </TabItem>
 

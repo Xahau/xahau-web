@@ -42,13 +42,13 @@ _(\[Remarks amendment]\[]により追加。)_
 
 ### Remarks形式
 
-`Remarks` 配列の各要素は、単一の `Remark` フィールドを持つオブジェクトです。その `Remark` 自体は、次のフィールドを持つオブジェクトです。
+`Remarks`配列の各要素は、単一の`Remark`フィールドを持つオブジェクトです。その`Remark`自体は、次のフィールドを持つオブジェクトです。
 
 | フィールド         | JSON型 | 内部型 | 必須 | 説明                                                              |
 | ------------- | --------- | ------------- | -------- | ------------------------------------------------------------------------ |
-| `RemarkName`  | String    | Blob          | Yes      | remarkの名前/ key（1–256 bytes、オブジェクトごとに一意である必要があります） |
-| `RemarkValue` | String    | Blob          | No       | remarkのvalue（1–256 bytes）。削除するには省略します。                 |
-| `Flags`       | Number    | UInt32        | No       | `1`（`tfImmutable`）にするとremarkがimmutableになります。既定値は `0` です。 |
+| `RemarkName`  | String    | Blob          | Yes      | remarkの名前/ key（1-256 bytes、オブジェクトごとに一意である必要があります） |
+| `RemarkValue` | String    | Blob          | No       | remarkのvalue（1-256 bytes）。削除するには省略します。                 |
+| `Flags`       | Number    | UInt32        | No       | `1`（`tfImmutable`）にするとremarkがimmutableになります。既定値は`0`です。 |
 
 ### 対応オブジェクトと権限
 
@@ -69,13 +69,13 @@ remarkは次のレジャーオブジェクトタイプに付けられます。**
 ### 制限
 
 * オブジェクトごとに **最大32個のremark**
-* 各 `RemarkName` と `RemarkValue` は1–256 bytesでなければなりません
-* 各 `RemarkName` はオブジェクトごとに一意でなければなりません
+* 各 `RemarkName`と RemarkValue`は1-256 bytesでなければなりません
+* 各 `RemarkName`はオブジェクトごとに一意でなければなりません
 * remarkがimmutable（`Flags: 1`）にされた後は、変更も削除もできません
 
 ### 特別なトランザクションコスト
 
-基本のトランザクションコストに、トランザクション内のすべての `RemarkName` と `RemarkValue` フィールドのbytes数に対して **1 drop / byte** が加算されます。
+基本のトランザクションコストに、トランザクション内のすべての`RemarkName`と`RemarkValue`フィールドのbytes数に対して**1 drop / byte**が加算されます。
 
 ### エラーケース
 
@@ -89,5 +89,3 @@ remarkは次のレジャーオブジェクトタイプに付けられます。**
 | `tecNO_PERMISSION`    | 送信者がオブジェクトのowner / issuerでない場合。                                          |
 | `tecIMMUTABLE`        | immutableなremarkの変更または削除を試みた場合。                                           |
 | `tecTOO_MANY_REMARKS` | オブジェクト上のremark数が32の上限を超える場合。                                         |
-
-

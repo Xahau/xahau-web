@@ -5,13 +5,13 @@ title: Escrow
 
 _(\[Escrow amendment]\[]によって追加されました。)_
 
-`Escrow` オブジェクトタイプは、実行またはキャンセルを待つXAHまたはIOUの保留支払いを表します。`\[EscrowCreate transaction]\[]` はレジャーに `Escrow` オブジェクトを作成します。`\[EscrowFinish]\[]` または `\[EscrowCancel]\[]` トランザクションが成功すると、このオブジェクトは削除されます。&#x20;
+`Escrow`オブジェクトタイプは、実行またはキャンセルを待つXAHまたはIOUの保留支払いを表します。`\[EscrowCreate transaction]\[]` はレジャーに`Escrow`オブジェクトを作成します。`\[EscrowFinish]\[]`または`\[EscrowCancel]\[]`トランザクションが成功すると、このオブジェクトは削除されます。&#x20;
 
-`Escrow` オブジェクトに [_crypto-condition_](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02)がある場合、その条件を満たす対応する_fulfillment_をEscrowFinishトランザクションが提供したときのみ支払いは成功します。（サポートされているcrypto-conditionの種類は [PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1)のみです。）`Escrow` オブジェクトに `FinishAfter` 時刻がある場合、保留支払いはその時刻以降にのみ実行できます。
+`Escrow`オブジェクトに [_crypto-condition_](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02)がある場合、その条件を満たす対応する _fulfillment_ をEscrowFinishトランザクションが提供したときのみ支払いは成功します。（サポートされているcrypto-conditionの種類は [PREIMAGE-SHA-256](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1)のみです。）`Escrow`オブジェクトに`FinishAfter`時刻がある場合、保留支払いはその時刻以降にのみ実行できます。
 
-`Escrow` オブジェクトは2つのアドレスに関連付けられます。
+`Escrow`オブジェクトは2つのアドレスに関連付けられます。
 
-* 所有者。`Escrow` オブジェクトを作成するときにXAHまたはIOUを提供します。保留支払いがキャンセルされると、XAHまたはIOUは所有者に戻ります。
+* 所有者。`Escrow`オブジェクトを作成するときにXAHまたはIOUを提供します。保留支払いがキャンセルされると、XAHまたはIOUは所有者に戻ります。
 * 宛先。保留支払いが成功したときにXAHまたはIOUが支払われる先です。宛先は所有者と同じでもかまいません。
 
 ### JSON例
@@ -38,21 +38,21 @@ _(\[Escrow amendment]\[]によって追加されました。)_
 
 ### フィールド
 
-`Escrow` オブジェクトには、次のフィールドがあります。
+`Escrow`オブジェクトには、次のフィールドがあります。
 
 | 項目                | JSON型          | \[内部型]\[] | 必須? | 説明                                                                                                                                                                                                                                                                     |
 | ------------------- | ---------------- | ------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Account`           | String           | AccountID     | はい | この保留支払いの所有者（送信元）のアドレスです。金額を提供したアカウントであり、保留支払いがキャンセルされるとその金額が戻ります。                                                                                                                         |
 | `Amount`            | String or Object | Amount        | はい | 保留支払いで送られる金額です。                                                                                                                                                                                                                                 |
 | `CancelAfter`       | Number           | UInt32        | いいえ | このフィールドが存在し、かつ指定された時刻が経過している場合に限り、保留支払いをキャンセルできます。具体的には、これは \[Ripple Epochからの秒数]\[]として指定され、前回検証済みレジャーのクローズ時刻より前であれば「経過済み」とみなされます。 |
-| `Condition`         | String           | Blob          | いいえ | 16進数で表された [PREIMAGE-SHA-256 crypto-condition](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1)です。存在する場合、`\[EscrowFinish transaction]\[]` にはこの条件を満たすfulfillmentが含まれていなければなりません。                                      |
+| `Condition`         | String           | Blob          | いいえ | 16進数で表された [PREIMAGE-SHA-256 crypto-condition](https://tools.ietf.org/html/draft-thomas-crypto-conditions-02#section-8.1)です。存在する場合、`\[EscrowFinish transaction]\[]`にはこの条件を満たすfulfillmentが含まれていなければなりません。                                      |
 | `Destination`       | String           | AccountID     | はい | 保留支払いが成功したときに金額が支払われる宛先アドレスです。                                                                                                                                                                                             |
 | `DestinationNode`   | String           | UInt64        | いいえ | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクする宛先のowner directoryのページを示すヒントです。`\[fix1523 amendment]\[]` が有効になる前に作成されたescrowでは省略されます。                                                               |
 | `DestinationTag`    | Number           | UInt32        | いいえ | この保留支払いの宛先をさらに特定するための任意のタグです。たとえば、宛先アドレスでホストされた受取人などです。                                                                                                                                               |
 | `FinishAfter`       | Number           | UInt32        | いいえ | \[Ripple Epochからの秒数]\[]で表される時刻で、この時刻以降にこの保留支払いを完了できます。この時刻より前の \[EscrowFinish transaction]\[]はすべて失敗します。（具体的には、前回検証済みレジャーのクローズ時刻と比較されます。）                             |
-| `Flags`             | Number           | UInt32        | はい | このオブジェクトで有効なブールフラグのビットマップです。現在、プロトコルでは `Escrow` オブジェクトに対するフラグは定義されていません。この値は常に `0` です。                                                                                                                                     |
-| `LedgerEntryType`   | String           | UInt16        | はい | `0x0075` の値が文字列 `Escrow` に対応し、このオブジェクトが `Escrow` オブジェクトであることを示します。                                                                                                                                                                            |
-| `OwnerNode`         | String           | UInt64        | はい | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクするowner directoryのページを示すヒントです。**注:** このオブジェクトには、それを含むowner directoryへの直接リンクはありません。なぜなら、その値は `Account` から導出できるためです。       |
+| `Flags`             | Number           | UInt32        | はい | このオブジェクトで有効なブールフラグのビットマップです。現在、プロトコルでは`Escrow`オブジェクトに対するフラグは定義されていません。この値は常に`0`です。                                                                                                                                     |
+| `LedgerEntryType`   | String           | UInt16        | はい | `0x0075`の値が文字列`Escrow`に対応し、このオブジェクトが`Escrow`オブジェクトであることを示します。                                                                                                                                                                            |
+| `OwnerNode`         | String           | UInt64        | はい | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクするowner directoryのページを示すヒントです。**注:** このオブジェクトには、それを含むowner directoryへの直接リンクはありません。なぜなら、その値は`Account`から導出できるためです。       |
 | `PreviousTxnID`     | String           | Hash256       | はい | このオブジェクトを最後に変更したトランザクションの識別ハッシュです。                                                                                                                                                                                                |
 | `PreviousTxnLgrSeq` | Number           | UInt32        | はい | このオブジェクトを最後に変更したトランザクションを含む \[レジャーのインデックス]\[Ledger Index]です。                                                                                                                                                                |
 | `SourceTag`         | Number           | UInt32        | いいえ | この保留支払いの送信元をさらに特定するための任意のタグです。たとえば、所有者アドレスでホストされた受取人などです。                                                                                                                                                        |
@@ -60,8 +60,8 @@ _(\[Escrow amendment]\[]によって追加されました。)_
 
 ### Escrow ID形式
 
-`Escrow` オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
+`Escrow`オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
 
 * Escrowスペースキー (`0x0075`)
-* `Escrow` オブジェクトを作成した \[EscrowCreate transaction]\[]の送信元のAccountID
-* `Escrow` オブジェクトを作成した \[EscrowCreate transaction]\[]のSequence番号。EscrowCreateトランザクションがTicketを使った場合は、代わりに `TicketSequence` の値を使用します。
+* `Escrow`オブジェクトを作成した \[EscrowCreate transaction]\[]の送信元のAccountID
+* `Escrow`オブジェクトを作成した \[EscrowCreate transaction]\[]のSequence番号。EscrowCreateトランザクションがTicketを使った場合は、代わりに`TicketSequence`の値を使用します。

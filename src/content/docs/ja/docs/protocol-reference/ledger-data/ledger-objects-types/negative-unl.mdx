@@ -3,9 +3,9 @@ title: Negative UNL
 ---
 _(\[NegativeUNL Amendment]\[]によって追加されました。)_
 
-`NegativeUNL` オブジェクト型には、現在のNegative UNLの状態、つまり現在オフラインだと考えられている信頼済みバリデーターの一覧が含まれます。
+`NegativeUNL`オブジェクト型には、現在のNegative UNLの状態、つまり現在オフラインだと考えられている信頼済みバリデーターの一覧が含まれます。
 
-各レジャーバージョンに含まれる `NegativeUNL` オブジェクトは **高々1つ** です。現在無効化されている、または無効化予定のバリデーターがいない場合、レジャー内に `NegativeUNL` オブジェクトは存在しません。
+各レジャーバージョンに含まれる`NegativeUNL`オブジェクトは **最大1つ** です。現在無効化されている、または無効化予定のバリデーターがいない場合、レジャー内に`NegativeUNL`オブジェクトは存在しません。
 
 ### JSON例
 
@@ -25,19 +25,19 @@ _(\[NegativeUNL Amendment]\[]によって追加されました。)_
 }
 ```
 
-`NegativeUNL` オブジェクトには次のフィールドがあります。
+`NegativeUNL`オブジェクトには次のフィールドがあります。
 
 | 名前                 | JSON型 | \[内部型]\[] | 必須? | 説明                                                                                                           |
 | -------------------- | ------ | ------------ | ----- | --------------------------------------------------------------------------------------------------------------------- |
-| `DisabledValidators` | Array  | Array        | いいえ | 現在無効化されている信頼済みバリデーターをそれぞれ表す `DisabledValidator` オブジェクトの一覧です（詳細は下記参照）。 |
-| `Flags`              | Number | UInt32       | はい  | 真偽値フラグのビットマップです。NegativeUNLオブジェクト型に定義されたフラグはないため、この値は常に `0` です。        |
-| `LedgerEntryType`    | String | UInt16       | はい  | 文字列 `NegativeUNL` に対応付けられる値 `0x004E` は、このオブジェクトがNegative UNLであることを示します。            |
+| `DisabledValidators` | Array  | Array        | いいえ | 現在無効化されている信頼済みバリデーターをそれぞれ表す`DisabledValidator`オブジェクトの一覧です（詳細は下記参照）。 |
+| `Flags`              | Number | UInt32       | はい  | 真偽値フラグのビットマップです。NegativeUNLオブジェクト型に定義されたフラグはないため、この値は常に`0`です。        |
+| `LedgerEntryType`    | String | UInt16       | はい  | 文字列`NegativeUNL`に対応付けられる値`0x004E`は、このオブジェクトがNegative UNLであることを示します。            |
 | `ValidatorToDisable` | String | Blob         | いいえ | 次のフラグレジャーで無効化される予定の、信頼済みバリデーターの公開鍵です。                       |
 | `ValidatorToReEnable` | String    | Blob                | いいえ | Negative UNLに含まれる信頼済みバリデーターの公開鍵で、次のフラグレジャーで再有効化される予定のものです。 |
 
 ### DisabledValidatorオブジェクト
 
-各 `DisabledValidator` オブジェクトは、1つの無効化されたバリデーターを表します。JSONでは、`DisabledValidator` オブジェクトには `DisabledValidator` という1つのフィールドがあり、その中に次のフィールドを持つ別のオブジェクトが含まれます。
+各`DisabledValidator`オブジェクトは、1つの無効化されたバリデーターを表します。JSONでは、`DisabledValidator`オブジェクトには`DisabledValidator`という1つのフィールドがあり、その中に次のフィールドを持つ別のオブジェクトが含まれます。
 
 | 名前                 | JSON型 | \[内部型]\[] | 説明                                                              |
 | -------------------- | ------ | ------------ | ------------------------------------------------------------------------ |
@@ -46,7 +46,7 @@ _(\[NegativeUNL Amendment]\[]によって追加されました。)_
 
 ### NegativeUNLのID形式
 
-`NegativeUNL` オブジェクトのIDは、`NegativeUNL` スペースキー（`0x004E`）のみのハッシュです。つまり、レジャー内の `NegativeUNL` オブジェクトのIDは常に次のとおりです。
+`NegativeUNL`オブジェクトのIDは、`NegativeUNL`スペースキー（`0x004E`）のみのハッシュです。つまり、レジャー内の`NegativeUNL`オブジェクトのIDは常に次のとおりです。
 
 ```
 2E8A59AA9D3B5B186B0B9E0F62E6C02587CA74A4D778938E957B6357D364B244

@@ -5,7 +5,7 @@ description: >-
 ---
 \[[ソース](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/GenesisMint.cpp)]
 
-_\[XahauGenesis amendment]\[]と \[Hooks amendment]\[]により追�_
+_\[XahauGenesis amendment]\[]と \[Hooks amendment]\[]により追加_
 
 ### 例
 
@@ -33,7 +33,7 @@ _\[XahauGenesis amendment]\[]と \[Hooks amendment]\[]により追�_
 
 ### GenesisMintオブジェクト
 
-GenesisMintトランザクションには、`GenesisMints` と呼ばれるオブジェクト配列が含まれます。各オブジェクトは、宛先アカウントと、そのアカウントにミントして配布するXAHの金額を表します。
+GenesisMintトランザクションには、`GenesisMints`呼ばれるオブジェクト配列が含まれます。各オブジェクトは、宛先アカウントと、そのアカウントにミントして配布するXAHの金額を表します。
 
 | フィールド             | JSON型 | 内部型 | 説明                                                                |
 | ----------------- | --------- | ------------- | -------------------------------------------------------------------------- |
@@ -52,5 +52,5 @@ GenesisMintトランザクションには標準のトランザクションコス
 
 | エラーコード     | 説明                                                                                |
 | -------------- | ------------------------------------------------------------------------------------------ |
-| `temDISABLED`  | "Hooks" または "XahauGenesis" amendmentが有効でない場合に発生します。                   |
+| `temDISABLED`  | "Hooks"または"XahauGenesis" amendmentが有効でない場合に発生します。                   |
 | `temMALFORMED` | 必須フィールドの欠落や無効な値などにより、トランザクションが不正な形式である場合に発生します。 |

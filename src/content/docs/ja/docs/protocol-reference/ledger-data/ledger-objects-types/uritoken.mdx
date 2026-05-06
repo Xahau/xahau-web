@@ -5,7 +5,7 @@ title: URIToken
 
 _（[URI Token Amendment][]により追加。）_
 
-`URIToken` オブジェクトはURIトークンを表し、レジャー内で一意のリソース識別子を表現するために使用できます。
+`URIToken`オブジェクトはURIトークンを表し、レジャー内で一意のリソース識別子を表現するために使用できます。
 
 ### JSON例
 
@@ -27,7 +27,7 @@ _（[URI Token Amendment][]により追加。）_
 
 ### フィールド
 
-`URIToken` オブジェクトには次のフィールドがあります。
+`URIToken`オブジェクトには次のフィールドがあります。
 
 | フィールド | JSON型 | \[内部型]\[] | 必須? | 説明 |
 | --- | --- | --- | --- | --- |
@@ -40,11 +40,11 @@ _（[URI Token Amendment][]により追加。）_
 | `Destination` | String | Account | いいえ | URI Tokenの想定受取人です。 |
 | `PreviousTxnID` | String | Hash256 | はい | このオブジェクトを最後に変更したトランザクションの識別ハッシュです。 |
 | `PreviousTxnLgrSeq` | Number | UInt32 | はい | このオブジェクトを最後に変更したトランザクションを含むレジャーのインデックスです。 |
-| `LedgerEntryType` | String | UInt16 | はい | `0x0073` の値は、文字列 `URIToken` に対応し、このオブジェクトがURI Tokenオブジェクトであることを示します。 |
+| `LedgerEntryType` | String | UInt16 | はい | `0x0073`の値は、文字列`URIToken`に対応し、このオブジェクトがURI Tokenオブジェクトであることを示します。 |
 
 ### URITokenのフラグ
 
-`URIToken` オブジェクトには次のフラグ値を設定できます。
+`URIToken`オブジェクトには次のフラグ値を設定できます。
 
 | フラグ名 | 16進値 | 10進値 | 対応するURITokenMintフラグ | 説明 |
 | --- | --- | --- | --- | --- |
@@ -52,7 +52,7 @@ _（[URI Token Amendment][]により追加。）_
 
 ### URIToken ID形式
 
-`URIToken` オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half]\[]です。
+`URIToken`オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half]\[]です。
 
 * URI Tokenのスペースキー（`0x0055`）
 * URI Tokenの発行者のAccountID

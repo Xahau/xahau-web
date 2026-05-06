@@ -3,7 +3,7 @@ title: Amendments
 ---
 [出典](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L138-L144)
 
-`Amendments` オブジェクトタイプには、現在有効なAmendmentの一覧が含まれます。各レジャーバージョンには、`Amendments` オブジェクトは **高々1つ**しか含まれません。
+`Amendments`オブジェクトタイプには、現在有効なAmendmentの一覧が含まれます。各レジャーバージョンには、`Amendments`オブジェクトは **最大1つ**しか含まれません。
 
 ### JSONの例
 
@@ -34,27 +34,27 @@ title: Amendments
 | フィールド        | JSON型   | \[内部型]\[]        | 必須?    | 説明                                                                                                                                                                 |
 | ----------------- | --------- | ------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Amendments`      | Array     | Vector256           | いいえ    | 現在有効なすべてのAmendmentの256ビットIDを並べた配列。省略された場合は、有効なAmendmentはありません。                                                           |
-| `Flags`           | Number    | UInt32              | はい       | このオブジェクトで有効な真偽値フラグのビットマップ。現在、プロトコルは `Amendments` オブジェクト向けのフラグを定義していません。値は常に `0` です。                             |
-| `LedgerEntryType` | String    | UInt16              | はい       | 文字列 `Amendments` に対応する値 `0x0066` は、このオブジェクトがXahauのamendment状態を表すことを示します。                                              |
+| `Flags`           | Number    | UInt32              | はい       | このオブジェクトで有効な真偽値フラグのビットマップ。現在、プロトコルは`Amendments`オブジェクト向けのフラグを定義していません。値は常に`0`です。                             |
+| `LedgerEntryType` | String    | UInt16              | はい       | 文字列`Amendments`に対応する値`0x0066`は、このオブジェクトがXahauのamendment状態を表すことを示します。                                              |
 | `Majorities`      | Array     | STArray             | いいえ    | 過半数の支持を得ているが、まだ有効化されていないAmendmentの状態を表すオブジェクトの配列。省略された場合は、過半数の支持を得た保留中のAmendmentはありません。 |
 
-`Majorities` フィールドの各要素は、存在する場合、`Majority` という1つのフィールドを持つオブジェクトです。その内容は、次のフィールドを持つ入れ子のオブジェクトです。
+`Majorities`フィールドの各要素は、存在する場合、`Majority`という1つのフィールドを持つオブジェクトです。その内容は、次のフィールドを持つ入れ子のオブジェクトです。
 
 | フィールド  | JSON型   | \[内部型]\[]        | 説明                                                                                        |
 | ----------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------- |
 | `Amendment` | String    | Hash256             | 保留中のAmendmentのAmendment ID。                                                         |
-| `CloseTime` | Number    | UInt32              | このAmendmentが最後に過半数を獲得したレジャーバージョンの `close_time` フィールド。 |
+| `CloseTime` | Number    | UInt32              | このAmendmentが最後に過半数を獲得したレジャーバージョンの`close_time`フィールド。 |
 
-amendmentプロセスでは、バリデーターの合意により、80%以上のバリデーターが支持すると、`tfGotMajority` フラグ付きの \[EnableAmendment][]擬似トランザクションを使って新しいAmendmentが `Majorities` フィールドに追加されます。保留中のAmendmentの支持率が80%未満になると、`tfLostMajority` フラグ付きの \[EnableAmendment][]擬似トランザクションがそのAmendmentを `Majorities` 配列から削除します。あるAmendmentが少なくとも2週間 `Majorities` フィールドに残ると、フラグなしの \[EnableAmendment][]擬似トランザクションがそれを `Majorities` から削除し、恒久的に `Amendments` フィールドへ追加します。
+amendmentプロセスでは、バリデーターの合意により、80%以上のバリデーターが支持すると、`tfGotMajority`フラグ付きの \[EnableAmendment][]擬似トランザクションを使って新しいAmendmentが`Majorities`フィールドに追加されます。保留中のAmendmentの支持率が80%未満になると、`tfLostMajority`フラグ付きの \[EnableAmendment][]擬似トランザクションがそのAmendmentを`Majorities`配列から削除します。あるAmendmentが少なくとも2週間`Majorities`フィールドに残ると、フラグなしの \[EnableAmendment][]擬似トランザクションがそれを`Majorities`から削除し、恒久的に`Amendments`フィールドへ追加します。
 
 **注:** 技術的には、レジャー内のすべてのトランザクションは、その直前のレジャーバージョンで有効になっているAmendmentに基づいて処理されます。あるAmendmentが有効になるレジャーバージョンにトランザクションを適用している最中でも、レジャーの途中でルールは変わりません。レジャーがクローズされると、次のレジャーは、適用される新しいAmendmentによって定義された新しいルールを使用します。
 
 ### AmendmentsのID形式
 
-`Amendments` オブジェクトのIDは、`Amendments` スペースキー (`0x0066`)だけのハッシュです。つまり、レジャー内の `Amendments` オブジェクトのIDは常に次の値になります。
+`Amendments`オブジェクトのIDは、`Amendments`スペースキー (`0x0066`)だけのハッシュです。つまり、レジャー内の`Amendments`オブジェクトのIDは常に次の値になります。
 
 ```
 7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4
 ```
 
-（`Amendments` レジャーオブジェクトタイプのIDと、個々のAmendmentのAmendment IDを混同しないでください。）
+（`Amendments`レジャーオブジェクトタイプのIDと、個々のAmendmentのAmendment IDを混同しないでください。）

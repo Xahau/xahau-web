@@ -7,7 +7,7 @@ description: >-
 
 _(\[Cron amendment]\[]により追加。)_
 
-`Cron` 擬似トランザクションは、予定されたHookの実行時刻になると、Cronエンジンによってレジャーへ自動的に挿入されます。この擬似トランザクションは、`Owner` フィールドで指定されたアカウント上のHookの実行を引き起こします。
+`Cron`擬似トランザクションは、予定されたHookの実行時刻になると、Cronエンジンによってレジャーへ自動的に挿入されます。この擬似トランザクションは、`Owner`フィールドで指定されたアカウント上のHookの実行を引き起こします。
 
 ### 例
 
@@ -34,7 +34,7 @@ _(\[Cron amendment]\[]により追加。)_
 
 ### 共通フィールド
 
-擬似トランザクションとして、`Cron` は共通フィールドに標準の擬似トランザクション値を使います。
+擬似トランザクションとして、`Cron`は共通フィールドに標準の擬似トランザクション値を使います。
 
 | フィールド | 値 |
 | ----- | ----- |
@@ -46,11 +46,11 @@ _(\[Cron amendment]\[]により追加。)_
 
 ### 実行動作
 
-[`Cron ledger object`](/ja/docs/protocol-reference/ledger-data/ledger-objects-types/cron)が実行可能な状態になると（`StartTime`、`DelaySeconds`、`RepeatCount` フィールドに基づく）、Cronエンジンは `Cron` 擬似トランザクションを自動的にレジャーへ挿入します。
+[`Cron ledger object`](/ja/docs/protocol-reference/ledger-data/ledger-objects-types/cron)が実行可能な状態になると（`StartTime`、`DelaySeconds`、`RepeatCount`フィールドに基づく）、Cronエンジンは`Cron`擬似トランザクションを自動的にレジャーへ挿入します。
 
-この擬似トランザクションには、予定されたHookを持つアカウントを参照する `Owner` フィールドが含まれます。そのアカウント上のHookは自動的に呼び出され、実行中はそのアカウントが **weak transactional stakeholder (TSH)** として扱われます。
+この擬似トランザクションには、予定されたHookを持つアカウントを参照する`Owner`フィールドが含まれます。そのアカウント上のHookは自動的に呼び出され、実行中はそのアカウントが **weak transactional stakeholder (TSH)** として扱われます。
 
-**重要:** `Owner` はCron擬似トランザクション実行時にweak transactional stakeholderとなるため、Hook開発者は自分のHookでcollect call（`hsfCOLLECT` フラグ）を有効にする必要があります。さらに、そのアカウントでは `asfTshCollect` フラグも有効でなければなりません。
+**重要:** `Owner`はCron擬似トランザクション実行時にweak transactional stakeholderとなるため、Hook開発者は自分のHookでcollect call（`hsfCOLLECT`フラグ）を有効にする必要があります。さらに、そのアカウントでは`asfTshCollect`フラグも有効でなければなりません。
 
 ### 関連ドキュメント
 

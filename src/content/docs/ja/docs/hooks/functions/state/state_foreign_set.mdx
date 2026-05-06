@@ -8,13 +8,13 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 <Tabs>
 <TabItem label="C">
-* `kread_ptr` から32バイトのHook状態キーを読み取る
-* `read_ptr` から任意長のデータ（値）を読み取る
-* `nread_ptr` から32バイトの名前空間を読み取る
-* `aread_ptr` から20バイトのアカウントIDを読み取る
+* `kread_ptr`から32バイトのHook状態キーを読み取る
+* `read_ptr`から任意長のデータ（値）を読み取る
+* `nread_ptr`から32バイトの名前空間を読み取る
+* `aread_ptr`から20バイトのアカウントIDを読み取る
 * 指定した名前空間内の指定したアカウントのHook状態キーを、その値で更新する
 * ただし、そのアカウント上の [Grant](https://xrpl-hooks.readme.io/docs/grants)がこれを許可している場合に限る。
-* Hookアカウントを `aread_ptr` で指定した場合、動作は `state_set` と同じですが、`nread_ptr` を通じて名前空間も指定できます
+* Hookアカウントを`aread_ptr`で指定した場合、動作は`state_set`と同じですが、`nread_ptr`を通じて名前空間も指定できます
 </TabItem>
 
 <TabItem label="JavaScript">

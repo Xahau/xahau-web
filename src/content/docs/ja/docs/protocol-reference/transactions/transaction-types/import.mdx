@@ -24,39 +24,39 @@ _(\[Import amendment]\[]により追加。)_
 | フィールド         | JSON型 | \[Internal Type]\[] | 説明                                          |
 | ------------- | --------- | ------------------- | ---------------------------------------------------- |
 | `Blob`        | String    | Blob                | XPOPを表すhexadecimal値。                        |
-| `Issuer`      | String    | AccountID           | (Optional) Hook内で使用できるアドレス。           |
-| `Destination` | String    | AccountID           | (Optional) Hook内で使用できるアドレス。           |
+| `Issuer`      | String    | AccountID           | _(任意)_ Hook内で使用できるアドレス。           |
+| `Destination` | String    | AccountID           | _(任意)_ Hook内で使用できるアドレス。           |
 
 ### エラーケース
 
-* アカウントがNon Activatedの場合、`Sequence` は0でなければならず、`Fee` も0でなければなりません。
-* アカウントがActivatedの場合、`Sequence` と `Fee` は標準の方法で計算されます。
-* `Issuer` フィールドが存在する場合、`Fee` は標準の方法で計算しなければなりません。
+* アカウントがNon Activatedの場合、`Sequence`は0でなければならず、`Fee`も0でなければなりません。
+* アカウントがActivatedの場合、`Sequence`と`Fee`は標準の方法で計算されます。
+* `Issuer`フィールドが存在する場合、`Fee`は標準の方法で計算しなければなりません。
 
 ### 注記
 
-_トランザクションの署名に `SignerList` または `RegularKey` を使う場合は、_B2M_ XAHを試す前に、アカウントのkeyを **最初に** 設定することを推奨します。_
+_トランザクションの署名に`SignerList`または`RegularKey`を使う場合は、_B2M_ XAHを試す前に、アカウントのkeyを **最初に** 設定することを推奨します。_
 
-* 内側の（xpop）トランザクションが `AccountSet` の場合、mainetの既存フラグは新しいnetworkにtransferされます。
-* 内側の（xpop）トランザクションが `SetRegularKey` で `RegularKey` フィールドが省略または空で、かつそのアカウントにsigner listが存在しない場合、アカウントには `lsfDisableMaster` フラグが設定されます。
-* 内側の（xpop）トランザクションが `SetRegularKey` の場合、アカウントには `lsfPasswordSpent` フラグが設定されます。
-* `TicketSequence` は `Import` では利用できません。
+* 内側の（xpop）トランザクションが`AccountSet`の場合、mainetの既存フラグは新しいnetworkにtransferされます。
+* 内側の（xpop）トランザクションが`SetRegularKey`で`RegularKey`フィールドが省略または空で、かつそのアカウントにsigner listが存在しない場合、アカウントには`lsfDisableMaster`フラグが設定されます。
+* 内側の（xpop）トランザクションが`SetRegularKey`の場合、アカウントには`lsfPasswordSpent`フラグが設定されます。
+* `TicketSequence`は`Import`では利用できません。
 
 ### issuerのImport
 
 issuerについては、アセット保有者がトランザクションをimportできるようになる前に、追加の手順があります。
 
-まず、issuerはhookをインストールする必要があります。これには `B2MNFToken` と `B2MPayment` の2つの選択肢があります。
+まず、issuerはhookをインストールする必要があります。これには`B2MNFToken`と`B2MPayment`の2つの選択肢があります。
 
 #### B2MNFToken
 
-mainnet上の `NFTokenBurn` トランザクションは、network上で `URITokenMint` トランザクションになります。
+mainnet上の`NFTokenBurn`トランザクションは、network上で`URITokenMint`トランザクションになります。
 
 > c hook: https://example.com
 
 #### B2MPayment
 
-mainnet上でIssuer宛ての `Payment` トランザクションは、network上ではIssuerからの `Payment` トランザクションになります。
+mainnet上でIssuer宛ての`Payment`トランザクションは、network上ではIssuerからの`Payment`トランザクションになります。
 
 > c hook: https://example.com
 

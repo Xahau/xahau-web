@@ -39,15 +39,15 @@ description: >-
 
 | フィールド           | JSON型 | \[Internal Type]\[] | 説明                                                                                                                                                                                                                                                                                                                                                                     |
 | --------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SignerQuorum`  | Number    | UInt32              | signer weightの目標値です。このリストによるmulti-signatureは、提供された署名のweight合計がこの値以上のときのみ有効です。signer listを削除するには、`0` を使います。                                                                                                                                                        |
-| `SignerEntries` | Array     | Array               | _(削除時は省略)_ このリストに含まれるsignerのアドレスとweightを示す `SignerEntry` オブジェクトの配列です。このsigner listには少なくとも1件、最大でも32件まで含める必要があります。各アドレスは1回しか登場できず、トランザクションを送信する`Account`も含められません。 _(\[ExpandedSignerList amendment]\[]により更新。)_ |
+| `SignerQuorum`  | Number    | UInt32              | signer weightの目標値です。このリストによるmulti-signatureは、提供された署名のweight合計がこの値以上のときのみ有効です。signer listを削除するには、`0`を使います。                                                                                                                                                        |
+| `SignerEntries` | Array     | Array               | _(削除時は省略)_ このリストに含まれるsignerのアドレスとweightを示す`SignerEntry`オブジェクトの配列です。このsigner listには少なくとも1件、最大でも32件まで含める必要があります。各アドレスは1回しか登場できず、トランザクションを送信する`Account`も含められません。 _(\[ExpandedSignerList amendment]\[]により更新。)_ |
 
 SignerListSetトランザクションが成功すると、レジャー内のアカウントの`SignerList`オブジェクトが置き換えられるか、存在しなければ新しく追加されます。1つのアカウントが持てるsigner listは1つだけです。signer listを削除するには、`SignerQuorum`を`0`に _設定し_ 、`SignerEntries`フィールドを省略しなければなりません。そうしないと、トランザクションは`temMALFORMED`で失敗します。signer listを削除するトランザクションは、削除対象のsigner listが存在しなくても成功とみなされます。
 
-`SignerQuorum` が決して満たせないようなsigner listは作成できません。`SignerQuorum`は0より大きく、かつリスト内の `SignerWeight` 合計以下でなければなりません。そうでない場合、トランザクションは `temMALFORMED` で失敗します。
+`SignerQuorum`が決して満たせないようなsigner listは作成できません。`SignerQuorum`は0より大きく、かつリスト内の`SignerWeight`合計以下でなければなりません。そうでない場合、トランザクションは`temMALFORMED`で失敗します。
 
 トランザクション署名の方法としてmaster key、regular key、または現在のsigner listが利用できるなら、それらを使ってsigner listを作成、更新、または削除できます。
 
 アカウントからトランザクション署名手段を最後の1つまで削除することはできません。アカウントのmaster keyが無効化されており（アカウントで`lsfDisableMaster`フラグが有効）、かつRegular Keyが設定されていない場合、そのアカウントからsigner listを削除することはできません。その場合、トランザクションは`tecNO_ALTERNATIVE_KEY`で失敗します。
 
-signer listを作成または置換すると、SignerListオブジェクトの `lsfOneOwnerCount` フラグが有効になります。\[MultiSignReserve amendment]\[]が有効になる前に作成されたリストにはこのフラグがなく、owner reserveも高くなっています。同じリストで置き換えることで、これらのリストのowner reserveを減らせます。詳細はSignerList Flagsを参照してください。
+signer listを作成または置換すると、SignerListオブジェクトの`lsfOneOwnerCount`フラグが有効になります。\[MultiSignReserve amendment]\[]が有効になる前に作成されたリストにはこのフラグがなく、owner reserveも高くなっています。同じリストで置き換えることで、これらのリストのowner reserveを減らせます。詳細はSignerList Flagsを参照してください。

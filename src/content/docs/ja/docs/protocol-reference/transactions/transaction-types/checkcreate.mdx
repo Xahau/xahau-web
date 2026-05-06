@@ -32,11 +32,11 @@ _(\[Checks amendment]\[]により追加。)_
 
 ### エラーケース
 
-* `Destination` アカウントがincoming Checksをブロックしている場合、トランザクションは `tecNO_PERMISSION` で失敗します。&#x20;
-* `Destination` がトランザクションの送信者である場合、トランザクションは `temREDUNDANT` で失敗します。
-* `Destination` アカウントがレジャー内に存在しない場合、トランザクションは `tecNO_DST` で失敗します。
-* `Destination` アカウントで `RequireDest` フラグが有効なのに、トランザクションに `DestinationTag` フィールドが含まれていない場合、トランザクションは `tecDST_TAG_NEEDED` で失敗します。
-* `SendMax` が凍結されたtokenを指定している場合、トランザクションは `tecFROZEN` で失敗します。
-* トランザクションの `Expiration` が過去である場合、トランザクションは `tecEXPIRED` で失敗します。
-* Checkを追加した後に送信者がowner reserveを満たすだけのXAHを持っていない場合、トランザクションは `tecINSUFFICIENT_RESERVE` で失敗します。
-* Checkの送信者または宛先のいずれかが、レジャー内でこれ以上オブジェクトを所有できない場合、トランザクションは `tecDIR_FULL` で失敗します。
+* `Destination`アカウントがincoming Checksをブロックしている場合、トランザクションは`tecNO_PERMISSION`で失敗します。
+* `Destination`がトランザクションの送信者である場合、トランザクションは`temREDUNDANT`で失敗します。
+* `Destination`アカウントがレジャー内に存在しない場合、トランザクションは`tecNO_DST`で失敗します。
+* `Destination`アカウントで`RequireDest`フラグが有効なのに、トランザクションに`DestinationTag`フィールドが含まれていない場合、トランザクションは`tecDST_TAG_NEEDED`で失敗します。
+* `SendMax`が凍結されたtokenを指定している場合、トランザクションは`tecFROZEN`で失敗します。
+* トランザクションの`Expiration`が過去である場合、トランザクションは`tecEXPIRED`で失敗します。
+* Checkを追加した後に送信者がowner reserveを満たすだけのXAHを持っていない場合、トランザクションは`tecINSUFFICIENT_RESERVE`で失敗します。
+* Checkの送信者または宛先のいずれかが、レジャー内でこれ以上オブジェクトを所有できない場合、トランザクションは`tecDIR_FULL`で失敗します。

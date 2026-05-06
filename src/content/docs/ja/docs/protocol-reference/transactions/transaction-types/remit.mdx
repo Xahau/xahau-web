@@ -74,7 +74,7 @@ _(\[Remit amendment]\[]により追加。)_
 
 ### MintURITokenフラグ
 
-`MintURIToken` STObjectは、`Flags` フィールドで次の値をサポートします。
+`MintURIToken` STObjectは、`Flags`フィールドで次の値をサポートします。
 
 | フラグ名    | Hex値    | 10進値 | 説明                                                                                     |
 | ------------ | ------------ | ------------- | ----------------------------------------------------------------------------------------------- |
@@ -102,12 +102,12 @@ Remitトランザクションには標準のトランザクションコストが
 | `temINVALID_FLAG`              | `tfFullyCanonicalSig`に固有のフラグが設定されている場合に発生します。                                                                              |
 | `temREDUNDANT`                 | `Account`が `Destination`と同じ場合に発生します。                                                                                               |
 | `temMALFORMED (Inform & Blob)` | `sfInform`がsourceまたはdestinationと同じ、またはBlobが128kibを超える場合に発生します。                                                 |
-| `temMALFORMED (AmountEntry)`   | `AmountEntry` の数が32を超える、期待される`AmountEntry`がない、native currencyが複数回現れる、issued currencyが複数回現れる場合に発生します。 |
-| `temMALFORMED (MintURIToken)`  | `sfMintURIToken` に無効なフィールドが含まれる、URIが指定されていない、URIが長すぎる/短すぎる、MintURIToken内に無効なUTF8がある場合に発生します。 |
+| `temMALFORMED (AmountEntry)`   | `AmountEntry`の数が32を超える、期待される`AmountEntry`がない、native currencyが複数回現れる、issued currencyが複数回現れる場合に発生します。 |
+| `temMALFORMED (MintURIToken)`  | `sfMintURIToken`に無効なフィールドが含まれる、URIが指定されていない、URIが長すぎる/短すぎる、MintURIToken内に無効なUTF8がある場合に発生します。 |
 | `temMALFORMED (URITokenIDs)`   | URITokenIDsが短すぎる/長すぎる、またはURITokenIDが重複している場合に発生します。                                                                 |
 | `temBAD_AMOUNT`                | AmountEntry内のAmountが無効な場合に発生します。                                                                                                 |
 | `terNO_ACCOUNT`                | source accountが存在しない場合に発生します。                                                                                                       |
-| `tecNO_TARGET`                 | `sfInform` フィールドが存在するのにアカウントが存在しない場合に発生します。                                                                      |
+| `tecNO_TARGET`                 | `sfInform`フィールドが存在するのにアカウントが存在しない場合に発生します。                                                                      |
 | `tecNO_PERMISSION`             | `disallowIncomingRemit`が`Destination`で有効な場合に発生します。                                                                               |
 | `tecNO_PERMISSION`             | `Destination`で`DepositAuthorization`が有効な場合に発生します。                                                                                |
 | `tecDST_TAG_NEEDED`            | destination accountがdestination tagを必要としているのに、トランザクションに含まれていない場合に発生します。                                  |
