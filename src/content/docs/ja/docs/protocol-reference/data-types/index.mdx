@@ -9,11 +9,11 @@ title: データ型
 
 各クローズ済みLedgerには、Ledger IndexとHash値があります。\[Specifying Ledgers]\[]では、どちらも使用できます。
 
-### アドレス
+### アドレス <a id="addresses" />
 
-### ハッシュ
+### ハッシュ <a id="hashes" />
 
-#### ハッシュプレフィックス
+#### ハッシュプレフィックス <a id="hash-prefixes" />
 
 [\[出典\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/HashPrefix.h)
 
@@ -38,11 +38,11 @@ title: データ型
 
 レジャーオブジェクトIDも同様の方法で計算されますが、ここで説明した形式のプレフィックスではなく、「スペースキー」と呼ばれる2バイトのプレフィックスを使用します。
 
-### アカウントシーケンス
+### アカウントシーケンス <a id="account-sequence" />
 
-### レジャーインデックス
+### レジャーインデックス <a id="ledger-index" />
 
-#### レジャーの指定
+#### レジャーの指定 <a id="specifying-ledgers" />
 
 多くのAPIメソッドでは、取得したデータが共有レジャーのその特定バージョン時点で最新であるとみなされるように、レジャーのインスタンスを指定する必要があります。レジャーバージョンを受け付けるコマンドは、どれも同じ方法で動作します。使用したいレジャーを指定する方法は3つあります。
 
@@ -73,7 +73,7 @@ title: データ型
 
 Reporting Modeは、検証されるまでレジャーデータを記録しません。Reporting Modeサーバーに `current` または `closed` のレジャーをリクエストすると、そのサーバーはリクエストをP2P Modeサーバーに転送します。検証されていないレジャーインデックスまたはハッシュを要求した場合、Reporting Modeサーバーは `lgrNotFound` エラーを返します。
 
-### 通貨金額の指定
+### 通貨金額の指定 <a id="specifying-currency-amounts" />
 
 Xahauには2種類の通貨があります。XAHとトークンです。これら2種類の通貨は、それぞれ異なるフォーマットで指定され、精度や丸めの挙動も異なります。
 
@@ -98,7 +98,7 @@ XAHは、XAHの "drops" の整数を含む文字列として指定します。10
 
 詳細は、通貨フォーマットを参照してください。
 
-### 時刻の指定
+### 時刻の指定 <a id="specifying-time" />
 
 `xahaud` サーバーとそのAPIでは、時刻は符号なし整数として表されます。この数値は、2000年1月1日00:00 UTCの "Ripple Epoch" からの秒数を表します。これは [Unix epoch](http://en.wikipedia.org/wiki/Unix_time)と似ていますが、Ripple EpochはUnix Epochより946684800秒後です。
 
