@@ -39,11 +39,11 @@
           "desc": "European fintech issuing regulated stablecoins and digital assets on Xahau"
         },
         {
-          "name": "Coming soon",
-          "url": null,
-          "logo": null,
-          "coming_soon": true,
-          "desc": "A major global payments institution will be announced shortly"
+          "name": "TerraPay",
+          "url": "https://www.terrapay.com",
+          "logo": "terrapay",
+          "logo_ext": "svg",
+          "desc": "The global payments network for real-time money movement"
         },
         {
           "name": "African Union",
