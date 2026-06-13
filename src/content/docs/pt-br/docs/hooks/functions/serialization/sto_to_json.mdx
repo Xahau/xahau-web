@@ -1,0 +1,75 @@
+---
+title: sto_to_json
+description: Formata um objeto STO (dados de ledger codificados em binário) em formato JSON.
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="JavaScript">
+*   Formata um objeto STO (dados de ledger codificados em binário) em formato JSON.&#x20;
+
+    Esta função recebe um `blob` de transação serializada e o converte para um formato JSON legível por humanos.
+* Retorna a representação JSON decodificada do objeto STO, ou um código de erro se a conversão falhar.
+</TabItem>
+</Tabs>
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function sto_to_json(
+    blob: ByteArray | HexString
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const jsonSto = sto_to_json(stoBlob)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+| Nome | Tipo                   | Descrição                                             |
+| ---- | ---------------------- | ------------------------------------------------------- |
+| blob | ByteArray \| HexString | O blob (ex: transação serializada) a ser convertido. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+| Tipo                                             | Descrição                                                                              |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| ErrorCode \| Record\<string, any> \| Transaction | Representação JSON decodificada do objeto STO, ou um código de erro se a conversão falhar. |
+</TabItem>
+</Tabs>
+

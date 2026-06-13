@@ -1,0 +1,73 @@
+---
+title: ledger_seq
+description: Busca o número de sequência do ledger atual
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+* Retorna o número de sequência do ledger atual
+
+### Definição
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_seq();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_seq(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t seq =
+    ledger_seq();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const seq = ledger_seq()
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+Esta API não recebe parâmetros.
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                               |
+| -------- | ----------------------------------------- |
+| int64_t | O número de sequência do ledger atual |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descrição                               |
+| ------ | ----------------------------------------- |
+| number | O número de sequência do ledger atual |
+</TabItem>
+</Tabs>
+

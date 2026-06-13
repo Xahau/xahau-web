@@ -1,0 +1,113 @@
+---
+title: etxn_details
+description: Produz um sfEmitDetails adequado para uma transação que será emitida em breve
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Transações Emitidas</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Gera e escreve um objeto sfEmitDetails de 105 bytes em `write_ptr` se cbak não estiver definido
+* Gera e escreve um objeto sfEmitDetails de 127 bytes em `write_ptr` se cbak estiver definido.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Esta função fornece informações detalhadas sobre a transação.
+* Retorna um ErrorCode se houver um erro, ou um array com os detalhes da transação em caso de sucesso.
+</TabItem>
+</Tabs>
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_details (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_details(): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t emitdet[105];
+int64_t result =
+    etxn_details(emitdet, 105);
+if (result != 105)
+    rollback("Etxndetails failed.", 19, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const emitdet = etxn_details()
+if (typeof emitdet === 'string || emitdet.length != 105)
+    rollback("Etxndetails failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome       | Tipo      | Descrição                                              |
+| ---------- | --------- | -------------------------------------------------------- |
+| write_ptr | uint32_t | Ponteiro para o buffer que receberá o registro sfEmitDetails |
+| write_len | uint32_t | Tamanho do buffer                                     |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+Nenhum parâmetro para JavaScript
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer não é grande o suficiente para receber o registro<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- O hook não chamou <code>etxn_reserve(n)</code> primeiro<br /><br /><code>FEE_TOO_LARGE</code><br />- O burden seria muito alto para a rede permitir.<br /><br /><code>INTERNAL_ERROR</code><br />- Um erro genérico no qual o rippled teve problemas para gerar o campo necessário.</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Tipo                   | Descrição                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| ErrorCode | ByteArray | Um ErrorCode se houver um erro, ou um array com os detalhes da transação em caso de sucesso. |
+</TabItem>
+</Tabs>

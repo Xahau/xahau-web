@@ -11,6 +11,6 @@ const _frontmatter = {
 
 <BaseLayout frontmatter={_frontmatter}>
   <div class="page-content flex-1 container mx-auto max-w-7xl p-6">
-    <XahauRoadmap lang="en" theme="light" />
+    <XahauRoadmap lang={Astro.currentLocale ?? 'en'} theme="light" />
   </div>
 </BaseLayout>

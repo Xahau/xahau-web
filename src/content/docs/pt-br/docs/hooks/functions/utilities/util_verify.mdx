@@ -1,0 +1,96 @@
+---
+title: util_verify
+description: Verifica uma assinatura criptográfica
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+Verifica uma assinatura criptográfica
+
+* Se a chave pública tiver o prefixo `0xED`, então usa `ED25519`
+* Caso contrário, assume `SECP256k1`
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_verify (
+    uint32_t dread_ptr,
+    uint32_t dread_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_verify(
+    signedData: ByteArray | HexString,
+    signature: ByteArray | HexString,
+    pubkey: ByteArray | HexString
+  ): 0 | 1
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+if (!util_verify(payload_ptr,    payload_len,
+                 signature_ptr,  signature_len,
+                 publickey_ptr,  publickey_len))
+	rollback("Invalid Signature", 17, 60);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (util_verify(signedData,signature,pubkey))
+    rollback("Invalid Signature", 60)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Nome</th><th width="117">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>dread_ptr</td><td>uint32_t</td><td>Ponteiro para os dados assinados</td></tr><tr><td>dread_len</td><td>uint32_t</td><td>Tamanho dos dados assinados</td></tr><tr><td>sread_ptr</td><td>uint32_t</td><td>Ponteiro para a assinatura</td></tr><tr><td>sread_len</td><td>uint32_t</td><td>Tamanho da assinatura</td></tr><tr><td>kread_ptr</td><td>uint32_t</td><td>Ponteiro para a chave pública</td></tr><tr><td>kread_len</td><td>uint32_t</td><td>Tamanho da chave pública</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Nome</th><th width="117">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>signedData</td><td>number / string</td><td>Os dados assinados a serem verificados, podem ser fornecidos como um array de números ou uma string.</td></tr><tr><td>signature</td><td>number / string</td><td>A assinatura a ser verificada, pode ser fornecida como um array de números ou uma string.</td></tr><tr><td>pubkey</td><td>number / string</td><td>A chave pública responsável pela assinatura, pode ser fornecida como um array de números ou uma string.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="126">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td><code>0</code> - a validação falhou, a assinatura é inválida.<br /><code>1</code> - a validação foi bem-sucedida, a assinatura é válida.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="126">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>number</td><td><code>0</code> - a validação falhou, a assinatura é inválida.<br /><code>1</code> - a validação foi bem-sucedida, a assinatura é válida.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+

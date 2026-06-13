@@ -1,0 +1,63 @@
+---
+title: trace_float
+description: Escreve um float XFL no log de trace do Xahaud
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+* Escreve um ponto flutuante XFL no log de trace junto com uma mensagem (se houver)
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t trace_float (
+    uint32_t mread_ptr,
+    uint32_t mread_len,
+    int64_t float1 
+);
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+trace_float(SBUF("This is a float"), float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome       | Tipo      | Descrição                                                                                               |
+| ---------- | --------- | --------------------------------------------------------------------------------------------------------- |
+| rmead_ptr | uint32_t | Ponteiro para uma mensagem a ser exibida antes do objeto serializado codificado em hexadecimal encontrado no slot. _Pode ser nulo._ |
+| mread_len | uint32_t | Tamanho da mensagem. _Pode ser nulo._                                                                     |
+| float1     | int64_t  | O inteiro XFL correspondente.                                                                                |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>0</code> se for bem-sucedido<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p> |
+</TabItem>
+</Tabs>
+

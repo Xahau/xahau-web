@@ -1,0 +1,104 @@
+---
+title: slot_subfield
+description: Indexa um objeto alocado em um slot e atribui um sub-objeto a outro slot
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Procura o objeto no slot `parent_slot`
+* Recupera o sub-objeto em `field_id`
+* Coloca o sub-objeto no slot `new_slot` ou no próximo slot disponível, caso `new_slot` seja 0.
+* Retorna o novo número de slot.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Cria um subcampo no slot pai especificado.
+* Retorna um código de erro ou o resultado da criação do subcampo.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_subfield (
+    uint32_t parent_slot,
+    uint32_t field_id,
+    uint32_t new_slot
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_subfield(
+    parent_slotno: number,
+    field_id: number,
+    new_slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t amt_slot = 
+  	slot_subfield(oslot, sfAmount, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const amt_slot = slot_subfield(oslot, sfAmount, 0)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome         | Tipo      | Descrição                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| parent_slot | uint32_t | Slot em que o objeto pai está                                                                                                                                                                                                                                                                                                                                                                               |
+| field_id    | uint32_t | <p>O código <code>sf</code> do campo que você está procurando.<br /><br />Para calcular isso manualmente, pegue o <code>type</code> serializado e desloque-o para os 16 bits mais altos de uint32_t, depois pegue o <code>field</code> e coloque-o nos 16 bits mais baixos.<br /><br />Por exemplo:<br /><code>sfEmitNonce</code> tem <code>type</code> 5 e <code>field</code> 11, portanto seu valor é <code>0x050BU</code></p> |
+| new_slot    | uint32_t | Novo número de slot no qual colocar o objeto do campo selecionado. Se nulo, escolhe o próximo slot disponível. _Pode ser nulo._                                                                                                                                                                                                                                                                                  |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome           | Tipo   | Descrição                                   |
+| -------------- | ------ | --------------------------------------------- |
+| parent_slotno | number | O número do slot pai.                       |
+| field_id      | number | O ID do campo para o qual criar um subcampo. |
+| new_slotno    | number | O novo número de slot para o subcampo.         |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número do slot do objeto recém-alocado<br /><br />Se negativo, um erro:<br /><br /><code>DOESNT_EXIST</code><br />- O campo procurado não está presente no slot pai ou o slot pai está vazio.<br /><br /><code>NO_FREE_SLOTS</code><br />- A API exigiria a alocação de um novo slot, mas o Hook já está no número máximo de slots.<br /><br /><code>INVALID_FIELD</code><br />- O campo especificado não é um campo <code>sf</code> válido.<br /><br /><code>NOT_AN_OBJECT</code><br />- O objeto alocado no slot não é um STObject válido.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                                                   |
+| ------------------- | ------------------------------------------------------------- |
+| number or ErrorCode | Retorna um código de erro ou o resultado da criação do subcampo. |
+</TabItem>
+</Tabs>

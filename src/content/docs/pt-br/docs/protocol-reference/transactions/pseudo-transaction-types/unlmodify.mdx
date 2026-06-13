@@ -1,0 +1,30 @@
+---
+title: UNLModify
+---
+_(Adicionado pela \[emenda NegativeUNL]\[].)_
+
+Uma pseudo-transação `UNLModify` marca uma mudança na UNL Negativa, indicando que um validador confiável ficou offline ou voltou a ficar online.
+
+**Nota:** Você não pode enviar uma pseudo-transação, mas pode encontrar uma ao processar ledgers.
+
+### Exemplo de JSON
+
+```json
+{
+  "Account": "",
+  "Fee": "0",
+  "LedgerSequence": 1600000,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TransactionType": "UNLModify",
+  "UNLModifyDisabling": 1,
+  "UNLModifyValidator": "ED6629D456285AE3613B285F65BBFF168D695BA3921F309949AFCD2CA7AFEC16FE",
+}
+```
+
+| Nome                 | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                 |
+| -------------------- | --------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TransactionType`    | String    | UInt16              | O valor `0x0066`, mapeado para a string `UNLModify`, indica que este objeto é uma pseudo-transação `UNLModify`.                                                                           |
+| `LedgerSequence`     | Number    | UInt32              | O \[índice de ledger]\[] onde esta pseudo-transação aparece. Isso distingue a pseudo-transação de outras ocorrências da mesma mudança.                                                    |
+| `UNLModifyDisabling` | Number    | UInt8               | Se `1`, esta mudança representa a adição de um validador à UNL Negativa. Se `0`, esta mudança representa a remoção de um validador da UNL Negativa. (Nenhum outro valor é permitido.)    |
+| `UNLModifyValidator` | String    | Blob                | O validador a adicionar ou remover, identificado por sua chave pública mestre.                                                                                                            |

@@ -1,0 +1,68 @@
+---
+title: Offer
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L57)
+
+A entrada de ledger `Offer` descreve uma Oferta para trocar moedas na exchange descentralizada do Xahau. (Em finanças, isso é mais tradicionalmente conhecido como uma _ordem_.) Uma \[transação OfferCreate]\[] cria uma entrada `Offer` no ledger somente quando a Oferta não pode ser totalmente executada imediatamente ao consumir outras Ofertas já no ledger.
+
+Uma Oferta pode tornar-se sem fundos por meio de outras atividades na rede enquanto permanece no ledger. Ao processar transações, a rede elimina automaticamente quaisquer Ofertas sem fundos que essas transações encontrem. (Caso contrário, Ofertas sem fundos permanecem porque _apenas_ transações podem alterar o estado do ledger.)
+
+### Exemplo JSON
+
+```json
+{
+    "Account": "rBqb89MRQJnMPq8wTwEbtz4kvxrEDfcYvt",
+    "BookDirectory": "ACC27DE91DBA86FC509069EAF4BC511D73128B780F2E54BF5E07A369E2446000",
+    "BookNode": "0000000000000000",
+    "Flags": 131072,
+    "LedgerEntryType": "Offer",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "F0AB71E777B2DA54B86231E19B82554EF1F8211F92ECA473121C655BFC5329BF",
+    "PreviousTxnLgrSeq": 14524914,
+    "Sequence": 866,
+    "TakerGets": {
+        "currency": "XAG",
+        "issuer": "r9Dr5xwkeLegBeXq6ujinjSBLQzQ1zQGjH",
+        "value": "37"
+    },
+    "TakerPays": "79550000000",
+    "index": "96F76F27D8A327FC48753167EC04A46AA0E382E6F57F32FD12274144D00F1797"
+}
+```
+
+### Campos
+
+Um objeto `Offer` tem os seguintes campos:
+
+| Nome                | Tipo JSON        | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                                                                     |
+| ------------------- | ---------------- | ------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String           | AccountID           | Sim          | O endereço da conta que possui esta Oferta.                                                                                                                                                                                                                                   |
+| `BookDirectory`     | String           | Hash256             | Sim          | O ID do Diretório de Ofertas que aponta para esta Oferta.                                                                                                                                                                                                                     |
+| `BookNode`          | String           | UInt64              | Sim          | Uma dica indicando qual página do diretório de ofertas aponta para este objeto, caso o diretório consista em múltiplas páginas.                                                                                                                                               |
+| `Expiration`        | Number           | UInt32              | Não          | Indica o tempo após o qual esta Oferta é considerada sem fundos. Consulte \[Especificando Tempo]\[] para detalhes.                                                                                                                                                             |
+| `Flags`             | Number           | UInt32              | Sim          | Um mapa de bits de flags booleanos habilitados para esta oferta.                                                                                                                                                                                                              |
+| `LedgerEntryType`   | String           | UInt16              | Sim          | O valor `0x006F`, mapeado para a string `Offer`, indica que este objeto descreve uma Oferta.                                                                                                                                                                                  |
+| `OwnerNode`         | String           | UInt64              | Sim          | Uma dica indicando qual página do diretório do proprietário aponta para este objeto, caso o diretório consista em múltiplas páginas. **Nota:** A oferta não contém um link direto para o diretório do proprietário que a contém, pois esse valor pode ser derivado de `Account`. |
+| `PreviousTxnID`     | String           | Hash256             | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                                                                                                                                                |
+| `PreviousTxnLgrSeq` | Number           | UInt32              | Sim          | O \[índice do ledger]\[Índice de Ledger] que contém a transação que mais recentemente modificou este objeto.                                                                                                                                                                  |
+| `Sequence`          | Number           | UInt32              | Sim          | O valor `Sequence` da transação \[OfferCreate]\[] que criou este objeto `Offer`. Usado em combinação com o `Account` para identificar esta Oferta.                                                                                                                            |
+| `TakerPays`         | String ou Object | Amount              | Sim          | O valor restante e tipo de moeda solicitado pelo criador da Oferta.                                                                                                                                                                                                           |
+| `TakerGets`         | String ou Object | Amount              | Sim          | O valor restante e tipo de moeda fornecido pelo criador da Oferta.                                                                                                                                                                                                            |
+
+### Flags de Offer
+
+Existem várias opções que podem ser habilitadas ou desabilitadas quando uma \[transação OfferCreate]\[] cria um objeto de oferta. No ledger, os flags são representados como valores binários que podem ser combinados com operações bitwise-or. Os valores de bits para os flags no ledger são diferentes dos valores usados para habilitar ou desabilitar esses flags em uma transação. Os flags de ledger têm nomes que começam com **`lsf`**.
+
+Objetos `Offer` podem ter os seguintes valores de flag:
+
+<table data-header-hidden><thead><tr><th width="135"></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>Nome do Flag</td><td>Valor Hex</td><td>Valor Decimal</td><td>Flag OfferCreate Correspondente</td><td>Descrição</td></tr><tr><td><code>lsfPassive</code></td><td><code>0x00010000</code></td><td>65536</td><td><code>tfPassive</code></td><td>O objeto foi colocado como uma Oferta passiva. Isso não tem efeito sobre o objeto no ledger.</td></tr><tr><td><code>lsfSell</code></td><td><code>0x00020000</code></td><td>131072</td><td><code>tfSell</code></td><td>O objeto foi colocado como uma Oferta de venda. Isso não tem efeito sobre o objeto no ledger (porque <code>tfSell</code> só importa se você obtiver uma taxa melhor do que a solicitada, o que não pode acontecer depois que o objeto entra no ledger).</td></tr></tbody></table>
+
+### Formato do ID da Offer
+
+O ID de um objeto `Offer` é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço Offer (`0x006F`)
+* O AccountID da conta que está fazendo a Oferta
+*   O número de Sequência da \[transação OfferCreate]\[] que criou a Oferta.
+
+    Se a transação OfferCreate usou um Ticket, use o valor `TicketSequence` em vez disso.

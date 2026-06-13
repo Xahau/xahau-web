@@ -1,0 +1,121 @@
+---
+title: hook_param_set
+description: >-
+  Define ou exclui um parâmetro em um hook na mesma conta, mais adiante na
+  cadeia de execução
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Procura na cadeia de hooks da conta hook por um hash de 32 bytes indicado por `hread_ptr`
+* Se encontrado: define um parâmetro:
+* Com o nome do parâmetro indicado por `kread_ptr` e
+* O valor do parâmetro indicado por `read_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Define um parâmetro para o hook com o valor e a chave especificados, e o associa a um hash.
+* Retorna um código de status indicando o resultado da operação.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_param_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t hread_ptr,
+    uint32_t hread_len  
+);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_param_set(
+    val: ByteArray | HexString,
+    key: ByteArray | HexString,
+    hash: ByteArray | HexString
+  ): number
+```
+</TabItem>
+</Tabs>
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t pvalue[] = "some parameter value";
+uint8_t pname[] = "paramname";
+uint8_t phash[] = { 0x19U, 0xFEU, 0x69U, 0xF1U, 0x53U, 0x66U, 0x4EU, 0x8CU, 
+                    0x97U, 0xF4U, 0x4CU, 0x5CU, 0x3CU, 0x65U, 0x63U, 0x79U, 
+                    0xC2U, 0xD0U, 0x26U, 0xE7U, 0x90U, 0xEFU, 0x38U, 0xF7U, 
+                    0xEDU, 0x73U, 0xE9U, 0xCEU, 0x9CU, 0x9DU, 0xBFU, 0x03U };
+int64_t result = 
+  	hook_param_set(pvalue, sizeof(pvalue),
+                   pname, sizeof(pname),
+                   phash, sizeof(phash));
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const pvalue = "some parameter value"
+const pname = "paramname"
+const phash = [ 0x19, 0xFE, 0x69, 0xF1, 0x53, 0x66, 0x4E, 0x8C, 
+                0x97, 0xF4, 0x4C, 0x5C, 0x3C, 0x65, 0x63, 0x79, 
+                0xC2, 0xD0, 0x26, 0xE7, 0x90, 0xEF, 0x38, 0xF7, 
+                0xED, 0x73, 0xE9, 0xCE, 0x9C, 0x9D, 0xBF, 0x03 ]
+const result = hook_param_set(str2hex(pvalue), str2hex(pname), phash)
+```
+</TabItem>
+</Tabs>
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome       | Tipo      | Descrição                     |
+| ---------- | --------- | ------------------------------- |
+| read_ptr  | uint32_t | Ponteiro para o valor do parâmetro      |
+| read_len  | uint32_t | Tamanho do valor do parâmetro   |
+| kread_ptr | uint32_t | Ponteiro para o nome do parâmetro   |
+| kread_len | uint32_t | Tamanho do nome do parâmetro    |
+| hread_ptr | uint32_t | Ponteiro para o hash do hook            |
+| hread_len | uint32_t | Tamanho do hash do hook (sempre 32) |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome | Tipo                   | Descrição                               |
+| ---- | ---------------------- | ----------------------------------------- |
+| val  | ByteArray ou HexString | O valor a ser definido para o parâmetro.       |
+| key  | ByteArray ou HexString | A chave associada ao parâmetro.    |
+| hash | ByteArray ou HexString | O hash a ser associado ao parâmetro. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+
+
+<table><thead><tr><th width="148">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td>O tamanho do valor do parâmetro definido com sucesso<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O nome do parâmetro não pode ser nulo<br /><br /><code>TOO_BIG</code><br />- O nome do parâmetro é maior que 32 bytes</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="148">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>number</td><td>Retorna um código de status indicando o resultado da operação.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
