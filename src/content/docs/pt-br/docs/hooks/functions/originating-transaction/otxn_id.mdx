@@ -1,24 +1,24 @@
 ---
 title: otxn_id
-description: Output the canonical hash of the originating transaction
+description: Produz como saída o hash canônico da transação de origem
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Write the canonical hash of the originating transaction to the output buffer.
-* If flags = 1 and the transaction is an EMIT_FAILURE transaction then write the canonical hash of the originating transaction that caused the emission.
+* Escreve o hash canônico da transação de origem no buffer de saída.
+* Se flags = 1 e a transação for uma transação EMIT_FAILURE, escreve o hash canônico da transação de origem que causou a emissão.
 </TabItem>
 
 <TabItem label="JavaScript">
-* Output the canonical hash of the originating transaction.
-* Returns the transaction hash as an array of numbers, or an ErrorCode if the retrieval fails.
+* Produz como saída o hash canônico da transação de origem.
+* Retorna o hash da transação como um array de números, ou um ErrorCode caso a recuperação falhe.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -40,7 +40,7 @@ function otxn_id(flag: number): ErrorCode | ByteArray
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -60,39 +60,39 @@ const tx_id = otxn_id(0)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                                                                                                                                                                 |
+| Nome       | Tipo      | Descrição                                                                                                                                                                                                                 |
 | ---------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| write_ptr | uint32_t | Pointer to a buffer of to store the hash.                                                                                                                                                                                   |
-| write_len | uint32_t | Length of the output buffer. Should be at least 32 bytes.                                                                                                                                                                   |
-| flags      | uint32_t | <p>If <code>0</code>:<br />Write the canonical hash of the originating transaction.<br /><br />If <code>1</code> AND the originating transaction is an EMIT_FAILURE:<br />Write the canonical hash of the emitting transaction.</p> |
+| write_ptr | uint32_t | Ponteiro para um buffer onde armazenar o hash.                                                                                                                                                                                   |
+| write_len | uint32_t | Tamanho do buffer de saída. Deve ter pelo menos 32 bytes.                                                                                                                                                                   |
+| flags      | uint32_t | <p>Se <code>0</code>:<br />Escreve o hash canônico da transação de origem.<br /><br />Se <code>1</code> E a transação de origem for uma EMIT_FAILURE:<br />Escreve o hash canônico da transação emissora.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name  | Type   | Description                                                                                                                                                                                                                 |
+| Nome  | Tipo   | Descrição                                                                                                                                                                                                                 |
 | ----- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| flags | number | <p>If <code>0</code>:<br />Write the canonical hash of the originating transaction.<br /><br />If <code>1</code> AND the originating transaction is an EMIT_FAILURE:<br />Write the canonical hash of the emitting transaction.</p> |
+| flags | number | <p>Se <code>0</code>:<br />Escreve o hash canônico da transação de origem.<br /><br />Se <code>1</code> E a transação de origem for uma EMIT_FAILURE:<br />Escreve o hash canônico da transação emissora.</p> |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- output buffer was not large enough to hold the serialized object</p> |
+| Tipo     | Descrição                                                                                                                                                                                                                                                |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- o buffer de saída não era grande o suficiente para conter o objeto serializado</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                   | Description                                                                                  |
+| Tipo                   | Descrição                                                                                  |
 | ---------------------- | -------------------------------------------------------------------------------------------- |
-| ErrorCode \| ByteArray | Returns the transaction hash as an array of numbers, or an ErrorCode if the retrieval fails. |
+| ErrorCode \| ByteArray | Retorna o hash da transação como um array de números, ou um ErrorCode caso a recuperação falhe. |
 </TabItem>
 </Tabs>
 

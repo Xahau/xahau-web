@@ -1,25 +1,25 @@
 ---
 title: sto_from_json
-description: Format JSON as an STO object (binary encoded ledger data).
+description: Formata um JSON como um objeto STO (dados de ledger codificados em binário).
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="JavaScript">
-* Takes a JSON object and converts it into a binary encoded ledger data format.
-* Returns STO Object in binary encoded ledger data format, or an error code if the conversion fails.
+* Recebe um objeto JSON e o converte para um formato de dados de ledger codificados em binário.
+* Retorna o objeto STO em formato de dados de ledger codificados em binário, ou um código de erro se a conversão falhar.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="JavaScript">
@@ -33,7 +33,7 @@ function sto_from_json(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="JavaScript">
@@ -45,29 +45,29 @@ const stoBlob = sto_from_json(stoJson)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="JavaScript">
 
 
-| Name    | Type                                | Description                                     |
+| Nome    | Tipo                                | Descrição                                     |
 | ------- | ----------------------------------- | ----------------------------------------------- |
-| jsonobj | Record\<string, any> \| Transaction | JSON object to be converted into an STO object. |
+| jsonobj | Record\<string, any> \| Transaction | Objeto JSON a ser convertido em um objeto STO. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="JavaScript">
 
 
-| Type                   | Description                                                                                |
+| Tipo                   | Descrição                                                                                |
 | ---------------------- | ------------------------------------------------------------------------------------------ |
-| ErrorCode \| ByteArray | STO Object in binary encoded ledger data format, or an error code if the conversion fails. |
+| ErrorCode \| ByteArray | Objeto STO em formato de dados de ledger codificados em binário, ou um código de erro se a conversão falhar. |
 </TabItem>
 </Tabs>
 

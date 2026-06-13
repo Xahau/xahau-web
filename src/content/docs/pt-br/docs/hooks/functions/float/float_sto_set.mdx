@@ -1,32 +1,32 @@
 ---
 title: float_sto_set
-description: Read a serialized amount into an XFL
+description: Lê um valor (amount) serializado em um XFL
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
-<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Read a serialized floating point number.
-* If there are more fields/data after the serialized floating pointer number then ignore them.
-* Return it as an XFL enclosing number
+* Lê um número de ponto flutuante serializado.
+* Se houver mais campos/dados após o número de ponto flutuante serializado, eles são ignorados.
+* Retorna como um número de envoltório XFL
 </TabItem>
 
 <TabItem label="JavaScript">
-* Sets the buffer for storing float representations.
-* Returns ErrorCode or the result as a number.
+* Define o buffer para armazenar representações de float.
+* Retorna ErrorCode ou o resultado como um número.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -47,7 +47,7 @@ function float_sto_set(buf: ByteArray | HexString): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -71,40 +71,39 @@ if (typeof vault_pusd === 'string')
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name      | Type      | Description                                                       |
+| Nome      | Tipo      | Descrição                                                       |
 | --------- | --------- | ----------------------------------------------------------------- |
-| read_ptr | uint32_t | Pointer to a buffer contianing the serialized XFL. _May be null._ |
-| read_len | uint32_t | The length of the buffer.                                         |
+| read_ptr | uint32_t | Ponteiro para um buffer contendo o XFL serializado. _Pode ser nulo._ |
+| read_len | uint32_t | O tamanho do buffer.                                         |
 
 
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name | Type                   | Description        |
+| Nome | Tipo                   | Descrição        |
 | ---- | ---------------------- | ------------------ |
-| buf  | ByteArray \| HexString | The buffer to set. |
+| buf  | ByteArray \| HexString | O buffer a ser definido. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                      |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                      |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| int64_t | <p>The number of bytes written to the output buffer.<br /><br />If negative, an error:<br /><code>NOT_AN_OBJECT</code><br />- the supplied buffer did not contain a valid serialized floating point number<br /><br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+| int64_t | <p>O número de bytes escritos no buffer de saída.<br /><br />Se negativo, um erro:<br /><code>NOT_AN_OBJECT</code><br />- o buffer fornecido não continha um número de ponto flutuante serializado válido<br /><br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p>
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                              |
+| Tipo                | Descrição                              |
 | ------------------- | ---------------------------------------- |
-| ErrorCode or number | An error code or the result as a number. |
+| ErrorCode ou number | Um código de erro ou o resultado como um número. |
 </TabItem>
 </Tabs>
-

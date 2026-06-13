@@ -1,22 +1,22 @@
 ---
 title: ledger_last_hash
-description: Retreive the 32 byte namespace biased SHA512H of the last closed ledger
+description: Recupera o SHA512H de 32 bytes, com viés de namespace, do último ledger fechado
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Write the 32 byte Hash to the write_ptr
+* Escreve o Hash de 32 bytes no write_ptr
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieves the hash of the last ledger.
+* Recupera o hash do último ledger.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -39,7 +39,7 @@ function ledger_last_hash(): ErrorCode | ByteArray
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -59,14 +59,14 @@ const hash = ledger_last_hash()
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                              |
+| Nome       | Tipo      | Descrição                                                                              |
 | ---------- | --------- | ---------------------------------------------------------------------------------------- |
-| write_ptr | uint32_t | Pointer to a buffer of a suitable size to store the output. Should be at least 32 bytes. |
-| write_len | uint32_t | Length of the output buffer.                                                             |
+| write_ptr | uint32_t | Ponteiro para um buffer de tamanho adequado para armazenar a saída. Deve ter pelo menos 32 bytes. |
+| write_len | uint32_t | Tamanho do buffer de saída.                                                             |
 
 
 </TabItem>
@@ -78,21 +78,21 @@ const hash = ledger_last_hash()
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                            |
+| Tipo     | Descrição                                                                                                                                            |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+| int64_t | <p>O número de bytes escritos<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p> |
 
 
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type   | Description                                                                                     |
+| Tipo   | Descrição                                                                                     |
 | ------ | ----------------------------------------------------------------------------------------------- |
-| number | Returns an error code if an error occurs, or an array representing the hash of the last ledger. |
+| number | Retorna um código de erro se ocorrer um erro, ou um array representando o hash do último ledger. |
 </TabItem>
 </Tabs>
 

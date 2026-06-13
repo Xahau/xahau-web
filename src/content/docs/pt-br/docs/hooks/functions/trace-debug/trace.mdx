@@ -1,14 +1,14 @@
 ---
 title: trace
-description: Write the contents of a buffer to the Xahaud trace log
+description: Escreve o conteúdo de um buffer no log de trace do Xahaud
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* Write a buffer from inside the Hook to the trace log along with a message (if any)
+* Escreve um buffer de dentro do Hook no log de trace junto com uma mensagem (se houver)
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -38,7 +38,7 @@ function trace(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -57,43 +57,43 @@ trace("Buffer conatained", some_buffer, 1);
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                                         |
+| Nome       | Tipo      | Descrição                                                                                         |
 | ---------- | --------- | --------------------------------------------------------------------------------------------------- |
-| mread_ptr | uint32_t | Pointer to a message to output before the buffer. _May be null._                                    |
-| mread_len | uint32_t | Length of the message. _May be null._                                                               |
-| dread_ptr | uint32_t | Pointer to the buffer to output.                                                                    |
-| dread_len | uint32_t | Length of the buffer to output.                                                                     |
-| as_hex    | uint32_t | <p>If <code>1</code> output the buffer as hex.<br />If <code>0</code> output the buffer as utf-8.</p> |
+| mread_ptr | uint32_t | Ponteiro para uma mensagem a ser exibida antes do buffer. _Pode ser nulo._                                    |
+| mread_len | uint32_t | Tamanho da mensagem. _Pode ser nulo._                                                               |
+| dread_ptr | uint32_t | Ponteiro para o buffer a ser exibido.                                                                    |
+| dread_len | uint32_t | Tamanho do buffer a ser exibido.                                                                     |
+| as_hex    | uint32_t | <p>Se <code>1</code>, exibe o buffer em hexadecimal.<br />Se <code>0</code>, exibe o buffer em utf-8.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name    | Type    | Description                                                          |
+| Nome    | Tipo    | Descrição                                                          |
 | ------- | ------- | -------------------------------------------------------------------- |
-| message | string  | The 'logging key', message to output before the buffer (can be null) |
-| data    | any     | The data to log                                                      |
-| hex     | boolean | <p>Should it log formatted in HEX?<br /><br />0 - NO<br />1 - YES</p>      |
+| message | string  | A 'chave de log', mensagem a ser exibida antes do buffer (pode ser nula) |
+| data    | any     | Os dados a serem registrados                                                      |
+| hex     | boolean | <p>Deve ser registrado formatado em HEX?<br /><br />0 - NÃO<br />1 - SIM</p>      |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                             |
+| Tipo     | Descrição                                                                                                                                             |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p><code>0</code> if successful<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+| int64_t | <p><code>0</code> se for bem-sucedido<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type      | Description                                                                                 |
+| Tipo      | Descrição                                                                                 |
 | --------- | ------------------------------------------------------------------------------------------- |
-| ErrorCode | <p>int64_t, value is 0 if successful</p><p></p><p> If negative, an error: OUT_OF_BOUNDS</p> |
+| ErrorCode | <p>int64_t, o valor é 0 se for bem-sucedido</p><p></p><p> Se negativo, um erro: OUT_OF_BOUNDS</p> |
 </TabItem>
 </Tabs>
 

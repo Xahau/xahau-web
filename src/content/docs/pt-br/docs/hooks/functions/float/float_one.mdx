@@ -1,28 +1,28 @@
 ---
 title: float_one
-description: Return the number 1 represented in an XFL enclosing number
+description: Retorna o número 1 representado em um número de envoltório XFL
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Return one(`1`) as an XFL int64_t
+* Retorna um (`1`) como um XFL int64_t
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieves the float representation of a number.
+* Recupera a representação em float de um número.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -40,7 +40,7 @@ function float_one(): ErrorCode | bigint
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -61,23 +61,22 @@ const one = float_one()
 
 
 
-### Parameters
+### Parâmetros
 
-This function has no parameters.
+Esta função não possui parâmetros.
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                      |
+| Tipo     | Descrição                      |
 | -------- | -------------------------------- |
-| int64_t | The XFL (xls17) enclosing number |
+| int64_t | O número de envoltório XFL (xls17) |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                      |
+| Tipo                | Descrição                      |
 | ------------------- | -------------------------------- |
-| ErrorCode \| bigint | The XFL (xls17) enclosing number |
+| ErrorCode \| bigint | O número de envoltório XFL (xls17) |
 </TabItem>
 </Tabs>
-

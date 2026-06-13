@@ -1,14 +1,14 @@
 ---
 title: otxn_type
-description: Get the Transaction Type of the originating transaction
+description: Obtém o Tipo de Transação da transação de origem
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* Return the Transaction Type of the originating transaction
+* Retorna o Tipo de Transação da transação de origem
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -30,7 +30,7 @@ function otxn_type(): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -47,31 +47,31 @@ const tt = txn_type()
 </TabItem>
 </Tabs>
 
-### Parameters
+### Parâmetros
 
-None
+Nenhum
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                         |
+| Tipo     | Descrição                                                                                                                         |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | The Transaction Type of the originating transaction. Check the table below for a list of known Transaction Types at time of writing |
+| int64_t | O Tipo de Transação da transação de origem. Consulte a tabela abaixo para uma lista dos Tipos de Transação conhecidos no momento em que este texto foi escrito |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                                                       |
+| Tipo                | Descrição                                                                       |
 | ------------------- | --------------------------------------------------------------------------------- |
-| ErrorCode \| number | Returns the Transaction Type as a number, or an ErrorCode if the retrieval fails. |
+| ErrorCode \| number | Retorna o Tipo de Transação como um número, ou um ErrorCode caso a recuperação falhe. |
 </TabItem>
 </Tabs>
 
 
 
-### Known Transaction Types
+### Tipos de Transação Conhecidos
 
-| Name                            | Value |
+| Nome                            | Valor |
 | ------------------------------- | ----- |
 | ttPAYMENT                       | 0     |
 | ttESCROW_CREATE                | 1     |

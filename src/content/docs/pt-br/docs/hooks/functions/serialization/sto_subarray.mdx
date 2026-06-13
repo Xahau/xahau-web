@@ -1,39 +1,39 @@
 ---
 title: sto_subarray
 description: >-
-  Index into a xahaud serialized array and return the location and length of an
-  index
+  Indexa um array serializado do xahaud e retorna a localização e o tamanho de
+  um índice
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Parse a STArray pointed to by `read_ptr`
-* Find the array index specified by `array_id`
-* Return the byte offset and length of the serialized field within the STObject, if it is found
+* Analisa um STArray apontado por `read_ptr`
+* Encontra o índice do array especificado por `array_id`
+* Retorna o deslocamento (offset) em bytes e o tamanho do campo serializado dentro do STObject, se encontrado
 
-<Aside type="caution" title="Field ID encoding">
-The `sto_` apis accept a `field_id` parameter encoded as follows: `(type << 16U) + field`
-Thus type 1 field 2 would be `0x10002U`.
+<Aside type="caution" title="Codificação do Field ID">
+As APIs `sto_` aceitam um parâmetro `field_id` codificado da seguinte forma: `(type << 16U) + field`
+Assim, o tipo 1 campo 2 seria `0x10002U`.
 
-In the case of this array field ID is `array_id`.
+Neste caso, o field ID do array é `array_id`.
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
-* Ask for the STO object (binary encoded ledger data) from which to extract the subarray.
-* Find the array index specified by `array_id`
-* Return a subarray from an STO object.
+* Solicita o objeto STO (dados de ledger codificados em binário) do qual o subarray será extraído.
+* Encontra o índice do array especificado por `array_id`
+* Retorna um subarray de um objeto STO.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -60,7 +60,7 @@ function sto_subarray(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -84,7 +84,7 @@ else
 ```
 
 <Aside type="tip">
-hookmacro.h already contains the `SUB_OFFSET` and `SUB_LENGTH` macros.
+O hookmacro.h já contém as macros `SUB_OFFSET` e `SUB_LENGTH`.
 </Aside>
 </TabItem>
 
@@ -110,15 +110,15 @@ else
 </TabItem>
 </Tabs>
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name      | Type      | Description                                                               |
+| Nome      | Tipo      | Descrição                                                               |
 | --------- | --------- | ------------------------------------------------------------------------- |
-| read_ptr | uint32_t | Pointer to the buffer containing the STArray                              |
-| read_len | uint32_t | Length of STArray                                                         |
-| array_id | uint32_t | The index of the entry within the STArray you are seeking. Starts from 0. |
+| read_ptr | uint32_t | Ponteiro para o buffer contendo o STArray                              |
+| read_len | uint32_t | Tamanho do STArray                                                         |
+| array_id | uint32_t | O índice da entrada dentro do STArray que você está buscando. Começa em 0. |
 
 
 </TabItem>
@@ -126,22 +126,22 @@ else
 <TabItem label="JavaScript">
 
 
-| Name      | Type                   | Description                                                                     |
+| Nome      | Tipo                   | Descrição                                                                     |
 | --------- | ---------------------- | ------------------------------------------------------------------------------- |
-| sto       | ByteArray \| HexString | The STO object (binary encoded ledger data) from which to extract the subarray. |
-| array_id | number                 | The ID of the array to be extracted.                                            |
+| sto       | ByteArray \| HexString | O objeto STO (dados de ledger codificados em binário) do qual o subarray será extraído. |
+| array_id | number                 | O ID do array a ser extraído.                                            |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The location of the field within the specified buffer:<br />- The high 32 bits are the offset location.<br />- The low 32 bits are the length.<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Input buffer isn't large enough to possibly contain a valid STArray.<br /><br /><code>DOESNT_EXIST</code><br />- The searched for index isn't present in the supplied STArray.<br /><br /><code>PARSE_ERROR</code><br />- The supplied STArray is malformed or not an STArray.</p> |
+| int64_t | <p>A localização do campo dentro do buffer especificado:<br />- Os 32 bits superiores são o deslocamento (offset).<br />- Os 32 bits inferiores são o tamanho.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer de entrada não é grande o suficiente para possivelmente conter um STArray válido.<br /><br /><code>DOESNT_EXIST</code><br />- O índice buscado não está presente no STArray fornecido.<br /><br /><code>PARSE_ERROR</code><br />- O STArray fornecido está malformado ou não é um STArray.</p> |
 
 
 </TabItem>
@@ -149,9 +149,9 @@ else
 <TabItem label="JavaScript">
 
 
-| Type               | Description                                                                                                                                                                                        |
+| Tipo               | Descrição                                                                                                                                                                                        |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| bigint / ErrorCode | <p>The location of the field within the specified buffer:<br />- The high 32 bits are the offset location.<br />- The low 32 bits are the length.<br /><br />or an error code if the extraction fails.</p> |
+| bigint / ErrorCode | <p>A localização do campo dentro do buffer especificado:<br />- Os 32 bits superiores são o deslocamento (offset).<br />- Os 32 bits inferiores são o tamanho.<br /><br />ou um código de erro se a extração falhar.</p> |
 </TabItem>
 </Tabs>
 

@@ -1,24 +1,24 @@
 ---
 title: util_sha512h
-description: Compute an sha512-half over some data
+description: Calcula um sha512-half sobre alguns dados
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Compute an `SHA512` hash over the data pointed to by `read_ptr`
-* Write the first half of the hash to `write_ptr`
+* Calcula um hash `SHA512` sobre os dados apontados por `read_ptr`
+* Escreve a primeira metade do hash em `write_ptr`
 </TabItem>
 
 <TabItem label="JavaScript">
-* Compute an `SHA512` hash over the data pointed to by `data`
-* Return the first half of the hash
+* Calcula um hash `SHA512` sobre os dados apontados por `data`
+* Retorna a primeira metade do hash
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -39,7 +39,7 @@ function util_sha512h(data: ByteArray | HexString): ErrorCode | ByteArray
 </TabItem>
 </Tabs>
 
-### Example
+### Exemplo
 
 C
 
@@ -64,11 +64,11 @@ if (util_sha512h(data) < 0)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th>Name</th><th width="114">Type</th><th>Description</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Pointer to a buffer the hash will be written to</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Length of output buffer, should be at least 32.</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Pointer to the buffer data will be read from (to compute the hash over)</td></tr><tr><td>read_len</td><td>uint32_t</td><td>Length of input data</td></tr></tbody></table>
+<table><thead><tr><th>Nome</th><th width="114">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Ponteiro para um buffer onde o hash será escrito</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Tamanho do buffer de saída, deve ser pelo menos 32.</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Ponteiro para o buffer de onde os dados serão lidos (para calcular o hash sobre eles)</td></tr><tr><td>read_len</td><td>uint32_t</td><td>Tamanho dos dados de entrada</td></tr></tbody></table>
 
 
 </TabItem>
@@ -76,23 +76,23 @@ if (util_sha512h(data) < 0)
 <TabItem label="JavaScript">
 
 
-<table><thead><tr><th>Name</th><th width="114">Type</th><th>Description</th></tr></thead><tbody><tr><td>data</td><td>ByteArray or HexString</td><td>The data to compute the hash over, can be provided as an array of numbers or a string.</td></tr></tbody></table>
+<table><thead><tr><th>Nome</th><th width="114">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>data</td><td>ByteArray or HexString</td><td>Os dados sobre os quais calcular o hash, podem ser fornecidos como um array de números ou uma string.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="137">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The number of bytes written, should always be 32.<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Output buffer isn't large enough</td></tr></tbody></table>
+<table><thead><tr><th width="137">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td>O número de bytes escritos, deve ser sempre 32.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer de saída não é grande o suficiente</td></tr></tbody></table>
 
 
 </TabItem>
 
 <TabItem label="JavaScript">
-<table><thead><tr><th width="137">Type</th><th>Description</th></tr></thead><tbody><tr><td>ByteArray</td><td>ErrorCode if there is an error in computing the hash, otherwise returns the SHA512-half hash as an array of numbers.</td></tr></tbody></table>
+<table><thead><tr><th width="137">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>ByteArray</td><td>ErrorCode se houver um erro ao calcular o hash, caso contrário retorna o hash SHA512-half como um array de números.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 

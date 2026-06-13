@@ -1,18 +1,18 @@
 ---
 title: etxn_generation
-description: Get the generation of a hypothetically emitted transaction
+description: Obtém a geração de uma hipotética transação emitida
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Transações Emitidas</LinkButton>
 
-### Behaviour
+### Comportamento
 
-* Return the generation an emitted transaction will carry.
+* Retorna a geração que uma transação emitida carregará.
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -34,7 +34,7 @@ function etxn_generation(): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -53,17 +53,17 @@ const generation = etxn_generation()
 
 
 
-### Parameters
+### Parâmetros
 
-None
+Nenhum
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                    |
+| Tipo     | Descrição                                                                                    |
 | -------- | ---------------------------------------------------------------------------------------------- |
-| int64_t | The generation an emitted transaction will need in order to be successfully passed to `emit()` |
+| int64_t | A geração que uma transação emitida precisará para ser passada com sucesso para `emit()` |
 
 
 </TabItem>
@@ -71,9 +71,8 @@ None
 <TabItem label="JavaScript">
 
 
-| Type   | Description                                                                                         |
+| Tipo   | Descrição                                                                                         |
 | ------ | --------------------------------------------------------------------------------------------------- |
-| number | Returns An ErrorCode if there is an error, or a number indicating the generation result on success. |
+| number | Retorna um ErrorCode se houver um erro, ou um número indicando o resultado da geração em caso de sucesso. |
 </TabItem>
 </Tabs>
-

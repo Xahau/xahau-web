@@ -1,27 +1,27 @@
 ---
 title: sto_to_json
-description: Format an STO object (binary encoded ledger data) as JSON format.
+description: Formata um objeto STO (dados de ledger codificados em binário) em formato JSON.
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="JavaScript">
-*   Format an STO object (binary encoded ledger data) as JSON format.&#x20;
+*   Formata um objeto STO (dados de ledger codificados em binário) em formato JSON.&#x20;
 
-    This function takes a serialized transaction `blob` and converts it into a human-readable JSON format.
-* Returns Decoded JSON representation of the STO object, or an error code if the conversion fails.
+    Esta função recebe um `blob` de transação serializada e o converte para um formato JSON legível por humanos.
+* Retorna a representação JSON decodificada do objeto STO, ou um código de erro se a conversão falhar.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="JavaScript">
@@ -35,7 +35,7 @@ function sto_to_json(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="JavaScript">
@@ -47,29 +47,29 @@ const jsonSto = sto_to_json(stoBlob)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="JavaScript">
 
 
-| Name | Type                   | Description                                             |
+| Nome | Tipo                   | Descrição                                             |
 | ---- | ---------------------- | ------------------------------------------------------- |
-| blob | ByteArray \| HexString | The blob (e.g. serialized transaction) to be converted. |
+| blob | ByteArray \| HexString | O blob (ex: transação serializada) a ser convertido. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="JavaScript">
 
 
-| Type                                             | Description                                                                              |
+| Tipo                                             | Descrição                                                                              |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| ErrorCode \| Record\<string, any> \| Transaction | Decoded JSON representation of the STO object, or an error code if the conversion fails. |
+| ErrorCode \| Record\<string, any> \| Transaction | Representação JSON decodificada do objeto STO, ou um código de erro se a conversão falhar. |
 </TabItem>
 </Tabs>
 

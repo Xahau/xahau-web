@@ -1,14 +1,14 @@
 ---
 title: trace_float
-description: Write a XFL float to the Xahaud trace log
+description: Escreve um float XFL no log de trace do Xahaud
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* Write a XFL floating point to the trace log along with a message (if any)
+* Escreve um ponto flutuante XFL no log de trace junto com uma mensagem (se houver)
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -24,7 +24,7 @@ int64_t trace_float (
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -37,27 +37,27 @@ trace_float(SBUF("This is a float"), float_one());
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                                               |
+| Nome       | Tipo      | Descrição                                                                                               |
 | ---------- | --------- | --------------------------------------------------------------------------------------------------------- |
-| rmead_ptr | uint32_t | Pointer to a message to output before the hex-encoded serialized object found in the slot. _May be null._ |
-| mread_len | uint32_t | Length of the message. _May be null._                                                                     |
-| float1     | int64_t  | The enclosing XFL integer.                                                                                |
+| rmead_ptr | uint32_t | Ponteiro para uma mensagem a ser exibida antes do objeto serializado codificado em hexadecimal encontrado no slot. _Pode ser nulo._ |
+| mread_len | uint32_t | Tamanho da mensagem. _Pode ser nulo._                                                                     |
+| float1     | int64_t  | O inteiro XFL correspondente.                                                                                |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                             |
+| Tipo     | Descrição                                                                                                                                             |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p><code>0</code> if successful<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+| int64_t | <p><code>0</code> se for bem-sucedido<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p> |
 </TabItem>
 </Tabs>
 

@@ -1,26 +1,26 @@
 ---
 title: slot_set
-description: Locate an object based on its keylet and place it into a slot
+description: Localiza um objeto com base em seu keylet e o coloca em um slot
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Locate an object given the Keylet provided in `read_ptr`
-* Emplace the located object into the slot specified or into a new slot if no slot (zero) is specified
+* Localiza um objeto a partir do Keylet fornecido em `read_ptr`
+* Posiciona o objeto localizado no slot especificado ou em um novo slot, caso nenhum slot (zero) seja especificado
 </TabItem>
 
 <TabItem label="JavaScript">
-* Sets the data for the specified slot.
-* Returns an error code or the result of the set operation.
+* Define os dados para o slot especificado.
+* Retorna um código de erro ou o resultado da operação de definição.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -47,7 +47,7 @@ function slot_set(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -66,40 +66,39 @@ const slot_no = slot_set(keylet, 0)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name      | Type      | Description                                                                                     |
+| Nome      | Tipo      | Descrição                                                                                     |
 | --------- | --------- | ----------------------------------------------------------------------------------------------- |
-| read_ptr | uint32_t | Pointer to a buffer containing the keylet of the object to locate. This can also be a txn hash. |
-| read_len | uint32_t | Length of the read buffer. Should always be 32 or 34.                                           |
-| slot_no  | uint32_t | The slot number to emplace into, or 0 if you wish to pick the next available.                   |
+| read_ptr | uint32_t | Ponteiro para um buffer contendo o keylet do objeto a ser localizado. Também pode ser um hash de transação. |
+| read_len | uint32_t | Tamanho do buffer de leitura. Deve ser sempre 32 ou 34.                                           |
+| slot_no  | uint32_t | O número do slot no qual posicionar o objeto, ou 0 caso deseje que o próximo disponível seja escolhido. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name   | Type                   | Description                                               |
+| Nome   | Tipo                   | Descrição                                               |
 | ------ | ---------------------- | --------------------------------------------------------- |
-| kl     | ByteArray \| HexString | The data to set in the slot, can be an array or a string. |
-| slotno | number                 | The slot number to set data for.                          |
+| kl     | ByteArray \| HexString | Os dados a serem definidos no slot, podendo ser um array ou uma string. |
+| slotno | number                 | O número do slot para o qual definir os dados.                          |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The slot number the object was inserted into<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_len</code> must be either 32 or 34 bytes depending on whether a txn hash or a keylet is being used in <code>read_ptr</code><br />- the hash or keylet was invalid<br /><br /><code>DOESNT_EXIST</code><br />- the requested object was not found</p> |
+| int64_t | <p>O número do slot em que o objeto foi inserido<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_len</code> deve ser 32 ou 34 bytes, dependendo se um hash de transação ou um keylet está sendo usado em <code>read_ptr</code><br />- o hash ou keylet era inválido<br /><br /><code>DOESNT_EXIST</code><br />- o objeto solicitado não foi encontrado</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                               |
+| Tipo                | Descrição                                               |
 | ------------------- | --------------------------------------------------------- |
-| ErrorCode or number | Returns an error code or the result of the set operation. |
+| ErrorCode or number | Retorna um código de erro ou o resultado da operação de definição. |
 </TabItem>
 </Tabs>
-

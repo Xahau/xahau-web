@@ -1,30 +1,30 @@
 ---
 title: float_compare
-description: Perform a comparison on two XFL floating point numbers
+description: Realiza uma comparação entre dois números de ponto flutuante XFL
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Evaluate a comparison of two XFL floating point numbers
-* Return the result of the comparison as a boolean encoded in an int64_t.
+* Avalia uma comparação entre dois números de ponto flutuante XFL
+* Retorna o resultado da comparação como um booleano codificado em um int64_t.
 </TabItem>
 
 <TabItem label="JavaScript">
-* Evaluate a comparison of two XFL floating point numbers
-* Returns an error code or the comparison result as a number.
+* Avalia uma comparação entre dois números de ponto flutuante XFL
+* Retorna um código de erro ou o resultado da comparação como um número.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -50,7 +50,7 @@ function float_compare(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -76,53 +76,52 @@ if (float_compare(pusd_to_send, 0n, COMPARE_LESS) == 1)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
 
 
-| Name   | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Nome   | Tipo      | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| float1 | int64_t  | An XFL floating point enclosing number representing the first operand to the comparison                                                                                                                                                                                                                                                                                                                                                                                                                |
-| float2 | int64_t  | An XFL floating point enclosing number representing the second operand to the comparison                                                                                                                                                                                                                                                                                                                                                                                                               |
-| mode   | uint32_t | A bit-flag field consisting of any of (or any logically valid combination of) the following flags:<br /><code>COMPARE_EQUAL</code> `1`<br /><code>COMPARE_LESS</code> `2`<br /><code>COMPARE_GREATER</code> `4`<br /><br />Valid combinations are:<br /><code>COMPARE_LESS</code> \| <code>COMPARE_GREATER</code><br />- Not equal<br /><br /><code>COMPARE_LESS</code> \| <code>COMPARE_EQUAL</code><br />- Less than or equal to<br /><br /><code>COMPARE_GREATER</code> \| <code>COMPARE_EQUAL</code><br />- Greater than or equal to |
+| float1 | int64_t  | Um número de ponto flutuante de envoltório XFL representando o primeiro operando da comparação                                                                                                                                                                                                                                                                                                                                                                                                                |
+| float2 | int64_t  | Um número de ponto flutuante de envoltório XFL representando o segundo operando da comparação                                                                                                                                                                                                                                                                                                                                                                                                               |
+| mode   | uint32_t | Um campo de flags de bits composto por qualquer um (ou qualquer combinação logicamente válida) dos seguintes flags:<br /><code>COMPARE_EQUAL</code> `1`<br /><code>COMPARE_LESS</code> `2`<br /><code>COMPARE_GREATER</code> `4`<br /><br />Combinações válidas são:<br /><code>COMPARE_LESS</code> \| <code>COMPARE_GREATER</code><br />- Diferente<br /><br /><code>COMPARE_LESS</code> \| <code>COMPARE_EQUAL</code><br />- Menor ou igual a<br /><br /><code>COMPARE_GREATER</code> \| <code>COMPARE_EQUAL</code><br />- Maior ou igual a |
 
 <Aside type="caution">
-Always verify the function returned `1` rather than `non-zero`, as negative error codes will be classed as `non-zero`.
+Sempre verifique se a função retornou `1` em vez de `non-zero` (diferente de zero), já que códigos de erro negativos também serão classificados como `non-zero`.
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Name | Type   | Description                                                    |
+| Nome | Tipo   | Descrição                                                    |
 | ---- | ------ | -------------------------------------------------------------- |
-| f1   | bigint | The first float to compare.                                    |
-| f2   | bigint | The second float to compare.                                   |
-| mode | number | The comparison mode (e.g., less than, equal to, greater than). |
+| f1   | bigint | O primeiro float a ser comparado.                                    |
+| f2   | bigint | O segundo float a ser comparado.                                   |
+| mode | number | O modo de comparação (ex.: menor que, igual a, maior que). |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
 
 
-| Type     | Description                                                                                                                                                                                                                                                                                                                                           |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <code>0</code> if the comparison was logically false.<br /><code>1</code> if the comparison was logically true.<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number<br /><br /><code>INVALID_ARGUMENT</code><br />- invalid combination of supplied comparison flags. |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <code>0</code> se a comparação foi logicamente falsa.<br /><code>1</code> se a comparação foi logicamente verdadeira.<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- um dos parâmetros fornecidos não era um número de envoltório XFL válido<br /><br /><code>INVALID_ARGUMENT</code><br />- combinação inválida dos flags de comparação fornecidos. |
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Type                | Description                                                 |
+| Tipo                | Descrição                                                 |
 | ------------------- | ----------------------------------------------------------- |
-| ErrorCode or number | Returns an error code or the comparison result as a number. |
+| ErrorCode ou number | Retorna um código de erro ou o resultado da comparação como um número. |
 </TabItem>
 </Tabs>
-

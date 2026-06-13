@@ -1,29 +1,29 @@
 ---
 title: float_int
-description: Convert an XFL floating point into an integer (floor)
+description: Converte um ponto flutuante XFL em um inteiro (floor)
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Left shift (multiply by 10) the XFL by the number of specified decimal places
-* Convert the resulting XFL to an integer, discarding any remainder
-* Return the integer
+* Desloca à esquerda (multiplica por 10) o XFL pelo número de casas decimais especificado
+* Converte o XFL resultante em um inteiro, descartando qualquer resto
+* Retorna o inteiro
 </TabItem>
 
 <TabItem label="JavaScript">
-* Converts a float representation to an integer with specified decimal places.
-* An error code or the resulting integer as a number.
+* Converte uma representação de float em um inteiro com casas decimais especificadas.
+* Um código de erro ou o inteiro resultante como um número.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -49,7 +49,7 @@ function float_int(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -69,49 +69,48 @@ const drops =
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name            | Type      | Description                                                                                              |
+| Nome            | Tipo      | Descrição                                                                                              |
 | --------------- | --------- | -------------------------------------------------------------------------------------------------------- |
-| float1          | int64_t  | An XFL floating point enclosing number representing the first operand to the addition                    |
-| decimal_places | uint32_t | The number of places to shift the decimal to the right before computing the floor of the floating point. |
-| absolute        | uint32_t | If `1` also take the absolute of the value before returning it.                                          |
+| float1          | int64_t  | Um número de ponto flutuante de envoltório XFL representando o primeiro operando da adição                    |
+| decimal_places | uint32_t | O número de casas a deslocar a vírgula decimal para a direita antes de calcular o floor do ponto flutuante. |
+| absolute        | uint32_t | Se `1`, também aplica o valor absoluto ao valor antes de retorná-lo.                                          |
 
 <Aside type="tip">
-Negative return values are reserved for error codes. Therefore if you need to execute this function against a negative XFL you should use `absolute = 1`
+Valores de retorno negativos são reservados para códigos de erro. Portanto, se você precisar executar esta função sobre um XFL negativo, use `absolute = 1`
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Name            | Type   | Description                                   |
+| Nome            | Tipo   | Descrição                                   |
 | --------------- | ------ | --------------------------------------------- |
-| f1              | bigint | The float to convert                          |
-| decimal_places | number | The number of decimal places to consider.     |
-| abs             | number | Indicates whether to take the absolute value. |
+| f1              | bigint | O float a ser convertido                          |
+| decimal_places | number | O número de casas decimais a considerar.     |
+| abs             | number | Indica se deve ser usado o valor absoluto. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                       |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The computed positive integer<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number<br /><br /><code>INVALID_ARGUMENT</code><br />- attempted to specify more than 15 decimal places.<br /><br /><code>CANT_RETURN_NEGATIVE</code><br />- attempted to return a negative integer but this is not allowed, use <code>absolute = 1</code></p> |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O inteiro positivo calculado<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- um dos parâmetros fornecidos não era um número de envoltório XFL válido<br /><br /><code>INVALID_ARGUMENT</code><br />- tentativa de especificar mais de 15 casas decimais.<br /><br /><code>CANT_RETURN_NEGATIVE</code><br />- tentativa de retornar um inteiro negativo, mas isso não é permitido, use <code>absolute = 1</code></p> |
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Type                | Description                                                 |
+| Tipo                | Descrição                                                 |
 | ------------------- | ----------------------------------------------------------- |
-| number or ErrorCode | Returns an error code or the resulting integer as a number. |
+| number ou ErrorCode | Retorna um código de erro ou o inteiro resultante como um número. |
 </TabItem>
 </Tabs>
-

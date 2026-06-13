@@ -1,23 +1,23 @@
 ---
 title: util_keylet
-description: Compute a serialized keylet of a given type
+description: Calcula um keylet serializado de um determinado tipo
 ---
 import { Tabs, TabItem, Aside, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/slots-and-keylets">Slots and Keylets</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/slots-and-keylets">Slots e Keylets</LinkButton>
 
 <Aside type="tip">
-Not every Keylet type is supported by this utility function. If you need another Keylet type you can derive it yourself using [util_sha512h](https://xrpl-hooks.readme.io/reference/util_sha512h) and by checking the required fields [here](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/Indexes.cpp). A further Keylet tool may [assist you.](https://richardah.github.io/xrpl-keylet-tools/)
+Nem todo tipo de Keylet é suportado por esta função utilitária. Se você precisar de outro tipo de Keylet, pode derivá-lo você mesmo usando [util_sha512h](https://xrpl-hooks.readme.io/reference/util_sha512h) e verificando os campos necessários [aqui](https://github.com/Xahau/xahaud/blob/dev/src/ripple/protocol/impl/Indexes.cpp). Uma ferramenta adicional de Keylet pode [te ajudar.](https://richardah.github.io/xrpl-keylet-tools/)
 </Aside>
 
-### Behaviour
+### Comportamento
 
-* Compute a keylet of the specified `keylet_type` according to the parameters `a` through `f` depending on type.
-* Write the serialized 34 byte keylet into `write_ptr`
+* Calcula um keylet do `keylet_type` especificado de acordo com os parâmetros `a` a `f`, dependendo do tipo.
+* Escreve o keylet serializado de 34 bytes em `write_ptr`
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -52,7 +52,7 @@ function util_keylet(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -80,11 +80,11 @@ if (util_keylet(
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="155">Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Pointer to a buffer the serialized keylet will be written to</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Length of output buffer, should be at least 34.</td></tr><tr><td>keylet_type</td><td>uint32_t</td><td>One of the keylet types as defined in <code>hookapi.h</code> e.g. <code>KEYLET_LINE</code> for a trustline.</td></tr><tr><td>a</td><td>uint32_t</td><td>See keylet table below</td></tr><tr><td>b</td><td>uint32_t</td><td>See keylet table below</td></tr><tr><td>c</td><td>uint32_t</td><td>See keylet table below</td></tr><tr><td>d</td><td>uint32_t</td><td>See keylet table below</td></tr><tr><td>e</td><td>uint32_t</td><td>See keylet table below</td></tr><tr><td>f</td><td>uint32_t</td><td>See keylet table below</td></tr></tbody></table>
+<table><thead><tr><th width="155">Nome</th><th>Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Ponteiro para um buffer onde o keylet serializado será escrito</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Tamanho do buffer de saída, deve ser pelo menos 34.</td></tr><tr><td>keylet_type</td><td>uint32_t</td><td>Um dos tipos de keylet definidos em <code>hookapi.h</code>, ex: <code>KEYLET_LINE</code> para uma trustline.</td></tr><tr><td>a</td><td>uint32_t</td><td>Veja a tabela de keylets abaixo</td></tr><tr><td>b</td><td>uint32_t</td><td>Veja a tabela de keylets abaixo</td></tr><tr><td>c</td><td>uint32_t</td><td>Veja a tabela de keylets abaixo</td></tr><tr><td>d</td><td>uint32_t</td><td>Veja a tabela de keylets abaixo</td></tr><tr><td>e</td><td>uint32_t</td><td>Veja a tabela de keylets abaixo</td></tr><tr><td>f</td><td>uint32_t</td><td>Veja a tabela de keylets abaixo</td></tr></tbody></table>
 
 
 </TabItem>
@@ -92,29 +92,29 @@ if (util_keylet(
 <TabItem label="JavaScript">
 
 
-<table><thead><tr><th width="155">Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>keylet_type</td><td></td><td>The type of the keylet to create</td></tr><tr><td>accountid</td><td></td><td>(Optional) First piece of data for the keylet, can be an array of numbers, a string, or a number.</td></tr><tr><td>statekey</td><td></td><td>(Optional) Second piece of data for the keylet, can be an array of numbers, a string, or a number.</td></tr><tr><td>namespace</td><td></td><td>(Optional) Third piece of data for the keylet, can be an array of numbers, a string, or a number.</td></tr></tbody></table>
+<table><thead><tr><th width="155">Nome</th><th>Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>keylet_type</td><td></td><td>O tipo do keylet a ser criado</td></tr><tr><td>accountid</td><td></td><td>(Opcional) Primeira parte de dados para o keylet, pode ser um array de números, uma string ou um número.</td></tr><tr><td>statekey</td><td></td><td>(Opcional) Segunda parte de dados para o keylet, pode ser um array de números, uma string ou um número.</td></tr><tr><td>namespace</td><td></td><td>(Opcional) Terceira parte de dados para o keylet, pode ser um array de números, uma string ou um número.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 
 
 
-### Keylet Table
+### Tabela de Keylets
 
 <Tabs>
 <TabItem label="C">
-| Keylet Type                                                                          | Parameters                                                                                                                                                                                                                                                                                                                                                                   |
+| Tipo de Keylet                                                                          | Parâmetros                                                                                                                                                                                                                                                                                                                                                                   |
 | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| KEYLET_HOOK_STATE                                                                  | <p><code>a</code> points to an Account ID<br /><code>b</code> is the length of the Account ID (should be 20)<br /><code>c</code> points to a hook state key<br /><code>d</code> is the length of the key (should be 32)<br /><code>e</code> points to a hook state namespace<br /><code>f</code> is the length of the namespace (should be 32)</p>                                     |
-| <p>KEYLET_AMENDMENTS<br />KEYLET_FEES<br />KEYLET_NEGATIVE_UNL<br />KEYLET_EMITTED_DIR</p> | `a`, `b`, `c`, `d`, `e`, `f` must all be zero                                                                                                                                                                                                                                                                                                                                |
-| KEYLET_SKIP                                                                         | <p>Either:<br /><code>a</code>, <code>b</code>, <code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> all zero<br />Or:<br /><code>a</code> is a <code>LedgerIndex</code><br /><code>b</code> is 1<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> must all ​be zero</p>                                                                                  |
-| KEYLET_LINE                                                                         | <p><code>a</code> points to the High Account ID<br /><code>b</code> is the length of the above (should be 20)<br /><code>c</code> points to the Low Account ID<br /><code>d</code> is the length of the above (should be 20)<br /><code>e</code> points to the Currency Code<br /><code>f</code> is the length of the above (should be 20)</p>                                         |
-| KEYLET_QUALITY                                                                      | <p><code>a</code> points to a serialized keylet<br /><code>b</code> is the length of the above (should be 34)<br /><code>c</code> is the high 32 bits of the uint64 to pass<br /><code>d</code> is the low 32 bits of the uint64 to pass<br /><code>e</code>, <code>f</code> must all be zero</p>                                                                                    |
-| KEYLET_DEPOSIT_PREAUTH                                                             | <p><code>a</code> points to an Account ID<br /><code>b</code> is the length (should be 20)<br /><code>c</code> points to an Account ID<br /><code>d</code> is the length (should be 20)<br /><code>e</code>, <code>f</code> must all be zero</p>                                                                                                                                     |
-| <p>KEYLET_UNCHECKED<br />KEYLET_CHILD<br />KEYLET_EMITTED_TXN</p>                        | <p><code>a</code> points to a key.<br /><code>b</code> is the length of the key (should be 32.)<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> must both ​be zero</p>                                                                                                                                                                                       |
-| <p>KEYLET_OWNER_DIR<br />KEYLET_SIGNERS<br />KEYLET_ACCOUNT<br />KEYLET_HOOK</p>           | <p><code>a</code> points to an Account ID.<br /><code>b</code> is the length (should be 20.)<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> must all be zero.</p>                                                                                                                                                                                           |
-| KEYLET_PAGE                                                                         | <p><code>a</code> points to a key.<br /><code>b</code> is the length of the key (should be 32.)<br /><code>c</code> is the high 32 bits of the uint64 to pass<br /><code>d</code> is the low 32 bits of the uint64 to pass<br /><code>e</code>, <code>f</code> must both ​be zero</p>                                                                                                |
-| <p>KEYLET_OFFER<br />KEYLET_CHECK<br />KEYLET_ESCROW<br />KEYLET_NFT_OFFER</p>             | <p><code>a</code> points to an Account ID.<br /><code>b</code> is the length (should be 20.)<br />And Either:<br /><code>c</code> is a 32bit unsigned integer (sequence)<br /><code>d</code> is 0<br />Or:<br /><code>c</code> points to a 32 byte key<br /><code>d</code> is the length of the key (32).<br />In both cases:<br /><code>e</code> and <code>f</code> must be 0.</p>            |
-| KEYLET_PAYCHAN                                                                      | <p><code>a</code> points to an Account ID<br /><code>b</code> is the length (should be 20)<br /><code>c</code> points to an Account ID<br /><code>d</code> is the length (should be 20)<br />And Either:<br /><code>e</code> 32bit unsigned int to pass<br /><code>f</code> is zero<br />Or:<br /><code>e</code> points to a 32 byte key<br /><code>f</code> is the length of the key (32)</p> |
+| KEYLET_HOOK_STATE                                                                  | <p><code>a</code> aponta para um Account ID<br /><code>b</code> é o tamanho do Account ID (deve ser 20)<br /><code>c</code> aponta para uma chave de estado do hook<br /><code>d</code> é o tamanho da chave (deve ser 32)<br /><code>e</code> aponta para um namespace de estado do hook<br /><code>f</code> é o tamanho do namespace (deve ser 32)</p>                                     |
+| <p>KEYLET_AMENDMENTS<br />KEYLET_FEES<br />KEYLET_NEGATIVE_UNL<br />KEYLET_EMITTED_DIR</p> | `a`, `b`, `c`, `d`, `e`, `f` devem ser todos zero                                                                                                                                                                                                                                                                                                                                |
+| KEYLET_SKIP                                                                         | <p>Ou:<br /><code>a</code>, <code>b</code>, <code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> todos zero<br />Ou:<br /><code>a</code> é um <code>LedgerIndex</code><br /><code>b</code> é 1<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> devem ser todos zero</p>                                                                                  |
+| KEYLET_LINE                                                                         | <p><code>a</code> aponta para o Account ID Alto (High)<br /><code>b</code> é o tamanho do anterior (deve ser 20)<br /><code>c</code> aponta para o Account ID Baixo (Low)<br /><code>d</code> é o tamanho do anterior (deve ser 20)<br /><code>e</code> aponta para o Código de Moeda<br /><code>f</code> é o tamanho do anterior (deve ser 20)</p>                                         |
+| KEYLET_QUALITY                                                                      | <p><code>a</code> aponta para um keylet serializado<br /><code>b</code> é o tamanho do anterior (deve ser 34)<br /><code>c</code> é os 32 bits superiores do uint64 a ser passado<br /><code>d</code> é os 32 bits inferiores do uint64 a ser passado<br /><code>e</code>, <code>f</code> devem ser todos zero</p>                                                                                    |
+| KEYLET_DEPOSIT_PREAUTH                                                             | <p><code>a</code> aponta para um Account ID<br /><code>b</code> é o tamanho (deve ser 20)<br /><code>c</code> aponta para um Account ID<br /><code>d</code> é o tamanho (deve ser 20)<br /><code>e</code>, <code>f</code> devem ser todos zero</p>                                                                                                                                     |
+| <p>KEYLET_UNCHECKED<br />KEYLET_CHILD<br />KEYLET_EMITTED_TXN</p>                        | <p><code>a</code> aponta para uma chave.<br /><code>b</code> é o tamanho da chave (deve ser 32.)<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> devem ambos ser zero</p>                                                                                                                                                                                       |
+| <p>KEYLET_OWNER_DIR<br />KEYLET_SIGNERS<br />KEYLET_ACCOUNT<br />KEYLET_HOOK</p>           | <p><code>a</code> aponta para um Account ID.<br /><code>b</code> é o tamanho (deve ser 20.)<br /><code>c</code>, <code>d</code>, <code>e</code>, <code>f</code> devem ser todos zero.</p>                                                                                                                                                                                           |
+| KEYLET_PAGE                                                                         | <p><code>a</code> aponta para uma chave.<br /><code>b</code> é o tamanho da chave (deve ser 32.)<br /><code>c</code> é os 32 bits superiores do uint64 a ser passado<br /><code>d</code> é os 32 bits inferiores do uint64 a ser passado<br /><code>e</code>, <code>f</code> devem ambos ser zero</p>                                                                                |
+| <p>KEYLET_OFFER<br />KEYLET_CHECK<br />KEYLET_ESCROW<br />KEYLET_NFT_OFFER</p>             | <p><code>a</code> aponta para um Account ID.<br /><code>b</code> é o tamanho (deve ser 20.)<br />E, ou:<br /><code>c</code> é um inteiro de 32 bits sem sinal (sequence)<br /><code>d</code> é 0<br />Ou:<br /><code>c</code> aponta para uma chave de 32 bytes<br /><code>d</code> é o tamanho da chave (32).<br />Em ambos os casos:<br /><code>e</code> e <code>f</code> devem ser 0.</p>            |
+| KEYLET_PAYCHAN                                                                      | <p><code>a</code> aponta para um Account ID<br /><code>b</code> é o tamanho (deve ser 20)<br /><code>c</code> aponta para um Account ID<br /><code>d</code> é o tamanho (deve ser 20)<br />E, ou:<br /><code>e</code> inteiro de 32 bits sem sinal a ser passado<br /><code>f</code> é zero<br />Ou:<br /><code>e</code> aponta para uma chave de 32 bytes<br /><code>f</code> é o tamanho da chave (32)</p> |
 
 
 </TabItem>
@@ -126,13 +126,13 @@ if (util_keylet(
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                  |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                  |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The number of bytes written, should always be 34.<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>INVALID_ARGUMENT</code><br />- Call didn't comply with the above table.<br /><br /><code>TOO_SMALL</code><br />- Writing buffer was smaller than 34 bytes.</p> |
+| int64_t | <p>O número de bytes escritos, deve ser sempre 34.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>INVALID_ARGUMENT</code><br />- A chamada não seguiu a tabela acima.<br /><br /><code>TOO_SMALL</code><br />- O buffer de escrita era menor que 34 bytes.</p> |
 
 
 </TabItem>
@@ -140,9 +140,8 @@ if (util_keylet(
 <TabItem label="JavaScript">
 
 
-| Type   | Description                                                                                                           |
+| Tipo   | Descrição                                                                                                           |
 | ------ | --------------------------------------------------------------------------------------------------------------------- |
-| number | ErrorCode if there is an error in creating the keylet, otherwise returns the generated keylet as an array of numbers. |
+| number | ErrorCode se houver um erro ao criar o keylet, caso contrário retorna o keylet gerado como um array de números. |
 </TabItem>
 </Tabs>
-

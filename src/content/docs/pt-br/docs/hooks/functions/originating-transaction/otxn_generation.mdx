@@ -1,23 +1,23 @@
 ---
 title: otxn_generation
-description: Get the generation of the originating transaction
+description: Obtém a generation da transação de origem
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Return the generation of the originating transaction or `1` if no generation field is present.
+* Retorna a generation da transação de origem ou `1` se nenhum campo generation estiver presente.
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieve the generation number of the originating transaction.
-* Returns the generation number as a number.
+* Recupera o número de generation da transação de origem.
+* Retorna o número de generation como um número.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -37,7 +37,7 @@ function otxn_generation(): number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -56,23 +56,23 @@ const generation = otxn_generation()
 
 
 
-### Parameters
+### Parâmetros
 
-None
+Nenhum
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type   | Description                                |
+| Tipo   | Descrição                                |
 | ------ | ------------------------------------------ |
-| number | Returns the generation number as a number. |
+| number | Retorna o número de generation como um número. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type     | Description                                                                                                        |
+| Tipo     | Descrição                                                                                                        |
 | -------- | ------------------------------------------------------------------------------------------------------------------ |
-| int64_t | The generation of the originating transaction, or `1` if no generation was present on the originating transaction. |
+| int64_t | A generation da transação de origem, ou `1` se nenhuma generation estava presente na transação de origem. |
 </TabItem>
 </Tabs>
 

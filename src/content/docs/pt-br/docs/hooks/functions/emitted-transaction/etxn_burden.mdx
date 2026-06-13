@@ -1,18 +1,18 @@
 ---
 title: etxn_burden
-description: Get the burden of a hypothetically emitted transaction
+description: Obtém o burden de uma hipotética transação emitida
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Transações Emitidas</LinkButton>
 
-### Behaviour
+### Comportamento
 
-* Return the burden an emitted transaction will carry.
+* Retorna o burden que uma transação emitida carregará.
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -32,7 +32,7 @@ function etxn_burden(): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -52,19 +52,18 @@ const burden = etxn_burden()
 
 
 
-### Parameters
+### Parâmetros
 
-None
+Nenhum
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="165">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The burden an emitted transaction will need in order to be successfully passed to <code>emit()</code></td></tr></tbody></table>
+<table><thead><tr><th width="165">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td>O burden que uma transação emitida precisará para ser passada com sucesso para <code>emit()</code></td></tr></tbody></table>
 </TabItem>
 
 <TabItem label="JavaScript">
-<table><thead><tr><th width="165">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td>An ErrorCode if there is an error, or the current burden value on success.</td></tr></tbody></table>
+<table><thead><tr><th width="165">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>number</td><td>Um ErrorCode se houver um erro, ou o valor atual do burden em caso de sucesso.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
-

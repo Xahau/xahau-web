@@ -1,24 +1,24 @@
 ---
 title: hook_param
-description: Retrieve the parameter value for a named hook parameter
+description: Recupera o valor do parâmetro para um parâmetro de hook nomeado
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Look up the value for a named parameter specified in `read_ptr`
-* Write the parameter's value to `write_ptr`
+* Busca o valor de um parâmetro nomeado especificado em `read_ptr`
+* Escreve o valor do parâmetro em `write_ptr`
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieve the value of a parameter associated with the specified key.
-* Returns the value associated with the key, or an error code if the retrieval fails.
+* Recupera o valor de um parâmetro associado à chave especificada.
+* Retorna o valor associado à chave, ou um código de erro se a recuperação falhar.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -41,7 +41,7 @@ function hook_param(key: ByteArray | HexString): ErrorCode | ByteArray
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -63,16 +63,16 @@ const pvalue = hook_param(pname)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                              |
+| Nome       | Tipo      | Descrição                                                                              |
 | ---------- | --------- | ---------------------------------------------------------------------------------------- |
-| write_ptr | uint32_t | Pointer to a buffer of a suitable size to store the output. Should be at least 32 bytes. |
-| write_len | uint32_t | Length of the output buffer.                                                             |
-| read_ptr  | uint32_t | Pointer to a buffer containing the parameter's name                                      |
-| read_len  | uint32_t | Length of the parameter's name                                                           |
+| write_ptr | uint32_t | Ponteiro para um buffer de tamanho adequado para armazenar a saída. Deve ter pelo menos 32 bytes. |
+| write_len | uint32_t | Tamanho do buffer de saída.                                                             |
+| read_ptr  | uint32_t | Ponteiro para um buffer contendo o nome do parâmetro                                      |
+| read_len  | uint32_t | Tamanho do nome do parâmetro                                                           |
 
 
 </TabItem>
@@ -80,21 +80,21 @@ const pvalue = hook_param(pname)
 <TabItem label="JavaScript">
 
 
-| Name | Type                   | Description                                        |
+| Nome | Tipo                   | Descrição                                        |
 | ---- | ---------------------- | -------------------------------------------------- |
-| key  | ByteArray or HexString | The key for which to retrieve the parameter value. |
+| key  | ByteArray ou HexString | A chave para a qual recuperar o valor do parâmetro. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                    |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                    |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>DOESNT_EXIST</code><br />- The specified paramater doesn't exist or is null<br /><br /><code>TOO_SMALL</code><br />- The parameter name can't be null<br /><br /><code>TOO_BIG</code><br />- The parameter name is greater than 32 bytes</p> |
+| int64_t | <p>O número de bytes escritos<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>DOESNT_EXIST</code><br />- O parâmetro especificado não existe ou é nulo<br /><br /><code>TOO_SMALL</code><br />- O nome do parâmetro não pode ser nulo<br /><br /><code>TOO_BIG</code><br />- O nome do parâmetro é maior que 32 bytes</p> |
 
 
 </TabItem>
@@ -102,9 +102,9 @@ const pvalue = hook_param(pname)
 <TabItem label="JavaScript">
 
 
-| Type                   | Description                                                                         |
+| Tipo                   | Descrição                                                                         |
 | ---------------------- | ----------------------------------------------------------------------------------- |
-| ByteArray or ErrorCode | Returns the value associated with the key, or an error code if the retrieval fails. |
+| ByteArray ou ErrorCode | Retorna o valor associado à chave, ou um código de erro se a recuperação falhar. |
 </TabItem>
 </Tabs>
 

@@ -1,20 +1,20 @@
 ---
 title: cbak / Callback
-description: The callback function of your hook
+description: A função de callback do seu hook
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/compiling-hooks">Compiling Hooks</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/compiling-hooks">Compilando Hooks</LinkButton>
 
-### Behaviour
+### Comportamento
 
-* `cbak` is a user defined function called by `xahaud` in order to inform your hook about the status of a previously emitted transaction
-* State changes and further emit calls can be made from cbak but it cannot `rollback` a transaction.
-* When cbak is executed the emitted transaction to which the callback relates is now the originating transaction.
+* `cbak` é uma função definida pelo usuário, chamada pelo `xahaud` para informar ao seu hook o status de uma transação emitida anteriormente
+* Alterações de estado e novas chamadas a emit podem ser feitas a partir de cbak, mas ele não pode fazer `rollback` de uma transação.
+* Quando cbak é executado, a transação emitida à qual o callback se refere passa a ser a transação de origem.
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -32,7 +32,7 @@ type Callback = (reserved: number) => number
 </TabItem>
 </Tabs>
 
-### Example
+### Exemplo
 
 
 
@@ -57,35 +57,34 @@ const Callback = (reserved: number) => {
 </TabItem>
 </Tabs>
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name     | Type      | Description                                                                                                                                                                                                                                                                        |
+| Nome     | Tipo      | Descrição                                                                                                                                                                                                                                                                        |
 | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| reserved | uint32_t | <p>if <code>0</code>:<br />- the emittted transaction to which this callback relates was successfully accepted into a ledger.<br /><br />If <code>1</code><br />- the emitted transaction to which the callback relates was NOT successfully accepted into a ledger before it expired.</p> |
+| reserved | uint32_t | <p>se <code>0</code>:<br />- a transação emitida à qual este callback se refere foi aceita com sucesso em um ledger.<br /><br />Se <code>1</code><br />- a transação emitida à qual o callback se refere NÃO foi aceita com sucesso em um ledger antes de expirar.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name     | Type   | Description                                                                                                                                                                                                                                                                        |
+| Nome     | Tipo   | Descrição                                                                                                                                                                                                                                                                        |
 | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| reserved | number | <p>if <code>0</code>:<br />- the emittted transaction to which this callback relates was successfully accepted into a ledger.<br /><br />If <code>1</code><br />- the emitted transaction to which the callback relates was NOT successfully accepted into a ledger before it expired.</p> |
+| reserved | number | <p>se <code>0</code>:<br />- a transação emitida à qual este callback se refere foi aceita com sucesso em um ledger.<br /><br />Se <code>1</code><br />- a transação emitida à qual o callback se refere NÃO foi aceita com sucesso em um ledger antes de expirar.</p> |
 </TabItem>
 </Tabs>
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                      |
+| Tipo     | Descrição                                                                                                                      |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | An arbitrary return code you wish to return from your hook. This will be present in the metadata of the originating transaction. |
+| int64_t | Um código de retorno arbitrário que você deseja retornar do seu hook. Estará presente nos metadados da transação de origem. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type   | Description                                                                                                                      |
+| Tipo   | Descrição                                                                                                                      |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| number | An arbitrary return code you wish to return from your hook. This will be present in the metadata of the originating transaction. |
+| number | Um código de retorno arbitrário que você deseja retornar do seu hook. Estará presente nos metadados da transação de origem. |
 </TabItem>
 </Tabs>
-

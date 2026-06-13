@@ -1,15 +1,15 @@
 ---
 title: hook_again
-description: Returns the position in the hook chain the currently executing hook occupies
+description: Retorna a posição na cadeia de hooks que o hook atualmente em execução ocupa
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* If the hook is being strongly executed then flag this specific hook in the chain for [Again As Weak Execution](/pt-br/docs/hooks/concepts/weak-and-strong).
-* If the originating transaction successfully is applied then the hook will be called again in a second, Weak Execution.
+* Se o hook está sendo executado fortemente, marca este hook específico na cadeia para [Execução Novamente como Fraca](/pt-br/docs/hooks/concepts/weak-and-strong).
+* Se a transação de origem for aplicada com sucesso, o hook será chamado novamente em uma segunda Execução Fraca.
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -24,7 +24,7 @@ function hook_again(): ErrorCode | number
 </TabItem>
 </Tabs>
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -40,18 +40,18 @@ const result = hook_again()
 </TabItem>
 </Tabs>
 
-### Parameters
+### Parâmetros
 
-This API has no parameters
+Esta API não possui parâmetros
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="176">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td><code>1</code> iff successfully flagged for Again As Weak.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- This hook is already being executed weakly at the time of the call.<br /><br /><code>ALREADY_SET</code><br />- The function was already called this execution.</td></tr></tbody></table>
+<table><thead><tr><th width="176">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td><code>1</code> se marcado com sucesso para Novamente como Fraca.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- Este hook já está sendo executado fracamente no momento da chamada.<br /><br /><code>ALREADY_SET</code><br />- A função já foi chamada nesta execução.</td></tr></tbody></table>
 </TabItem>
 <TabItem label="JavaScript">
-<table><thead><tr><th width="176">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td>Returns a status code indicating the result of the operation.</td></tr></tbody></table>
+<table><thead><tr><th width="176">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>number</td><td>Retorna um código de status indicando o resultado da operação.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 

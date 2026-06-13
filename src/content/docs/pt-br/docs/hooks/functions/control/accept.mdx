@@ -1,28 +1,28 @@
 ---
 title: accept
-description: Accept the originating transaction and commit any changes the hook made.
+description: Aceita a transação de origem e confirma quaisquer alterações feitas pelo hook.
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/introduction/">Introduction</LinkButton>
-<LinkButton href="/pt-br/docs/hooks/concepts/execution-metadata">Execution Metadata</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/introduction/">Introdução</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/execution-metadata">Metadados de Execução</LinkButton>
 
-### Behaviour
+### Comportamento
 
-End the execution of the hook with status: success.
+Encerra a execução do hook com status: sucesso.
 
-* Record a return string and return code in transaction metadata.
-* Commit all state changes.
-* Submit all `emit()` transactions.
-* Allow originating transaction to continue.
+* Registra uma string de retorno e um código de retorno nos metadados da transação.
+* Confirma todas as alterações de estado.
+* Envia todas as transações `emit()`.
+* Permite que a transação de origem continue.
 
 <Aside type="caution">
-If the originating transaction is stopped for some other reason then this accept becomes a rollback. See: Execution Order.
+Se a transação de origem for interrompida por algum outro motivo, este accept se torna um rollback. Veja: Ordem de Execução.
 </Aside>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -44,58 +44,58 @@ function accept(msg: string, code: number): number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
 ```c
-accept("Success", 7, 100);
+accept("Sucesso", 7, 100);
 ```
 </TabItem>
 
 <TabItem label="JavaScript">
 ```javascript
-accept('Success', 100)
+accept('Sucesso', 100)
 ```
 </TabItem>
 </Tabs>
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name        | Type      | Description                                                                                                                                                                         |
+| Nome        | Tipo      | Descrição                                                                                                                                                                         |
 | ----------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| read_ptr   | uint32_t | <p>Pointer to a return string to be stored in execution metadata.<br />This is any string the hook-developer wishes to return with the acceptance. <em>May be null.</em></p>          |
-| read_len   | uint32_t | The length of the return string. At most 32. _May be null._                                                                                                                         |
-| error_code | uint64_t | <p>A return code specific to this hook to be stored in execution metadata.<br /><br />Similar to the return code of an application on a *nix system. By convention success is zero.</p> |
+| read_ptr   | uint32_t | <p>Ponteiro para uma string de retorno a ser armazenada nos metadados de execução.<br />Esta é qualquer string que o desenvolvedor do hook desejar retornar com a aceitação. <em>Pode ser nulo.</em></p>          |
+| read_len   | uint32_t | O tamanho da string de retorno. No máximo 32. _Pode ser nulo._                                                                                                                         |
+| error_code | uint64_t | <p>Um código de retorno específico deste hook a ser armazenado nos metadados de execução.<br /><br />Semelhante ao código de retorno de uma aplicação em um sistema *nix. Por convenção, sucesso é zero.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name | Type   | Description                                                                                                                                                                         |
+| Nome | Tipo   | Descrição                                                                                                                                                                         |
 | ---- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| msg  | string | <p>String to be stored in execution metadata.<br />This is any string the hook-developer wishes to return with the acceptance. <em>May be null.</em></p>                              |
-| code | number | <p>A return code specific to this hook to be stored in execution metadata.<br /><br />Similar to the return code of an application on a *nix system. By convention success is zero.</p> |
+| msg  | string | <p>String a ser armazenada nos metadados de execução.<br />Esta é qualquer string que o desenvolvedor do hook desejar retornar com a aceitação. <em>Pode ser nulo.</em></p>                              |
+| code | number | <p>Um código de retorno específico deste hook a ser armazenado nos metadados de execução.<br /><br />Semelhante ao código de retorno de uma aplicação em um sistema *nix. Por convenção, sucesso é zero.</p> |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                             |
+| Tipo     | Descrição                                                                                                                                             |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | Accept ends the hook, therefore no value is returned to the caller. By convention all Hook APIs return `int64_t`, but in this case nothing is returned. |
+| int64_t | Accept encerra o hook, portanto nenhum valor é retornado ao chamador. Por convenção, todas as APIs de Hook retornam `int64_t`, mas neste caso nada é retornado. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type   | Description                                                                                                                                              |
+| Tipo   | Descrição                                                                                                                                              |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| number | Accept ends the hook, therefore no value is returned to the caller. By convention all Hook APIs return `a number`, but in this case nothing is returned. |
+| number | Accept encerra o hook, portanto nenhum valor é retornado ao chamador. Por convenção, todas as APIs de Hook retornam `number`, mas neste caso nada é retornado. |
 </TabItem>
 </Tabs>
 

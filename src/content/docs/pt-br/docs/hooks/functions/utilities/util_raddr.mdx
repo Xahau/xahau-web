@@ -1,24 +1,24 @@
 ---
 title: util_raddr
-description: Convert a 20 byte Account ID to an r-address
+description: Converte um Account ID de 20 bytes em um r-address
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Read a 20 byte  Account ID from the `read_ptr`
-* Write the equivalent r-address for that Account ID to `write_ptr`
+* Lê um Account ID de 20 bytes a partir de `read_ptr`
+* Escreve o r-address equivalente para esse Account ID em `write_ptr`
 </TabItem>
 
 <TabItem label="JavaScript">
-* Read a 20 byte Account ID from the `accountid`
-* Return the equivalent r-address for that Account ID
+* Lê um Account ID de 20 bytes a partir de `accountid`
+* Retorna o r-address equivalente para esse Account ID
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -41,7 +41,7 @@ function util_raddr(accountid: ByteArray | HexString): ErrorCode | string
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -74,33 +74,33 @@ const raddr = util_raddr([
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
 
 
-<table><thead><tr><th>Name</th><th width="82">Type</th><th>Description</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Pointer to a buffer of a suitable size to store the output r-address. Recommend at least 35 bytes.</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Length of the output buffer.</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Pointer to the Account ID.</td></tr><tr><td>read_len</td><td>uint32_t</td><td>The length of the input. Always 20.</td></tr></tbody></table>
+<table><thead><tr><th>Nome</th><th width="82">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Ponteiro para um buffer de tamanho adequado para armazenar o r-address de saída. Recomenda-se pelo menos 35 bytes.</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Tamanho do buffer de saída.</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Ponteiro para o Account ID.</td></tr><tr><td>read_len</td><td>uint32_t</td><td>O tamanho da entrada. Sempre 20.</td></tr></tbody></table>
 </TabItem>
 
 <TabItem label="JavaScript">
-<table><thead><tr><th>Name</th><th width="82">Type</th><th>Description</th></tr></thead><tbody><tr><td>accountid</td><td>number[]/string</td><td>The HEX account ID to return as r-address, can be provided as an array of numbers or a string.</td></tr></tbody></table>
+<table><thead><tr><th>Nome</th><th width="82">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>accountid</td><td>number[]/string</td><td>O Account ID em HEX a ser retornado como r-address, pode ser fornecido como um array de números ou uma string.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                             |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The number of bytes written (the length of the output r-address).<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_len</code> was not 20.<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> was not large enough to store produced r-address in.</p> |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos (o tamanho do r-address de saída).<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_len</code> não era 20.<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> não era grande o suficiente para armazenar o r-address produzido.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type          | Description                                                                               |
+| Tipo          | Descrição                                                                               |
 | ------------- | ----------------------------------------------------------------------------------------- |
-| string/number | ErrorCode if there is an error in formatting, otherwise returns the r-address as a string |
+| string/number | ErrorCode se houver um erro na formatação, caso contrário retorna o r-address como uma string |
 </TabItem>
 </Tabs>
 

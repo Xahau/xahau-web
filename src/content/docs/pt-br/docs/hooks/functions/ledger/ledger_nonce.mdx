@@ -1,24 +1,24 @@
 ---
 title: ledger_nonce
-description: Generate a 32 byte nonce for use in an emitted transaction
+description: Gera um nonce de 32 bytes para uso em uma transação emitida
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Write a 32 byte random value to the write_ptr
+* Escreve um valor aleatório de 32 bytes no write_ptr
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieves the nonce of the current ledger.
+* Recupera o nonce do ledger atual.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 C
 
@@ -41,7 +41,7 @@ function ledger_nonce(): ErrorCode | ByteArray
 </TabItem>
 </Tabs>
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -63,14 +63,14 @@ const nonce = ledger_nonce()
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                              |
+| Nome       | Tipo      | Descrição                                                                              |
 | ---------- | --------- | ---------------------------------------------------------------------------------------- |
-| write_ptr | uint32_t | Pointer to a buffer of a suitable size to store the output. Should be at least 32 bytes. |
-| write_len | uint32_t | Length of the output buffer.                                                             |
+| write_ptr | uint32_t | Ponteiro para um buffer de tamanho adequado para armazenar a saída. Deve ter pelo menos 32 bytes. |
+| write_len | uint32_t | Tamanho do buffer de saída.                                                             |
 
 
 </TabItem>
@@ -82,23 +82,23 @@ const nonce = ledger_nonce()
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
 
 
-| Type                   | Description                                                                                                                           |
+| Tipo                   | Descrição                                                                                                                           |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| ErrorCode \| ByteArray | Returns an error code if an error occurs, or an array representing the nonce of the current ledger. specified outside of hook memory. |
+| ErrorCode \| ByteArray | Retorna um código de erro se ocorrer um erro, ou um array representando o nonce do ledger atual. especificados fora da memória do hook. |
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Type     | Description                                                                                                                                            |
+| Tipo     | Descrição                                                                                                                                            |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+| int64_t | <p>O número de bytes escritos<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p> |
 </TabItem>
 </Tabs>
 

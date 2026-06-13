@@ -1,22 +1,22 @@
 ---
 title: slot_size
-description: Compute the serialized size of an object in a slot
+description: Calcula o tamanho serializado de um objeto em um slot
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Return the number of bytes the object in the specified slot occupies when serialized
+* Retorna o número de bytes que o objeto no slot especificado ocupa quando serializado
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieves the size of the specified slot.
+* Recupera o tamanho do slot especificado.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -36,7 +36,7 @@ function slot_size(slotno: number): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -54,37 +54,36 @@ const bytes_needed = slot_size(1); // get size of slot 1
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name     | Type      | Description     |
+| Nome     | Tipo      | Descrição     |
 | -------- | --------- | --------------- |
-| slot_no | uint32_t | The slot number |
+| slot_no | uint32_t | O número do slot |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name   | Type   | Description                           |
+| Nome   | Tipo   | Descrição                           |
 | ------ | ------ | ------------------------------------- |
-| slotno | number | The slot number to check the size of. |
+| slotno | number | O número do slot do qual verificar o tamanho. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                            |
+| Tipo     | Descrição                                                                                                                                                                                            |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| int64_t | <p>The number of bytes the object occupies when serialized<br /><br />If negative, an error:<br /><code>DOESNT_EXIST</code><br />- the specified slot does not contain any object or it is an invalid slot</p> |
+| int64_t | <p>O número de bytes que o objeto ocupa quando serializado<br /><br />Se negativo, um erro:<br /><code>DOESNT_EXIST</code><br />- o slot especificado não contém nenhum objeto ou é um slot inválido</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                    |
+| Tipo                | Descrição                                    |
 | ------------------- | ---------------------------------------------- |
-| ErrorCode \| number | Returns an error code or the size of the slot. |
+| ErrorCode \| number | Retorna um código de erro ou o tamanho do slot. |
 </TabItem>
 </Tabs>
-

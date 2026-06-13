@@ -1,15 +1,15 @@
 ---
 title: xpop_slot
-description: Serialize and output the xpop transaction blob and metadata
+description: Serializa e gera (output) o blob de transação xpop e os metadados
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* Locate the xpop blob on the `Import` transaction
-* Emplace the located tx and meta objects into the slots specified
+* Localiza o blob xpop na transação `Import`
+* Posiciona os objetos de tx e meta localizados nos slots especificados
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -32,7 +32,7 @@ function xpop_slot(slotno_tx: number, slotno_meta: number): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -51,39 +51,38 @@ const bytes_written = xpop_slot(1, 2)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name           | Type      | Description                                    |
+| Nome           | Tipo      | Descrição                                    |
 | -------------- | --------- | ---------------------------------------------- |
-| slot_no_tx   | uint32_t | The slot number to emplace the tx blob into.   |
-| slot_no_meta | uin32_t  | The slot number to emplace the meta blob into. |
+| slot_no_tx   | uint32_t | O número do slot no qual posicionar o blob de tx.   |
+| slot_no_meta | uin32_t  | O número do slot no qual posicionar o blob de meta. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name         | Type   | Description                         |
+| Nome         | Tipo   | Descrição                         |
 | ------------ | ------ | ----------------------------------- |
-| slotno_tx   | number | The transaction slot number to pop. |
-| slotno_meta | number | The metadata slot number to pop.    |
+| slotno_tx   | number | O número do slot de transação a ser extraído (pop). |
+| slotno_meta | number | O número do slot de metadados a ser extraído (pop).    |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                |
+| Tipo     | Descrição                                                                                                                                                                                                                                                |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p><code>PREREQUISITE_NOT_MET</code><br /><br />- The originating tx type was not <code>Import</code>.<br /><br /><code>NO_FREE_SLOTS</code><br /><br />- The API would require a new slot to be allocated but the Hook is already at the maximum number of slots.</p> |
+| int64_t | <p><code>PREREQUISITE_NOT_MET</code><br /><br />- O tipo da transação de origem não era <code>Import</code>.<br /><br /><code>NO_FREE_SLOTS</code><br /><br />- A API exigiria a alocação de um novo slot, mas o Hook já está no número máximo de slots.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                               |
+| Tipo                | Descrição                                               |
 | ------------------- | --------------------------------------------------------- |
-| number or ErrorCode | Returns an error code or the result of the pop operation. |
+| number or ErrorCode | Retorna um código de erro ou o resultado da operação de extração (pop). |
 </TabItem>
 </Tabs>
-

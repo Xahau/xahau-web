@@ -1,18 +1,18 @@
 ---
 title: fee_base
-description: Fetch the fee base of the current ledger
+description: Busca a taxa base do ledger atual
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/hook-fees">Hook Fees</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/hook-fees">Taxas de Hook</LinkButton>
 
-### Behaviour
+### Comportamento
 
-* Return the fee base from the current ledger
+* Retorna a taxa base do ledger atual
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -30,7 +30,7 @@ function fee_base(): number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -49,25 +49,25 @@ const fee = fee_base()
 
 
 
-### Parameters
+### Parâmetros
 
-This API takes no parameters.
+Esta API não recebe parâmetros.
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                        |
+| Tipo     | Descrição                        |
 | -------- | ---------------------------------- |
-| int64_t | The fee base of the current ledger |
+| int64_t | A taxa base do ledger atual |
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Type   | Description                        |
+| Tipo   | Descrição                        |
 | ------ | ---------------------------------- |
-| number | The fee base of the current ledger |
+| number | A taxa base do ledger atual |
 </TabItem>
 </Tabs>
 

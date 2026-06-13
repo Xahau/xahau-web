@@ -1,29 +1,29 @@
 ---
 title: float_exponent
-description: Get the exponent of an XFL enclosing number
+description: Obtém o expoente de um número de envoltório XFL
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
 <Tabs>
 <TabItem label="C">
-<Aside type="caution" title="Replaced by macro">
-This function was replaced by a macro. Please use the macro below in your code instead.
-To check the validity of the XFL please use float_mantissa in conjunction with this macro.
+<Aside type="caution" title="Substituída por macro">
+Esta função foi substituída por uma macro. Use a macro abaixo em seu código em vez disso.
+Para verificar a validade do XFL, use float_mantissa em conjunto com esta macro.
 </Aside>
 </TabItem>
 </Tabs>
 
 
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Return the exponent part of an XFL as a signed integer
+* Retorna a parte do expoente de um XFL como um inteiro com sinal
 </TabItem>
 </Tabs>
 
@@ -31,11 +31,11 @@ To check the validity of the XFL please use float_mantissa in conjunction with t
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
-Because exponents can be negative, and because negatives are reserved for error states, exponents cannot be returned from functions. Therefore this function has become a macro as shown below.
+Como expoentes podem ser negativos, e como valores negativos são reservados para estados de erro, expoentes não podem ser retornados por funções. Por isso, esta função se tornou uma macro, conforme mostrado abaixo.
 
 ```c
 #define float_exponent(f)\
@@ -52,7 +52,7 @@ const float_exponent = (f) => (Number(((f) >> 54n) & 0xFFn) - 97)
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -65,13 +65,12 @@ int64_t exponent =
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name   | Type     | Description                            |
+| Nome   | Tipo     | Descrição                            |
 | ------ | -------- | -------------------------------------- |
-| float1 | int64_t | An XFL floating point enclosing number |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL |
 </TabItem>
 </Tabs>
-

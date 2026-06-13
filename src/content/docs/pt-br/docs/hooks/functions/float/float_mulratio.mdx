@@ -1,28 +1,28 @@
 ---
 title: float_mulratio
-description: Multiply an XFL floating point by a non-XFL numerator and denominator
+description: Multiplica um ponto flutuante XFL por um numerador e denominador não-XFL
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Compute the multiplication of an XFL (xls17) floating point number and the quotient of two integers
-* Return a new XFL as an int64_t
+* Calcula a multiplicação de um número de ponto flutuante XFL (xls17) pelo quociente de dois inteiros
+* Retorna um novo XFL como um int64_t
 </TabItem>
 
 <TabItem label="JavaScript">
-* Multiplies a float by a ratio defined by a numerator and denominator.
-* Returns an error code or new XFL as a bigint.
+* Multiplica um float por uma razão definida por um numerador e um denominador.
+* Retorna um código de erro ou um novo XFL como um bigint.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -50,7 +50,7 @@ function float_mulratio(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -72,43 +72,43 @@ const max_vault_pusd =
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name        | Type      | Description                                                                                 |
+| Nome        | Tipo      | Descrição                                                                                 |
 | ----------- | --------- | ------------------------------------------------------------------------------------------- |
-| float1      | int64_t  | An XFL floating point enclosing number representing the first operand to the multiplication |
-| round_up   | uint32_t | If non-zero all computations will be rounded up                                             |
-| numerator   | uint32_t | The numerator of the quotient that the float will be multiplied by                          |
-| denominator | uint32_t | The denominator of the quotient that the float will be multiplied by                        |
+| float1      | int64_t  | Um número de ponto flutuante de envoltório XFL representando o primeiro operando da multiplicação |
+| round_up   | uint32_t | Se diferente de zero, todos os cálculos serão arredondados para cima                                             |
+| numerator   | uint32_t | O numerador do quociente pelo qual o float será multiplicado                          |
+| denominator | uint32_t | O denominador do quociente pelo qual o float será multiplicado                        |
 
 <Aside type="caution">
-Certain multiplications may overflow, which return with an `INVALID_FLOAT` error. However an **underflow** returns as XFL Canonical Zero (i.e. enclosing number = 0).
+Certas multiplicações podem causar overflow, retornando um erro `INVALID_FLOAT`. No entanto, um **underflow** retorna como XFL Canonical Zero (ou seja, número de envoltório = 0).
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Name        | Type   | Description                                                                                 |
+| Nome        | Tipo   | Descrição                                                                                 |
 | ----------- | ------ | ------------------------------------------------------------------------------------------- |
-| f1          | bigint | An XFL floating point enclosing number representing the first operand to the multiplication |
-| round_up   | number | If non-zero all computations will be rounded up                                             |
-| numerator   | number | The numerator of the quotient that the float will be multiplied by                          |
-| denominator | number | The denominator of the quotient that the float will be multiplied by                        |
+| f1          | bigint | Um número de ponto flutuante de envoltório XFL representando o primeiro operando da multiplicação |
+| round_up   | number | Se diferente de zero, todos os cálculos serão arredondados para cima                                             |
+| numerator   | number | O numerador do quociente pelo qual o float será multiplicado                          |
+| denominator | number | O denominador do quociente pelo qual o float será multiplicado                        |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                    |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                    |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The XFL (xls17) enclosing number<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number<br /><br /><code>OVERFLOW</code><br />- the result of the multiplication was too large to store in an XFL.<br /><br /><code>DIVISION_BY_ZERO</code><br />- the supplied denominator was zero.</p> |
+| int64_t | <p>O número de envoltório XFL (xls17)<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- um dos parâmetros fornecidos não era um número de envoltório XFL válido<br /><br /><code>OVERFLOW</code><br />- o resultado da multiplicação era muito grande para ser armazenado em um XFL.<br /><br /><code>DIVISION_BY_ZERO</code><br />- o denominador fornecido era zero.</p>
 
 
 </TabItem>
@@ -116,9 +116,8 @@ Certain multiplications may overflow, which return with an `INVALID_FLOAT` error
 <TabItem label="JavaScript">
 
 
-| Type                | Description                                                 |
+| Tipo                | Descrição                                                 |
 | ------------------- | ----------------------------------------------------------- |
-| ErrorCode or bigint | Returns an error code or tThe XFL (xls17) enclosing number. |
+| ErrorCode ou bigint | Retorna um código de erro ou o número de envoltório XFL (xls17). |
 </TabItem>
 </Tabs>
-

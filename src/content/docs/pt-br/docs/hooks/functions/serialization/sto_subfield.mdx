@@ -1,42 +1,42 @@
 ---
 title: sto_subfield
 description: >-
-  Index into a xahaud serialized object and return the location and length of a
-  subfield
+  Indexa um objeto serializado do xahaud e retorna a localização e o tamanho
+  de um subcampo
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Parse a STObject pointed to by `read_ptr`
-* Find the field specified by `field_id`
-* If the field is found, and:
+* Analisa um STObject apontado por `read_ptr`
+* Encontra o campo especificado por `field_id`
+* Se o campo for encontrado, e:
 *
-  1. It is an array, then return the start and length of the array including the leadin/leadout bytes, or
+  1. For um array, então retorna o início e o tamanho do array incluindo os bytes de leadin/leadout, ou
 *
-  2. It is **not** an array, then return the start and length of the PAYLOAD of the field (excluding the leadin bytes).
+  2. **Não** for um array, então retorna o início e o tamanho do PAYLOAD do campo (excluindo os bytes de leadin).
 
-<Aside type="caution" title="Field ID encoding">
-The `sto_` apis accept a `field_id` parameter encoded as follows: `(type << 16U) + field`
-Thus type 1 field 2 would be `0x10002U`.
+<Aside type="caution" title="Codificação do Field ID">
+As APIs `sto_` aceitam um parâmetro `field_id` codificado da seguinte forma: `(type << 16U) + field`
+Assim, o tipo 1 campo 2 seria `0x10002U`.
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
-* Parse a STObject into `sto` variable
-* Find the field specified by `field_id`
+* Analisa um STObject na variável `sto`
+* Encontra o campo especificado por `field_id`
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -63,7 +63,7 @@ function sto_subfield(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -85,7 +85,7 @@ else
 ```
 
 <Aside type="tip">
-hookmacro.h already contains the `SUB_OFFSET` and `SUB_LENGTH` macros.
+O hookmacro.h já contém as macros `SUB_OFFSET` e `SUB_LENGTH`.
 </Aside>
 </TabItem>
 
@@ -111,15 +111,15 @@ else
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name      | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                |
+| Nome      | Tipo      | Descrição                                                                                                                                                                                                                                                                                                                                                                                                |
 | --------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| read_ptr | uint32_t | Pointer to the buffer containing the STObject                                                                                                                                                                                                                                                                                                                                                              |
-| read_len | uint32_t | Length of STObject                                                                                                                                                                                                                                                                                                                                                                                         |
-| field_id | uint32_t | <p>The <code>sf</code> code of the field you are searching for.<br /><br />To compute this manually take the serialized <code>type</code> and shift it into the 16 highest bits of uint32_t, then take the <code>field</code> and place it in the 16 lowest bits.<br /><br />For example:<br /><code>sfEmitNonce</code> has <code>type</code> 5 and <code>field</code> 11 thus its value is <code>0x050BU</code></p> |
+| read_ptr | uint32_t | Ponteiro para o buffer contendo o STObject                                                                                                                                                                                                                                                                                                                                                              |
+| read_len | uint32_t | Tamanho do STObject                                                                                                                                                                                                                                                                                                                                                                                         |
+| field_id | uint32_t | <p>O código <code>sf</code> do campo que você está procurando.<br /><br />Para calcular isso manualmente, pegue o <code>type</code> serializado e desloque-o para os 16 bits mais altos de um uint32_t, depois pegue o <code>field</code> e coloque-o nos 16 bits mais baixos.<br /><br />Por exemplo:<br /><code>sfEmitNonce</code> tem <code>type</code> 5 e <code>field</code> 11, portanto seu valor é <code>0x050BU</code></p> |
 
 
 </TabItem>
@@ -127,22 +127,22 @@ else
 <TabItem label="JavaScript">
 
 
-| Name      | Type                   | Description                                                                     |
+| Nome      | Tipo                   | Descrição                                                                     |
 | --------- | ---------------------- | ------------------------------------------------------------------------------- |
-| sto       | ByteArray or HexString | The STO object (binary encoded ledger data) from which to extract the subfield. |
-| field_id | number                 | The ID of the field to be extracted.                                            |
+| sto       | ByteArray or HexString | O objeto STO (dados de ledger codificados em binário) do qual o subcampo será extraído. |
+| field_id | number                 | O ID do campo a ser extraído.                                            |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The location of the field within the specified buffer:<br />- The high 32 bits are the offset location.<br />- The low 32 bits are the length.<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Input buffer isn't large enough to possibly contain a valid STObject.<br /><br /><code>DOESNT_EXIST</code><br />- The searched for field isn't present in the supplied STObject.<br /><br /><code>PARSE_ERROR</code><br />- The supplied STObject is malformed or not an STObject.</p> |
+| int64_t | <p>A localização do campo dentro do buffer especificado:<br />- Os 32 bits superiores são o deslocamento (offset).<br />- Os 32 bits inferiores são o tamanho.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer de entrada não é grande o suficiente para possivelmente conter um STObject válido.<br /><br /><code>DOESNT_EXIST</code><br />- O campo buscado não está presente no STObject fornecido.<br /><br /><code>PARSE_ERROR</code><br />- O STObject fornecido está malformado ou não é um STObject.</p> |
 
 
 </TabItem>
@@ -150,9 +150,9 @@ else
 <TabItem label="JavaScript">
 
 
-| Type               | Description                                                                                                                                                                                              |
+| Tipo               | Descrição                                                                                                                                                                                              |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| bigint / ErrorCode | <p>The location of the field within the specified buffer:<br />- The high 32 bits are the offset location.<br />- The low 32 bits are the length.</p><p></p><p>or an error code if the extraction fails.</p> |
+| bigint / ErrorCode | <p>A localização do campo dentro do buffer especificado:<br />- Os 32 bits superiores são o deslocamento (offset).<br />- Os 32 bits inferiores são o tamanho.</p><p></p><p>ou um código de erro se a extração falhar.</p> |
 </TabItem>
 </Tabs>
 

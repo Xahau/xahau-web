@@ -1,22 +1,22 @@
 ---
 title: hook_account
-description: Retreive the 20 byte Account ID the Hook is executing on
+description: Recupera o ID da conta de 20 bytes em que o Hook está sendo executado
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Write the 20 byte Account ID to the write_ptr
+* Escreve o ID da conta de 20 bytes no write_ptr
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieve the 20 byte Account ID the Hook is executing on.
+* Recupera o ID da conta de 20 bytes em que o Hook está sendo executado.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -37,7 +37,7 @@ function hook_account(): ErrorCode | ByteArray
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -59,36 +59,36 @@ const hook_acc_id =hook_account()
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                              |
+| Nome       | Tipo      | Descrição                                                                              |
 | ---------- | --------- | ---------------------------------------------------------------------------------------- |
-| write_ptr | uint32_t | Pointer to a buffer of a suitable size to store the output. Should be at least 20 bytes. |
-| write_len | uint32_t | Length of the output buffer.                                                             |
+| write_ptr | uint32_t | Ponteiro para um buffer de tamanho adequado para armazenar a saída. Deve ter pelo menos 20 bytes. |
+| write_len | uint32_t | Tamanho do buffer de saída.                                                             |
 </TabItem>
 
 <TabItem label="JavaScript">
-No parameters
+Sem parâmetros
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                            |
+| Tipo     | Descrição                                                                                                                                            |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</p> |
+| int64_t | <p>O número de bytes escritos<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                   | Description                                                                               |
+| Tipo                   | Descrição                                                                               |
 | ---------------------- | ----------------------------------------------------------------------------------------- |
-| ErrorCode or ByteArray | Returns the Account ID the Hook is executing on, or an error code if the retrieval fails. |
+| ErrorCode ou ByteArray | Retorna o ID da conta em que o Hook está sendo executado, ou um código de erro se a recuperação falhar. |
 </TabItem>
 </Tabs>
 

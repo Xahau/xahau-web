@@ -1,14 +1,14 @@
 ---
 title: hook_pos
-description: Returns the position in the hook chain the currently executing hook occupies
+description: Retorna a posição na cadeia de hooks que o hook atualmente em execução ocupa
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* Returns the position in the hook chain the currently executing hook occupies.
+* Retorna a posição na cadeia de hooks que o hook atualmente em execução ocupa.
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -23,7 +23,7 @@ hook_pos()
 </TabItem>
 </Tabs>
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -39,22 +39,22 @@ const pos = hook_pos()
 </TabItem>
 </Tabs>
 
-### Parameters
+### Parâmetros
 
-This API has no parameters
+Esta API não possui parâmetros
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                               |
+| Tipo     | Descrição                                                                               |
 | -------- | ----------------------------------------------------------------------------------------- |
-| int64_t | The position in the chain the currently executing hook occupies. The first position is 0. |
+| int64_t | A posição na cadeia que o hook atualmente em execução ocupa. A primeira posição é 0. |
 </TabItem>
 <TabItem label="JavaScript">
-| Type   | Description                                                                              |
+| Tipo   | Descrição                                                                              |
 | ------ | ---------------------------------------------------------------------------------------- |
-| number | Returns the current position in the hook chain, or an error code if the retrieval fails. |
+| number | Retorna a posição atual na cadeia de hooks, ou um código de erro se a recuperação falhar. |
 </TabItem>
 </Tabs>
 

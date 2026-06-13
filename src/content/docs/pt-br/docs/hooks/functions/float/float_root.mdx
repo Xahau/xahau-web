@@ -1,34 +1,34 @@
 ---
 title: float_root
-description: Compute the nth root of an XFL
+description: Calcula a raiz n-ésima de um XFL
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Compute a the `nth` root of an XFL number
-* Return the new XFL
+* Calcula a raiz `n-ésima` de um número XFL
+* Retorna o novo XFL
 
 <Aside type="caution">
-Due to speed constraints,`float_root` converts the argument to an IEEE base-2 double precision floating point before applying n-th root. Therefore the returned result will often contain less precision than expected. If you need better precision you should consider dividing your XFL into a high and a low product then individually take the square roots of those products and multiply the results together.
+Devido a restrições de desempenho, `float_root` converte o argumento para um ponto flutuante de precisão dupla IEEE base-2 antes de aplicar a raiz n-ésima. Portanto, o resultado retornado frequentemente conterá menos precisão do que o esperado. Se você precisar de maior precisão, considere dividir seu XFL em um produto alto e um produto baixo, depois calcule individualmente as raízes quadradas desses produtos e multiplique os resultados entre si.
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
-* Calculates the nth root of a float representation.
-* An error code or the resulting root as a bigint.
+* Calcula a raiz n-ésima de uma representação de float.
+* Um código de erro ou a raiz resultante como um bigint.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -51,7 +51,7 @@ function float_root(f1: bigint, n: number): ErrorCode | bigint
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -61,7 +61,7 @@ int64_t three =
 ```
 
 <Aside type="caution">
-If a negative number is passed the function will return `COMPLEX_NOT_SUPPORTED` if the root is an even root.
+Se um número negativo for passado, a função retornará `COMPLEX_NOT_SUPPORTED` se a raiz for uma raiz par.
 </Aside>
 </TabItem>
 
@@ -75,43 +75,42 @@ const three =
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name   | Type      | Description                                                                                              |
+| Nome   | Tipo      | Descrição                                                                                              |
 | ------ | --------- | -------------------------------------------------------------------------------------------------------- |
-| float1 | int64_t  | An XFL floating point enclosing number representing the floating point number to take the square root of |
-| n      | uint32_t | The root to compute, for example `2` is a square root.                                                   |
+| float1 | int64_t  | Um número de ponto flutuante de envoltório XFL representando o número de ponto flutuante do qual calcular a raiz quadrada |
+| n      | uint32_t | A raiz a ser calculada, por exemplo `2` é uma raiz quadrada.                                                   |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name | Type   | Description                          |
+| Nome | Tipo   | Descrição                          |
 | ---- | ------ | ------------------------------------ |
-| f1   | bigint | The float to calculate the root of.  |
-| n    | number | The degree of the root to calculate. |
+| f1   | bigint | O float do qual calcular a raiz.  |
+| n    | number | O grau da raiz a ser calculada. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
 
 
-| Type     | Description                                                                                                                                                                                                                                                                                 |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                 |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The computed nth root<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- the supplied parameter was a negative number which would result in a complex root.</p> |
+| int64_t | <p>A raiz n-ésima calculada<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- o parâmetro fornecido era um número negativo, o que resultaria em uma raiz complexa.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Type                | Description                                              |
+| Tipo                | Descrição                                              |
 | ------------------- | -------------------------------------------------------- |
-| bigint or ErrorCode | Returns an error code or the resulting root as a bigint. |
+| bigint ou ErrorCode | Retorna um código de erro ou a raiz resultante como um bigint. |
 </TabItem>
 </Tabs>
-

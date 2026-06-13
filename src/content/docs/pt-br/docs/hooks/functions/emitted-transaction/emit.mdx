@@ -1,71 +1,110 @@
 ---
-title: prepare
-description: Prepares a JSON transaction for emission.
+title: emit
+description: Emite uma nova transação a partir do hook
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/protocol-reference/transactions/">Transactions</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Transações Emitidas</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
+<TabItem label="C">
+* Lê uma transação a partir de `read_ptr`
+* Valida a transação contra as regras de emissão
+* Emite a transação para o consenso quando válida
+* Escreve o hash canônico da transação em `write_ptr`
+</TabItem>
+
 <TabItem label="JavaScript">
-* This function takes a transaction JSON object and prepares it for emission.
-* The transaction must be complete except for the Account field, which should always be the Hook account.
+* Esta função emite o JSON de transação fornecido.
+* Em caso de sucesso, retorna o número de hashes de transações emitidas.&#x20;
+* Se houver um erro, retorna um código de erro.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
+<TabItem label="C">
+```c
+int64_t emit (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+
+
+</TabItem>
+
 <TabItem label="JavaScript">
 ```javascript
-function prepare(
+function emit(
     txJson: Record<string, any> | Transaction
-  ): ErrorCode | Record<string, any> | Transaction
+  ): ErrorCode | ByteArray
 ```
 </TabItem>
 </Tabs>
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
+<TabItem label="C">
+```c
+if (emit(tx, tx_len) < 0)
+    rollback("Failed to emit!", 15, 1);
+```
+
+
+</TabItem>
+
 <TabItem label="JavaScript">
 ```javascript
-const prepared_txn = prepare({
-                TransactionType: "Payment",
-                Destination: util_raddr(p1address_ns),
-                Amount: parseFloat(drops_sent)*2
-            })
+const emitResult = emit(txJson)
+if(typeof emitResult === 'number')
+    rollback("Failed to emit!", 1)
 ```
 </TabItem>
 </Tabs>
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Nome</th><th width="124">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Ponteiro para um buffer onde escrever o hash da transação</td></tr><tr><td>write_len</td><td>uint32_t</td><td>O tamanho do buffer para escrever o hash da transação (deve ser 32.)</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Ponteiro para a transação a ser emitida</td></tr><tr><td>read_len</td><td>uint32_t</td><td>O tamanho da transação</td></tr></tbody></table>
+
+
+</TabItem>
+
 <TabItem label="JavaScript">
 
 
-<table><thead><tr><th>Name</th><th width="124">Type</th><th>Description</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>The transaction JSON, must be a complete transaction except for Account (always the Hook account).</td></tr></tbody></table>
+<table><thead><tr><th>Nome</th><th width="124">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>O TX JSON a ser emitido.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="127">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td>Em caso de sucesso, o número de bytes do hash da transação escritos (32), ou:<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- <code>emit_reserve</code> deve ser chamado primeiro<br /><br /><code>TOO_MANY_EMITTED_TXN</code><br />- o número de transações emitidas agora é maior do que o prometido quando <code>emit_reserve</code> foi chamado anteriormente<br /><br /><code>EMISSION_FAILURE</code><br />- a transação estava malformada de acordo com as regras de emissão.</td></tr></tbody></table>
+
+
+</TabItem>
+
 <TabItem label="JavaScript">
 
 
-<table><thead><tr><th width="231">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | Record&#x3C;string, any> | Transaction</td><td>Returns an ErrorCode if there is an error, or the prepared transaction JSON or Transaction object.</td></tr></tbody></table>
+<table><thead><tr><th width="231">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>Retorna um ErrorCode se houver um erro, ou um array de hashes de transações emitidas em caso de sucesso.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
-

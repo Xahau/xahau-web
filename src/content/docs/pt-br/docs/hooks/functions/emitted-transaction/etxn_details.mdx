@@ -1,30 +1,30 @@
 ---
 title: etxn_details
-description: Produce an sfEmitDetails suitable for a soon-to-be emitted transaction
+description: Produz um sfEmitDetails adequado para uma transação que será emitida em breve
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Transações Emitidas</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Generate and write a 105 byte sfEmitDetails object into the `write_ptr` if cbak is not defined
-* Generate and write a 127 byte sfEmitDetails object into the `write_ptr` if cbak is defined.
+* Gera e escreve um objeto sfEmitDetails de 105 bytes em `write_ptr` se cbak não estiver definido
+* Gera e escreve um objeto sfEmitDetails de 127 bytes em `write_ptr` se cbak estiver definido.
 </TabItem>
 
 <TabItem label="JavaScript">
-* This function provides detailed information about the transaction.
-* Returns an ErrorCode if there is an error, or an array of transaction details on success.
+* Esta função fornece informações detalhadas sobre a transação.
+* Retorna um ErrorCode se houver um erro, ou um array com os detalhes da transação em caso de sucesso.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -47,7 +47,7 @@ function etxn_details(): ErrorCode | ByteArray
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -73,32 +73,32 @@ if (typeof emitdet === 'string || emitdet.length != 105)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                              |
+| Nome       | Tipo      | Descrição                                              |
 | ---------- | --------- | -------------------------------------------------------- |
-| write_ptr | uint32_t | Pointer to the buffer receiving the sfEmitDetails record |
-| write_len | uint32_t | Length of the buffer                                     |
+| write_ptr | uint32_t | Ponteiro para o buffer que receberá o registro sfEmitDetails |
+| write_len | uint32_t | Tamanho do buffer                                     |
 
 
 </TabItem>
 
 <TabItem label="JavaScript">
-No parameters for JavaScript
+Nenhum parâmetro para JavaScript
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The number of bytes written.<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Buffer isn't large enough to receive record<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- The hook failed to call <code>etxn_reserve(n)</code> first<br /><br /><code>FEE_TOO_LARGE</code><br />- The burden would be too high for the network to allow.<br /><br /><code>INTERNAL_ERROR</code><br />- A generic error in which rippled had trouble generating the required field.</p> |
+| int64_t | <p>O número de bytes escritos.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer não é grande o suficiente para receber o registro<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- O hook não chamou <code>etxn_reserve(n)</code> primeiro<br /><br /><code>FEE_TOO_LARGE</code><br />- O burden seria muito alto para a rede permitir.<br /><br /><code>INTERNAL_ERROR</code><br />- Um erro genérico no qual o rippled teve problemas para gerar o campo necessário.</p> |
 
 
 </TabItem>
@@ -106,9 +106,8 @@ No parameters for JavaScript
 <TabItem label="JavaScript">
 
 
-| Type                   | Description                                                                       |
+| Tipo                   | Descrição                                                                       |
 | ---------------------- | --------------------------------------------------------------------------------- |
-| ErrorCode | ByteArray | An ErrorCode if there is an error, or an array of transaction details on success. |
+| ErrorCode | ByteArray | Um ErrorCode se houver um erro, ou um array com os detalhes da transação em caso de sucesso. |
 </TabItem>
 </Tabs>
-

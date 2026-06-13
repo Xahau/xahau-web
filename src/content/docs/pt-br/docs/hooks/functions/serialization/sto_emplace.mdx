@@ -1,36 +1,36 @@
 ---
 title: sto_emplace
-description: Emplace a field into an existing STObject at its canonical placement
+description: Insere um campo em um STObject existente em sua posição canônica
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Serialized Objects</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Parse an STObject `S` (source object) pointed to by `sread_ptr`
-* Parse an STObject `F` (to inject/emplace) pointed to by `fread_ptr`
-* Write a new STObject to `write_ptr` which places `F` into `S` at the canonical position `field_id`
+* Analisa um STObject `S` (objeto de origem) apontado por `sread_ptr`
+* Analisa um STObject `F` (a ser injetado/inserido) apontado por `fread_ptr`
+* Escreve um novo STObject em `write_ptr` que coloca `F` dentro de `S` na posição canônica `field_id`
 
-<Aside type="caution" title="Field ID encoding">
-The `sto_` apis accept a `field_id` parameter encoded as follows: `(type << 16U) + field`\
-Thus type 1 field 2 would be `0x10002U`.
+<Aside type="caution" title="Codificação do Field ID">
+As APIs `sto_` aceitam um parâmetro `field_id` codificado da seguinte forma: `(type << 16U) + field`\
+Assim, o tipo 1 campo 2 seria `0x10002U`.
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
-* Ask for the STO object by the param `sto`
-* Ask for the bytes representing the field to be added by the param `field_bytes`
-* Ask for the ID of the field to be added by the param `field_id`
-* Return the updated STO object in binary encoded ledger data format, or an error code if the operation fails.
+* Solicita o objeto STO pelo parâmetro `sto`
+* Solicita os bytes que representam o campo a ser adicionado pelo parâmetro `field_bytes`
+* Solicita o ID do campo a ser adicionado pelo parâmetro `field_id`
+* Retorna o objeto STO atualizado em formato de dados de ledger codificados em binário, ou um código de erro se a operação falhar.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 C
 
@@ -64,7 +64,7 @@ function sto_emplace(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -94,19 +94,19 @@ if (typeof tx_out === 'number')
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name       | Type      | Description                                                                                                                                                             |
+| Nome       | Tipo      | Descrição                                                                                                                                                             |
 | ---------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| write_ptr | uint32_t | The buffer to write the modified STObject to                                                                                                                            |
-| write_len | uint32_t | The length of the output buffer                                                                                                                                         |
-| sread_ptr | uint32_t | The buffer to read the source STObject from                                                                                                                             |
-| sread_len | uint32_t | The Length of the source object                                                                                                                                         |
-| fread_ptr | uint32_t | The buffer to read the field to be emplaced/injected from                                                                                                               |
-| fread_len | uint32_t | The length of the field to be emplaced/injected                                                                                                                         |
-| field_id  | uint32_t | The `sf` code (location) to form the emplacement. If this already exists in the source object then the existing field is overriden. If it doesn't exist it is inserted. |
+| write_ptr | uint32_t | O buffer onde o STObject modificado será escrito                                                                                                                            |
+| write_len | uint32_t | O tamanho do buffer de saída                                                                                                                                         |
+| sread_ptr | uint32_t | O buffer de onde o STObject de origem será lido                                                                                                                             |
+| sread_len | uint32_t | O tamanho do objeto de origem                                                                                                                                         |
+| fread_ptr | uint32_t | O buffer de onde o campo a ser inserido/injetado será lido                                                                                                               |
+| fread_len | uint32_t | O tamanho do campo a ser inserido/injetado                                                                                                                         |
+| field_id  | uint32_t | O código `sf` (localização) para formar a inserção. Se já existir no objeto de origem, o campo existente é substituído. Se não existir, é inserido. |
 
 
 </TabItem>
@@ -114,21 +114,21 @@ if (typeof tx_out === 'number')
 <TabItem label="JavaScript">
 
 
-| Name         | Type                   | Description                                                                   |
+| Nome         | Tipo                   | Descrição                                                                   |
 | ------------ | ---------------------- | ----------------------------------------------------------------------------- |
-| sto          | ByteArray \| HexString | The STO object (binary encoded ledger data) to which the field will be added. |
-| field_bytes | ByteArray \| HexString | The bytes representing the field to be added.                                 |
-| field_id    | number                 | The ID of the field to be added.                                              |
+| sto          | ByteArray \| HexString | O objeto STO (dados de ledger codificados em binário) ao qual o campo será adicionado. |
+| field_bytes | ByteArray \| HexString | Os bytes que representam o campo a ser adicionado.                                 |
+| field_id    | number                 | O ID do campo a ser adicionado.                                              |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The number of bytes written to <code>write_ptr</code><br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Output buffer must be at least as large as the source object + the injected field, even if the field is only being overriden.<br /><br /><code>TOO_BIG</code><br />- Field you are attempting to emplace is too large<br /><br /><code>PARSE_ERROR</code><br />- The supplied STObject is malformed or not an STObject.</td></tr></tbody></table>
+<table><thead><tr><th width="169">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td>O número de bytes escritos em <code>write_ptr</code><br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer de saída deve ser pelo menos tão grande quanto o objeto de origem + o campo injetado, mesmo que o campo esteja apenas sendo substituído.<br /><br /><code>TOO_BIG</code><br />- O campo que você está tentando inserir é muito grande<br /><br /><code>PARSE_ERROR</code><br />- O STObject fornecido está malformado ou não é um STObject.</td></tr></tbody></table>
 
 
 </TabItem>
@@ -136,7 +136,7 @@ if (typeof tx_out === 'number')
 <TabItem label="JavaScript">
 
 
-<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>The updated STO object in binary encoded ledger data format, or an error code if the operation fails.</td></tr></tbody></table>
+<table><thead><tr><th width="169">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>O objeto STO atualizado em formato de dados de ledger codificados em binário, ou um código de erro se a operação falhar.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 

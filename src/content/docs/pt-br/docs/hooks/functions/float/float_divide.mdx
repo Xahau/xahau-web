@@ -1,30 +1,30 @@
 ---
 title: float_divide
-description: Divide an XFL by another XFL floating point number
+description: Divide um XFL por outro número de ponto flutuante XFL
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Divide an XFL by another XFL
-* Return a new XFL as an int64_t
+* Divide um XFL por outro XFL
+* Retorna um novo XFL como um int64_t
 </TabItem>
 
 <TabItem label="JavaScript">
-* Divides one float representation by another.
-* An error code or the quotient as a bigint.
+* Divide uma representação de float por outra.
+* Um código de erro ou o quociente como um bigint.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -45,7 +45,7 @@ int64_t float_divide (
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -65,39 +65,38 @@ const still_one =
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name   | Type     | Description                                                  |
+| Nome   | Tipo     | Descrição                                                  |
 | ------ | -------- | ------------------------------------------------------------ |
-| float1 | int64_t | An XFL floating point enclosing number to act as numerator   |
-| float2 | int64_t | An XFL floating point enclosing number to act as denominator |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL para atuar como numerador   |
+| float2 | int64_t | Um número de ponto flutuante de envoltório XFL para atuar como denominador |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name | Type   | Description         |
+| Nome | Tipo   | Descrição         |
 | ---- | ------ | ------------------- |
-| f1   | bigint | The dividend float. |
-| f2   | bigint | The divisor float.  |
+| f1   | bigint | O float dividendo. |
+| f2   | bigint | O float divisor.  |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                    |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                    |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The XFL (xls17) enclosing number<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number or the division resulted in an XFL that cannot be represented.<br /><br /><code>DIVISION_BY_ZERO</code><br />- the supplied parameter was zero.</p> |
+| int64_t | <p>O número de envoltório XFL (xls17)<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido ou a divisão resultou em um XFL que não pode ser representado.<br /><br /><code>DIVISION_BY_ZERO</code><br />- o parâmetro fornecido era zero.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                |
+| Tipo                | Descrição                                |
 | ------------------- | ------------------------------------------ |
-| bigint or ErrorCode | An error code or the quotient as a bigint. |
+| bigint ou ErrorCode | Um código de erro ou o quociente como um bigint. |
 </TabItem>
 </Tabs>
-

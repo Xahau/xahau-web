@@ -1,29 +1,29 @@
 ---
 title: float_mantissa
-description: Get the mantissa of an XFL enclosing number
+description: Obtém a mantissa de um número de envoltório XFL
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Return the mantissa part of an XFL as an unsigned integer
+* Retorna a parte da mantissa de um XFL como um inteiro sem sinal
 </TabItem>
 
 <TabItem label="JavaScript">
-* Retrieves the mantissa of a float representation.
-* An error code or the mantissa as a bigint.
+* Recupera a mantissa de uma representação de float.
+* Um código de erro ou a mantissa como um bigint.
 </TabItem>
 </Tabs>
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -43,7 +43,7 @@ function float_mantissa(f1: bigint): ErrorCode | bigint
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -53,7 +53,7 @@ int64_t mantissa =
 ```
 
 <Aside type="tip">
-The mantissa of a negative XFL is always positive. Use `float_sign` to determine the sign of the number.
+A mantissa de um XFL negativo é sempre positiva. Use `float_sign` para determinar o sinal do número.
 </Aside>
 </TabItem>
 
@@ -67,37 +67,36 @@ const mantissa =
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name | Type   | Description                              |
+| Nome | Tipo   | Descrição                              |
 | ---- | ------ | ---------------------------------------- |
-| f1   | bigint | The float to retrieve the mantissa from. |
+| f1   | bigint | O float do qual recuperar a mantissa. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name   | Type     | Description                            |
+| Nome   | Tipo     | Descrição                            |
 | ------ | -------- | -------------------------------------- |
-| float1 | int64_t | An XFL floating point enclosing number |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                 |
+| Tipo     | Descrição                                                                                                                                                 |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The mantissa of the XFL<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number</p> |
+| int64_t | <p>A mantissa do XFL<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                |
+| Tipo                | Descrição                                |
 | ------------------- | ------------------------------------------ |
-| bigint or ErrorCode | An error code or the mantissa as a bigint. |
+| bigint ou ErrorCode | Um código de erro ou a mantissa como um bigint. |
 </TabItem>
 </Tabs>
-

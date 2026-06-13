@@ -1,14 +1,14 @@
 ---
 title: otxn_slot
-description: Load the originating transaction into a slot
+description: Carrega a transação de origem em um slot
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* Emplace the originating transaction into the slot specified or into a new slot if no slot is specified
+* Insere a transação de origem no slot especificado ou em um novo slot, caso nenhum slot seja especificado
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -28,7 +28,7 @@ function otxn_slot(slotno: number): ErrorCode | ByteArray
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -47,37 +47,37 @@ const otxn_slot_no = otxn_slot(0)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name     | Type      | Description                                                                   |
+| Nome     | Tipo      | Descrição                                                                   |
 | -------- | --------- | ----------------------------------------------------------------------------- |
-| slot_no | uint32_t | The slot number to emplace into, or 0 if you wish to pick the next available. |
+| slot_no | uint32_t | O número do slot no qual inserir, ou 0 caso deseje escolher o próximo disponível. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name   | Type   | Description                 |
+| Nome   | Tipo   | Descrição                 |
 | ------ | ------ | --------------------------- |
-| slotno | number | The slot number to look up. |
+| slotno | number | O número do slot a ser consultado. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                        |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                        |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The slot the otxn was placed in<br /><br /><code>INVALID_ARGUMENT</code><br />- specified slot number exceeds the largest possible slot number<br /><br /><code>NO_FREE_SLOTS</code><br />- the request could not granted because no free slot was avaialble to place the originating transaction into.</p> |
+| int64_t | <p>O slot no qual a otxn foi colocada<br /><br /><code>INVALID_ARGUMENT</code><br />- o número de slot especificado excede o maior número de slot possível<br /><br /><code>NO_FREE_SLOTS</code><br />- a solicitação não pôde ser concedida porque nenhum slot livre estava disponível para colocar a transação de origem.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                   | Description                                                                                                                            |
+| Tipo                   | Descrição                                                                                                                            |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| ErrorCode \| ByteArray | <p></p><p>Returns the value associated with the specified slot number as an array of numbers, or an ErrorCode if the lookup fails.</p> |
+| ErrorCode \| ByteArray | <p></p><p>Retorna o valor associado ao número de slot especificado como um array de números, ou um ErrorCode caso a busca falhe.</p> |
 </TabItem>
 </Tabs>
 

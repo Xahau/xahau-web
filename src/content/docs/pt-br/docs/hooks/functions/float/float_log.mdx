@@ -1,28 +1,28 @@
 ---
 title: float_log
-description: Compute the decimal log of an XFL
+description: Calcula o logaritmo decimal de um XFL
 ---
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Floating Point Numbers (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Compute a the decimal logarithm of an XFL number
-* Return the new XFL
+* Calcula o logaritmo decimal de um número XFL
+* Retorna o novo XFL
 
 <Aside type="caution">
-Due to speed constraints,`float_log` converts the argument to an IEEE base-2 double precision floating point before applying base 10 log. Therefore the returned result will often contain less precision than expected.
+Devido a restrições de desempenho, `float_log` converte o argumento para um ponto flutuante de precisão dupla IEEE base-2 antes de aplicar o logaritmo na base 10. Portanto, o resultado retornado frequentemente conterá menos precisão do que o esperado.
 </Aside>
 </TabItem>
 
 <TabItem label="JavaScript">
-* Calculates the logarithm of a float representation.
-* Returns an error code or the logarithm as a bigint.
+* Calcula o logaritmo de uma representação de float.
+* Retorna um código de erro ou o logaritmo como um bigint.
 </TabItem>
 </Tabs>
 
@@ -30,7 +30,7 @@ Due to speed constraints,`float_log` converts the argument to an IEEE base-2 dou
 
 
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -50,7 +50,7 @@ function float_log(f1: bigint): ErrorCode | bigint
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -60,7 +60,7 @@ int64_t zero =
 ```
 
 <Aside type="caution">
-If a negative number is passed the function will return `COMPLEX_NOT_SUPPORTED` if the root is an even root.
+Se um número negativo for passado, a função retornará `COMPLEX_NOT_SUPPORTED` se a raiz for uma raiz par.
 </Aside>
 </TabItem>
 
@@ -74,39 +74,38 @@ const zero =
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
 
 
-| Name   | Type     | Description                                                                                            |
+| Nome   | Tipo     | Descrição                                                                                            |
 | ------ | -------- | ------------------------------------------------------------------------------------------------------ |
-| float1 | int64_t | An XFL floating point enclosing number representing the floating point number to take the logarithm of |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL representando o número de ponto flutuante do qual calcular o logaritmo |
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Name | Type   | Description                              |
+| Nome | Tipo   | Descrição                              |
 | ---- | ------ | ---------------------------------------- |
-| f1   | bigint | The float to calculate the logarithm of. |
+| f1   | bigint | O float do qual calcular o logaritmo. |
 </TabItem>
 </Tabs>
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                          |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                          |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The computed logarithm<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- the supplied parameter was a negative number which would result in a complex return value.</p> |
+| int64_t | <p>O logaritmo calculado<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- o parâmetro fornecido era um número negativo, o que resultaria em um valor de retorno complexo.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                         |
+| Tipo                | Descrição                                         |
 | ------------------- | --------------------------------------------------- |
-| bigint or ErrorCode | Returns an error code or the logarithm as a bigint. |
+| bigint ou ErrorCode | Retorna um código de erro ou o logaritmo como um bigint. |
 </TabItem>
 </Tabs>
-

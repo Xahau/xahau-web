@@ -4,18 +4,18 @@ title: etxn_fee_base
 import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
 
 <Aside type="caution">
-Fees on a Hooks-enabled ledger are non trivial. See: [Hook Fees](/pt-br/docs/hooks/concepts/hook-fees) for details.
+As taxas em um ledger com Hooks habilitados não são triviais. Veja: [Taxas de Hook](/pt-br/docs/hooks/concepts/hook-fees) para detalhes.
 </Aside>
 
-### Concepts
+### Conceitos
 
-<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Emitted Transactions</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/emitted-transactions">Transações Emitidas</LinkButton>
 
-### Behaviour
+### Comportamento
 
-* Return the amount of the fee in drops recommended for a to-be emitted transaction.
+* Retorna o valor da taxa em drops recomendada para uma transação a ser emitida.
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -38,7 +38,7 @@ function etxn_fee_base(txblob: ByteArray | HexString): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -59,11 +59,11 @@ const fee_to_pay = etxn_fee_base(tx_blob)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th>Name</th><th width="118">Type</th><th>Description</th></tr></thead><tbody><tr><td>read_ptr</td><td>uint32_t</td><td>Pointer to the buffer containing the serialized transaction you intend to emit. The fee field is required but ignored (you may use zero). Use the output of this function to populate the fee field correctly.</td></tr><tr><td>read_len</td><td>uint32_t</td><td>The length of the tx blob.</td></tr></tbody></table>
+<table><thead><tr><th>Nome</th><th width="118">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>read_ptr</td><td>uint32_t</td><td>Ponteiro para o buffer contendo a transação serializada que você pretende emitir. O campo fee é obrigatório, mas ignorado (você pode usar zero). Use a saída desta função para preencher o campo fee corretamente.</td></tr><tr><td>read_len</td><td>uint32_t</td><td>O tamanho do tx blob.</td></tr></tbody></table>
 
 
 </TabItem>
@@ -71,29 +71,28 @@ const fee_to_pay = etxn_fee_base(tx_blob)
 <TabItem label="JavaScript">
 
 
-<table><thead><tr><th>Name</th><th width="118">Type</th><th>Description</th></tr></thead><tbody><tr><td>txblob</td><td>ByteArray | HexString</td><td>The transaction blob, which can be an array of numbers or a string.</td></tr></tbody></table>
+<table><thead><tr><th>Nome</th><th width="118">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>txblob</td><td>ByteArray | HexString</td><td>O blob da transação, que pode ser um array de números ou uma string.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
 
 
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The smallest number of drops that an emitted txn would need to be accepted.<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- The provided buffer is not validly within the hook memory.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- <code>etxn_reserve</code> has not been called first.<br /><br /><code>INVALID_TXN</code><br />- The provided buffer did not contain a valid serialized transaction. (Deserialization failed, or a required field was missing.)</p> |
+| int64_t | <p>O menor número de drops que uma txn emitida precisaria para ser aceita.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- O buffer fornecido não está validamente dentro da memória do hook.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- <code>etxn_reserve</code> não foi chamado primeiro.<br /><br /><code>INVALID_TXN</code><br />- O buffer fornecido não contém uma transação serializada válida. (A desserialização falhou, ou um campo obrigatório estava faltando.)</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
 
 
-| Type   | Description                                                               |
+| Tipo   | Descrição                                                               |
 | ------ | ------------------------------------------------------------------------- |
-| number | An ErrorCode if there is an error, or the calculated base fee on success. |
+| number | Um ErrorCode se houver um erro, ou a taxa base calculada em caso de sucesso. |
 </TabItem>
 </Tabs>
-

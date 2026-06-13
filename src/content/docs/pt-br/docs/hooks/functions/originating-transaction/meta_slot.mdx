@@ -1,14 +1,14 @@
 ---
 title: meta_slot
-description: Load the metadata of the originating transaction into a slot
+description: Carrega os metadados da transação de origem em um slot
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
-* If the Hook is being [Weakly Executed](/pt-br/docs/hooks/concepts/weak-and-strong) then emplace the metadata of the originating transaction into the slot specified or into a new slot if no slot is specified
+* Se o Hook estiver sendo [executado fracamente](/pt-br/docs/hooks/concepts/weak-and-strong), então insere os metadados da transação de origem no slot especificado ou em um novo slot, caso nenhum slot seja especificado
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -28,7 +28,7 @@ function meta_slot(slotno: number): ErrorCode | number
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -47,37 +47,37 @@ const meta_slot_no = meta_slot(0)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name     | Type      | Description                                                                   |
+| Nome     | Tipo      | Descrição                                                                   |
 | -------- | --------- | ----------------------------------------------------------------------------- |
-| slot_no | uint32_t | The slot number to emplace into, or 0 if you wish to pick the next available. |
+| slot_no | uint32_t | O número do slot no qual inserir, ou 0 caso deseje escolher o próximo disponível. |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name   | Type   | Description                               |
+| Nome   | Tipo   | Descrição                               |
 | ------ | ------ | ----------------------------------------- |
-| slotno | number | The slot number to retrieve metadata for. |
+| slotno | number | O número do slot do qual recuperar os metadados. |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The slot the otxn was placed in<br /><br /><code>INVALID_ARGUMENT</code><br />- specified slot number exceeds the largest possible slot number<br /><br /><code>NO_FREE_SLOTS</code><br />- the request could not granted because no free slot was avaialble to place the originating transaction into.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- The hook is being <a href="/pt-br/docs/hooks/concepts/weak-and-strong">Strongly Executed</a> and therefore no transactional metadata is available.</p> |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O slot no qual a otxn foi colocada<br /><br /><code>INVALID_ARGUMENT</code><br />- o número de slot especificado excede o maior número de slot possível<br /><br /><code>NO_FREE_SLOTS</code><br />- a solicitação não pôde ser concedida porque nenhum slot livre estava disponível para colocar a transação de origem.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- O hook está sendo <a href="/pt-br/docs/hooks/concepts/weak-and-strong">executado fortemente</a> e, portanto, nenhum metadado transacional está disponível.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                   |
+| Tipo                | Descrição                                   |
 | ------------------- | --------------------------------------------- |
-| ErrorCode \| number | Returns an error code or the slot's metadata. |
+| ErrorCode \| number | Retorna um código de erro ou os metadados do slot. |
 </TabItem>
 </Tabs>
 

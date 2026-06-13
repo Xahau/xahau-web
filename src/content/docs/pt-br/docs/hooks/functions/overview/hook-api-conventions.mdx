@@ -1,69 +1,69 @@
 ---
-title: Hook API Conventions
+title: Convenções da API de Hooks
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Naming conventions
+### Convenções de nomenclatura
 
-All Hook APIs follow a standard naming convention:
+Todas as APIs de Hooks seguem uma convenção de nomenclatura padrão:
 
 |           |                 |              |                 |
 | --------- | --------------- | ------------ | --------------- |
-| namespace | \[ _ noun #1 ] | \[ _ verb ] | \[ _ noun #2 ] |
+| namespace | \[ _ substantivo nº1 ] | \[ _ verbo ] | \[ _ substantivo nº2 ] |
 
-This may look confusing at first but is actually quite simple:
+Isso pode parecer confuso a princípio, mas na verdade é bem simples:
 
-* If the first noun is missing then it is implicitly the same as the namespace
-* If the verb is missing then it is implicitly `get`
+* Se o primeiro substantivo estiver ausente, ele é implicitamente o mesmo que o namespace
+* Se o verbo estiver ausente, ele é implicitamente `get`
 
-Thus:
+Assim:
 
-* `state()` means: fetch a hook state.
-* `state_set()` means: set a hook.
-* `state_foreign()` means: fetch a foreign hook state.
+* `state()` significa: buscar um estado do hook.
+* `state_set()` significa: definir um estado do hook.
+* `state_foreign()` significa: buscar um estado de hook externo.
 
-### Memory model
+### Modelo de memória
 
-Each Hook executes as a singular stack frame. All working memory must exist within this stackframe. There is no heap and no dynamic memory.
+Cada Hook é executado como um único stack frame. Toda a memória de trabalho deve existir dentro deste stack frame. Não há heap nem memória dinâmica.
 
-When Hooks communicate with `xahaud` they can only pass _integer_ values. Typically these integers are pointers within the Hook's memory. Since the Hook runs within xahaud, these points can then be resolved by xahaud and written to or read from as needed to perform the Hook API function.
+Quando os Hooks se comunicam com o `xahaud`, eles só podem passar valores _inteiros_. Tipicamente, esses inteiros são ponteiros dentro da memória do Hook. Como o Hook é executado dentro do xahaud, esses ponteiros podem então ser resolvidos pelo xahaud e ter seu conteúdo lido ou escrito conforme necessário para realizar a função da API de Hooks.
 
-### Allowed functions
+### Funções permitidas
 
-Only two functions are allowed within a Hook: `hook()` and `cbak()`. Read about this [here](/pt-br/docs/hooks/concepts/compiling-hooks)
+Apenas duas funções são permitidas dentro de um Hook: `hook()` e `cbak()`. Leia sobre isso [aqui](/pt-br/docs/hooks/concepts/compiling-hooks)
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-All parameters passed to a Hook API must be one of: `uint32_t, int32_t, uint64_t, int64_t`. Typically these are pointers and lengths of buffers within the Hook's stack frame. Sometimes they are [Integer Encoded Floating Point Numbers (XFL)](/pt-br/docs/hooks/concepts/floating-point-numbers-xfl) or other data.
+Todos os parâmetros passados para uma API de Hooks devem ser de um dos tipos: `uint32_t, int32_t, uint64_t, int64_t`. Tipicamente, são ponteiros e tamanhos de buffers dentro do stack frame do Hook. Às vezes são [Números de Ponto Flutuante Codificados como Inteiros (XFL)](/pt-br/docs/hooks/concepts/floating-point-numbers-xfl) ou outros dados.
 
-The parameters to a Hook API are always in the following order:
+Os parâmetros de uma API de Hooks seguem sempre a seguinte ordem:
 
-1. Writing pointer _if any_
-2. Writing length _if any_
-3. Reading pointer _if any_
-4. Reading length _if any_
-5. Specifics / other fields _if any_
+1. Ponteiro de escrita _se houver_
+2. Tamanho de escrita _se houver_
+3. Ponteiro de leitura _se houver_
+4. Tamanho de leitura _se houver_
+5. Específicos / outros campos _se houver_
 
-Some Hook APIs may only write or may only read from memory, and some might not do either and return a value only by return code.
+Algumas APIs de Hooks podem apenas escrever ou apenas ler da memória, e algumas podem não fazer nenhum dos dois, retornando um valor apenas pelo código de retorno.
 </TabItem>
 
 <TabItem label="JavaScript">
-All parameters passed to a Hook API must be one of: `string, number[], bigint(xfl), object(json)`. Typically these are pointers and lengths of buffers within the Hook's stack frame. Sometimes they are [Integer Encoded Floating Point Numbers (XFL)](/pt-br/docs/hooks/concepts/floating-point-numbers-xfl) or other data.
+Todos os parâmetros passados para uma API de Hooks devem ser de um dos tipos: `string, number[], bigint(xfl), object(json)`. Tipicamente, são ponteiros e tamanhos de buffers dentro do stack frame do Hook. Às vezes são [Números de Ponto Flutuante Codificados como Inteiros (XFL)](/pt-br/docs/hooks/concepts/floating-point-numbers-xfl) ou outros dados.
 
-The parameters to a Hook API are always in the following order:
+Os parâmetros de uma API de Hooks seguem sempre a seguinte ordem:
 
-1. Writing variable _if any_
-2. Reading variable _if any_
-3. Specifics / other fields _if any_
+1. Variável de escrita _se houver_
+2. Variável de leitura _se houver_
+3. Específicos / outros campos _se houver_
 
-Some Hook APIs may only write or may only read from memory, and some might not do either and return a value only by return code.
+Algumas APIs de Hooks podem apenas escrever ou apenas ler da memória, e algumas podem não fazer nenhum dos dois, retornando um valor apenas pelo código de retorno.
 </TabItem>
 </Tabs>
 
 
 
-### Return codes
+### Códigos de retorno
 
-All Hook APIs return a _signed integer_. Read about return codes here: [Return codes](/pt-br/docs/hooks/functions/overview/return-codes)
+Todas as APIs de Hooks retornam um _inteiro com sinal_. Leia sobre os códigos de retorno aqui: [Códigos de Retorno](/pt-br/docs/hooks/functions/overview/return-codes)

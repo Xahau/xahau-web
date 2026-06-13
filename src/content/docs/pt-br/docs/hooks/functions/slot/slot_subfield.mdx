@@ -1,26 +1,26 @@
 ---
 title: slot_subfield
-description: Index into a slotted object and assign a sub-object to another slot
+description: Indexa um objeto alocado em um slot e atribui um sub-objeto a outro slot
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-### Behaviour
+### Comportamento
 
 <Tabs>
 <TabItem label="C">
-* Look up the object in slot `parent_slot`
-* Retrieve the sub-object at `field_id`
-* Place sub-object into the slot `new_slot` or the next available slot if `new_slot` is 0.
-* Return the new slot number.
+* Procura o objeto no slot `parent_slot`
+* Recupera o sub-objeto em `field_id`
+* Coloca o sub-objeto no slot `new_slot` ou no próximo slot disponível, caso `new_slot` seja 0.
+* Retorna o novo número de slot.
 </TabItem>
 
 <TabItem label="JavaScript">
-* Creates a subfield in the specified parent slot.
-* Returns an error code or the result of the subfield creation.
+* Cria um subcampo no slot pai especificado.
+* Retorna um código de erro ou o resultado da criação do subcampo.
 </TabItem>
 </Tabs>
 
-### Definition
+### Definição
 
 <Tabs>
 <TabItem label="C">
@@ -46,7 +46,7 @@ function slot_subfield(
 
 
 
-### Example
+### Exemplo
 
 <Tabs>
 <TabItem label="C">
@@ -65,41 +65,40 @@ const amt_slot = slot_subfield(oslot, sfAmount, 0)
 
 
 
-### Parameters
+### Parâmetros
 
 <Tabs>
 <TabItem label="C">
-| Name         | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                |
+| Nome         | Tipo      | Descrição                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| parent_slot | uint32_t | Slot the parent object is in                                                                                                                                                                                                                                                                                                                                                                               |
-| field_id    | uint32_t | <p>The <code>sf</code> code of the field you are searching for.<br /><br />To compute this manually take the serialized <code>type</code> and shift it into the 16 highest bits of uint32_t, then take the <code>field</code> and place it in the 16 lowest bits.<br /><br />For example:<br /><code>sfEmitNonce</code> has <code>type</code> 5 and <code>field</code> 11 thus its value is <code>0x050BU</code></p> |
-| new_slot    | uint32_t | New slot number to place the object from the selected field into. If null, choose the next available slot. _May be null._                                                                                                                                                                                                                                                                                  |
+| parent_slot | uint32_t | Slot em que o objeto pai está                                                                                                                                                                                                                                                                                                                                                                               |
+| field_id    | uint32_t | <p>O código <code>sf</code> do campo que você está procurando.<br /><br />Para calcular isso manualmente, pegue o <code>type</code> serializado e desloque-o para os 16 bits mais altos de uint32_t, depois pegue o <code>field</code> e coloque-o nos 16 bits mais baixos.<br /><br />Por exemplo:<br /><code>sfEmitNonce</code> tem <code>type</code> 5 e <code>field</code> 11, portanto seu valor é <code>0x050BU</code></p> |
+| new_slot    | uint32_t | Novo número de slot no qual colocar o objeto do campo selecionado. Se nulo, escolhe o próximo slot disponível. _Pode ser nulo._                                                                                                                                                                                                                                                                                  |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Name           | Type   | Description                                   |
+| Nome           | Tipo   | Descrição                                   |
 | -------------- | ------ | --------------------------------------------- |
-| parent_slotno | number | The parent slot number.                       |
-| field_id      | number | The ID of the field to create a subfield for. |
-| new_slotno    | number | The new slot number for the subfield.         |
+| parent_slotno | number | O número do slot pai.                       |
+| field_id      | number | O ID do campo para o qual criar um subcampo. |
+| new_slotno    | number | O novo número de slot para o subcampo.         |
 </TabItem>
 </Tabs>
 
 
 
-### Return Code
+### Código de Retorno
 
 <Tabs>
 <TabItem label="C">
-| Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The slot number of the newly allocated object<br /><br />If negative, an error:<br /><br /><code>DOESNT_EXIST</code><br />- The searched for field isn't present in the parent slot or the parent slot is unfilled.<br /><br /><code>NO_FREE_SLOTS</code><br />- The API would require a new slot to be allocated but the Hook is already at the maximum number of slots.<br /><br /><code>INVALID_FIELD</code><br />- The specified field is not a valid <code>sf</code> field.<br /><br /><code>NOT_AN_OBJECT</code><br />- The slotted object is not a valid STObject.</p> |
+| int64_t | <p>O número do slot do objeto recém-alocado<br /><br />Se negativo, um erro:<br /><br /><code>DOESNT_EXIST</code><br />- O campo procurado não está presente no slot pai ou o slot pai está vazio.<br /><br /><code>NO_FREE_SLOTS</code><br />- A API exigiria a alocação de um novo slot, mas o Hook já está no número máximo de slots.<br /><br /><code>INVALID_FIELD</code><br />- O campo especificado não é um campo <code>sf</code> válido.<br /><br /><code>NOT_AN_OBJECT</code><br />- O objeto alocado no slot não é um STObject válido.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
-| Type                | Description                                                   |
+| Tipo                | Descrição                                                   |
 | ------------------- | ------------------------------------------------------------- |
-| number or ErrorCode | Returns an error code or the result of the subfield creation. |
+| number or ErrorCode | Retorna um código de erro ou o resultado da criação do subcampo. |
 </TabItem>
 </Tabs>
-
