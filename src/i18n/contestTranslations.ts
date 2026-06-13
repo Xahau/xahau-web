@@ -366,7 +366,7 @@ export const contestTranslations = {
     format_example:
       'submissions/GitHubName_ProjectName/GitHubName_ProjectName.md',
     format_p2:
-      '必須フィールド：プロジェクトタイトル · 簡単な説明 · 参加者 · ソーシャルメディア · 連絡先メール · プロジェクトリンク · XahauアドレスHooksのCコードとハッシュ（使用する場合）· リポジトリリンク（任意）',
+      '必須フィールド：プロジェクトタイトル · 簡単な説明 · 参加者 · ソーシャルメディア · 連絡先メール · プロジェクトリンク · Xahauアドレス · HooksのCコードとハッシュ（使用する場合）· リポジトリリンク（任意）',
 
     // Act IV
     act4_label: 'サポートとリソース',

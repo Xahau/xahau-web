@@ -24,7 +24,7 @@
       "tagline": {
         "en": "Institutions that have adopted Xahau",
         "es": "Instituciones que han adoptado Xahau",
-        "ja": "Xahauを採用した機関",
+        "ja": "Xahauを採用している機関",
         "pt-BR": "Instituições que adotaram o Xahau"
       },
       "items": [
@@ -43,11 +43,11 @@
           "desc": "European fintech issuing regulated stablecoins and digital assets on Xahau"
         },
         {
-          "name": "Coming soon",
-          "url": null,
-          "logo": null,
-          "coming_soon": true,
-          "desc": "A major global payments institution will be announced shortly"
+          "name": "TerraPay",
+          "url": "https://www.terrapay.com",
+          "logo": "terrapay",
+          "logo_ext": "svg",
+          "desc": "The global payments network for real-time money movement"
         },
         {
           "name": "African Union",
@@ -212,7 +212,7 @@
           "name": "Magnetic",
           "url": "https://xmagnetic.org/?network=xahau",
           "logo": null,
-          "desc": "NFT marketplace on Xahau"
+          "desc": "Xahau DEX Interface"
         },
         {
           "name": "Dallipay",
@@ -236,7 +236,7 @@
           "name": "VPRA",
           "url": "https://vpra.app/",
           "logo": null,
-          "desc": "Verified profile and reputation system"
+          "desc": "Virtual Pets Racing Adventure"
         },
         {
           "name": "Xpert Page",
@@ -254,7 +254,7 @@
           "name": "Evergram",
           "url": "https://evergram.app/",
           "logo": null,
-          "desc": "Messaging with on-chain rewards"
+          "desc": "Decentralised messaging platform"
         },
         {
           "name": "XAMINI",
@@ -272,7 +272,7 @@
           "name": "DinoXAHur",
           "url": "https://xaman.app/detect/xapp:dino.xahur",
           "logo": null,
-          "desc": "Collectible dino game via Xaman xApp"
+          "desc": "Dino game via Xaman xApp"
         },
         {
           "name": "Xaman DEX Trade",
@@ -316,7 +316,7 @@
   "trademark": {
     "en": "All trademarks and logos are the property of their respective owners.",
     "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",
-    "ja": "すべての商標およびロゴは、各所有者の財産です。",
+    "ja": "すべての商標およびロゴは、各所有者に帰属します",
     "pt-BR": "Todas as marcas e logotipos são propriedade de seus respectivos donos."
   }
 }

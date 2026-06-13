@@ -16,7 +16,7 @@
       "label": {
         "en": "Transactions / 24h",
         "es": "Transacciones/24h",
-        "ja": "取引/24時間",
+        "ja": "24時間あたりのトランザクション数",
         "pt-BR": "Transações / 24h"
       },
       "theme": "teal",
@@ -38,7 +38,7 @@
       "label": {
         "en": "Hooks installed",
         "es": "Hooks instalados",
-        "ja": "インストール済みHooks",
+        "ja": "インストール済みHook",
         "pt-BR": "Hooks instalados"
       },
       "theme": "sage",
@@ -46,7 +46,12 @@
     },
     {
       "value": "300+",
-      "label": { "en": "Nodes", "es": "Nodos", "ja": "ノード", "pt-BR": "Nós" },
+      "label": {
+        "en": "Nodes",
+        "es": "Nodos",
+        "ja": "ノード",
+        "pt-BR": "Nós"
+      },
       "theme": "light",
       "col": 3
     },
