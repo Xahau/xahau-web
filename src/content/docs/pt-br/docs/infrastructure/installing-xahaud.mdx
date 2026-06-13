@@ -15,7 +15,7 @@ A documentação de instalação nesta página expande a documentação de insta
 
 ## Processo de Instalação no Linux
 Independentemente de como o xahaud é instalado (Docker ou em todo o sistema), o processo geral é semelhante em sistemas Linux.
-As seções a seguir, [Contêiner Docker](#docker-container-install-script) e [Instalação Local](#local-install-script), aproveitam scripts bash, que automatizam as seguintes etapas:
+As seções a seguir, [Contêiner Docker](#script-de-instalação-em-contêiner-docker) e [Instalação Local](#script-de-instalação-local), aproveitam scripts bash, que automatizam as seguintes etapas:
 
 1. Obter o binário do xahaud:
     - Baixar uma imagem binária compilada de [https://build.xahau.tech](https://build.xahau.tech)
@@ -36,7 +36,7 @@ As seções a seguir, [Contêiner Docker](#docker-container-install-script) e [I
 7. Se necessário, alterar as permissões de propriedade. Se executar o xahaud como validador, é importante restringir o arquivo `xahaud.cfg`, pois ele contém o token de validação.
     - `chown -R xahaud:xahaud /opt/xahaud /var/log/xahaud`
     - `chmod -R 750 /opt/xahaud /var/log/xahaud`
-8. Criar um arquivo de serviço systemd (como o exemplo [abaixo](#example-systemd-service-file)) para executar o xahaud como um daemon.
+8. Criar um arquivo de serviço systemd (como o exemplo [abaixo](#exemplo-de-arquivo-de-serviço-systemd)) para executar o xahaud como um daemon.
     - O arquivo está localizado em: `/etc/systemd/system/xahaud.service`
     - Após criar ou editar o arquivo, execute: `systemctl daemon-reload`
     - Para executar o xahaud automaticamente na inicialização do sistema: `systemctl enable --now xahaud`
@@ -179,7 +179,7 @@ Para executar o xahaud em um Contêiner Docker:
 5. Comandos e informações adicionais estão localizados no arquivo README.md no repositório Docker. Os arquivos de configuração e bancos de dados estão localizados no diretório `store` dentro do diretório Docker.
 
 ## Script de Instalação Local
-Os repositórios Docker do Xahau (Mainnet e Testnet) contêm um script para automatizar o processo de instalação local, para que o xahaud possa ser executado fora do Docker. Esses scripts são semelhantes ao [Resumo da Instalação Linux](#linux-install-process), pois criarão arquivos systemd, um usuário 'xahaud' e arquivos de configuração padrão. As URLs para esses scripts estão na tabela no final desta página. Para instalar localmente:
+Os repositórios Docker do Xahau (Mainnet e Testnet) contêm um script para automatizar o processo de instalação local, para que o xahaud possa ser executado fora do Docker. Esses scripts são semelhantes ao [Resumo da Instalação Linux](#processo-de-instalação-no-linux), pois criarão arquivos systemd, um usuário 'xahaud' e arquivos de configuração padrão. As URLs para esses scripts estão na tabela no final desta página. Para instalar localmente:
 
 1. Baixe e execute o script de instalação: <code>curl -sL [https://link-para-script] | bash</code>
 2. Edite o arquivo de configuração: <code>/opt/xahahud/etc/xahaud.cfg</code>
