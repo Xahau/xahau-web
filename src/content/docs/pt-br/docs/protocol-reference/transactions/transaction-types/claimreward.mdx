@@ -1,0 +1,63 @@
+---
+title: ClaimReward
+description: >-
+  Uma transação ClaimReward permite que uma conta reivindique as recompensas
+  acumuladas. As recompensas podem ser reivindicadas pelo proprietário da conta
+  ou por um emissor especificado. A conta também pode cancelar a participação
+  nas recompensas.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/ClaimReward.cpp)]
+
+_(Adicionado pela \[emenda BalanceRewards]\[].)_
+
+### Opt-in + Reivindicação
+
+```json
+{
+    "TransactionType": "ClaimReward",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+}
+```
+
+### Opt-out
+
+```json
+{
+    "TransactionType": "ClaimReward",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 1
+}
+```
+
+### Campos
+
+| Campo     | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                         |
+| --------- | --------- | ------------------- | ----------------------------------------------------------------- |
+| `Account` | String    | AccountID           | O endereço da conta que está reivindicando a recompensa.          |
+| `Flags`   | Number    | UInt32              | _(Opcional)_ Pode ter a flag 1 definida para cancelar recompensas. |
+| `Issuer`  | String    | AccountID           | _(Opcional)_ A conta genesis.                                     |
+
+### Flags do ClaimReward
+
+Transações do tipo ClaimReward suportam valores adicionais no campo `Flags`, conforme abaixo:
+
+| Nome da Flag | Valor Hex    | Valor Decimal | Descrição                                                                                                                                                                                                                              |
+| ------------ | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfOptOut`   | `0x00000001` | 1             | A flag `isOptOut` no código do ClaimReward é usada para cancelar a participação de uma conta nas recompensas, removendo os campos relacionados a recompensas do objeto da conta no ledger se o campo `sfFlags` na transação estiver definido como 1. |
+
+### Custo Especial de Transação
+
+A transação ClaimReward possui um custo de transação padrão, que é o custo mínimo exigido para todas as transações.
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações ClaimReward podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro    | Descrição                                                                                                            |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`     | Ocorre se a funcionalidade não estiver habilitada.                                                                   |
+| `temINVALID_FLAG` | Ocorre se a flag estiver definida com um valor diferente de 1.                                                       |
+| `temMALFORMED`    | Ocorre se o emissor for igual à conta de origem ou se a flag e o emissor não estiverem configurados corretamente.    |
+| `tecNO_ISSUER`    | Ocorre se o emissor não existir.                                                                                     |
+| `terNO_ACCOUNT`   | Ocorre se a conta remetente não existir.                                                                             |

@@ -1,0 +1,138 @@
+---
+title: float_sto
+description: Gera um XFL como um objeto serializado
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Lê um número de ponto flutuante XFL e, opcionalmente, um código de campo e um código de moeda
+* Escreve um valor (amount) serializado em `write_ptr` conforme os parâmetros fornecidos
+</TabItem>
+
+<TabItem label="JavaScript">
+* Armazena uma representação de float em um campo especificado.
+* Retorna um código de erro ou o valor atualizado como um array de números.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sto (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t cread_ptr,
+    uint32_t cread_len,  
+    uint32_t iread_ptr,
+    uint32_t iread_len,  
+    int64_t float1,
+    uint32_t field_code
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sto(
+    currency: ByteArray | HexString | undefined,
+    issuer: ByteArray | HexString | undefined,
+    f1: bigint,
+    field_code: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+uint8_t amt_out[48];
+if (float_sto(SBUF(amt_out),
+    SBUF(currency), SBUF(hook_accid), pusd_to_send, -1) < 0)
+        rollback(SBUF("Peggy: Could not dump pusd amount into sto"), 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const amt_out = float_sto(currency, hook_accid, pusd_to_send, -1)
+if (typeof amt_out === 'number')
+        rollback("Peggy: Could not dump pusd amount into sto", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome        | Tipo      | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ----------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr  | uint32_t | Ponteiro para um buffer de tamanho adequado para armazenar o campo de valor (amount) serializado. Recomenda-se pelo menos 48 bytes.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| write_len  | uint32_t | O tamanho do buffer de saída.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| cread_ptr  | uint32_t | Ponteiro para um buffer contendo o código de moeda a ser serializado na saída. _Pode ser nulo._                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| cread_len  | uint32_t | O tamanho do código de moeda. Deve ser 20 ou 3 ou 0 (nulo).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| iread_ptr  | uint32_t | Ponteiro para um buffer contendo o Account ID do emissor a ser serializado na saída. _Pode ser nulo._                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| iread_len  | uint32_t | O tamanho do Account ID do emissor. Deve ser 20 ou 0 (nulo).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| float1      | int64_t  | Um número de ponto flutuante de envoltório XFL a ser serializado.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| field_code | uint32_t | <p>O código de campo <code>sf</code> a ser usado como prefixo do valor (amount) serializado. Ex.: <code>sfAmount</code>.<br />Se este campo for <code>0xFFFFFFFFU</code> (ou seja, <code>(uint32_t)(-1)</code>), então nenhum código de campo é antecedido à saída, e nenhum emissor ou código de moeda é anexado, mas a serialização ocorre como um valor (amount) de ponto flutuante.<br />Se este campo for 0, nenhum código de campo é antecedido à saída, e nenhum emissor ou código de moeda é anexado, mas a serialização ocorre como se o valor (amount) fosse um valor nativo de XRP em vez de um ponto flutuante.</p> |
+
+<Aside type="tip">
+Para gerar um valor (amount) em `XAH`, pré-popule o código de campo no buffer de saída e, em seguida, passe o buffer de saída incrementado para o novo início e `0` como field_code
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Nome        | Tipo                                | Descrição                                                |
+| ----------- | ----------------------------------- | ---------------------------------------------------------- |
+| currency    | ByteArray \| HexString \| undefined | O valor atual no qual armazenar.                           |
+| issuer      | ByteArray \| HexString \| undefined | O valor a ser armazenado.                                        |
+| f1          | bigint                              | O código de campo indicando onde armazenar o float.        |
+| field_code | number                              | Um código de erro ou o valor atualizado como um array de números. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos no buffer de saída.<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o float fornecido não era um número de envoltório XFL válido<br /><br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>INVALID_ARGUMENT</code><br />- Se instruído a gerar a saída como <code>XRP</code> ou sem <code>field code</code>, então todos os ponteiros e tamanhos que não sejam de escrita devem ser 0 (nulo).<br /><br /><code>TOO_SMALL</code><br />- O buffer de saída era pequeno demais para receber o objeto serializado.<br /><br /><code>XFL_OVERFLOW</code><br />- Expressar a saída causou um overflow durante a normalização.</p>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Tipo                   | Descrição                                                        |
+| ---------------------- | ------------------------------------------------------------------ |
+| ErrorCode \| ByteArray | Retorna um código de erro ou o valor atualizado como um array de números. |
+</TabItem>
+</Tabs>

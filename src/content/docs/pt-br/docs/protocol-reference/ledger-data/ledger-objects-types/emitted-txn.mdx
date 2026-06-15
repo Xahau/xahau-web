@@ -1,0 +1,61 @@
+---
+title: Emitted Txn
+---
+_(Adicionado pela \[emenda Hooks]\[].)_
+
+Um objeto `EmittedTxn` descreve uma transação que foi emitida por um hook. O objeto contém todos os campos da transação original, juntamente com detalhes adicionais sobre a emissão.
+
+### Exemplo JSON
+
+```json
+{
+  "Account": "rMPwD1b8dJUaqZHaBgEvFx4ENhtpPVvDsv",
+  "Amount": "999999",
+  "Destination": "rfCarbonVNTuXckX6x2qTMFmFSnm6dEWGX",
+  "DestinationTag": 0,
+  "EmitDetails": {
+    "EmitBurden": "1",
+    "EmitCallback": "rMPwD1b8dJUaqZHaBgEvFx4ENhtpPVvDsv",
+    "EmitGeneration": 1,
+    "EmitHookHash": "A9B5411F4A4368008B4736EEE47A34B0EFCBE74016B9B94CC6208FBC0BF5C0C2",
+    "EmitNonce": "6B2A27D6864903A479614581A79D18E8C8ADCE01E3440C6E993BE07298ADC2A4",
+    "EmitParentTxnID": "9763EB6B74AEF0F55F642243AD51F48490594434439002A6142E545E47318D56"
+  },
+  "Fee": "31",
+  "FirstLedgerSequence": 7186113,
+  "Flags": 2147483648,
+  "LastLedgerSequence": 7186117,
+  "Sequence": 0,
+  "SigningPubKey": "000000000000000000000000000000000000000000000000000000000000000000",
+  "SourceTag": 0,
+  "TransactionType": "Payment"
+}
+```
+
+### Campos
+
+Um objeto `EmittedTxn` tem os seguintes campos:
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                                                   |
+| ----------------- | --------- | ------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EmitDetails`     | Object    | Object              | Sim          | Contém detalhes sobre a emissão. Inclui a geração da emissão, o ônus da emissão, o endereço de callback, o hash do hook que emitiu a transação, o nonce da emissão e o ID da transação pai.                                                                 |
+| `TransactionType` | String    | UInt16              | Sim          | O tipo da transação que foi emitida.                                                                                                                                                                                                                        |
+| `Account`         | String    | Account             | Sim          | A conta que emitiu a transação.                                                                                                                                                                                                                             |
+| `Fee`             | String    | Amount              | Sim          | A taxa paga pela transação.                                                                                                                                                                                                                                 |
+| `Sequence`        | Number    | UInt32              | Sim          | O número de sequência da transação.                                                                                                                                                                                                                         |
+| `SigningPubKey`   | String    | Blob                | Sim          | A chave pública que assina a transação.                                                                                                                                                                                                                     |
+
+O objeto `EmittedTxn` também contém todos os campos da transação original.
+
+### Campos do EmitDetails
+
+Um objeto `EmitDetails` tem os seguintes campos:
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                                                                             |
+| ----------------- | --------- | ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EmitGeneration`  | Number    | UInt32              | Sim          | Este campo rastreia uma cadeia de transações emitidas que, por sua vez, causam a emissão de outras transações.                                                                                                                                                                        |
+| `EmitBurden`      | String    | UInt64              | Sim          | Este campo é uma heurística para detecção de forkbombs. As taxas são baseadas no ônus e aumentarão exponencialmente quando uma reação em cadeia for iniciada, para evitar que a rede seja sobrecarregada por transações emitidas auto-reforçantes.                                     |
+| `EmitParentTxnID` | String    | Hash256             | Sim          | A Execução de Hook que emitiu a transação está conectada à Transação de Origem. Portanto, este campo é sempre obrigatório para o rastreamento eficiente do comportamento.                                                                                                              |
+| `EmitNonce`       | String    | Hash256             | Sim          | As Transações Emitidas seriam idênticas com os mesmos campos e, portanto, teriam hashes de transação idênticos se um nonce não fosse utilizado. No entanto, todos os nós da rede precisam concordar com o nonce, por isso uma API Hook especial para produzir um nonce determinístico está disponível. |
+| `EmitCallback`    | String    | AccountID           | Não          | Este campo é usado pelo xahld quando precisa iniciar um callback, para que saiba em qual Hook e conta iniciar o callback. Os callbacks ocorrem quando uma transação emitida é aceita em um ledger.                                                                                     |
+| `EmitHookHash`    | String    | Hash256             | Sim          | O SHA512H do Hook no momento em que foi executado.                                                                                                                                                                                                                                    |

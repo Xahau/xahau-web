@@ -1,0 +1,56 @@
+---
+title: Taxas de Transação
+description: >-
+  Os contratos inteligentes Xahau (Hooks) precisam de taxas específicas por transação
+  e destino. Você pode facilmente obter a taxa necessária pelo comando RPC `fee`.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Embora as bibliotecas possam lidar com a determinação de taxas para você, ao construir suas próprias integrações com a Rede Xahau, pode ser necessário implementar a determinação dinâmica de taxas com base na transação e nas contas de origem e destino.
+
+Como o remetente de uma transação terá que pagar as taxas exigidas pelos Hooks invocados para o tipo de transação específico, onde os Hooks podem estar tanto na conta de origem quanto na de destino, você pode enviar um TX Blob (assinado com uma conta fictícia) para o comando `fee`, após o qual o Xahau retornará as taxas específicas necessárias para a transação.
+
+### Helper RPC de Taxa
+
+As taxas de transação em um ledger com a Emenda Hooks habilitada tornam-se não triviais para calcular por usuários finais e/ou aplicações de carteira. Isso ocorre porque hooks fortes devem ser pagos pelo originador de uma transação, e pode haver até 4 hooks fortes na conta de envio e 4 na conta de recebimento, além de outros stakeholders transacionais fortes envolvidos (como pode ser o caso com alguns tipos de transação exóticos). Além disso, se a transação for um SetHook, o tamanho dos parâmetros, o tamanho do código e se é uma operação de _criação_ ou _instalação_ determinam o tamanho da taxa.
+
+Portanto, é altamente recomendado que **todas** as transações sejam processadas pela chamada RPC de taxa atualizada antes de serem enviadas ao ledger.
+
+#### Para invocar a chamada RPC:
+
+1. Abra uma conexão WebSocket com o nó Hooks com o qual você trabalhará.
+2. Componha a transação serializada para a qual deseja saber a taxa com o seguinte:
+
+* `Fee: 0`
+* `SigningPubKey: ""` (Ou seja: VL de 0 byte do tipo 0x73. Em hex:`0x7300`.)
+* **Não** assine a transação.
+
+3. Envie-a como um blob hexadecimal para o RPC da seguinte forma:
+
+```json
+{"command":"fee", "tx_blob":"<hex blob>"}
+```
+
+Para HTTP POST RPC, envie da seguinte forma:
+
+```json
+{"method":"fee", "params": [{"tx_blob":"<hex blob>"}] }
+```
+
+A resposta deve ser algo como
+
+```json
+{
+  result: {
+    drops: {
+      base_fee: '130520',
+    },
+  //...
+  },
+  type: 'response'
+}
+```
+
+Pegue a taxa base e defina-a como o campo `Fee` na transação. Agora assine e envie conforme o processo normal de envio de transações.
+
+Se houver um valor inválido para `tx_blob` ou `tx_blob` estiver ausente, um resultado JSON regular será retornado com uma `base_fee` de 10.

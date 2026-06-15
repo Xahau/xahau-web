@@ -1,0 +1,103 @@
+---
+title: otxn_field
+description: Serializa e produz como saída um campo da transação de origem
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Localiza o campo `sf` especificado na transação de origem
+* Escreve a versão serializada do campo no buffer de saída
+</TabItem>
+
+<TabItem label="JavaScript">
+* Recupera o valor de um campo específico da transação de origem.
+* Retorna o valor do campo especificado como um array de números, ou um ErrorCode caso a busca falhe.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_field (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t field_id
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_field(field_id: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t account_field_len = 
+    otxn_field(account_field, 20, sfAccount);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const account_field = otxn_field(sfAccount)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome       | Tipo      | Descrição                                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Ponteiro para um buffer de tamanho adequado para armazenar a saída.                                                                                                                                                                                                                                                                                                                                                |
+| write_len | uint32_t | Tamanho do buffer de saída.                                                                                                                                                                                                                                                                                                                                                                               |
+| field_id  | uint32_t | <p>O código <code>sf</code> do campo que você está procurando.<br /><br />Para calcular isso manualmente, pegue o <code>type</code> serializado e desloque-o para os 16 bits mais altos do uint32_t, depois pegue o <code>field</code> e coloque-o nos 16 bits mais baixos.<br /><br />Por exemplo:<br /><code>sfEmitNonce</code> tem <code>type</code> 5 e <code>field</code> 11, portanto seu valor é <code>0x050BU</code></p> |
+
+<Aside type="caution" title="Importante">
+O código do campo _não_ é escrito no buffer de saída, apenas o _conteúdo_ (payload) do campo é.
+
+No momento em que este texto foi escrito, para a Hooks Public Testnet, campos `STI_ACCOUNT` como `sfAccount` são retornados _sem_ o byte inicial de comprimento variável.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome      | Tipo   | Descrição                                                                                         |
+| --------- | ------ | --------------------------------------------------------------------------------------------------- |
+| field_id | number | <p></p><p>Retorna o valor do campo especificado como um array de números, caso a busca falhe.</p> |
+</TabItem>
+</Tabs>
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- o buffer de saída não era grande o suficiente para conter o campo serializado<br /><br /><code>INVALID_FIELD</code><br />- o field_id `sf` era inválido<br /><br /><code>DOESNT_EXIST</code><br />- o campo não foi encontrado na transação de origem</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descrição                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| ByteArray ou ErrorCode | <p></p><p>Retorna o valor do campo especificado como um array de números, ou um ErrorCode caso a busca falhe.</p> |
+</TabItem>
+</Tabs>
+

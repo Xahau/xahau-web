@@ -1,0 +1,57 @@
+---
+title: GenesisMint - (Emitted Txn)
+description: >-
+  A transação GenesisMint é usada para cunhar novos XAH e distribuí-los para
+  múltiplas contas. Esta transação só pode ser usada pela conta gênesis.
+---
+\[[Fonte](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/GenesisMint.cpp)]
+
+_Adicionado pela \[emenda XahauGenesis]\[] e pela \[emenda Hooks]\[]_
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "GenesisMint",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "GenesisMints": [
+        {
+            "GenesisMint": {
+                "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+                "Amount": "1000000000"
+            },
+        }
+    ]
+}
+```
+
+### Campos
+
+| Campo          | Tipo JSON | Tipo Interno | Descrição                                                                              |
+| -------------- | --------- | ------------ | -------------------------------------------------------------------------------------- |
+| `Account`      | String    | AccountID    | O endereço da conta gênesis que irá cunhar e distribuir XAH.                           |
+| `GenesisMints` | Array     | Array        | Um array de objetos representando os destinos e quantidades do XAH a ser cunhado.      |
+
+### Objeto GenesisMint
+
+A transação GenesisMint inclui um array de objetos chamado `GenesisMints`. Cada objeto representa uma conta de destino e a quantidade de XAH a ser cunhada e distribuída para essa conta.
+
+| Campo             | Tipo JSON | Tipo Interno | Descrição                                                                              |
+| ----------------- | --------- | ------------ | -------------------------------------------------------------------------------------- |
+| `Destination`     | String    | AccountID    | O endereço da conta que receberá o XAH cunhado.                                        |
+| `Amount`          | String    | Amount       | A quantidade de XAH a ser cunhada e distribuída para a conta de destino.               |
+| `GovernanceFlags` | String    | Hash256      | _(Opcional)_ As flags de governança associadas à conta de destino.                     |
+| `GovernanceMarks` | String    | Hash256      | _(Opcional)_ As marcações de governança associadas à conta de destino.                 |
+
+### Custo Especial de Transação
+
+A transação GenesisMint possui um custo de transação padrão, que é o custo mínimo exigido para todas as transações.
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, a transação GenesisMint pode resultar nos seguintes códigos de resultado:
+
+| Código de Erro | Descrição                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| `temDISABLED`  | Ocorre se as emendas "Hooks" ou "XahauGenesis" não estiverem habilitadas.                              |
+| `temMALFORMED` | Ocorre se a transação estiver malformada, como campos obrigatórios ausentes ou valores inválidos.      |

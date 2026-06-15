@@ -1,0 +1,179 @@
+---
+title: Servir um Arquivo TOML para Verificação de Identidade
+---
+***A verificação de identidade requer duas partes. NUNCA CONFIE APENAS EM ARQUIVOS TOML OU ATESTAÇÕES DE VALIDADOR/CONTA NA REDE PARA CONFIRMAR IDENTIDADE, POIS QUALQUER PESSOA PODE DEFINI-LOS. Um site (URL) deve reivindicar a propriedade do validador/conta, e os dados na rede devem corresponder.***
+
+Dado que a confiança é fundamental para a Rede Xahau, é ideal que entidades operando validadores xahaud recebam crédito por seus servidores. A atestação de identidade fornece aos usuários garantias de que uma entidade não está ganhando controle desproporcional sobre os validadores confiáveis (UNL padrão) na Rede. Isso é feito publicando duas atestações: uma de um servidor de validação na Rede Xahau e uma segunda de um servidor web que serve o domínio identificador via TLS. Assim, o validador reivindica associação com o domínio web e o domínio web reivindica associação com o validador. *Sem ambas as reivindicações, não é possível confiar na atestação de identidade.*
+
+Da mesma forma, titulares de contas Xahau individuais podem querer publicar um arquivo TOML atestando que contas específicas na rede estão sob seu controle. As atestações de propriedade de conta são particularmente relevantes para empresas, como exchanges ou instituições financeiras. Como acontece com os validadores, essas atestações requerem duas partes: um servidor web que reivindica a propriedade de um endereço da Rede Xahau, bem como um endereço de conta na rede que afirma ser de propriedade do mesmo domínio. As atestações de conta fornecem aos usuários confiança de que estão roteando depósitos para o endereço correto.
+
+O conteúdo e a estrutura deste arquivo são semelhantes aos usados pelo [Stellar](https://developers.stellar.org/docs/tokens/publishing-asset-info) e pelo [XRP Ledger](https://xrpl.org/docs/references/xrp-ledger-toml). Como o arquivo pode conter campos personalizados, é importante permitir flexibilidade ao criar ferramentas projetadas para analisar o arquivo TOML.
+
+## Configuração do Servidor Web e DNS
+1. O conteúdo do arquivo deve estar no [formato TOML](https://github.com/toml-lang/toml).
+2. O arquivo TOML deve ser servido a partir de: `https://[subdominio-opcional.seu-dominio.com]/.well-known/xahau.toml`
+    * O caminho `/.well-known/xahau.toml` não deve ser alterado. O caminho deve estar em letras minúsculas.
+    * [RFC 5785](https://datatracker.ietf.org/doc/html/rfc5785) contém mais informações sobre o caminho "/.well-known/".
+3. Um certificado TLS encadeado a uma autoridade certificadora confiável deve ser usado para criptografar as conexões que servem o arquivo TOML.
+4. O DNS Sec é recomendado para o domínio.
+5. Subdomínios podem ser usados para servir o arquivo, e arquivos idênticos podem ser hospedados em múltiplos subdomínios.
+6. O tipo de conteúdo do arquivo é `application/toml`.
+7. O arquivo TOML deve ser servido com um cabeçalho CORS: `Access-Control-Allow-Origin: *`
+8. Cabeçalhos adicionais podem ser servidos com o arquivo TOML, se necessário.
+9. Campos personalizados ou não padrão podem ser adicionados ao arquivo TOML, conforme exigido por usuários individuais.
+10. Nenhum campo é estritamente obrigatório no arquivo TOML.
+
+### Configuração CORS
+Apache:
+```
+<Location "/.well-known/xahau.toml">
+    Header set Access-Control-Allow-Origin "*"
+</Location>
+```
+Nginx:
+```
+location /.well-known/xahau.toml {
+    add_header 'Access-Control-Allow-Origin' '*';
+}
+```
+
+### Conteúdo do Arquivo TOML
+Os arquivos TOML são tipicamente subdivididos em seções que descrevem o próprio arquivo TOML (metadados), responsáveis (partes responsáveis) e ativos reivindicados, incluindo: validadores, servidores xahaud não validadores, contas e moedas emitidas.
+
+#### Exemplo de TOML
+O exemplo abaixo tem como objetivo ilustrar todas as seções comumente incluídas em um arquivo TOML da Rede Xahau. Usuários individuais podem não ter todas essas seções em seu arquivo TOML, e alguns usuários podem precisar incluir múltiplas seções iguais. Por exemplo, se uma exchange emite múltiplas moedas, incluiria uma seção `[[CURRENCIES]]` para cada IOU emitido na Rede.
+```
+[METADATA]
+modified = 2025-08-04T14:24:34.123Z
+expired = 2025-12-31T14:24:34.123Z
+
+[ORGANIZATION]
+name = "A Company B.V."
+website = "https://example.com"
+email = "contact@example.com"
+
+[[PRINCIPALS]]
+name = "A. Person"
+email = "a_person@example.com"
+social_1 = "https://www.linkedin.com/company/incfintech"
+x = "@IncFinTech"
+
+[[VALIDATORS]]
+public_key = "nHBixLw8q7XUP5AKceK2aZriN67PPjQW7JJ7hLkJgxvkTTs5go6k"
+attestation = "07FA61020CA5E0605BE29D213DCC33F934B631EB6215F52D3E99D8AEA841272E300758B5C03CD2332190307324B4869838B77BAD275B31CF59D13E8FA6A8780B"
+owner_country = "US"
+server_country = "CA"
+network_asn = "398726"
+network = "21337"
+unl = "https://vl.xahau.org"
+
+[[SERVERS]]
+ws = "wss://"
+json_rpc = "https://"
+peer = "https://"
+network = "21337"
+
+[[ACCOUNTS]]
+address = "rabc..."
+network = "21337"
+desc = "This wallet is used for client deposits."
+
+[[CURRENCIES]]
+code = "USD"
+issuer = "rabc..."
+symbol = "$"
+network = "21337"
+display_decimals = 2
+
+[[CURRENCIES]]
+code = "EUR"
+issuer = "rabc..."
+symbol = "€"
+network = "21337"
+display_decimals = 2
+```
+
+#### Metadados
+Datas/horas no arquivo TOML devem ser especificadas em UTC e incluir precisão de milissegundos. Por exemplo, `2025-08-04T14:24:34.123Z`. Apenas uma seção de metadados pode ser incluída em um arquivo TOML.
+<table>
+<thead><tr><td>Campo</td><td>Tipo de Dado</td><td>Descrição</td></tr></thead>
+<tr><td>`modified`</td><td>Data-Hora</td><td>Data e hora em que o TOML foi modificado mais recentemente.</td></tr>
+<tr><td>`expires`</td><td>Data-Hora</td><td>Após esta data/hora, o arquivo TOML será considerado expirado e, portanto, inválido.</td></tr>
+</table>
+
+#### Organização
+Se uma entidade, em vez de um indivíduo, está assumindo responsabilidade pelo arquivo TOML, essa entidade deve usar esta seção para se identificar. Seria incomum e provavelmente um erro que um arquivo TOML tivesse múltiplas seções `[ORGANIZATION]`. Se múltiplas seções forem necessárias, certifique-se de adicionar um conjunto adicional de colchetes: `[[ORGANIZATION]]`.
+<table>
+<thead><tr><td>Campo</td><td>Tipo de Dado</td><td>Descrição</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>O nome da organização que hospeda o arquivo TOML.</td></tr>
+<tr><td>`email`</td><td>String</td><td>Endereço de e-mail da organização.</td></tr>
+<tr><td>`website`</td><td>String</td><td>Site da organização (tipicamente este é o mesmo que a URL onde o TOML está hospedado).</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>Link para um perfil de mídia social. Este campo não é padronizado no momento. Assim, `x = "@IncFinTech"` e `social_1 = https://x.com/IncFinTech` são ambos válidos.</td></tr>
+</table>
+
+#### Responsáveis
+Esta seção é usada para identificar pontos de contato individuais para a infraestrutura da Rede Xahau e/ou contas.
+<table>
+<thead><tr><td>Campo</td><td>Tipo de Dado</td><td>Descrição</td></tr></thead>
+<tr><td>`name`</td><td>String</td><td>O nome de um indivíduo responsável por supervisionar as operações na Rede Xahau da organização.</td></tr>
+<tr><td>`email`</td><td>String</td><td>Endereço de e-mail do responsável.</td></tr>
+<tr><td>`website`</td><td>String</td><td>Site do responsável.</td></tr>
+<tr><td>`social_[x]`</td><td>String</td><td>Link para um perfil de mídia social. Este campo não é padronizado no momento. Assim, `x = "@IncFinTech"` e `social_1 = https://x.com/IncFinTech` são ambos válidos.</td></tr>
+</table>
+
+#### Validadores
+Os operadores de validadores são fortemente encorajados a publicar uma atestação como prova de propriedade. Fornecer informações geográficas e de ISP é importante, pois permite que publicadores de listas confiáveis (dUNL) avaliem a diversidade geográfica dos validadores confiáveis na rede. Se muitos validadores confiáveis estiverem concentrados em uma região geográfica ou em um ASN de rede, há risco para a rede como um todo.
+<table>
+<thead><tr><td>Campo</td><td>Tipo de Dado</td><td>Descrição</td></tr></thead>
+<tr><td>`public_key`</td><td>String</td><td>A chave pública mestre usada para validações.</td></tr>
+<tr><td>`attestation`</td><td>String</td><td>Atestação de domínio gerada pela ferramenta validator-keys.</td></tr>
+<tr><td>`owner_country`</td><td>String</td><td>Código de país [ISO-3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) para a entidade ou pessoa responsável pelo servidor.</td></tr>
+<tr><td>`server_country`</td><td>String</td><td>Código de país ISO-3166-2 para a localização física do servidor.</td></tr>
+<tr><td>`network_asn`</td><td>String</td><td>O Número de Sistema Autônomo (ASN) do(s) Provedor(es) de Serviços de Internet que fornecem conectividade à internet para o servidor.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifica qual rede (Mainnet, Testnet, etc.) o servidor participa.</td></tr>
+<tr><td>`unl`</td><td>String</td><td>Uma URL hospedando a lista de validadores confiáveis que o validador assina.</td></tr>
+</table>
+
+#### Servidores
+Participantes da rede que fornecem peering público ou acesso a API via websocket ou RPC podem publicar detalhes para acessar servidores individuais.
+<table>
+<thead><tr><td>Campo</td><td>Tipo de Dado</td><td>Descrição</td></tr></thead>
+<tr><td>`ws`</td><td>String</td><td>A URL para acesso público via websocket. Começa com "ws:// ou wss://".</td></tr>
+<tr><td>`json_rpc`</td><td>String</td><td>A URL para acesso público via RPC. Começa com "http:// ou https://".</td></tr>
+<tr><td>`peer`</td><td>String</td><td>URL que outros servidores podem usar para fazer peering com o servidor identificado no TOML.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifica qual rede (Mainnet, Testnet, etc.) o servidor participa.</td></tr>
+</table>
+
+#### Contas
+Entidades que precisam de verificação de conta podem usar esta seção para reivindicar propriedade de uma determinada carteira da Rede Xahau.
+<table>
+<thead><tr><td>Campo</td><td>Tipo de Dado</td><td>Descrição</td></tr></thead>
+<tr><td>`address`</td><td>String</td><td>A chave pública codificada (começando com `r`) que identifica uma carteira da Rede Xahau.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifica qual rede (Mainnet, Testnet, etc.) a carteira é usada.</td></tr>
+<tr><td>`desc`</td><td>String</td><td>Descrição legível por humanos do para que a carteira é usada.</td></tr>
+</table>
+
+#### Moedas
+É possível que múltiplas carteiras emitam moedas com o mesmo código de moeda. ***Assim, é crítico que os usuários verifiquem a carteira emissora, além do código de moeda.***
+<table>
+<thead><tr><td>Campo</td><td>Tipo de Dado</td><td>Descrição</td></tr></thead>
+<tr><td>`code`</td><td>String</td><td>O símbolo de ticker do token como três dígitos ou 40 caracteres hexadecimais. Este campo diferencia maiúsculas de minúsculas.</td></tr>
+<tr><td>`issuer`</td><td>String</td><td>O endereço da carteira (começando com `r`) que emitiu a moeda. A carteira referenciada deve estar presente na seção `[[ACCOUNTS]]` do arquivo TOML.</td></tr>
+<tr><td>`symbol`</td><td>String</td><td>O símbolo (ex.: "$") usado para identificar a moeda.</td></tr>
+<tr><td>`network`</td><td>String</td><td>Identifica qual rede (Mainnet, Testnet, etc.) a moeda é emitida.</td></tr>
+<tr><td>`display_decimals`</td><td>Inteiro</td><td>O número de dígitos à direita do ponto decimal que os clientes devem exibir ao mostrar quantidades da moeda.</td></tr>
+</table>
+
+## Verificação de Domínio do Validador
+Hospedar o arquivo `xahau.toml` permite que proprietários de domínio reivindiquem a propriedade de um validador. No entanto, é crítico que o validador também reconheça essa propriedade, para que terceiros possam confiar de forma confiável nos operadores de rede. Como os validadores formam a espinha dorsal do progresso na Rede Xahau, é importante que os operadores protejam adequadamente suas chaves de validação privadas.
+
+Se você não está familiarizado com a Ferramenta de Chaves de Validador, consulte a página sobre [Habilitando a Validação no xahaud](/pt-br/docs/infrastructure/enabling-validation).
+
+Usuários que já concluíram as etapas na página Habilitando a Validação não precisam repeti-las. Basta colar o campo `attestation = ""` no arquivo TOML e garantir que o `[validator_token]` correto esteja instalado no `xahaud.cfg`.
+
+Usuários que não configuraram um domínio quando geraram inicialmente um token de validação podem fazê-lo executando `./validator-keys set_domain [exemplo.com]`. Antes de tentar definir o domínio, certifique-se de que o arquivo JSON da chave de validação mestre esteja armazenado no caminho correto: `/home/[usuario]/[.ripple or .xahaud]/validator-keys.json`.
+
+## Verificação de Endereço de Carteira
+Consistente com a verificação de domínio do validador, verificar a propriedade de um endereço de carteira na Rede Xahau requer dois componentes: um arquivo TOML servido por uma conexão criptografada com TLS (com um certificado devidamente encadeado) do domínio que reivindica a propriedade e uma transação do endereço da carteira verificando a reivindicação de propriedade. Para reivindicar a propriedade de um endereço de carteira:
+1. Inclua o endereço como uma seção `[[accounts]]` no arquivo TOML.
+2. Envie uma [transação AccountSet](/pt-br/docs/protocol-reference/transactions/transaction-types/accountset) com o campo `Domain` especificado.

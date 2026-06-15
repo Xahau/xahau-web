@@ -1,0 +1,119 @@
+---
+title: float_set
+description: Cria um float a partir de um expoente e uma mantissa
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Calcula um ponto flutuante XFL (xls17) a partir do expoente e da mantissa fornecidos
+* Retorna esse XFL como um int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Define o expoente e a mantissa de uma representação de float.
+* Retorna um código de erro ou um novo XFL como um bigint.
+</TabItem>
+</Tabs>
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_set (
+    int32_t exponent,
+    int64_t mantissa
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_set(exponent: number, mantissa: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t small_amount =
+  float_set(-81, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const small_amount = float_set(-81, 1);
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome     | Tipo     | Descrição                                                     |
+| -------- | -------- | --------------------------------------------------------------- |
+| exponent | int32_t | Um expoente no intervalo de `-96` a `80`                          |
+| mantissa | int64_t | Uma mantissa. Se negativa, o sinal do float é negativo. |
+
+<Aside type="caution">
+Ao definir uma mantissa com mais ou menos de 16 dígitos decimais, o expoente será ajustado para garantir que a mantissa tenha exatamente 16 dígitos. Esse ajuste pode resultar em um `INVALID_FLOAT` em algumas circunstâncias.
+</Aside>
+
+<Aside type="tip" title="Caso especial">
+O XFL canonical 0 também é 0 no número de envoltório. Portanto, nunca há necessidade de chamar `float_set(0,0);`
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Nome     | Tipo   | Descrição                                                     |
+| -------- | ------ | --------------------------------------------------------------- |
+| exponent | bigint | Um expoente no intervalo de `-96` a `80`                          |
+| mantissa | bigint | Uma mantissa. Se negativa, o sinal do float é negativo. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                         |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de envoltório XFL (xls17)<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- O ajuste da mantissa para 16 dígitos produziu um underflow ou overflow.</p>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Tipo                | Descrição                                        |
+| ------------------- | -------------------------------------------------- |
+| ErrorCode \| bigint | Um código de erro ou o número de envoltório XFL (xls17). |
+</TabItem>
+</Tabs>

@@ -1,0 +1,111 @@
+---
+title: float_log
+description: Calcula o logaritmo decimal de um XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Calcula o logaritmo decimal de um número XFL
+* Retorna o novo XFL
+
+<Aside type="caution">
+Devido a restrições de desempenho, `float_log` converte o argumento para um ponto flutuante de precisão dupla IEEE base-2 antes de aplicar o logaritmo na base 10. Portanto, o resultado retornado frequentemente conterá menos precisão do que o esperado.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Calcula o logaritmo de uma representação de float.
+* Retorna um código de erro ou o logaritmo como um bigint.
+</TabItem>
+</Tabs>
+
+
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_log (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_log(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t zero =
+    float_log(float_one());
+```
+
+<Aside type="caution">
+Se um número negativo for passado, a função retornará `COMPLEX_NOT_SUPPORTED` se a raiz for uma raiz par.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const zero =
+    float_log(float_one())
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+
+
+| Nome   | Tipo     | Descrição                                                                                            |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------ |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL representando o número de ponto flutuante do qual calcular o logaritmo |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Nome | Tipo   | Descrição                              |
+| ---- | ------ | ---------------------------------------- |
+| f1   | bigint | O float do qual calcular o logaritmo. |
+</TabItem>
+</Tabs>
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O logaritmo calculado<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- o parâmetro fornecido era um número negativo, o que resultaria em um valor de retorno complexo.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                                         |
+| ------------------- | --------------------------------------------------- |
+| bigint ou ErrorCode | Retorna um código de erro ou o logaritmo como um bigint. |
+</TabItem>
+</Tabs>
