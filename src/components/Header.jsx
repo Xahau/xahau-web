@@ -27,7 +27,6 @@ const languages = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
   { code: 'pt-BR', label: 'Português (Brasil)' },
-  // { code: 'ja', label: '日本語' },
   { code: 'ja', label: '日本語' },
 ]
 
