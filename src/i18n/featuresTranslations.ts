@@ -366,7 +366,7 @@ export const featuresTranslations = {
   },
   'pt-BR': {
     // Page header
-    page_title: 'Recursos',
+    page_title: 'Funcionalidades',
     page_subtitle: 'Tecnologia comprovada com uma abordagem inovadora',
     chip1: '10+ Recursos de Protocolo',
     chip2: 'DEX Nativo',

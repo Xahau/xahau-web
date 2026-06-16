@@ -405,6 +405,7 @@ export const contestTranslations = {
     legal6: '',
   },
   'pt-BR': {
+    page_title: 'Xahau Dev Contest',
     page_subtitle:
       'Ecosystem Rising — Construa serviços voltados para o usuário impulsionados por Xahau',
     chip1: '2ª Edição',
