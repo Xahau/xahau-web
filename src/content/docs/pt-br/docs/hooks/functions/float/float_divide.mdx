@@ -1,0 +1,102 @@
+---
+title: float_divide
+description: Divide um XFL por outro número de ponto flutuante XFL
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Divide um XFL por outro XFL
+* Retorna um novo XFL como um int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Divide uma representação de float por outra.
+* Um código de erro ou o quociente como um bigint.
+</TabItem>
+</Tabs>
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_divide (
+    int64_t float1,
+    int64_t float2
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+ function float_divide(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t still_one =
+    float_divide(float_one(), float_one());
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const still_one =
+    float_divide(float_one(), float_one())
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome   | Tipo     | Descrição                                                  |
+| ------ | -------- | ------------------------------------------------------------ |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL para atuar como numerador   |
+| float2 | int64_t | Um número de ponto flutuante de envoltório XFL para atuar como denominador |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome | Tipo   | Descrição         |
+| ---- | ------ | ------------------- |
+| f1   | bigint | O float dividendo. |
+| f2   | bigint | O float divisor.  |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                    |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de envoltório XFL (xls17)<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido ou a divisão resultou em um XFL que não pode ser representado.<br /><br /><code>DIVISION_BY_ZERO</code><br />- o parâmetro fornecido era zero.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                                |
+| ------------------- | ------------------------------------------ |
+| bigint ou ErrorCode | Um código de erro ou o quociente como um bigint. |
+</TabItem>
+</Tabs>

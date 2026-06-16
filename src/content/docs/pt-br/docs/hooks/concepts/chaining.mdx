@@ -1,0 +1,47 @@
+---
+title: Encadeamento
+description: Encadeie múltiplos hooks para realizar tarefas mais úteis
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip" title="Filosofia de Design dos Hooks">
+_Cada Hook deve fazer uma coisa, e fazê-la muito bem._
+</Aside>
+
+### Histórico
+
+Nos primórdios dos Hooks, era possível instalar apenas um Hook por conta. Isso significava que os usuários eram obrigados a criar Hooks genéricos se quisessem fazer mais de uma coisa: por exemplo, compensar carbono e usar firewall ao mesmo tempo.
+
+Isso ia contra a Filosofia de Design dos Hooks, então o Encadeamento de Hooks foi introduzido.
+
+### Encadeamento
+
+Uma Cadeia de Hooks é uma sequência de até **10** Hooks instalados em uma conta Xahau.
+
+* Uma Cadeia de Hooks é executada com sucesso quando cada Hook da cadeia foi executado individualmente e, em seguida, chama [accept](/pt-br/docs/hooks/functions/control/accept).
+* A execução de cada cadeia começa na posição 0 e termina na posição 9. Se uma posição estiver vazia (porque nunca foi preenchida ou porque o hook instalado nela foi removido), essa posição é ignorada e tratada como bem-sucedida.
+* Para que uma transação seja bem-sucedida, ambos os lados da transação (lado do remetente e lado do destinatário) devem ter executado com sucesso. Isso significa que, se houver uma Cadeia de Hooks instalada em ambos os lados, ambas as cadeias devem ser executadas com sucesso para que a transação seja concluída.
+
+Os Hooks são instalados na cadeia usando a [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction). Quando instalados, o instalador pode especificar [Parâmetros](/pt-br/docs/hooks/concepts/parameters) de tempo de instalação, que podem alterar o comportamento do Hook instalado.
+
+<figure>
+![Exemplo: Fluxo de execução de uma transação passando por duas Cadeias de Hooks](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_0OucxySTRinbe13SITJT_5561b32-sethook-Page-3.png)
+<figcaption>*Exemplo: Fluxo de execução de uma transação passando por duas Cadeias de Hooks*</figcaption>
+</figure>
+
+### Manipulação da Cadeia
+
+Além das operações de _tempo de instalação_ especificadas na [Transação SetHook](/pt-br/docs/hooks/concepts/sethook-transaction), os Hooks têm algum controle em tempo de execução sobre a execução da cadeia:
+
+* Um Hook pode determinar seu próprio `HookHash` chamando [hook_hash](/pt-br/docs/hooks/functions/hook-context/hook_hash).
+* Um Hook pode determinar sua localização na Cadeia de Hooks usando [hook_pos](/pt-br/docs/hooks/functions/hook-context/hook_pos).
+* Um Hook pode ignorar (ou reativar) outro Hook mais adiante na cadeia usando [hook_skip](/pt-br/docs/hooks/functions/hook-context/hook_skip).
+* Um Hook pode modificar os [Parâmetros](/pt-br/docs/hooks/concepts/parameters) de um Hook mais adiante na cadeia usando [hook_param_set](/pt-br/docs/hooks/functions/hook-context/hook_param_set).
+
+### Execuções Fracas
+
+As Cadeias de Hooks são [Fortemente Executadas](/pt-br/docs/hooks/concepts/weak-and-strong). No entanto, qualquer Hook em qualquer cadeia pode sinalizar que requer uma segunda Execução Fraca chamando [hook_again](/pt-br/docs/hooks/functions/hook-context/hook_again). Se todas as Cadeias de Hooks forem executadas com sucesso, a transação de origem é aplicada. Uma vez aplicada a transação de origem, quaisquer Execuções Fracas podem ocorrer, na seguinte ordem:
+
+1. Execução de `cbak` se esta for uma Transação Emitida.
+2. Partes Interessadas Transacionais Fracas que optaram por permitir uma [Chamada Coletiva](/pt-br/docs/hooks/concepts/collect-call). A ordem de execução é por ordem de chegada, de acordo com o evento que causou a sinalização da TSH (como roteamento).
+3. Quaisquer Hooks _Again as Weak_ (AAW). A ordem de execução para AAW é primeiro numericamente pelo ID da Conta e depois numericamente pela posição do Hook.

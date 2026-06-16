@@ -1,0 +1,64 @@
+---
+title: Import
+description: >-
+  Import é uma nova transação que aceita um XPOP da rede principal do XRPL
+  (network_id=0) ou Testnet (network_id=1) e fornece sincronização de contas.
+---
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Adicionado pela \[emenda Import]\[].)_
+
+### Exemplo
+
+```json
+{
+  "TransactionType": "Import",
+  "Sequence": 0,
+  "Fee": "0",
+  "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+  "Blob" : "DEADBEEF"
+}
+```
+
+### Campos
+
+| Campo         | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                  |
+| ------------- | --------- | ------------------ | ---------------------------------------------------------- |
+| `Blob`        | String    | Blob               | Valor hexadecimal representando um XPOP                    |
+| `Issuer`      | String    | AccountID          | (Opcional) Endereço que pode ser usado dentro do Hook.     |
+| `Destination` | String    | AccountID          | (Opcional) Endereço que pode ser usado dentro do Hook.     |
+
+### Casos de Erro
+
+* Se a conta não estiver ativada, o `Sequence` deve ser 0 e o `Fee` também deve ser 0.
+* Se a conta estiver ativada, o `Sequence` e o `Fee` são calculados pelo método padrão.
+* Se o campo `Issuer` estiver presente, o `Fee` deve ser calculado pelo método padrão.
+
+### Notas
+
+_Recomenda-se que, caso você utilize uma `SignerList` ou `RegularKey` para assinar suas transações, configure as chaves das suas contas **PRIMEIRO** antes de tentar realizar o _B2M_ de XAH._
+
+* Se a transação interna (xpop) for `AccountSet`, as flags existentes na mainnet serão transferidas para a nova rede.
+* Se a transação interna (xpop) for `SetRegularKey` com o campo `RegularKey` omitido ou vazio, e não existir uma lista de signatários para a conta, então a flag `lsfDisableMaster` será definida na conta.
+* Se a transação interna (xpop) for `SetRegularKey`, então a flag `lsfPasswordSpent` será definida na conta.
+* `TicketSequence` não está disponível no `Import`.
+
+### Importação para o Emissor
+
+Para emissores, há etapas adicionais a seguir antes que os detentores de ativos possam importar transações.
+
+Primeiramente, os emissores precisam instalar um hook. Há duas opções: `B2MNFToken` ou `B2MPayment`.
+
+#### B2MNFToken
+
+Uma transação `NFTokenBurn` na mainnet resultará em uma transação `URITokenMint` na rede.
+
+> c hook: https://example.com
+
+#### B2MPayment
+
+Uma transação `Payment` na mainnet para o Emissor resultará em uma transação `Payment` do Emissor na rede.
+
+> c hook: https://example.com
+
+_Observe que o processo de importação para o emissor envolve tipos de transação específicos e requer configuração cuidadosa. Certifique-se sempre de que os hooks estejam configurados corretamente e que as transações sejam válidas para as operações pretendidas._

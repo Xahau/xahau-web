@@ -1,0 +1,57 @@
+---
+title: hook_again
+description: Retorna a posição na cadeia de hooks que o hook atualmente em execução ocupa
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+* Se o hook está sendo executado fortemente, marca este hook específico na cadeia para [Execução Novamente como Fraca](/pt-br/docs/hooks/concepts/weak-and-strong).
+* Se a transação de origem for aplicada com sucesso, o hook será chamado novamente em uma segunda Execução Fraca.
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_again(void);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_again(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t result = 
+  	hook_again();
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const result = hook_again()
+```
+</TabItem>
+</Tabs>
+
+### Parâmetros
+
+Esta API não possui parâmetros
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="176">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td><code>1</code> se marcado com sucesso para Novamente como Fraca.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- Este hook já está sendo executado fracamente no momento da chamada.<br /><br /><code>ALREADY_SET</code><br />- A função já foi chamada nesta execução.</td></tr></tbody></table>
+</TabItem>
+<TabItem label="JavaScript">
+<table><thead><tr><th width="176">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>number</td><td>Retorna um código de status indicando o resultado da operação.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+

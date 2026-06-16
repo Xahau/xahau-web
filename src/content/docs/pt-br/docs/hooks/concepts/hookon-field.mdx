@@ -1,0 +1,44 @@
+---
+title: Campo HookOn
+description: Especifique em quais tipos de transação um Hook deve ser acionado
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+### Entendendo o campo HookOn
+
+Cada bit nesse inteiro sem sinal de 256 bits indica se o Hook deve ser executado em um tipo de transação específico. Todos os bits são _ativos em baixo_ **exceto** o bit 22, que é _ativo em alto_. Como 22 é ttHOOK_SET, isso significa que o valor padrão de todos os 0s não será disparado em uma transação SetHook, mas será disparado em todos os outros tipos de transação. Esta é uma escolha de design deliberada para ajudar as pessoas a evitar bloquear sua conta Xahau com um hook com mau funcionamento.
+
+Os bits são numerados da direita para a esquerda:
+
+* bit 0 - mais à direita, ou seja, o bit menos significativo.
+* bit 63 - mais à esquerda, ou seja, o bit mais significativo.
+
+Exemplos (assumindo um tipo inteiro sem sinal de 256 bits):
+
+1. Se quisermos desativar completamente o hook:
+
+```c
+~(1ULL << 22) /* todo bit é 1 exceto o bit 22 que é 0 */
+```
+
+2. Se quisermos desativar o hook em tudo exceto ttPAYMENT:
+
+```c
+~(1ULL << 22) & ~(1ULL)
+```
+
+3. Se quisermos habilitar o hook em tudo exceto ttHOOK_SET
+
+```c
+0
+```
+
+4. Se quisermos habilitar o disparo do hook em ttHOOK_SET (perigoso) e em todos os outros tipos de transação:
+
+```c
+(1ULL << 22)
+```
+
+### Calculadora HookOn
+
+<LinkCard title="Calculadora HookOn" href="https://richardah.github.io/xrpl-hookon-calculator/" />

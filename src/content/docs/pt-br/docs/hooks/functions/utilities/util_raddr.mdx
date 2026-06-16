@@ -1,0 +1,106 @@
+---
+title: util_raddr
+description: Converte um Account ID de 20 bytes em um r-address
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Lê um Account ID de 20 bytes a partir de `read_ptr`
+* Escreve o r-address equivalente para esse Account ID em `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Lê um Account ID de 20 bytes a partir de `accountid`
+* Retorna o r-address equivalente para esse Account ID
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_raddr (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_raddr(accountid: ByteArray | HexString): ErrorCode | string
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t raddr_out[40];
+uint8_t acc_id[20] =
+{
+    0x2dU, 0xd8U, 0xaaU, 0xdbU, 0x4eU, 0x15U,               
+    0xebU, 0xeaU,  0xeU, 0xfdU, 0x78U, 0xd1U, 0xb0U,
+    0x35U, 0x91U,  0x4U, 0x7bU, 0xfaU, 0x1eU,  0xeU
+};
+int64_t bytes_written = 
+    util_raddr(raddr_out, sizeof(raddr_out), acc_id, 20);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const raddr = util_raddr('8D329C03074A98EF0488AB6ABBF5883F68CCFD4E')
+// or
+const raddr = util_raddr([
+    0x8D, 0x32, 0x9C, 0x03, 0x07, 0x4A, 0x98, 0xEF, 0x04, 0x88,
+    0xAB, 0x6A, 0xBB, 0xF5, 0x88, 0x3F, 0x68, 0xCC, 0xFD, 0x4E
+])
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+
+
+<table><thead><tr><th>Nome</th><th width="82">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Ponteiro para um buffer de tamanho adequado para armazenar o r-address de saída. Recomenda-se pelo menos 35 bytes.</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Tamanho do buffer de saída.</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Ponteiro para o Account ID.</td></tr><tr><td>read_len</td><td>uint32_t</td><td>O tamanho da entrada. Sempre 20.</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Nome</th><th width="82">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>accountid</td><td>number[]/string</td><td>O Account ID em HEX a ser retornado como r-address, pode ser fornecido como um array de números ou uma string.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos (o tamanho do r-address de saída).<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_len</code> não era 20.<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> não era grande o suficiente para armazenar o r-address produzido.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo          | Descrição                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| string/number | ErrorCode se houver um erro na formatação, caso contrário retorna o r-address como uma string |
+</TabItem>
+</Tabs>
+

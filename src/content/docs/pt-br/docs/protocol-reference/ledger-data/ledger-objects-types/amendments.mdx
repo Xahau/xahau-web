@@ -1,0 +1,60 @@
+---
+title: Amendments
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L138-L144)
+
+O tipo de objeto `Amendments` contém uma lista de Emendas atualmente ativas. Cada versão de ledger contém **no máximo um** objeto `Amendments`.
+
+### Exemplo JSON
+
+```json
+{
+    "Majorities": [
+        {
+            "Majority": {
+                "Amendment": "1562511F573A19AE9BD103B5D6B9E01B3B46805AEC5D3C4805C902B514399146",
+                "CloseTime": 535589001
+            }
+        }
+    ],
+    "Amendments": [
+        "42426C4D4F1009EE67080A9B7965B44656D7714D104A72F9B4369F97ABF044EE",
+        "4C97EBA926031A7CF7D7B36FDE3ED66DDA5421192D63DE53FFB46E43B9DC8373",
+        "6781F8368C4771B83E8B821D88F580202BCB4228075297B19E4FDC5233F1EFDC",
+        "740352F2412A9909880C23A559FCECEDA3BE2126FED62FC7660D628A06927F11"
+    ],
+    "Flags": 0,
+    "LedgerEntryType": "Amendments",
+    "index": "7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4"
+}
+```
+
+### Campos
+
+| Nome              | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                       |
+| ----------------- | --------- | ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Amendments`      | Array     | Vector256           | Não          | Array de IDs de emenda de 256 bits para todas as emendas atualmente habilitadas. Se omitido, não há emendas habilitadas.                                                        |
+| `Flags`           | Number    | UInt32              | Sim          | Um mapa de bits de flags booleanos habilitados para este objeto. Atualmente, o protocolo não define flags para objetos `Amendments`. O valor é sempre `0`.                      |
+| `LedgerEntryType` | String    | UInt16              | Sim          | O valor `0x0066`, mapeado para a string `Amendments`, indica que este objeto descreve o status das emendas no Xahau.                                                            |
+| `Majorities`      | Array     | STArray             | Não          | Array de objetos descrevendo o status das emendas que têm suporte majoritário, mas ainda não estão habilitadas. Se omitido, não há emendas pendentes com suporte majoritário.   |
+
+Cada membro do campo `Majorities`, se presente, é um objeto com um campo, `Majority`, cujo conteúdo é um objeto aninhado com os seguintes campos:
+
+| Nome        | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                              |
+| ----------- | --------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Amendment` | String    | Hash256             | O ID da emenda pendente.                                                                                               |
+| `CloseTime` | Number    | UInt32              | O campo `close_time` da versão de ledger em que esta emenda obteve maioria mais recentemente.                          |
+
+No processo de emenda, um consenso de validadores adiciona uma nova emenda ao campo `Majorities` usando uma pseudo-transação \[EnableAmendment]\[] com o flag `tfGotMajority` quando 80% ou mais dos validadores a apoiam. Se o suporte a uma emenda pendente cair abaixo de 80%, uma pseudo-transação \[EnableAmendment]\[] com o flag `tfLostMajority` remove a emenda do array `Majorities`. Se uma emenda permanecer no campo `Majorities` por pelo menos 2 semanas, uma pseudo-transação \[EnableAmendment]\[] sem flags a remove de `Majorities` e a adiciona permanentemente ao campo `Amendments`.
+
+**Nota:** Tecnicamente, todas as transações em um ledger são processadas com base nas emendas habilitadas na versão de ledger imediatamente anterior. Ao aplicar transações a uma versão de ledger em que uma emenda é habilitada, as regras não mudam no meio do ledger. Após o fechamento do ledger, o próximo ledger usa as novas regras definidas por quaisquer novas emendas que se apliquem.
+
+### Formato do ID do Amendments
+
+O ID do objeto `Amendments` é o hash da chave de espaço `Amendments` (`0x0066`) apenas. Isso significa que o ID do objeto `Amendments` em um ledger é sempre:
+
+```
+7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4
+```
+
+(Não confunda o ID do tipo de objeto de ledger `Amendments` com o ID de Emenda de uma emenda individual.)

@@ -280,10 +280,11 @@ export const fraudReportTranslations: Record<Locale, FraudReportTranslations> =
       },
       intro: {
         body: 'Xahau はパブリックブロックチェーンであり、資金を凍結したり取り戻したり、アカウントを停止したり、利用者が資産へアクセスすることを妨げたりできる中央管理者は存在しません。',
-        warning: '取引を巻き戻したり取り消したりすることは誰にもできません。',
+        warning:
+          'トランザクションを巻き戻したり取り消したりすることは誰にもできません。',
         lead: 'ただし、不正行為に使われたアカウントにフラグを付けることはでき、以下につながります。',
         bullets: [
-          '取引所やその他の組織がAMLコンプライアンス目的で入金監視に利用するAPIに登録され、不正資金の保留につながる可能性があります。',
+          '取引所やその他の組織がAMLコンプライアンス目的で入金監視に利用するAPIに含まれ、不正資金の保留につながる可能性があります。',
           '資金移動は自動追跡され、どれだけ古い事件でも移動があれば通知を受け取れます。',
           '詐欺事案では、当社APIを利用するウォレットソフトや取引所を通じて、他の利用者へ送金しないよう警告できます。',
         ],
@@ -294,7 +295,7 @@ export const fraudReportTranslations: Record<Locale, FraudReportTranslations> =
           },
           {
             title: '2. 事案を法執行機関へ届け出る',
-            body: '近くの警察へ届け出てください。お住まいの国にサイバー犯罪や金融犯罪のオンライン通報窓口がある場合は、そちらにも提出してください。',
+            body: '最寄りの警察へ届け出てください。お住まいの国にサイバー犯罪や金融犯罪のオンライン通報窓口がある場合は、そちらにも提出してください。',
           },
           {
             title: '3. 警察への届け出を継続的にフォローする',
@@ -303,7 +304,7 @@ export const fraudReportTranslations: Record<Locale, FraudReportTranslations> =
         ],
         expectationTitle: '期待できること',
         expectations: [
-          '取引を巻き戻したり取り消したりすることはできません。これは誰にもできません。',
+          'トランザクションを巻き戻したり取り消したりすることはできません。これは誰にもできません。',
           '資金がXahauの外に出る段階で差し押さえにつながるよう、私たちは不正アドレス登録APIや個別連絡を通じて、取引所やその他の出口事業者と連携を試みます。',
           'アカウントを報告いただいた場合、他の報告と同様に真摯に取り扱います。',
           '私たちは毎日多数の報告を受けています。アカウントが不正アドレスリストに追加された場合は、他の全案件と同様に最善を尽くして対応します。',
@@ -369,6 +370,109 @@ export const fraudReportTranslations: Record<Locale, FraudReportTranslations> =
           'レポートを送信できませんでした。もう一度お試しください。',
         networkError:
           'ネットワークエラー: サーバーに接続できませんでした。接続を確認して再度お試しください。',
+      },
+    },
+    'pt-BR': {
+      frontmatter: {
+        title: 'Reportar Fraude',
+        description:
+          'Você foi vítima de um golpe ou hack? Aqui está o que fazer!',
+      },
+      intro: {
+        body: 'Xahau é uma blockchain pública, sem uma entidade governante que possa congelar ou recuperar fundos, fechar contas ou impedir de outra forma que as pessoas acessem seus ativos.',
+        warning: 'Não podemos reverter ou cancelar transações, ninguém pode.',
+        lead: 'Podemos marcar contas usadas para atividades ilícitas, o que irá:',
+        bullets: [
+          'Ser incluída em nossa API que exchanges e outras entidades estão usando para monitorar depósitos para conformidade AML e possivelmente reter fundos ilícitos.',
+          'O movimento de fundos será rastreado automaticamente e receberemos notificações sempre que eles se moverem, não importa quão antigo seja o caso.',
+          'Em caso de golpe, avisar outros usuários através do software de carteiras e exchanges usando nossa API, para não enviar fundos para uma conta marcada.',
+        ],
+        steps: [
+          {
+            title: '1. Envie o endereço para o Xahau Forensics',
+            body: 'Mantemos o maior registro de endereços fraudulentos no Xahau e várias entidades o utilizam para combater atividades ilícitas.',
+          },
+          {
+            title: '2. Reporte seu caso às autoridades',
+            body: 'Reporte à polícia local e, se seu país tiver um formulário de denúncia online para crimes cibernéticos ou financeiros, reporte lá também.',
+          },
+          {
+            title: '3. Acompanhe seu boletim de ocorrência',
+            body: 'Trabalhamos com as autoridades. Deixe-os saber que temos as informações. As chances são de que também estamos em contato com outras vítimas e podemos ajudar as autoridades a combinar casos entre jurisdições e fornecer inteligência acionável.',
+          },
+        ],
+        expectationTitle: 'O  que você pode esperar?',
+        expectations: [
+          'Não podemos reverter ou cancelar transações, ninguém pode.',
+          'Fazemos o nosso melhor para que os fundos sejam apreendidos quando saírem do Xahau, trabalhando com exchanges e outras rampas de saída através de nossa API de registro de endereços fraudulentos e por meio de contato manual.',
+          'Quando você nos reporta uma conta, pode esperar que tratemos seu relatório com tanta atenção quanto qualquer outro relatório.',
+          'Recebemos muitos relatórios todos os dias. Se uma conta for adicionada ao nosso registro de endereços fraudulentos, estamos cuidando dela da melhor forma possível junto com todos os outros casos.',
+          'Se dinheiro for apreendido, entraremos em contato com você, se você nos deixou uma maneira de entrar em contato.',
+          'Para recuperar fundos, você precisa trabalhar com as autoridades para a papelada.',
+        ],
+        expectationWarning:
+          'Monitoramos centenas de casos ao mesmo tempo e não podemos dar suporte individualizado. Só entraremos em contato se tivermos boas notícias!',
+      },
+      form: {
+        successTitle: 'Sucesso!',
+        successBody: 'Obrigado por seu relatório. Ele foi enviado com sucesso.',
+        reportIdLabel: 'ID do Relatório:',
+        reportIdFallback: 'desconecido',
+        errorTitle: 'Erro',
+        addressLabel: 'Endereço Xahau',
+        addressPlaceholder: 'rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        addressHint:
+          'Digite o endereço Xahau associado à atividade fraudulenta',
+        descriptionLabel: 'Descrição',
+        descriptionPlaceholder: 'Descreva a atividade fraudulenta',
+        descriptionHint:
+          'Forneça o máximo de detalhes possível para nos ajudar a investigar',
+        urlLabel: 'URL',
+        urlPlaceholder: 'URL opcional relacionada à fraude',
+        urlHint:
+          'Forneça uma URL se relevante, por exemplo, um site de golpe ou postagem em redes sociais',
+        categoryLabel: 'Categoria Sugerida',
+        categoryPlaceholder: 'Selecione uma categoria...',
+        categoryOptions: [
+          { value: 'giveaway', label: 'Sorteio' },
+          { value: 'theft', label: 'Roubo' },
+          { value: 'other', label: 'Outro' },
+        ],
+        categoryHint: 'Ajude-nos a categorizar o tipo de fraude',
+        contactLabel: 'Informações de Contato',
+        contactPlaceholder:
+          'Informações de contato opcionais, por exemplo, e-mail, X handle ou nome de usuário do Telegram',
+        contactHint:
+          'Forneça informações de contato se estiver disposto a ajudar com perguntas de acompanhamento',
+        requiredFields: 'Campos obrigatórios',
+        submitLabel: 'Enviar Relatório',
+        submitAnotherLabel: 'Enviar Outro Relatório',
+        optional: 'Opcional',
+      },
+      privacy: {
+        title: 'Privacidade e Segurança',
+        bullets: [
+          'Este formulário usa ALTCHA, um CAPTCHA compatível com a privacidade que não rastreia você',
+          'Seu relatório é enviado com segurança para a rede Xahau Forensics',
+          'Os relatórios são revisados e usados para melhorar a segurança da rede',
+          'Nenhuma informação pessoal é necessária para enviar um relatório',
+        ],
+      },
+      attribution: {
+        prefix: 'Xahau Forensics é operado por ',
+        label: 'INFTF',
+        suffix: '.',
+      },
+      messages: {
+        captchaIncomplete:
+          'Por favor, complete a verificação CAPTCHA antes de enviar.',
+        captchaFailed:
+          'Falha na verificação CAPTCHA. Por favor, complete o desafio e tente novamente.',
+        submitting: 'Enviando...',
+        submitFailed:
+          'Falha ao enviar o relatório. Por favor, tente novamente.',
+        networkError:
+          'Erro de rede: Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
       },
     },
   }

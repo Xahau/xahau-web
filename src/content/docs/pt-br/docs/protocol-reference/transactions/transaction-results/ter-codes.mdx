@@ -1,0 +1,22 @@
+---
+title: Códigos TER
+---
+Esses códigos indicam que a transação falhou, mas poderia ser aplicada com sucesso no futuro, geralmente se alguma outra transação hipotética for aplicada primeiro. Eles têm valores numéricos na faixa de -99 a -1. O código exato para qualquer erro específico está sujeito a alterações, portanto não dependa dele.
+
+**Cuidado:** Transações com códigos `ter` não são aplicadas ao ledger atual e não podem causar nenhuma mudança no estado do Xahau. No entanto, uma transação que falhou provisoriamente ainda pode ter sucesso ou falhar com um código diferente após ser automaticamente reaplicada. Para mais informações, consulte Finalidade dos Resultados e Envio Confiável de Transações.
+
+| Código           | Explicação                                                                                                                                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `terFUNDS_SPENT` | **DESCONTINUADO.**                                                                                                                                                                                                                 |
+| `terINSUF_FEE_B` | A conta que envia a transação não tem XAH suficiente para pagar a `Fee` especificada na transação.                                                                                                                                 |
+| `terLAST`        | Usado apenas internamente. Este código nunca deve ser retornado.                                                                                                                                                                   |
+| `terNO_ACCOUNT`  | O endereço que envia a transação não está financiado no ledger (ainda).                                                                                                                                                            |
+| `terNO_AUTH`     | A transação envolveria adicionar moeda emitida por uma conta com `lsfRequireAuth` habilitado a uma linha de confiança que não está autorizada. Por exemplo, você colocou uma oferta para comprar uma moeda que não está autorizado a manter. |
+| `terNO_LINE`     | Usado apenas internamente. Este código nunca deve ser retornado.                                                                                                                                                                   |
+| `terNO_RIPPLE`   | Usado apenas internamente. Este código nunca deve ser retornado.                                                                                                                                                                   |
+| `terOWNERS`      | A transação requer que a conta que a envia tenha uma "contagem de proprietários" diferente de zero, portanto a transação não pode ter sucesso. Por exemplo, uma conta não pode habilitar o flag `lsfRequireAuth` se tiver linhas de confiança ou ofertas disponíveis. |
+| `terPRE_SEQ`     | O número `Sequence` da transação atual é maior do que o número de sequência atual da conta que envia a transação.                                                                                                                  |
+| `terPRE_TICKET`  | A transação tentou usar um Ticket, mas o número `TicketSequence` especificado não existe no ledger. No entanto, o Ticket ainda pode ser criado por outra transação.                                                               |
+| `terRETRY`       | Erro retriável não especificado.                                                                                                                                                                                                   |
+| `terQUEUED`      | A transação atendeu ao custo de transação com escalonamento de carga, mas não atendeu ao requisito do ledger aberto, portanto a transação foi enfileirada para um ledger futuro.                                                   |
+| `terNO_HOOK`     | A transação tentou usar um `HookHash` que não existe no ledger.                                                                                                                                                                    |

@@ -25,12 +25,6 @@ export const indexTranslations = {
     feat_more: 'Discover more features',
     stats_title: 'Network statistics',
     stats_subtitle: 'Xahau in numbers',
-    stats_accounts: 'Accounts',
-    stats_hooks: 'Hooks installed',
-    stats_nodes: 'Nodes',
-    stats_txs: 'Transactions/24h',
-    stats_ledgers: 'Ledgers closed',
-    stats_node_cta: 'Want to run a node?',
   },
   es: {
     hero_title:
@@ -60,46 +54,68 @@ export const indexTranslations = {
     feat_more: 'Descubre más características',
     stats_title: 'Estadísticas de la red',
     stats_subtitle: 'Xahau en números',
-    stats_accounts: 'Cuentas',
-    stats_hooks: 'Hooks instalados',
-    stats_nodes: 'Nodos',
-    stats_txs: 'Transacciones/24h',
-    stats_ledgers: 'Ledgers cerrados',
-    stats_node_cta: '¿Quieres ejecutar un nodo?',
   },
   ja: {
     hero_title:
-      'アカウントベースのプログラマビリティを持つスマートなブロックチェーン',
+      'アカウントベースのプログラマビリティを持つスマートブロックチェーン',
     hero_subtitle:
-      'スマートコントラクトだけでなく、スマートアカウント。設計上、安価で高速。現実世界のために構築。',
+      'スマートコントラクトだけでなくスマートアカウント。設計上、安価で高速。現実世界のために構築。',
     hero_learn: '基礎を学ぶ',
     hero_docs: 'ドキュメントを見る',
     network_title: 'Xahauネットワーク',
     network_subtitle:
-      'なぜXahauがあなたのビジネスに最適なブロックチェーンなのか？',
+      'なぜXahauがあなたのビジネスに最適なブロックチェーンなのでしょうか？',
     feat1_title: '1. スマートコントラクトHooks',
     feat1_desc:
-      'Xahauはアカウント上に直接軽量なスマートコントラクトをサポートし、ユーザーがコントラクトを呼び出すことなく、承認、拒否、またはカスタム動作のための自動ロジックを可能にします。',
+      'Xahauはアカウント上に直接軽量なスマートコントラクトをインストールし、ユーザーがコントラクトを呼び出すことなく、承認、拒否、またはカスタム動作のための自動ロジックを可能にします。',
     feat2_title: '2. 手数料燃焼による低手数料',
     feat2_desc:
-      'Xahauは予測可能な低い取引コストを提供します。各手数料の一部は燃焼され、スパムを減らし、長期的なネットワークの健全性にインセンティブを合わせます。',
+      'Xahauは予測可能な低いトランザクション手数料を提供します。各手数料の一部は燃焼され、スパムを減らし、長期的なネットワークの健全性にインセンティブをもたらします。',
     feat3_title: '3. エンタープライズ対応ガバナンス',
     feat3_desc:
       '構造化されたガバナンスとバリデーターの調整により、Xahauはサプライチェーン、決済、コンプライアンスアプリケーションを含む規制およびエンタープライズ用途に安定した環境を提供します。',
     feat4_title: '4. 高速、グリーン、スケーラブル',
     feat4_desc:
-      '効率的なコンセンサスプロトコルにより、Xahauはマイニングなしで高速に取引を処理します。パフォーマンスと持続可能性を必要とするビジネスに最適です。',
+      '効率的なコンセンサスプロトコルにより、Xahauはマイニングなしで高速にトランザクションを処理します。パフォーマンスと持続可能性を必要とするビジネスに最適です。',
     feat5_title: '5. 設計によるトークンと資産の制御',
     feat5_desc:
-      '企業はトークンや資産をどのように使用または転送されるかについての詳細な制御で発行でき、ルールをレジャーレベルで自動的に適用できます。',
+      '企業はトークンや資産をどのように使用または転送されるかについての詳細な制御を設定して発行でき、ルールをレジャーレベルで自動的に適用できます。',
     feat_more: 'さらに多くの機能を発見する',
     stats_title: 'ネットワーク統計',
     stats_subtitle: '数字で見るXahau',
-    stats_accounts: 'アカウント',
-    stats_hooks: 'インストール済みHooks',
-    stats_nodes: 'ノード',
-    stats_txs: '取引/24時間',
-    stats_ledgers: '閉鎖済みレジャー',
-    stats_node_cta: 'ノードを運営したいですか？',
+  },
+  'pt-BR': {
+    hero_title:
+      'A Blockchain Mais Inteligente com Programabilidade Baseada em Contas',
+    hero_subtitle:
+      'Não apenas contratos inteligentes – contas inteligentes. Barato e rápido por design. Construído para o mundo real.',
+    hero_learn: 'Aprenda o básico',
+    hero_docs: 'Ver documentação',
+    network_title: 'A Rede Xahau',
+    network_subtitle: 'Por que Xahau é a blockchain certa para o seu negócio?',
+    feat1_title: '1. Hooks de Contrato Inteligente',
+    feat1_desc:
+      'Xahau suporta contratos inteligentes leves diretamente nas contas, permitindo lógica automática para aprovações, rejeições ou comportamento personalizado sem exigir que os usuários chamem um contrato.',
+    feat2_title: '2. Baixas Taxas com Queima de Taxas',
+    feat2_desc:
+      'Xahau oferece custos de transação previsíveis e baixos. Uma parte de cada taxa é queimada, reduzindo spam e alinhando incentivos com a saúde a longo prazo da rede.',
+    feat3_title: '3. Governança Pronta para Empresas',
+    feat3_desc:
+      'Com governança estruturada e coordenação de validadores, Xahau fornece um ambiente estável para uso regulado e empresarial, incluindo cadeia de suprimentos, pagamentos e aplicações de conformidade.',
+    feat4_title: '4. Rápido, Verde e Escalável',
+    feat4_desc:
+      'Com um protocolo de consenso eficiente, Xahau processa transações rapidamente sem mineração—ideal para empresas que precisam de desempenho e sustentabilidade.',
+    feat5_title: '5. Controle de Tokens e Ativos por Design',
+    feat5_desc:
+      'As empresas podem emitir ativos ou tokens com controle detalhado sobre como eles são usados ou transferidos, aplicando regras automaticamente no nível do livro-razão.',
+    feat_more: 'Descubra mais recursos',
+    stats_title: 'Estatísticas da rede',
+    stats_subtitle: 'Xahau em números',
+    stats_accounts: 'Contas',
+    stats_hooks: 'Hooks instalados',
+    stats_nodes: 'Nós',
+    stats_txs: 'Transações/24h',
+    stats_ledgers: 'Livros-razão fechados',
+    stats_node_cta: 'Quer executar um nó?',
   },
 }

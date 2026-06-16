@@ -1,0 +1,21 @@
+---
+title: IDs de Objetos de Ledger
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/Indexes.cpp)
+
+Cada objeto nos dados de estado de um ledger tem um ID único. O ID é derivado pelo hash dos conteúdos importantes do objeto, juntamente com um [identificador de namespace](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/LedgerFormats.h#L99). O tipo de objeto de ledger determina qual identificador de namespace usar e quais conteúdos incluir no hash. Isso garante que cada ID seja único. Para calcular o hash, o `xahaud` usa SHA-512 e depois trunca o resultado para os primeiros 256 bits. Esse algoritmo, informalmente chamado de **SHA-512Half**, fornece uma saída com segurança comparável ao SHA-256, mas executa mais rápido em processadores de 64 bits.
+
+Geralmente, o ID de um objeto de ledger é retornado como o campo `index` em JSON, no mesmo nível que o conteúdo do objeto. Nos metadados de transação, o ID do objeto de ledger em JSON é `LedgerIndex`.
+
+**Dica:** O campo `index` ou `LedgerIndex` de um objeto no ledger é o ID do objeto de ledger. Isso não é o mesmo que um \[índice de ledger]\[].
+
+### Flags <a href="#flags" id="flags"></a>
+
+Flags são configurações ligadas/desligadas, representadas como valores binários que são combinados em um único número usando operações bitwise-OR. Os valores de bits para os flags nas entradas de ledger são diferentes dos valores usados para habilitar ou desabilitar esses flags em uma transação. Os flags de estado de ledger têm nomes que começam com **`lsf`**.
+
+Os valores possíveis para o campo de flags variam com base no tipo de entrada de ledger. Alguns tipos de entrada de ledger não têm flags definidos. Nesses casos, o campo `Flags` sempre tem o valor `0`.
+
+### Veja Também
+
+* Para mais informações sobre como o Xahau cria e usa hashes, consulte Hashes.
+* Para conceitos básicos de ledger, consulte Ledgers.

@@ -1,0 +1,92 @@
+---
+title: SetRemarks
+description: >-
+  A transação SetRemarks permite que contas anexem, atualizem ou removam
+  observações arbitrárias (pares chave-valor) em objetos de ledger suportados.
+---
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetRemarks.cpp)]
+
+_(Adicionado pela \[emenda Remarks]\[].)_
+
+### Exemplo
+
+```json
+{
+  "TransactionType": "SetRemarks",
+  "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+  "Flags": 0,
+  "ObjectID": "AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899",
+  "Remarks": [
+    {
+      "Remark": {
+        "RemarkName": "CAFE",
+        "RemarkValue": "DEADBEEF",
+        "Flags": 0
+      }
+    }
+  ]
+}
+
+```
+
+| Campo      | Tipo JSON | Tipo Interno  | Descrição                                                                                                    |
+| ---------- | --------- | ------------- | ------------------------------------------------------------------------------------------------------------ |
+| `Account`  | String    | AccountID     | O endereço da conta que envia a transação (deve ser o proprietário/emissor do objeto)                        |
+| `ObjectID` | String    | Hash256       | O ID do objeto de ledger ao qual as observações são anexadas (consulte Objetos Suportados)                   |
+| `Remarks`  | Array     | Array         | Array de objetos de observação a definir, atualizar ou excluir (consulte o Formato de Observações)           |
+
+### Flags de SetRemarks
+
+| Nome da Flag  | Valor Hex    | Valor Decimal | Descrição                                                       |
+| ------------- | ------------ | ------------- | --------------------------------------------------------------- |
+| `tfImmutable` | `0x00000001` | 1             | Marca a observação como imutável (não pode ser alterada ou excluída) |
+
+### Formato de Observações
+
+Cada entrada no array `Remarks` é um objeto com um único campo `Remark`, que por sua vez é um objeto com os seguintes campos:
+
+| Campo         | Tipo JSON | Tipo Interno  | Obrigatório | Descrição                                                                             |
+| ------------- | --------- | ------------- | ----------- | ------------------------------------------------------------------------------------- |
+| `RemarkName`  | String    | Blob          | Sim         | O nome/chave da observação (1–256 bytes, deve ser único por objeto)                   |
+| `RemarkValue` | String    | Blob          | Não         | O valor da observação (1–256 bytes). Omitir para excluir a observação.                |
+| `Flags`       | Number    | UInt32        | Não         | Defina como `1` (`tfImmutable`) para tornar a observação imutável. Padrão é `0`.     |
+
+### Objetos Suportados e Permissões
+
+Observações podem ser anexadas aos seguintes tipos de objetos de ledger. **Apenas a parte especificada (proprietário ou emissor) pode criar, atualizar ou excluir observações em cada objeto:**
+
+| Tipo de Objeto de Ledger       | Quem Pode Definir Observações? | Notas                                                                                          |
+| ------------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| **AccountRoot**                | Proprietário                   | A própria conta (o endereço no objeto)                                                         |
+| **Offer**                      | Proprietário                   | A conta que criou a oferta                                                                     |
+| **Escrow**                     | Proprietário                   | A conta que criou o escrow                                                                     |
+| **Ticket**                     | Proprietário                   | A conta que criou o ticket                                                                     |
+| **PayChannel**                 | Proprietário                   | A conta que criou o canal de pagamento                                                         |
+| **Check**                      | Proprietário                   | A conta que criou o cheque                                                                     |
+| **DepositPreauth**             | Proprietário                   | A conta que criou a pré-autorização de depósito                                                |
+| **URI Token**                  | Emissor                        | A conta que emitiu o URI Token (campo `sfIssuer`)                                              |
+| **Trustline (RippleState)**    | Emissor                        | Apenas o lado emissor da linha de confiança (a conta que emitiu o IOU) pode definir observações. |
+
+### Limites
+
+* **Máximo de 32 observações** por objeto.
+* Cada `RemarkName` e `RemarkValue` deve ter de 1 a 256 bytes.
+* Cada `RemarkName` deve ser único por objeto.
+* Uma vez que uma observação seja marcada como imutável (`Flags: 1`), ela não pode ser alterada ou excluída.
+
+### Custo Especial de Transação
+
+O custo base da transação é aumentado em **1 drop por byte** de todos os campos `RemarkName` e `RemarkValue` na transação.
+
+### Casos de Erro
+
+| Código de Erro        | Descrição                                                                                               |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`         | A emenda Remarks não está habilitada.                                                                   |
+| `temINVALID_FLAG`     | Flags inválidas definidas na transação.                                                                 |
+| `temMALFORMED`        | A transação está malformada (ex.: muitas observações, nomes duplicados, tamanhos de campo inválidos).   |
+| `terNO_ACCOUNT`       | A conta remetente não existe.                                                                           |
+| `tecNO_TARGET`        | O objeto alvo não existe.                                                                               |
+| `tecNO_PERMISSION`    | O remetente não é o proprietário/emissor do objeto.                                                     |
+| `tecIMMUTABLE`        | Tentativa de modificar ou excluir uma observação imutável.                                              |
+| `tecTOO_MANY_REMARKS` | O número de observações no objeto excederia o limite de 32.                                             |

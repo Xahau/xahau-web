@@ -1,0 +1,90 @@
+---
+title: cbak / Callback
+description: A função de callback do seu hook
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/compiling-hooks">Compilando Hooks</LinkButton>
+
+### Comportamento
+
+* `cbak` é uma função definida pelo usuário, chamada pelo `xahaud` para informar ao seu hook o status de uma transação emitida anteriormente
+* Alterações de estado e novas chamadas a emit podem ser feitas a partir de cbak, mas ele não pode fazer `rollback` de uma transação.
+* Quando cbak é executado, a transação emitida à qual o callback se refere passa a ser a transação de origem.
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t cbak (
+    uint32_t what
+)
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+type Callback = (reserved: number) => number
+```
+</TabItem>
+</Tabs>
+
+### Exemplo
+
+
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t cbak(uint32_t reserved)
+{
+    return 0;
+}
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const Callback = (reserved: number) => {
+  return 0
+}
+```
+</TabItem>
+</Tabs>
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome     | Tipo      | Descrição                                                                                                                                                                                                                                                                        |
+| -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| reserved | uint32_t | <p>se <code>0</code>:<br />- a transação emitida à qual este callback se refere foi aceita com sucesso em um ledger.<br /><br />Se <code>1</code><br />- a transação emitida à qual o callback se refere NÃO foi aceita com sucesso em um ledger antes de expirar.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome     | Tipo   | Descrição                                                                                                                                                                                                                                                                        |
+| -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| reserved | number | <p>se <code>0</code>:<br />- a transação emitida à qual este callback se refere foi aceita com sucesso em um ledger.<br /><br />Se <code>1</code><br />- a transação emitida à qual o callback se refere NÃO foi aceita com sucesso em um ledger antes de expirar.</p> |
+</TabItem>
+</Tabs>
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | Um código de retorno arbitrário que você deseja retornar do seu hook. Estará presente nos metadados da transação de origem. |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descrição                                                                                                                      |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| number | Um código de retorno arbitrário que você deseja retornar do seu hook. Estará presente nos metadados da transação de origem. |
+</TabItem>
+</Tabs>

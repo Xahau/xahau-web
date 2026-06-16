@@ -1,0 +1,109 @@
+---
+title: float_negate
+description: Nega um número de ponto flutuante XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Multiplica um XFL por `-1`
+* Retorna um novo XFL como um int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Nega uma representação de float.
+* Retorna um código de erro ou o float negado como um bigint.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_negate (
+    int64_t float1
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_negate(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t negative_one =
+    float_negate(float_one());
+```
+
+<Aside type="tip" title="Caso especial">
+A negação do Canonical Zero é o próprio Canonical Zero. Diferentemente de alguns padrões de ponto flutuante (como o IEEE), não existe "zero negativo" no XFL.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const negative_one =
+    float_negate(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome   | Tipo     | Descrição                            |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Nome | Tipo   | Descrição          |
+| ---- | ------ | -------------------- |
+| f1   | bigint | O float a ser negado. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                  |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de envoltório XFL (xls17)<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- um dos parâmetros fornecidos não era um número de envoltório XFL válido</p>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                                        |
+| ------------------- | -------------------------------------------------- |
+| ErrorCode ou bigint | Um código de erro ou o número de envoltório XFL (xls17). |
+</TabItem>
+</Tabs>

@@ -1,0 +1,32 @@
+---
+title: URIToken
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Os URITokens são a implementação de Token Não Fungível (NFT) nativa da rede Xahau. Eles existem como objetos de primeira classe no ledger, identificados de forma única pelo hash de seu emissor e Identificador de Recurso Uniforme (URI). Os URITokens podem apontar para qualquer conteúdo digital, com apenas um objeto por URI por conta existindo no ledger.
+
+O emissor tem a capacidade de definir um flag para habilitar a queima do objeto no futuro. A reserva de cada proprietário também fica bloqueada mediante a propriedade do URIToken.
+
+### Tipos de Transação
+
+#### URITokenMint
+
+A transação URITokenMint cunha um novo URIToken e atribui a propriedade à conta especificada. O URIToken cunhado representa um ativo digital único que pode ser usado em várias aplicações. O emissor pode optar por permitir que o URIToken cunhado seja destruído no futuro.
+
+<LinkCard title="URITokenMint" href="/pt-br/docs/protocol-reference/transactions/transaction-types/uritokenmint" />
+
+#### URITokenBurn
+
+A transação URITokenBurn é usada para queimar um URIToken no Xahau. Queimar um URIToken o remove permanentemente de circulação. A transação não possui requisitos especiais de custo de transação. A conta que possui o URIToken a ser queimado é necessária para esta transação.
+
+<LinkCard title="URITokenBurn" href="/pt-br/docs/protocol-reference/transactions/transaction-types/uritokenburn" />
+
+#### URITokenBuy
+
+A transação URITokenBuy permite que um usuário compre um URIToken do emissor. Esta transação é usada para transferir a propriedade de um URIToken do emissor para o comprador. A conta do comprador, o identificador único do URIToken a ser comprado e o valor da moeda a pagar pelo URIToken são necessários para esta transação.
+
+<LinkCard title="URITokenBuy" href="/pt-br/docs/protocol-reference/transactions/transaction-types/uritokenbuy" />
+
+<LinkCard title="URITokenCreateSellOffer" href="/pt-br/docs/protocol-reference/transactions/transaction-types/uritokencreateselloffer" />
+
+<LinkCard title="URITokenCancelSellOffer" href="/pt-br/docs/protocol-reference/transactions/transaction-types/uritokencancelselloffer" />
