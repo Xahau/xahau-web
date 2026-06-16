@@ -1,0 +1,116 @@
+---
+title: float_root
+description: Calcula a raiz n-ésima de um XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Calcula a raiz `n-ésima` de um número XFL
+* Retorna o novo XFL
+
+<Aside type="caution">
+Devido a restrições de desempenho, `float_root` converte o argumento para um ponto flutuante de precisão dupla IEEE base-2 antes de aplicar a raiz n-ésima. Portanto, o resultado retornado frequentemente conterá menos precisão do que o esperado. Se você precisar de maior precisão, considere dividir seu XFL em um produto alto e um produto baixo, depois calcule individualmente as raízes quadradas desses produtos e multiplique os resultados entre si.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Calcula a raiz n-ésima de uma representação de float.
+* Um código de erro ou a raiz resultante como um bigint.
+</TabItem>
+</Tabs>
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_root (
+    int64_t float1,
+    uint32_t n
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_root(f1: bigint, n: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t three =
+    float_root(nine, 2);
+```
+
+<Aside type="caution">
+Se um número negativo for passado, a função retornará `COMPLEX_NOT_SUPPORTED` se a raiz for uma raiz par.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const three =
+  float_root(nine, 2)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome   | Tipo      | Descrição                                                                                              |
+| ------ | --------- | -------------------------------------------------------------------------------------------------------- |
+| float1 | int64_t  | Um número de ponto flutuante de envoltório XFL representando o número de ponto flutuante do qual calcular a raiz quadrada |
+| n      | uint32_t | A raiz a ser calculada, por exemplo `2` é uma raiz quadrada.                                                   |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome | Tipo   | Descrição                          |
+| ---- | ------ | ------------------------------------ |
+| f1   | bigint | O float do qual calcular a raiz.  |
+| n    | number | O grau da raiz a ser calculada. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+
+
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>A raiz n-ésima calculada<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- o parâmetro fornecido era um número negativo, o que resultaria em uma raiz complexa.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Tipo                | Descrição                                              |
+| ------------------- | -------------------------------------------------------- |
+| bigint ou ErrorCode | Retorna um código de erro ou a raiz resultante como um bigint. |
+</TabItem>
+</Tabs>

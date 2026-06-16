@@ -1,0 +1,94 @@
+---
+title: hook
+description: A função principal do seu hook
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/compiling-hooks">Compilando Hooks</LinkButton>
+
+### Comportamento
+
+* `hook` é uma função definida pelo usuário, chamada pelo `xahaud` para disparar seu hook.
+* Sua função `hook` chama `accept` ou `reject` para aprovar ou rejeitar a transação de origem.
+* Se a execução chegar ao final da função, isso é implicitamente um `accept`.
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook (
+    uint32_t reserved
+)
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+type Hook = (reserved: number) => number
+```
+
+
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook(uint32_t reserved)
+{
+  return 0;
+}
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const Hook = (reserved: number) => {
+    return 0
+}
+```
+</TabItem>
+</Tabs>
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="183">Nome</th><th>Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>reserved</td><td>uint32_t</td><td>Reservado para uso futuro.</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="183">Nome</th><th>Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>reserved</td><td>number</td><td>Reservado para uso futuro.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | Um código de retorno arbitrário que você deseja retornar do seu hook. Estará presente nos metadados da transação de origem. |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descrição                                                                                                                      |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| number | Um código de retorno arbitrário que você deseja retornar do seu hook. Estará presente nos metadados da transação de origem. |
+</TabItem>
+</Tabs>

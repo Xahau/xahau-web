@@ -1,0 +1,167 @@
+---
+title: Campos Comuns de Transações
+---
+
+Toda transação tem o mesmo conjunto de campos comuns, além de campos adicionais baseados no tipo de transação. Os nomes dos campos diferenciam maiúsculas de minúsculas. Os campos comuns para todas as transações são:
+
+| Campo                | Tipo JSON        | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | ---------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Account`            | String           | AccountID           | _(Obrigatório)_ O endereço único da conta que iniciou a transação.                                                                                                                                                                                                                                                                        |
+| `TransactionType`    | String           | UInt16              | _(Obrigatório)_ O tipo de transação. Os tipos de transação válidos incluem: `Payment`, `OfferCreate`, `TrustSet` e muitos outros.                                                                                                                                                                                                         |
+| `Fee`                | String           | Amount              | _(Obrigatório; preenchimento automático)_ Valor inteiro de XAH, em drops, a ser destruído como custo pela distribuição desta transação à rede. Alguns tipos de transação têm requisitos mínimos diferentes. Consulte \[Custo de Transação]\[] para detalhes.                                                                               |
+| `Sequence`           | Number           | UInt32              | _(Obrigatório; preenchimento automático)_ O número de sequência da conta que envia a transação. Uma transação só é válida se o número `Sequence` for exatamente 1 maior que a transação anterior da mesma conta. O caso especial `0` significa que a transação está usando um Ticket em vez disso _(Adicionado pela \[emenda TicketBatch]\[].)_. |
+| `AccountTxnID`       | String           | Hash256             | _(Opcional)_ Valor hash identificando outra transação. Se fornecido, esta transação só é válida se a transação enviada anteriormente pela conta remetente corresponder ao hash fornecido.                                                                                                                                                  |
+| `Flags`              | Number           | UInt32              | _(Opcional)_ Conjunto de flags de bits para esta transação.                                                                                                                                                                                                                                                                               |
+| `LastLedgerSequence` | Number           | UInt32              | _(Opcional; fortemente recomendado)_ Índice de ledger mais alto em que esta transação pode aparecer. Especificar este campo estabelece um limite superior estrito sobre por quanto tempo a transação pode aguardar para ser validada ou rejeitada. Consulte Envio Confiável de Transações para mais detalhes.                               |
+| `Memos`              | Array of Objects | Array               | _(Opcional)_ Informações arbitrárias adicionais usadas para identificar esta transação.                                                                                                                                                                                                                                                   |
+| `NetworkID`          | Number           | UInt32              | _(Específico da rede)_ O ID de rede da cadeia para a qual esta transação se destina. **DEVE SER OMITIDO** para a Mainnet e algumas redes de teste. **OBRIGATÓRIO** em cadeias cujo ID de rede é 1025 ou superior.                                                                                                                          |
+| `Signers`            | Array            | Array               | _(Opcional)_ Array de objetos que representam uma multi-assinatura que autoriza esta transação.                                                                                                                                                                                                                                           |
+| `SourceTag`          | Number           | UInt32              | _(Opcional)_ Inteiro arbitrário usado para identificar o motivo deste pagamento, ou um remetente em cujo nome esta transação é feita. Convencionalmente, um reembolso deve especificar o `SourceTag` do pagamento inicial como o `DestinationTag` do pagamento de reembolso.                                                              |
+| `SigningPubKey`      | String           | Blob                | _(Adicionado automaticamente ao assinar)_ Representação hexadecimal da chave pública que corresponde à chave privada usada para assinar esta transação. Se uma string vazia, indica que uma multi-assinatura está presente no campo `Signers` em vez disso.                                                                                |
+| `TicketSequence`     | Number           | UInt32              | _(Opcional)_ O número de sequência do ticket a usar no lugar de um número `Sequence`. Se fornecido, `Sequence` deve ser `0`. Não pode ser usado com `AccountTxnID`.                                                                                                                                                                       |
+| `TxnSignature`       | String           | Blob                | _(Adicionado automaticamente ao assinar)_ A assinatura que verifica que esta transação se origina da conta que diz ser.                                                                                                                                                                                                                   |
+| `EmitDetails`        | Object           | Object              | Contém detalhes sobre a emissão. Inclui a geração da emissão, o ônus da emissão, o endereço de callback, o hash do hook que emitiu a transação, o nonce da emissão e o ID da transação pai.                                                                                                                                              |
+| `HookParameters`     | Array            | Array               | Os parâmetros de hook da transação.                                                                                                                                                                                                                                                                                                       |
+
+\[Removido em: rippled 0.28.0]\[]: O campo `PreviousTxnID` das transações foi substituído pelo campo `AccountTxnID`. Este campo String/Hash256 está presente em algumas transações históricas. Isso não está relacionado ao campo também denominado `PreviousTxnID` em alguns objetos de ledger.
+
+### AccountTxnID
+
+O campo `AccountTxnID` permite encadear suas transações, de modo que uma transação atual não seja válida, a menos que a transação anterior enviada pela mesma conta tenha um \[hash de transação]\[hash identificador] específico.
+
+Ao contrário do campo `PreviousTxnID`, que rastreia a última transação que _modificou_ uma conta (independentemente do remetente), o `AccountTxnID` rastreia a última transação _enviada por_ uma conta. Para usar `AccountTxnID`, você deve primeiro habilitar o flag `asfAccountTxnID`, para que o ledger rastreie o ID da transação anterior da conta. (`PreviousTxnID`, em comparação, é sempre rastreado.)
+
+Uma situação em que isso é útil é quando você tem um sistema primário para enviar transações e um sistema de backup passivo. Se o sistema de backup passivo ficar desconectado do primário, mas o primário não estiver completamente inativo, e ambos começarem a operar ao mesmo tempo, você poderia ter problemas sérios, como algumas transações sendo enviadas duas vezes e outras não sendo enviadas. Encadear suas transações com `AccountTxnID` garante que, mesmo que ambos os sistemas estejam ativos, apenas um deles possa enviar transações válidas de cada vez.
+
+O campo `AccountTxnID` não pode ser usado em transações que usam Tickets. Transações que usam `AccountTxnID` não podem ser colocadas na fila de transações.
+
+### Campos com Preenchimento Automático
+
+Alguns campos podem ser preenchidos automaticamente antes de uma transação ser assinada, seja por um servidor `xahaud` ou por uma biblioteca cliente. O preenchimento automático de valores requer uma conexão ativa com o Xahau para obter o estado mais recente, portanto não pode ser feito offline. Os detalhes podem variar por biblioteca, mas o preenchimento automático sempre fornece valores adequados para pelo menos os seguintes campos:
+
+*   `Fee` - Preenche automaticamente o \[Custo de Transação]\[] com base na rede.
+
+    **Nota:** Ao usar o \[comando sign]\[] do `xahaud`, você pode limitar o valor máximo possível de preenchimento automático, usando os parâmetros `fee_mult_max` e `fee_mult_div`.)
+* `Sequence` - Usa automaticamente o próximo número de sequência para a conta que envia a transação.
+
+Para um sistema de produção, recomendamos _não_ deixar esses campos serem preenchidos pelo servidor. Por exemplo, se os custos de transação ficarem altos devido a um pico temporário na carga da rede, você pode preferir aguardar a redução do custo antes de enviar algumas transações, em vez de pagar o custo temporariamente alto.
+
+O campo `Paths` do tipo \[transação Payment]\[] também pode ser preenchido automaticamente.
+
+### Campo Flags
+
+O campo `Flags` pode conter várias opções que afetam como uma transação deve se comportar. As opções são representadas como valores binários que podem ser combinados com operações bit a bit OR para definir múltiplos flags de uma vez.
+
+Para verificar se uma transação tem um determinado flag habilitado, use o operador AND bit a bit no valor do flag e no campo `Flags`. Um resultado zero indica que o flag está desabilitado, e um resultado igual ao valor do flag indica que o flag está habilitado.
+
+A maioria dos flags só tem significado para um tipo de transação específico. O mesmo valor bit a bit pode ser reutilizado para flags em diferentes tipos de transação, por isso é importante prestar atenção ao campo `TransactionType` ao definir e ler flags.
+
+Bits que não estão definidos como flags DEVEM ser 0. (A \[emenda fix1543]\[] aplica esta regra em alguns tipos de transação. A maioria dos tipos de transação aplica esta regra por padrão.)
+
+#### Flags Globais
+
+O único flag que se aplica globalmente a todas as transações é o seguinte:
+
+| Nome do Flag          | Valor Hex    | Valor Decimal | Descrição                                                                                                                                         |
+| --------------------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfFullyCanonicalSig` | `0x80000000` | 2147483648    | **DESCONTINUADO** Sem efeito. (Se a \[emenda RequireFullyCanonicalSig]\[] não estiver habilitada, este flag aplica uma assinatura totalmente canônica.) |
+
+#### Intervalos de Flags
+
+O campo `Flags` de uma transação pode conter flags que se aplicam em diferentes níveis ou contextos. Flags para cada contexto são limitados aos seguintes intervalos:
+
+| Nome do Intervalo   | Máscara de Bits | Descrição                                                                                          |
+| ------------------- | --------------- | -------------------------------------------------------------------------------------------------- |
+| Flags Universais    | `0xff000000`    | Flags que se aplicam igualmente a todos os tipos de transação.                                     |
+| Flags Baseados em Tipo | `0x00ff0000` | Flags com diferentes significados dependendo do tipo de transação que os usa.                      |
+| Flags Reservados    | `0x0000ffff`    | Flags que não estão atualmente definidos. Uma transação só é válida se esses flags estiverem desabilitados. |
+
+**Nota:** O tipo de \[transação AccountSet]\[] tem seus próprios flags não bit a bit, que servem a um propósito semelhante ao dos flags baseados em tipo. Objetos de ledger também têm um campo `Flags` com diferentes definições de flag bit a bit.
+
+### Campo Memos
+
+O campo `Memos` inclui dados de mensagens arbitrárias com a transação. É apresentado como um array de objetos. Cada objeto tem apenas um campo, `Memo`, que por sua vez contém outro objeto com _um ou mais_ dos seguintes campos:
+
+| Campo        | Tipo   | \[Tipo Interno]\[] | Descrição                                                                                                                                                                                                              |
+| ------------ | ------ | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MemoData`   | String | Blob                | Valor hexadecimal arbitrário, convencionalmente contendo o conteúdo do memo.                                                                                                                                           |
+| `MemoFormat` | String | Blob                | Valor hexadecimal representando caracteres permitidos em URLs. Convencionalmente contendo informações sobre como o memo está codificado, por exemplo como um [tipo MIME](http://www.iana.org/assignments/media-types/media-types.xhtml). |
+| `MemoType`   | String | Blob                | Valor hexadecimal representando caracteres permitidos em URLs. Convencionalmente, uma relação única (de acordo com [RFC 5988](http://tools.ietf.org/html/rfc5988#section-4)) que define o formato deste memo.           |
+
+Os campos `MemoType` e `MemoFormat` devem consistir apenas nos seguintes caracteres: `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%`
+
+O campo `Memos` é limitado a no máximo 1 KB de tamanho (quando serializado em formato binário).
+
+**Custo de Transação:** Transações com um campo `Memos` incorrem em um custo adicional baseado no tamanho dos memos. O custo aumenta proporcionalmente com o tamanho total de todos os memos na transação.
+
+Exemplo de uma transação com um campo Memos:
+
+```json
+{
+    "TransactionType": "Payment",
+    "Account": "rMmTCjGFRWPz8S2zAUUoNVSQHxtRQD4eCx",
+    "Destination": "r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV",
+    "Memos": [
+        {
+            "Memo": {
+                "MemoType": "687474703a2f2f6578616d706c652e636f6d2f6d656d6f2f67656e65726963",
+                "MemoData": "72656e74"
+            }
+        }
+    ],
+    "Amount": "1"
+}
+```
+
+### Campo NetworkID
+
+\[Novo em: rippled 1.11.0]\[]
+
+O campo `NetworkID` é uma proteção contra ataques de repetição de transações em "cadeia cruzada", impedindo que a mesma transação seja copiada e executada em uma rede paralela para a qual não foi destinada. Para compatibilidade com cadeias existentes, o campo `NetworkID` deve ser omitido em qualquer rede com um ID de rede de 1024 ou menos, mas deve ser incluído em qualquer rede com um ID de rede de 1025 ou mais. A tabela a seguir mostra o status e os valores para várias redes conhecidas:
+
+| Rede                              | ID    | Campo `NetworkID`                                       |
+| --------------------------------- | ----- | ------------------------------------------------------- |
+| Mainnet                           | 0     | Não permitido                                           |
+| Testnet                           | 1     | Não permitido                                           |
+| Devnet                            | 2     | Não permitido                                           |
+| AMM Devnet                        | 25    | Não permitido                                           |
+| Sidechains Devnet Locking Chain   | 2551  | Não permitido, mas se tornará obrigatório após atualização |
+| Sidechains Devnet Issuing Chain   | 2552  | Não permitido, mas se tornará obrigatório após atualização |
+| Xahau Testnet                     | 21338 | Obrigatório                                             |
+| Xahau Mainnet                     | 21337 | Obrigatório                                             |
+
+### Campo Signers
+
+O campo `Signers` contém uma multi-assinatura, que possui assinaturas de até 8 pares de chaves, que juntos devem autorizar a transação. A lista `Signers` é um array de objetos, cada um com um campo, `Signer`. O campo `Signer` tem os seguintes campos aninhados:
+
+| Campo           | Tipo   | \[Tipo Interno]\[] | Descrição                                                                        |
+| --------------- | ------ | ------------------- | -------------------------------------------------------------------------------- |
+| `Account`       | String | AccountID           | O endereço associado a esta assinatura, conforme aparece na lista de signatários. |
+| `TxnSignature`  | String | Blob                | Uma assinatura para esta transação, verificável usando a `SigningPubKey`.        |
+| `SigningPubKey` | String | Blob                | A chave pública usada para criar esta assinatura.                                |
+
+Como a verificação de assinatura é uma tarefa computacionalmente intensiva, transações multi-assinadas custam XAH adicional para serem retransmitidas à rede. Cada assinatura incluída na multi-assinatura aumenta o \[custo de transação]\[] exigido para a transação.
+
+### Campos de EmitDetails
+
+Um objeto `EmitDetails` tem os seguintes campos:
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                                                                                                                                      |
+| ----------------- | --------- | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EmitGeneration`  | Number    | UInt32              | Sim          | Este campo rastreia uma cadeia de transações emitidas que por sua vez causam outras transações a serem emitidas.                                                                                                                                               |
+| `EmitBurden`      | String    | UInt64              | Sim          | Este campo é uma heurística para detectar forkbombs. As taxas são baseadas no ônus e aumentarão exponencialmente quando uma reação em cadeia for iniciada para evitar que a rede seja sobrecarregada por transações emitidas auto-reforçantes.                  |
+| `EmitParentTxnID` | String    | Hash256             | Sim          | A Execução de Hook que emitiu a transação está conectada à Transação de Origem. Portanto, este campo é sempre necessário para o rastreamento eficiente do comportamento.                                                                                       |
+| `EmitNonce`       | String    | Hash256             | Sim          | Transações emitidas seriam idênticas com os mesmos campos e, portanto, teriam hashes de transação idênticos se um nonce não fosse usado. No entanto, cada nó na rede precisa concordar com o nonce, então uma API Hook especial para produzir um nonce determinístico é disponibilizada. |
+| `EmitCallback`    | String    | AccountID           | Não          | Este campo é usado pelo xahld quando precisa iniciar um callback, para saber qual Hook e conta iniciar o callback. Callbacks acontecem quando uma transação emitida é aceita em um ledger.                                                                     |
+| `EmitHookHash`    | String    | Hash256             | Sim          | O SHA512H do Hook no momento em que foi executado.                                                                                                                                                                                                             |
+
+### Parâmetros de Hook
+
+O campo `HookParameters` é um array de objetos que especificam os parâmetros do hook. Cada objeto de parâmetro tem os seguintes campos:
+
+| Campo   | Tipo JSON | Tipo Interno  | Descrição                    |
+| ------- | --------- | ------------- | ---------------------------- |
+| `Name`  | String    | Blob          | O nome do parâmetro.         |
+| `Value` | String    | Blob          | O valor do parâmetro.        |
+
+**Custo de Transação:** Transações com um campo `HookParameters` incorrem em um custo adicional baseado no tamanho dos parâmetros de hook. O custo aumenta proporcionalmente com o tamanho total de todos os parâmetros na transação.

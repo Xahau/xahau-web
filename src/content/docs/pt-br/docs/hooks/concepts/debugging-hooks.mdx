@@ -1,0 +1,70 @@
+---
+title: Depurando Hooks
+description: Como imprimir "hello world" a partir do seu Hook!
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Como posso depurar um Hook?
+
+A API de Hooks fornece um conjunto de funções no namespace `trace` que gravam saída no arquivo de log do `xrpld` quando o xrpld está configurado com o nível de log _trace_. Essas funções, em geral, permitem que você veja o valor de variáveis, buffers e rastreie a execução e o estado de um Hook em tempo de execução.
+
+<Aside type="tip">
+No momento da escrita, não existe um Depurador Interativo de Hook. Você deve usar as funções de rastreamento.
+</Aside>
+
+### APIs de Rastreamento
+
+As seguintes funções `trace` estão disponíveis na API de Hooks
+
+| API de Hook                                                                | O que faz                                                                              |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [trace](/pt-br/docs/hooks/functions/trace-debug/trace)              | Imprime uma mensagem utf-8, seguida por um buffer especificado pelo usuário (opcionalmente como hex.) |
+| [trace_num](/pt-br/docs/hooks/functions/trace-debug/trace_num)     | Imprime uma mensagem utf-8, seguida por um inteiro.                                            |
+| [trace_float](/pt-br/docs/hooks/functions/trace-debug/trace_float) | Imprime uma mensagem utf-8, seguida por um número de ponto flutuante XFL.                          |
+
+### Exemplo
+
+O código a seguir imprimirá uma única linha de rastreamento e então aceitará a Transação de Origem.
+
+```c
+#include "../hookapi.h"
+int64_t hook(int64_t reserved)
+{
+  trace_num(SBUF("A number"), 10);
+  accept(0,0,0);
+  return 0;
+}
+```
+
+Um exemplo da linha de log produzida pelo `xahaud` quando um pagamento é enviado para fora ou para dentro da Conta Hook:
+
+```
+2021-Apr-13 13:59:11.083700726 UTC View:TRC
+    HookTrace[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh-rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:
+        A number 10
+```
+
+O acima aparece no log como uma única linha, mas foi dividido aqui para melhor visibilidade.
+
+<Aside type="tip" title="Use a testnet">
+A [Xahau Testnet](https://xahau-test.net/) é o lugar perfeito para testar seus Hooks.
+</Aside>
+
+### Formato do Log
+
+Uma análise do formato de log aparece na tabela abaixo
+
+| Parte                                        | Descrição                                                                                                                                                            | # |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - |
+| 2021-Apr-13 13:59:11.083700726 UTC View:TRC | Prefixo do `xahaud` para a linha de log                                                                                                                                      | 1 |
+| HookTrace                                   | Este é um rastreamento iniciado pelo próprio Hook, não alguma outra informação sobre o Hook. Outras informações estão disponíveis nas tags `HookError`, `HookEmit` e `HookInfo`. | 2 |
+| \[rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh        | A primeira conta entre colchetes é a Conta Hook.                                                                                                                          | 3 |
+| -rE3SfnjwfzZFL3JK9cLVfJuy8Ar1XnCqPw]:       | A segunda conta entre colchetes é a Conta de Origem.                                                                                                                  | 4 |
+| A number                                    | Esta é a mensagem que o Hook foi instruído a entregar antes da carga de rastreamento                                                                                              | 5 |
+| 10                                          | Esta é a carga de rastreamento                                                                                                                                              | 6 |
+
+<Aside type="tip">
+O `Xahaud` produz muita saída. Portanto, geralmente é aconselhável filtrar os logs pela(s) conta(s) de seu interesse.
+
+Por exemplo: `tail -f log | grep HookTrace | grep <conta>`
+</Aside>

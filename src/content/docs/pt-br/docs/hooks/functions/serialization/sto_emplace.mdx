@@ -1,0 +1,142 @@
+---
+title: sto_emplace
+description: Insere um campo em um STObject existente em sua posição canônica
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Analisa um STObject `S` (objeto de origem) apontado por `sread_ptr`
+* Analisa um STObject `F` (a ser injetado/inserido) apontado por `fread_ptr`
+* Escreve um novo STObject em `write_ptr` que coloca `F` dentro de `S` na posição canônica `field_id`
+
+<Aside type="caution" title="Codificação do Field ID">
+As APIs `sto_` aceitam um parâmetro `field_id` codificado da seguinte forma: `(type << 16U) + field`\
+Assim, o tipo 1 campo 2 seria `0x10002U`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* Solicita o objeto STO pelo parâmetro `sto`
+* Solicita os bytes que representam o campo a ser adicionado pelo parâmetro `field_bytes`
+* Solicita o ID do campo a ser adicionado pelo parâmetro `field_id`
+* Retorna o objeto STO atualizado em formato de dados de ledger codificados em binário, ou um código de erro se a operação falhar.
+</TabItem>
+</Tabs>
+
+### Definição
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_emplace (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t fread_ptr,
+    uint32_t fread_len,
+    uint32_t field_id
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_emplace(
+    sto: ByteArray | HexString,
+    field_bytes: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t tx_out[1024];
+
+int64_t tx_len =
+    sto_emplace(tx_out, sizeof(tx_out),
+                tx_in, tx_len,
+                sequence_field, 5, sfSequence);
+
+if (tx_len <= 0)
+    rollback("Emplacing failed.", 17, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_emplace(tx_in, sequence_field, sfSequence)
+if (typeof tx_out === 'number')
+    rollback("Emplacing failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome       | Tipo      | Descrição                                                                                                                                                             |
+| ---------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | O buffer onde o STObject modificado será escrito                                                                                                                            |
+| write_len | uint32_t | O tamanho do buffer de saída                                                                                                                                         |
+| sread_ptr | uint32_t | O buffer de onde o STObject de origem será lido                                                                                                                             |
+| sread_len | uint32_t | O tamanho do objeto de origem                                                                                                                                         |
+| fread_ptr | uint32_t | O buffer de onde o campo a ser inserido/injetado será lido                                                                                                               |
+| fread_len | uint32_t | O tamanho do campo a ser inserido/injetado                                                                                                                         |
+| field_id  | uint32_t | O código `sf` (localização) para formar a inserção. Se já existir no objeto de origem, o campo existente é substituído. Se não existir, é inserido. |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Nome         | Tipo                   | Descrição                                                                   |
+| ------------ | ---------------------- | ----------------------------------------------------------------------------- |
+| sto          | ByteArray \| HexString | O objeto STO (dados de ledger codificados em binário) ao qual o campo será adicionado. |
+| field_bytes | ByteArray \| HexString | Os bytes que representam o campo a ser adicionado.                                 |
+| field_id    | number                 | O ID do campo a ser adicionado.                                              |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="169">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td>O número de bytes escritos em <code>write_ptr</code><br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer de saída deve ser pelo menos tão grande quanto o objeto de origem + o campo injetado, mesmo que o campo esteja apenas sendo substituído.<br /><br /><code>TOO_BIG</code><br />- O campo que você está tentando inserir é muito grande<br /><br /><code>PARSE_ERROR</code><br />- O STObject fornecido está malformado ou não é um STObject.</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="169">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>O objeto STO atualizado em formato de dados de ledger codificados em binário, ou um código de erro se a operação falhar.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+

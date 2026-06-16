@@ -1,0 +1,110 @@
+---
+title: util_accid
+description: Converte um r-address em um Account ID de 20 bytes
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Lê um r-address a partir de `read_ptr`
+* Escreve um Account ID de 20 bytes em `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+* Lê um r-address a partir de `raddress`
+* Retorna um Account ID de 20 bytes ou um ErrorCode
+</TabItem>
+</Tabs>
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_accid (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_accid(raddress: string): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t accid_out[20];
+uint8_t raddr_in[] = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh";
+
+int64_t bytes_written = 
+    util_accid(accid_out, 20, raddr_in, sizeof(raddr_in)-1);
+// NB: if specified as a c-string as above, account for the nul char
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const accId = util_accid('rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh')
+```
+
+
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Nome</th><th width="102">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Ponteiro para um buffer de tamanho adequado para armazenar o Account ID de saída. Deve ter pelo menos 20 bytes.</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Tamanho do buffer de saída.</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Ponteiro para o r-address.</td></tr><tr><td>read_len</td><td>uint32_t</td><td>O tamanho do r-address.</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th>Nome</th><th width="102">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>raddress</td><td>string</td><td>O r-address a ser formatado como Account ID em HEX.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos (o tamanho do r-address de saída).<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>read_ptr</code> apontava para algo que não era um r-address válido.<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> não era grande o suficiente para armazenar o Account ID produzido. (Deve ser 20 bytes).<br /><br /><code>TOO_BIG</code><br />- <code>read_len</code> era maior do que um r-address pode ser.</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Tipo            | Descrição                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------------ |
+| string / number | Se houver um erro na formatação, caso contrário retorna o Account ID em HEX como um array de números. |
+</TabItem>
+</Tabs>
+

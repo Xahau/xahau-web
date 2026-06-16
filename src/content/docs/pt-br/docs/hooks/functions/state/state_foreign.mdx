@@ -1,0 +1,128 @@
+---
+title: state_foreign
+description: >-
+  Recupera os dados apontados, em outra conta, por uma chave do Estado do Hook
+  e os escreve em um buffer de saída
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Lê um ID de Conta de 20 bytes a partir de `aread_ptr`
+* Lê uma chave do Estado do Hook de 32 bytes a partir de `kread_ptr`
+* Escreve os dados (valor) dessa chave, nesse ID de Conta, no buffer apontado por `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Recupera o valor do Estado do Hook Estrangeiro pertencente a outra conta para a chave especificada.
+* Retorna um código de erro ou o valor do Estado do Hook para a chave.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t state_foreign (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t nread_ptr,
+    uint32_t nread_len,
+    uint32_t aread_ptr,
+    uint32_t aread_len  
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function state_foreign(
+    key: ByteArray | HexString,
+    namespace: ByteArray | HexString | undefined | null,
+    accountid: ByteArray | HexString | undefined | null
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+uint8_t ns[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int64_t lookup =
+    state_foreign(SBUF(blacklist_status), SBUF(otxn_accid), SBUF(ns), SBUF(blacklist_accid));
+if (lookup < 0)
+     rollback(SBUF("Error: could not find key on foreign state."), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const ns = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+const blacklist_status =
+    state_foreign(otxn_accid, ns, blacklist_accid)
+if (typeof blacklist_status === 'number')
+     rollback("Error: could not find key on foreign state.", 1);
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome       | Tipo      | Descrição                                                                     |
+| ---------- | --------- | ------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Um ponteiro para o buffer no qual escrever os dados do Estado do Hook.               |
+| write_len | uint32_t | O tamanho do buffer de escrita.                                                 |
+| kread_ptr | uint32_t | Ponteiro para um buffer contendo a chave do Estado do Hook.                              |
+| kread_len | uint32_t | O tamanho da chave do Estado do Hook. (Deve ser 32.)                               |
+| nread_ptr | uint32_t | Um ponteiro para o buffer contendo o Namespace de 32 bytes no qual buscar o estado |
+| nread_len | uint32_t | O tamanho do buffer de namespace (deve ser 32).                              |
+| aread_ptr | uint32_t | Um ponteiro para um buffer contendo o ID de Conta de 20 bytes no qual buscar o estado.    |
+| aread_len | uint32_t | O tamanho do buffer de Conta. (Deve ser sempre 20).                        |
+
+<Aside type="tip">
+Certifique-se de verificar o valor de retorno. Uma busca de estado pode falhar por uma série de motivos, e o buffer então conterá o que continha antes da chamada (normalmente tudo zeros).
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome      | Tipo                   | Descrição                                           |
+| --------- | ---------------------- | ----------------------------------------------------- |
+| key       | ByteArray or HexString | A chave do Estado do Hook da qual recuperar o valor. |
+| namespace | ByteArray or HexString | O namespace do Hook no qual procurar.                        |
+| accountid | ByteArray or HexString | O proprietário do estado.                               |
+|           |                        |                                                       |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>O número de bytes escritos no buffer de escrita.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>DOESNT_EXIST</code><br />- a chave do Estado do Hook especificada não possui um valor associado no ledger no momento da chamada.<br /><br /><code>TOO_BIG</code><br />- a chave especificada por <code>read_ptr</code> e <code>read_len</code> era maior que 32 bytes.<br /><br /><code>TOO_SMALL</code><br />- o buffer de saída era muito pequeno para armazenar os dados do Estado do Hook.<br /><br /><code>INVALID_ACCOUNT</code><br />- a conta especificada em <code>aread_ptr</code> é inválida ou não existe.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descrição                                                |
+| ---------------------- | ---------------------------------------------------------- |
+| ErrorCode or ByteArray | Retorna um código de erro ou o valor do Estado do Hook para a chave. |
+</TabItem>
+</Tabs>

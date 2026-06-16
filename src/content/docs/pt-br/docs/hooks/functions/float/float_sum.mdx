@@ -1,0 +1,112 @@
+---
+title: float_sum
+description: Soma dois números XFL entre si
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Calcula a soma de dois números de ponto flutuante XFL (xls17)
+* Retorna um novo XFL como um int64_t
+</TabItem>
+
+<TabItem label="JavaScript">
+* Soma duas representações de float.
+* Retorna um código de erro ou a soma como um bigint.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sum (
+    int64_t float1,
+    int64_t float2
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sum(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t two =
+    float_sum(float_one(), float_one());
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const two =
+  float_sum(float_one(), float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+
+
+| Nome   | Tipo     | Descrição                                                                            |
+| ------ | -------- | -------------------------------------------------------------------------------------- |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL representando o primeiro operando da soma  |
+| float2 | int64_t | Um número de ponto flutuante de envoltório XFL representando o segundo operando da soma |
+
+<Aside type="tip">
+Para subtrair dois floats, use `float_negate` no segundo float e depois use `float_sum`.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Nome | Tipo   | Descrição              |
+| ---- | ------ | ------------------------ |
+| f1   | bigint | O primeiro float a ser somado.  |
+| f2   | bigint | O segundo float a ser somado. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                 |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de envoltório XFL (xls17)<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- um dos parâmetros fornecidos não era um número de envoltório XFL válido<br /><br /><code>OVERFLOW</code><br />- o resultado da soma era muito grande para ser armazenado em um XFL.</p>
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                           |
+| ------------------- | ------------------------------------- |
+| ErrorCode ou bigint | Um código de erro ou a soma como um bigint. |
+</TabItem>
+</Tabs>

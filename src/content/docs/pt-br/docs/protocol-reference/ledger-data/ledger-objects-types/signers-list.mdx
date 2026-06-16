@@ -1,0 +1,98 @@
+---
+title: Signers List
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/6d2e3da30696bd10e3bb11a5ff6d45d2c4dae90f/src/ripple/protocol/impl/LedgerFormats.cpp#L127)
+
+_(Adicionado pela \[emenda MultiSign]\[].)_
+
+O tipo de objeto `SignerList` representa uma lista de partes que, como grupo, estão autorizadas a assinar uma transação em lugar de uma conta individual. É possível criar, substituir ou remover uma lista de assinantes usando uma \[transação SignerListSet]\[].
+
+### Exemplo JSON
+
+```json
+{
+    "Flags": 0,
+    "LedgerEntryType": "SignerList",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "5904C0DC72C58A83AEFED2FFC5386356AA83FCA6A88C89D00646E51E687CDBE4",
+    "PreviousTxnLgrSeq": 16061435,
+    "SignerEntries": [
+        {
+            "SignerEntry": {
+                "Account": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+                "SignerWeight": 2
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "raKEEVSGnKSD9Zyvxu4z6Pqpm4ABH8FS6n",
+                "SignerWeight": 1
+            }
+        },
+        {
+            "SignerEntry": {
+                "Account": "rUpy3eEg8rqjqfUoLeBnZkscbKbFsKXC3v",
+                "SignerWeight": 1
+            }
+        }
+    ],
+    "SignerListID": 0,
+    "SignerQuorum": 3,
+    "index": "A9C28A28B85CD533217F5C0A0C7767666B093FA58A0F2D80026FCC4CD932DDC7"
+}
+```
+
+### Campos
+
+Um objeto `SignerList` tem os seguintes campos:
+
+| Nome                | Tipo JSON | Tipo Interno | Obrigatório? | Descrição                                                                                                                                                                                    |
+| ------------------- | --------- | ------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Flags`             | Number    | UInt32        | Sim          | Um mapa de bits de flags booleanos habilitados para esta lista de assinantes. Para mais informações, consulte Flags de SignerList.                                                            |
+| `LedgerEntryType`   | String    | UInt16        | Sim          | O valor `0x0053`, mapeado para a string `SignerList`, indica que este objeto é um objeto SignerList.                                                                                          |
+| `OwnerNode`         | String    | UInt64        | Sim          | Uma dica indicando qual página do diretório do proprietário aponta para este objeto, caso o diretório consista em múltiplas páginas.                                                          |
+| `PreviousTxnID`     | String    | Hash256       | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                                                               |
+| `PreviousTxnLgrSeq` | Number    | UInt32        | Sim          | O \[índice do ledger]\[Índice de Ledger] que contém a transação que mais recentemente modificou este objeto.                                                                                 |
+| `SignerEntries`     | Array     | Array         | Sim          | Um array de objetos Signer Entry representando as partes que fazem parte desta lista de assinantes.                                                                                          |
+| `SignerListID`      | Number    | UInt32        | Sim          | Um ID para esta lista de assinantes. Atualmente sempre definido como `0`. Se uma emenda futura permitir múltiplas listas de assinantes para uma conta, isso pode mudar.                      |
+| `SignerQuorum`      | Number    | UInt32        | Sim          | Um número alvo para os pesos dos assinantes. Para produzir uma assinatura válida para o proprietário desta SignerList, os assinantes devem fornecer assinaturas válidas cujos pesos somem este valor ou mais. |
+
+Os `SignerEntries` podem ser qualquer combinação de endereços com e sem fundos que usem chaves secp256k1 ou ed25519.
+
+#### Objeto Signer Entry
+
+Cada membro do campo `SignerEntries` é um objeto que descreve aquele assinante na lista. Um Signer Entry tem os seguintes campos:
+
+| Nome            | Tipo JSON | Tipo Interno | Descrição                                                                                                                                                                              |
+| --------------- | --------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`       | String    | AccountID     | Um endereço Xahau cuja assinatura contribui para a multi-assinatura. Não precisa ser um endereço com fundos no ledger.                                                                 |
+| `SignerWeight`  | Number    | UInt16        | O peso de uma assinatura deste assinante. Uma multi-assinatura só é válida se o peso total das assinaturas fornecidas atingir ou superar o valor `SignerQuorum` da lista de assinantes. |
+| `WalletLocator` | String    | Hash256       | _(Opcional)_ Dados hexadecimais arbitrários. Podem ser usados para identificar o assinante ou para outros fins relacionados. _(Adicionado pela \[emenda ExpandedSignerList]\[].)_      |
+
+Ao processar uma transação multi-assinada, o servidor consulta os valores de `Account` em relação ao ledger no momento da execução da transação. Se o endereço _não_ corresponder a um objeto AccountRoot com fundos, então apenas a chave privada mestre associada a esse endereço pode ser usada para produzir uma assinatura válida. Se a conta _existir_ no ledger, depende do estado dessa conta. Se a conta tiver uma Chave Regular configurada, a Chave Regular pode ser usada. A chave mestre da conta só pode ser usada se não estiver desabilitada. Uma multi-assinatura não pode ser usada como parte de outra multi-assinatura.
+
+### Flags de SignerList
+
+_(Adicionado pela \[emenda MultiSignReserve]\[].)_
+
+Objetos SignerList podem ter o seguinte valor de flag:
+
+| Nome do Flag       | Valor Hex    | Valor Decimal | Descrição                                                                                                                                                                                                                                                                                                                      |
+| ------------------ | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `lsfOneOwnerCount` | `0x00010000` | 65536         | Se este flag estiver habilitado, esta SignerList conta como um item para fins da reserva do proprietário. Caso contrário, esta lista conta como N+2 itens, onde N é o número de assinantes que contém. Este flag é habilitado automaticamente se você adicionar ou atualizar uma lista de assinantes após a \[emenda MultiSignReserve]\[] ser habilitada. |
+
+### Listas de Assinantes e Reservas
+
+Uma lista de assinantes contribui para o requisito de reserva do seu proprietário.
+
+A \[emenda MultiSignReserve]\[] (habilitada em 2019-04-17) fez com que cada lista de assinantes contasse como um objeto, independentemente de quantos membros ela tenha. Como resultado, a reserva do proprietário associada a uma nova lista de assinantes é de 2 XAH.
+
+Uma lista de assinantes criada antes da \[emenda MultiSignReserve]\[] conta como dois objetos, e cada membro da lista conta como um. Como resultado, a reserva total do proprietário associada à lista de assinantes varia de 3 a 10 vezes a reserva exigida por uma única linha de confiança (RippleState) ou objeto Offer no ledger. Para atualizar uma lista de assinantes para usar a nova reserva reduzida, atualize a lista enviando uma \[transação SignerListSet]\[].
+
+### Formato do ID do SignerList
+
+O ID de um objeto de lista de assinantes é o SHA-512Half dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço RippleState (`0x0053`)
+* O AccountID do proprietário da lista de assinantes
+* O `SignerListID` (atualmente sempre `0`)
