@@ -1,0 +1,54 @@
+---
+title: Objetos Serializados
+description: Manipule objetos xahaud serializados brutos!
+---
+### O que são Objetos Serializados?
+
+O Xahau tem formas [serializadas](/pt-br/docs/protocol-reference/binary-format) canônicas de todos os objetos sujeitos ao consenso. Ao escrever um Hook, é inevitável que você se depare com objetos serializados. Estes se manifestam como buffers contendo o que pode parecer ao desenvolvedor como blobs binários opacos. Na verdade, você pode lê-los com o [XRPL-Binary-Visualiser](https://richardah.github.io/xrpl-binary-visualizer/).
+
+Por exemplo, um campo `sfAmount` serializa para uma coleção de bytes como `61D50F26109A32B7EC`
+
+### API de Objetos Serializados
+
+Para auxiliar os desenvolvedores de Hooks a trabalhar com objetos serializados, o namespace `sto` foi criado dentro da API de Hooks. Essas funções manipulam ponteiros dentro de um buffer fornecido pelo Hook. Veja a tabela abaixo.
+
+| API de Hook                                                                    | O que faz                                                                            |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [sto_subfield](/pt-br/docs/hooks/functions/serialization/sto_subfield) | Indexa em um objeto serializado xrpld e retorna a localização e comprimento de um subcampo |
+| [sto_subarray](/pt-br/docs/hooks/functions/serialization/sto_subarray) | Indexa em um array serializado xrpld e retorna a localização e comprimento de um índice    |
+| [sto_emplace](/pt-br/docs/hooks/functions/serialization/sto_emplace)   | Insere um campo em um STObject existente em seu posicionamento canônico                  |
+| [sto_erase](/pt-br/docs/hooks/functions/serialization/sto_erase)       | Remove um campo de um STObject                                                       |
+| [sto_validate](/pt-br/docs/hooks/functions/serialization/sto_validate) | Valida um STObject                                                                  |
+
+Onde aplicável, essas APIs retornam um _offset_ e um _comprimento_ codificados em um único int64_t. Veja a documentação individual para detalhes.
+
+### Exemplo
+
+Um cenário típico no qual você usaria a API STO é no processamento de memos em uma Transação de Origem. Como você provavelmente precisará de acesso ao memo completo de qualquer forma, uma forma eficiente de processar um conjunto de memos é simplesmente despejar o campo `sfMemos` inteiro em um buffer e então indexar dentro dele. Embora também seja possível usar a API de slot para fazer isso inserindo a Transação de Origem em um slot, isso resultaria em código adicional e cópia adicional.
+
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+
+uint8_t memos[2048];
+int64_t memos_len = otxn_field(SBUF(memos), sfMemos);
+for (int i = 0; GUARD(3), i < 3; ++i)
+{
+    int64_t memo_lookup = sto_subarray(memos, memos_len, i);
+    if (memo_lookup < 0)
+        rollback(SBUF("Memo lookup error"), 1);
+    uint8_t*  memo_ptr = SUB_OFFSET(memo_lookup) + memos;
+    uint32_t  memo_len = SUB_LENGTH(memo_lookup);
+    // o acima agora aponta para o memo ... faça algo aqui
+}
+```
+
+### Sobreposição com slots
+
+Você pode notar alguma sobreposição entre as APIs de slot e as APIs STO. A diferença principal aqui é quem _possui_ os dados subjacentes:
+
+* Se você estiver usando _slots_, então o xrpld possui o objeto com o qual você está interagindo.
+* Se você estiver usando a _API STO_, então o **Hook** possui o buffer com o qual você está interagindo.
+
+Ambos os conjuntos de funções indexam em um Objeto Serializado sem cópias desnecessárias.

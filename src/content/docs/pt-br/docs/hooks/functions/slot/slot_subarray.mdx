@@ -1,0 +1,106 @@
+---
+title: slot_subarray
+description: Indexa um array alocado em um slot e atribui um sub-objeto a outro slot
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Procura o array no slot `parent_slot`
+* Recupera o sub-objeto no índice especificado em `array_id`
+* Coloca o sub-objeto no slot `new_slot` ou no próximo slot disponível, caso `new_slot` seja 0.
+* Retorna o novo número de slot.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Cria um subarray no slot pai especificado.
+* Retorna um código de erro ou o resultado da criação do subarray.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_subarray (
+    uint32_t parent_slot,
+    uint32_t array_id,
+    uint32_t new_slot
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_subarray(
+    parent_slotno: number,
+    array_id: number,
+    new_slotno: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t subslot = 0;
+subslot =
+    slot_subarray(slot_no, i, (uint32_t)subslot);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+let subslot = 0
+subslot = slot_subarray(slot_no, i, subslot)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome         | Tipo      | Descrição                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| parent_slot | uint32_t | Slot em que o array pai está                                                                                                                                                                                                                                                                                                                                                                                |
+| array_id    | uint32_t | <p>O código <code>sf</code> do campo que você está procurando.<br /><br />Para calcular isso manualmente, pegue o <code>type</code> serializado e desloque-o para os 16 bits mais altos de uint32_t, depois pegue o <code>field</code> e coloque-o nos 16 bits mais baixos.<br /><br />Por exemplo:<br /><code>sfEmitNonce</code> tem <code>type</code> 5 e <code>field</code> 11, portanto seu valor é <code>0x050BU</code></p> |
+| new_slot    | uint32_t | Novo número de slot no qual colocar o objeto do índice de array selecionado. Se nulo, escolhe o próximo slot disponível. _Pode ser nulo._                                                                                                                                                                                                                                                                            |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome           | Tipo   | Descrição                                   |
+| -------------- | ------ | --------------------------------------------- |
+| parent_slotno | number | O número do slot pai.                       |
+| array_id      | number | O ID do array para o qual criar um subarray. |
+| new_slotno    | number | O novo número de slot para o subarray.         |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número do slot do objeto recém-alocado<br /><br />Se negativo, um erro:<br /><br /><code>DOESNT_EXIST</code><br />- O <code>array_id</code> especificado não existe no array apontado por <code>parent_slot</code><br /><br /><code>NO_FREE_SLOTS</code><br />- A API exigiria a alocação de um novo slot, mas o Hook já está no número máximo de slots.<br /><br /><code>NOT_AN_ARRAY</code><br />- O <code>parent_slot</code> especificado não contém um STArray.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo   | Descrição                                                   |
+| ------ | ------------------------------------------------------------- |
+| number | Retorna um código de erro ou o resultado da criação do subarray. |
+</TabItem>
+</Tabs>

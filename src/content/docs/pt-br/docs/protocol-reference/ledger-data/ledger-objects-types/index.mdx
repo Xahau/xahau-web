@@ -1,0 +1,21 @@
+---
+title: Tipos de Objetos de Ledger
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## Campos Comuns de Entrada de Ledger <a href="#ledger-entry-common-fields" id="ledger-entry-common-fields"></a>
+
+[\[Fonte\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp)
+
+Cada entrada nos dados de estado de um ledger tem o mesmo conjunto de campos comuns, além de campos adicionais baseados no tipo de entrada de ledger. Os nomes dos campos diferenciam maiúsculas de minúsculas. Os campos comuns para todas as entradas de ledger são:
+
+| Campo                    | Tipo JSON | Tipo Interno  | Obrigatório? | Descrição                                                                                                                                                                                                                                                                                                  |
+| ------------------------ | --------- | ------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index` ou `LedgerIndex` | String    | Hash256       | Não          | O ID único para esta entrada de ledger. Em JSON, este campo é representado com nomes diferentes dependendo do contexto e do método de API. (Observe que, embora seja especificado como "opcional" no código, toda entrada de ledger deve ter um, a menos que sejam dados legados do início do histórico do XRP Ledger.) |
+| `LedgerEntryType`        | String    | UInt16        | Sim          | O tipo de entrada de ledger. Os tipos de entrada de ledger válidos incluem `AccountRoot`, `Offer`, `RippleState` e outros.                                                                                                                                                                                |
+| `Flags`                  | Number    | UInt32        | Sim          | Conjunto de flags de bits para esta entrada de ledger.                                                                                                                                                                                                                                                    |
+| `Remarks`                | Array     | STArray       | Não          | Array de objetos de observação a definir, atualizar ou excluir (consulte o Formato de Observações)                                                                                                                                                                                                        |
+
+<Aside type="caution">
+Em JSON, o ID da entrada de ledger está no campo `index` ou `LedgerIndex`. Isso não é o mesmo que um índice de ledger no campo `ledger_index`.
+</Aside>

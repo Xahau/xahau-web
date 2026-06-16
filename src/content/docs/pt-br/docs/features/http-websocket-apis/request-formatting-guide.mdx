@@ -1,0 +1,63 @@
+---
+title: Guia de Formatação de Requisições
+---
+### Servidores Públicos
+
+* wss://xahau.network ou https://xahau.network (Mainnet)
+* wss://xahau-test.net ou https://xahau-test.net (Testnet)
+
+### Exemplos de Requisições
+
+Para enviar uma requisição de exemplo para a API, use os seguintes comandos.
+
+### Websocket
+
+```
+{
+  "id": 3,
+  "command": "account_info",
+  "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+  "strict": true,
+  "ledger_index": "validated",
+  "api_version": 1
+}
+```
+
+### Estrutura de Requisição WebSocket
+
+Após estabelecer uma conexão WebSocket com o servidor `xahaud`, você pode enviar comandos como objetos JSON com estes campos:
+
+<table><thead><tr><th>Campo</th><th width="220">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>command</td><td>String</td><td>O nome do método da API</td></tr><tr><td>id</td><td>(Múltiplo)</td><td><em>(Opcional)</em> Identificador único para a requisição.</td></tr><tr><td>api_version</td><td>Número</td><td><em>(Opcional)</em> Especifica a versão da API.</td></tr></tbody></table>
+
+### JSON-RPC
+
+```
+POST https://xahau.network/
+Content-Type: application/json
+
+{
+    "method": "account_info",
+    "params": [
+        {
+            "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+            "strict": true,
+            "ledger_index": "validated",
+            "api_version": 1
+        }
+    ]
+}
+```
+
+### Estrutura de Requisição JSON-RPC
+
+<table><thead><tr><th>Campo</th><th width="220">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>method</td><td>String</td><td>O nome do método da API</td></tr><tr><td>params</td><td>Array</td><td><em>(Opcional)</em> Um array de um item contendo um objeto JSON com os parâmetros do método.</td></tr></tbody></table>
+
+### Linha de Comando
+
+```
+xahaud account_info rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y validated strict
+```
+
+### Estrutura de Requisição por Linha de Comando
+
+<table><thead><tr><th>Campo</th><th width="220">Descrição</th></tr></thead><tbody><tr><td>xahaud</td><td>Inicia a chamada ao serviço xahaud</td></tr><tr><td>method</td><td>O nome do método da API</td></tr><tr><td>params</td><td>(Opcional)</td></tr></tbody></table>

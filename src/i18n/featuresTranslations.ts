@@ -260,7 +260,7 @@ export const featuresTranslations = {
     proto_h3_line1: 'Hooks：アカウントレベルの',
     proto_h3_line2: 'スマートコントラクトロジック',
     proto_para1:
-      'Xahauはアカウントレベルで直接動作するユニークな形式のオンレジャースマートコントラクトロジックであるHooksを導入しています。外部のコントラクトアドレスとの対話を必要とする他のブロックチェーンのスマートコントラクトとは異なり、Hooksはユーザーアカウント自体に組み込まれた軽量なプログラムです。これらのHooksは、明示的な関数呼び出しなしに、そのアカウントに関わるあらゆる取引を自動的に検査、変更、または拒否することができます。',
+      'Xahauはアカウントレベルで直接動作するユニークな形式のオンレジャースマートコントラクトロジックであるHooksを導入しています。外部のコントラクトアドレスとの対話を必要とする他のブロックチェーンのスマートコントラクトとは異なり、Hooksはユーザーアカウント自体に組み込まれた軽量なプログラムです。これらのHooksは、明示的な関数呼び出しなしに、そのアカウントに関わるあらゆるトランザクションを自動的に検査、変更、または拒否することができます。',
     proto_para2:
       'Hooksはインラインかつコンセンサス内で実行されるため、最小限のオーバーヘッドでリアルタイムのプログラマビリティを提供します。これにより、不正なトークン転送の拒否、入金時のアクションのトリガー、コンプライアンスロジックの実装などの強力なユースケースが可能になります。Hooksは新しいセキュリティとプログラマビリティのパラダイムを表し、アカウントをトランザクションロジックのアクティブな参加者にします。',
 
@@ -268,7 +268,7 @@ export const featuresTranslations = {
     dex_label: '取引所',
     dex_h4: 'オファー：内蔵の分散型取引所（DEX）',
     dex_para1:
-      'Xahauはネイティブのオファーシステムを含み、レジャー上の内蔵分散型取引所を動かしています。ユーザーはネットワーク上で直接資産（トークンや発行通貨など）を売買するためのオファーエントリを作成でき、これらのオファーはプロトコルのオーダーブックによって自動的にマッチングされます。',
+      'Xahauはネイティブのオファーシステムを含み、レジャー上の内蔵分散型取引所を動かしています。ユーザーはネットワーク上で直接資産（トークンや発行通貨など）を売買するためのオファーを作成でき、これらのオファーはプロトコルのオーダーブックによって自動的にマッチングされます。',
     dex_para2:
       '取引のためにスマートコントラクトや外部プラットフォームを必要とする多くのブロックチェーンとは異なり、XahauのDEXはレジャーのファーストクラスの機能です。このオンレジャー取引所は高速決済と低手数料を提供し、ユーザーやアプリケーションにとってシームレスな資産取引を実現します。',
 
@@ -276,7 +276,7 @@ export const featuresTranslations = {
     fees_label: 'エコノミクス',
     fees_h4: '手数料燃焼による低手数料',
     fees_para1:
-      'Xahauは一貫して低い取引手数料を維持し、スパムを減らしてネットワークの長期的な健全性を報酬する組み込みの手数料燃焼モデルを持っています。各取引はXAHで最小限の手数料を支払い、その手数料の一部は永久に破壊され、時間とともにデフレ効果をもたらします。',
+      'Xahauは一貫して低いトランザクション手数料を維持し、スパムを減らしてネットワークの長期的な健全性を報酬する組み込みの手数料燃焼モデルを持っています。各トランザクションはXAHで最小限の手数料を支払い、その手数料の一部は永久に破壊され、時間とともにデフレ効果をもたらします。',
     fees_para2:
       'このアプローチはネットワークの乱用を抑止しながらアクセシビリティを維持します。インフレモデルやオークション形式の手数料とは異なり、Xahauはすべてのユーザーに予測可能性と経済的整合性を提供します。',
 
@@ -284,7 +284,7 @@ export const featuresTranslations = {
     perf_label: 'インフラストラクチャ',
     perf_h4: '高速、グリーン、スケーラブル',
     perf_para1:
-      'XRPLのコンセンサスプロトコルの洗練されたバージョンの上に構築されたXahauは、高速なファイナリティ、低エネルギー使用量、信頼性の高いスケーラビリティを提供します。取引は数秒で確認され、マイニングなし、最小限のハードウェア要件で行われます。その結果、環境やユーザーエクスペリエンスを損なうことなく、実世界の金融およびエンタープライズのユースケースに対応できるネットワークが実現します。',
+      'XRPLのコンセンサスプロトコルの洗練されたバージョンの上に構築されたXahauは、高速なファイナリティ、低エネルギー使用量、信頼性の高いスケーラビリティを提供します。トランザクションは数秒で確認され、マイニングなし、最小限のハードウェア要件で行われます。その結果、環境やユーザーエクスペリエンスを損なうことなく、実世界の金融およびエンタープライズのユースケースに対応できるネットワークが実現します。',
     perf_para2:
       'Xahauのアーキテクチャは、パフォーマンスと持続可能性が交渉の余地のないグローバル決済システム、トークン化資産プラットフォーム、または高ボリュームアプリケーションに最適です。',
 
@@ -294,14 +294,14 @@ export const featuresTranslations = {
     // Payments statement
     pay_section_label: '決済',
     pay_h3_line1: '支払い：マルチアセット',
-    pay_h3_line2: '転送とチャンネル',
+    pay_h3_line2: '転送とペイメントチャネル',
     pay_h3_line3: '',
     pay_para1:
       'Xahauの支払い機能は、ネットワーク全体での価値の高速かつ柔軟な転送を容易にするように設計されています。Xahauはトラストラインと発行通貨のシステムを通じてマルチアセット支払いをサポートし、スマートコントラクトを必要とせずに複数の通貨やトークンの組み込みサポートを可能にします。',
     pay_para2:
       'これは、企業がXahau上でステーブルコインやトークンを発行し、ユーザーがそれらをネイティブに送受信または交換できることを意味します。支払いスイートには、口座に資金を送れる人をホワイトリスト化できる入金事前承認など、不要な取引に対するセキュリティを追加する高度な機能も含まれています。',
     pay_para3:
-      'さらに、Xahauはスケーラビリティのためのペイメントチャンネルをサポートしています。ペイメントチャンネルにより、2者がオフレジャーで高速・大量の取引を行い、その後正味の結果をブロックチェーン上で決済することができます。PaymentChannelCreate、Fund、Claimなどのトランザクションにより、Xahauはレジャーによって保護されるがそれを混雑させないマイクロペイメントやストリーミングペイメントを可能にします。',
+      'さらに、Xahauはスケーラビリティのためのペイメントチャネルをサポートしています。ペイメントチャネルにより、2者がオフレジャーで高速・大量のトランザクションを行い、その後正味の結果をブロックチェーン上で決済することができます。PaymentChannelCreate、Fund、Claimなどのトランザクションにより、Xahauはレジャーによって保護されるがそれを混雑させないマイクロペイメントやストリーミングペイメントを可能にします。',
 
     // Tokens detail
     tokens_label: '資産管理',
@@ -331,7 +331,7 @@ export const featuresTranslations = {
     remit_label: '決済',
     remit_h4: 'Remit：ネイティブのクロスアカウント転送',
     remit_para1:
-      'Remit機能により、アカウント間での合理化されたマルチオペレーション取引が可能になり、複雑または大量の支払いフローに最適です。複数の個別の命令を送信する代わりに、単一のRemit取引が複数の受取人に価値を配布したり、複数の残高変更をアトミックにトリガーしたりできます。',
+      'Remit機能により、アカウント間での合理化されたマルチオペレーション取引が可能になり、複雑または大量の支払いフローに最適です。複数の個別の命令を送信する代わりに、単一のRemitトランザクションが複数の受取人に価値を配布したり、複数の残高変更をアトミックにトリガーしたりできます。',
     remit_para2:
       'これにより、特に支払い処理業者、マーケットプレイス、またはバンドル操作を実行する必要があるアプリケーションの効率性と信頼性が向上します。プロトコルに組み込まれているため、Remitは予測可能なパフォーマンス、低レイテンシ、および強力な監査可能性を保証します。',
 
@@ -352,16 +352,137 @@ export const featuresTranslations = {
     gov_h3_line2: '目的を持った',
     gov_h3_line3: '分散型調整',
     gov_para1:
-      'Xahauはガバナンスゲームに裏付けられた新しいガバナンスシステムを特徴としています。これは、修正案を提案、審査、投票するための透明でオンレジャーのメカニズムです。バリデーターオペレーター（ガバナー）は、説明責任とエンゲージメントに基づく構造化された報酬システムで競いながら、プロトコルの形成に直接参加します。',
+      'Xahauはガバナンスゲームに裏付けられた新しいガバナンスシステムを特徴としています。これは、Amendment(修正案)を提案、審査、投票するための透明でオンレジャーのメカニズムです。バリデーターオペレーター（ガバナー）は、説明責任とエンゲージメントに基づく構造化された報酬システムで競いながら、プロトコルの形成に直接参加します。',
     gov_para2:
       'このシステムにより、プロトコルのアップグレードとポリシー決定が、中央集権的なエンティティによって指示されるのではなく、オープンで参加型になることが保証されます。構造化されたエンタープライズ調整の利点と、分散型コンセンサスの透明性と回復力を組み合わせています。安全でインセンティブに沿った方法でガバナンスをゲーム化することで、Xahauはオンチェーン調整の新しい基準を設定します。',
 
     // URITokens closing
     uri_label: 'NFT',
-    uri_h4: 'URITokens：XahauのネイティブNFT',
+    uri_h4: 'URIToken：XahauのネイティブNFT',
     uri_para1:
-      'URITokensは、別のスマートコントラクトを介してではなく、レジャーのネイティブな部分として実装されたXahauの非代替トークン（NFT）へのアプローチを表しています。URITokenは、発行アカウントとトークンのメタデータやコンテンツを通常指すUniform Resource Identifier（URI）によって一意に識別される、ファーストクラスのオンレジャーオブジェクトです。アカウントごとに特定のURIを持つURITokenは1つしか存在できず、各デジタル資産の真の独自性を確保します。',
+      'URITokenは、別のスマートコントラクトを介してではなく、レジャーのネイティブな部分として実装されたXahauの非代替性トークン（NFT）へのアプローチを表しています。URITokenは、発行アカウントとトークンのメタデータやコンテンツを通常指すUniform Resource Identifier（URI）によって一意に識別される、ファーストクラスのオンレジャーオブジェクトです。アカウントごとに特定のURIを持つURITokenは1つしか存在できず、各デジタル資産の真の唯一性を確保します。',
     uri_para2:
-      'この組み込みNFT標準により、クリエイターはカスタムコードをデプロイすることなく、シンプルな取引（例：URITokenMint、URITokenBuy、URITokenBurn）でNFTをミント、取引、または燃焼させることができます。URITokenの発行者はフラグを設定することで破壊（燃焼）を許可することもでき、NFTの管理方法に柔軟性を与えます。プロトコルレベルでNFTを統合することで、Xahauはデジタルコレクティブルや資格情報の発行・管理をより効率的かつ安全にします。',
+      'この組み込みNFT機能により、クリエイターはカスタムコードをデプロイすることなく、シンプルな取引（例：URITokenMint、URITokenBuy、URITokenBurn）でNFTをミント、取引、または燃焼させることができます。URITokenの発行者はフラグを設定することでバーン（燃焼）を許可することもでき、NFTの管理方法に柔軟性を与えます。プロトコルレベルでNFTを統合することで、Xahauはデジタルコレクティブルや資格情報の発行・管理をより効率的かつ安全にします。',
+  },
+  'pt-BR': {
+    // Page header
+    page_title: 'Recursos',
+    page_subtitle: 'Tecnologia comprovada com uma abordagem inovadora',
+    chip1: '10+ Recursos de Protocolo',
+    chip2: 'DEX Nativo',
+    chip3: 'NFTs Integrados',
+    chip4: 'Sem Sobrecarga de Execução',
+
+    // Act I — Protocol Layer
+    act1_label: 'Camada de Protocolo',
+
+    // Hooks statement
+    proto_section_label: 'Programabilidade',
+    proto_h3_line1: 'Hooks: Lógica de Contrato Inteligente',
+    proto_h3_line2: 'a Nível de Conta',
+    proto_para1:
+      'Xahau introduz os Hooks, uma forma única de lógica de contrato inteligente on-ledger que é executada diretamente a nível de conta. Ao contrário dos contratos inteligentes na maioria das blockchains, que exigem interação com endereços de contrato externos, os Hooks são programas leves incorporados dentro das próprias contas de usuário. Esses Hooks podem inspecionar, modificar ou rejeitar automaticamente qualquer transação que envolva essa conta, sem a necessidade de chamadas de função explícitas.',
+    proto_para2:
+      'Como os Hooks são executados inline e dentro do consenso, eles oferecem programabilidade em tempo real com sobrecarga mínima. Rejeite transferências de tokens não autorizadas, acione ações em depósitos, implemente lógica de conformidade — tudo sem desacelerar a rede. Os Hooks representam um novo paradigma de segurança e programabilidade.',
+
+    // DEX detail
+    dex_label: 'Exchange',
+    dex_h4: 'Ofertas: Exchange Descentralizado (DEX) Integrado',
+    dex_para1:
+      'Xahau inclui um sistema nativo de Ofertas, que alimenta um exchange descentralizado integrado no ledger. Os usuários podem criar entradas de Oferta para comprar ou vender ativos diretamente na rede; essas Ofertas são automaticamente combinadas pelo livro de ordens do protocolo. Troca peer-to-peer sem intermediários ou plataformas externas.',
+    dex_para2:
+      'Ao contrário da maioria das blockchains que exigem contratos inteligentes para negociação, o DEX do Xahau é um recurso de primeira classe do ledger — liquidação rápida, baixas taxas, integração perfeita.',
+
+    // Fees detail
+    fees_label: 'Economia',
+    fees_h4: 'Baixas Taxas com Queima de Fees',
+    fees_para1:
+      'Taxas de transação consistentemente baixas, apoiadas por um modelo integrado de queima de taxas que reduz o spam e recompensa a saúde a longo prazo da rede. Cada transação paga uma taxa mínima em XAH; uma parte é destruída permanentemente — um efeito deflacionário silencioso.',
+    fees_para2:
+      'Essa abordagem dissuade o abuso da rede enquanto mantém a acessibilidade. Diferente de modelos inflacionários ou taxas em formato de leilão, o Xahau fornece previsibilidade e alinhamento econômico para todos os usuários.',
+
+    // Performance solo
+    perf_label: 'Infraestrutura',
+    perf_h4: 'Rápido, Verde e Escalável',
+    perf_para1:
+      'Construído sobre uma versão refinada do protocolo de consenso do XRPL, o Xahau oferece finalização rápida, baixo consumo de energia e escalabilidade confiável. As transações são confirmadas em segundos — sem mineração, requisitos mínimos de hardware.',
+    perf_para2:
+      'A arquitetura do Xahau é ideal para sistemas de pagamento globais, plataformas de ativos tokenizados ou aplicativos de alto volume onde desempenho e sustentabilidade são inegociáveis.',
+
+    // Act II — Financial Primitives
+    act2_label: 'Primitivas Financeiras',
+
+    // Payments statement
+    pay_section_label: 'Pagamentos',
+    pay_h3_line1: 'Transferências Multi-Ativo',
+    pay_h3_line2: 'e Canais de Pagamento',
+    pay_h3_line3: '',
+    pay_para1:
+      'As funcionalidades de pagamento do Xahau são projetadas para facilitar transferências rápidas e flexíveis de valor em toda a rede. O Xahau suporta pagamentos multi-ativo por meio de um sistema de linhas de confiança e moedas emitidas, permitindo suporte integrado para múltiplas moedas e tokens sem a necessidade de contratos inteligentes.',
+    pay_para2:
+      'Isso significa que as empresas podem emitir stablecoins ou tokens no Xahau, e os usuários podem enviá-los, recebê-los ou trocá-los nativamente. A suíte de Pagamentos também inclui recursos avançados como Preautorização de Depósito, que permite às contas colocar em uma lista branca quem pode enviar fundos para elas — adicionando segurança contra transações indesejadas.',
+    pay_para3:
+      'Além disso, o Xahau suporta canais de pagamento para escalabilidade. Os canais de pagamento permitem que duas partes realizem transações rápidas e de alto volume off-ledger, com liquidação on-chain do resultado líquido posteriormente. Com transações como PaymentChannelCreate, Fund e Claim, o Xahau possibilita micropagamentos e pagamentos em streaming que são protegidos pelo ledger sem congestioná-lo.',
+
+    // Tokens detail
+    tokens_label: 'Controle de Ativos',
+    tokens_h4: 'Controle de Tokens e Ativos por Design',
+    tokens_para1:
+      'O Xahau dá controle granular sobre tokens e linhas de confiança a emissores e usuários. Recursos como TrustSet, Clawback, Freeze e Deposit Authorization permitem personalização completa sobre como os tokens podem ser usados ou recebidos. Os ativos podem ser colocados em uma lista branca, bloqueados ou queimados — tudo aplicado a nível de protocolo.',
+    tokens_para2:
+      'Isso torna o Xahau particularmente adequado para cenários onde conformidade, segurança e precisão são críticos, como instrumentos financeiros regulamentados, stablecoins, programas de fidelidade ou cadeias de suprimentos empresariais.',
+
+    // Rewards detail
+    rewards_label: 'Economia',
+    rewards_h4: 'Recompensas de Saldo: Rendimento Passivo Sem Staking',
+    rewards_para1:
+      'O Xahau oferece um sistema de recompensas de saldo onde as contas acumulam valor passivamente simplesmente mantendo ativos. Essas recompensas são calculadas com base no saldo da conta e distribuídas por meio de um mecanismo aplicado por consenso — sem necessidade de staking, delegação ou contratos de terceiros.',
+    rewards_para2:
+      'Esse mecanismo é sustentado por lógica nativa do protocolo e Hooks on-chain para garantir que as recompensas sejam automáticas, justas e sustentáveis. Diferente dos sistemas de yield farming ou staking em outras blockchains, o modelo de recompensas do Xahau não requer que os usuários bloqueiem seus ativos ou persigam estratégias DeFi complexas.',
+
+    // Escrow detail
+    escrow_label: 'Primitivas',
+    escrow_h4: 'Escrow',
+    escrow_para1:
+      'O Xahau suporta escrow on-ledger para tokens nativos e emitidos, permitindo transferências condicionais seguras para uma ampla gama de casos de uso comerciais e financeiros. Os fundos ou tokens podem ser bloqueados com lógica de liberação baseada em tempo ou condições, aplicada pela própria rede — sem necessidade de contratos inteligentes externos.',
+    escrow_para2:
+      'O suporte nativo para ambos os ativos fungíveis e não fungíveis em escrow torna esse recurso particularmente versátil para casos como pagamentos por marcos, liquidação de marketplace ou distribuição de confiança.',
+
+    // Remit detail
+    remit_label: 'Pagamentos',
+    remit_h4: 'Remit: Transferência Nativa entre Contas',
+    remit_para1:
+      'A funcionalidade Remit permite transações de múltiplas operações simplificadas entre contas, ideal para fluxos de pagamento complexos ou de alto volume. Em vez de enviar várias instruções separadas, uma única transação Remit pode distribuir valor para múltiplos destinatários ou acionar múltiplas mudanças de saldo de forma atômica — tudo sem a necessidade de uma pilha separada de instruções.',
+    remit_para2:
+      'Isso melhora a eficiência e confiabilidade, especialmente para processadores de pagamento, marketplaces ou qualquer aplicativo que precise executar operações agrupadas. Integrado ao protocolo, o Remit garante desempenho previsível, baixa latência e forte auditabilidade.',
+
+    // Checks detail
+    checks_label: 'Pagamentos',
+    checks_h4: 'Cheques: Sistema de Pagamento Diferido',
+    checks_para1:
+      'O Xahau suporta um sistema de pagamento diferido — como escrever cheques digitais on-chain. Você pode emitir um Cheque, que é uma promessa de pagamento que o destinatário pode cobrar posteriormente ou cancelar se necessário. Isso adiciona uma camada extra de controle sobre os pagamentos, permitindo transações seguras e flexíveis.',
+    checks_para2:
+      'O ledger tem transações dedicadas para criar, cobrar ou cancelar cheques. O sistema de cheques do Xahau fornece uma camada adicional de controle de pagamento aplicada pelas regras da rede, sem a necessidade de contratos inteligentes personalizados.',
+
+    // Act III — Governance & Identity
+    act3_label: 'Governança e Identidade',
+
+    // Governance statement
+    gov_section_label: 'Governança',
+    gov_h3_line1: 'O Jogo da Governança:',
+    gov_h3_line2: 'Coordenação Descentralizada',
+    gov_h3_line3: 'com Propósito',
+    gov_para1:
+      'O Xahau apresenta um novo sistema de governança apoiado pelo Jogo da Governança — um mecanismo transparente e on-ledger para propor, revisar e votar emendas. Os operadores de validadores (Governadores) participam diretamente na formação do protocolo, competindo em um sistema de recompensas estruturado baseado em responsabilidade e engajamento.',
+    gov_para2:
+      'Isso garante que as atualizações do protocolo e as decisões de política sejam abertas e participativas, não ditadas por uma entidade centralizada. Ele combina os benefícios da coordenação empresarial estruturada com a transparência e resiliência do consenso descentralizado — estabelecendo um novo padrão para coordenação on-chain.',
+
+    // URITokens closing
+    uri_label: 'NFTs',
+    uri_h4: 'URITokens: NFTs Nativos no Xahau',
+    uri_para1:
+      'Os URITokens representam a abordagem do Xahau para tokens não fungíveis — implementados como parte nativa do ledger, não por meio de contratos inteligentes separados. Um URIToken é um objeto on-ledger de primeira classe, identificado exclusivamente pela conta emissora e pelo Uniform Resource Identifier (URI) que normalmente aponta para os metadados ou conteúdo do token. Apenas um URIToken com um URI específico pode existir por conta, garantindo a verdadeira unicidade de cada ativo digital.',
+    uri_para2:
+      'Esse padrão NFT incorporado permite que os criadores mintem, negociem ou queimem NFTs com transações simples — URITokenMint, URITokenBuy, URITokenBurn — sem a necessidade de implantar código personalizado. O emissor de um URIToken também pode permitir a queima definindo uma flag, oferecendo flexibilidade sobre como os NFTs podem ser gerenciados. Ao integrar NFTs a nível de protocolo, o Xahau torna a emissão e gestão de colecionáveis digitais ou credenciais mais eficiente e segura.',
   },
 }

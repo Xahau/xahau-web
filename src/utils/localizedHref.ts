@@ -17,10 +17,14 @@ function splitPath(path: string) {
 
 export function stripLocalePrefix(pathname: string) {
   const normalizedPathname = normalizePathname(pathname)
+  // Compare case-insensitively: locale codes can be capitalized (e.g. `pt-BR`)
+  // while the URL path segment is always lowercase (e.g. `/pt-br/`).
+  const lowerPathname = normalizedPathname.toLowerCase()
 
   for (const locale of nonDefaultLocales) {
-    if (normalizedPathname === `/${locale}`) return '/'
-    if (normalizedPathname.startsWith(`/${locale}/`)) {
+    const lowerLocale = locale.toLowerCase()
+    if (lowerPathname === `/${lowerLocale}`) return '/'
+    if (lowerPathname.startsWith(`/${lowerLocale}/`)) {
       return normalizePathname(normalizedPathname.slice(locale.length + 1))
     }
   }

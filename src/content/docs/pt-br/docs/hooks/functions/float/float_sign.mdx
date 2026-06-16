@@ -1,0 +1,101 @@
+---
+title: float_sign
+description: Obtém o sinal de um número de envoltório XFL
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/floating-point-numbers-xfl">Números de Ponto Flutuante (XFL)</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Retorna `1` se o XFL for negativo, caso contrário retorna 0
+</TabItem>
+
+<TabItem label="JavaScript">
+* Retorna 1 se o XFL for negativo, caso contrário retorna 0
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sign (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sign(f1: bigint): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sign =
+    float_sign(float_one());
+```
+
+<Aside type="tip">
+O bit de sinal dentro do XFL é `0` quando o XFL é negativo, porém esta função segue a convenção padrão de computação e retorna `1` se o número for negativo.
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const sign =
+   float_sign(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome   | Tipo     | Descrição                            |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | Um número de ponto flutuante de envoltório XFL |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome | Tipo   | Descrição                              |
+| ---- | ------ | ---------------------------------------- |
+| f1   | bigint | O float do qual recuperar a mantissa. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O sinal do XFL:<br /><code>0</code> se positivo, <code>1</code> se negativo.<br /><br />Se negativo, um erro:<br /><code>INVALID_FLOAT</code><br />- o parâmetro fornecido não era um número de envoltório XFL válido</p>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                                |
+| ------------------- | ------------------------------------------ |
+| bigint ou ErrorCode | Um código de erro ou a mantissa como um bigint. |
+</TabItem>
+</Tabs>

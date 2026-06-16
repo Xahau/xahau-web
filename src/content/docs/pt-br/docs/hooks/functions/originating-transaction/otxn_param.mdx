@@ -1,0 +1,102 @@
+---
+title: otxn_param
+description: Recupera o valor de um parâmetro nomeado de uma transação Invoke
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Procura o valor de um parâmetro nomeado especificado em `read_ptr` na transação de origem.
+* Escreve o valor do parâmetro em `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Procura o valor de um parâmetro nomeado especificado na transação de origem.
+* Retorna o valor do parâmetro especificado, ou um ErrorCode caso a busca falhe.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_param (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_param(name: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t pname[] = {0xCAU, 0xFEU};
+uint8_t pvalue[32];
+int64_t value_len = 
+    otxn_param(pvalue, 32, pname, 2);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const pname = [0xCA, 0xFE]
+const pvalue = otxn_param(pname)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome       | Tipo      | Descrição                                                                              |
+| ---------- | --------- | ---------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | Ponteiro para um buffer de tamanho adequado para armazenar a saída. Deve ter pelo menos 32 bytes. |
+| write_len | uint32_t | Tamanho do buffer de saída.                                                             |
+| read_ptr  | uint32_t | Ponteiro para um buffer contendo o nome do parâmetro                                      |
+| read_len  | uint32_t | Tamanho do nome do parâmetro                                                           |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome | Tipo                   | Descrição                                                               |
+| ---- | ---------------------- | ------------------------------------------------------------------------- |
+| name | ByteArray \| HexString | O nome do parâmetro a ser procurado, especificado como um ByteArray ou string. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O número de bytes escritos<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>DOESNT_EXIST</code><br />- O parâmetro especificado não existe ou é nulo<br /><br /><code>TOO_SMALL</code><br />- O nome do parâmetro não pode ser nulo<br /><br /><code>TOO_BIG</code><br />- O nome do parâmetro tem mais de 32 bytes</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                   | Descrição                                                                        |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | Retorna o valor do parâmetro especificado, ou um ErrorCode caso a busca falhe. |
+</TabItem>
+</Tabs>
+

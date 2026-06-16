@@ -1,0 +1,314 @@
+---
+title: Transação SetHook
+---
+### Transação SetHook
+
+O bytecode webassembly de um Hook é instalado em uma conta Xahau usando a transação `SetHook`.
+
+Um exemplo aparece abaixo:
+
+```js
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                CreateCode: fs.readFileSync('accept.wasm').toString('hex').toUpperCase(),
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                HookApiVersion: 0
+            }
+        }
+    ]
+}
+```
+
+A transação é enganosamente simples, mas esconde uma complexidade significativa, descrita abaixo.
+
+### Array Hooks
+
+O corpo principal da transação SetHook é o array hooks:
+
+```js
+{
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Hooks:                         // Este é o Array Hooks
+    [            
+          {  Hook: { ... }  },     // Objeto HookSet (posição 0)
+          {  Hook: { ... }  },  
+          {  Hook: { ... }  },  
+          {  Hook: { ... }  }.     // Objeto HookSet (posição 3)
+    ]
+}
+```
+
+Este array _espelha_ a [Cadeia de Hooks](/pt-br/docs/hooks/concepts/chaining) instalada na conta:
+
+* A posição 0 no array _corresponde_ à posição 0 na Cadeia de Hooks.
+* A posição 3 no array _corresponde_ à posição 3 na Cadeia de Hooks, etc.
+
+### Objeto HookSet e Hook Correspondente
+
+Cada entrada no Array Hooks (na Transação SetHook) é chamada de _Objeto HookSet_, e seu Hook correspondente na Cadeia de Hooks da conta é chamado de _Hook Correspondente_.
+
+<figure>
+![Exemplo: Um usuário realiza uma operação em cada Hook de sua Cadeia de Hooks com uma transação SetHook.](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_NbV5W3McCRKkL4eJeF6v_cdf692e-sethook.png)
+<figcaption>*Exemplo: Um usuário realiza uma operação em cada Hook de sua Cadeia de Hooks com uma transação SetHook.*</figcaption>
+</figure>
+
+### HookDefinition
+
+Cada Hook Correspondente é um objeto contendo uma _referência_ (ponteiro) para um objeto `HookDefinition`.
+
+O objeto HookDefinition é um objeto de ledger não proprietário com contagem de referência que permite a desduplicação de bytecode webassembly idêntico. Dois usuários usando um hook idêntico apontarão para a mesma HookDefinition.
+
+<figure>
+![Exemplo: Definições de Hook no Xahau](/assets/spaces_m6f29os4wP16vCS4lHNh_uploads_TlDL7tsVNYi1yU64EZQh_3ef0cee-sethook-Page-2.png)
+<figcaption>*Exemplo: Definições de Hook no Xahau*</figcaption>
+</figure>
+
+Para mais informações veja: [Contagem de Referência](/pt-br/docs/hooks/concepts/reference-counted-hook-definitions)
+
+### Padrões do Hook
+
+Quando uma `HookDefinition` é criada, ela contém os [Parâmetros](/pt-br/docs/hooks/concepts/parameters), [Namespace](/pt-br/docs/hooks/concepts/namespaces) e [Concessões](/pt-br/docs/hooks/concepts/grants) iniciais fornecidos pelo usuário. Estes se tornam os Padrões do Hook. Qualquer Hook que referencie esta Definição de Hook usará esses padrões _a menos que_ a Transação SetHook que cria essa referência substitua explicitamente esses padrões, ou uma Operação de Atualização subsequente os substitua.
+
+### Operações HookSet
+
+Existem seis operações possíveis: Nenhuma Operação, Criar, Atualizar, Excluir, Instalar e Exclusão de Namespace
+
+Cada operação é especificada pela inclusão ou omissão de determinados campos do Objeto HookSet. Isso pode parecer confuso no início, mas ao trabalhar com alguns exemplos o leitor achará intuitivo; Essencialmente as operações HookSet são um tipo de **diff** entre os _padrões_, _existentes_ e os campos recém-especificados de um Hook específico.
+
+A realização de cada tipo de operação é explicada em uma subseção abaixo.
+
+### Nenhuma Operação
+
+**Ocorre quando**:
+
+* O Objeto HookSet está vazio
+
+**Comportamento**:
+
+* Nenhuma mudança de qualquer tipo é feita.
+
+**Exemplo**:
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {}
+        }
+    ]
+}
+```
+
+### Operação de Criação
+
+**Ocorre quando**:
+
+_Todas_ as seguintes condições são atendidas:
+
+* O Hook Correspondente não existe _ou_ `FLAG_OVERRIDE` é especificado.
+* O campo `CreateCode` é especificado, não está em branco e contém o bytecode webassembly válido para um Hook válido.
+* Nenhuma instância do mesmo bytecode webassembly já existe no Xahau. (Se existir e todos os outros requisitos forem atendidos, interprete como uma Operação de Instalação — veja abaixo.)
+
+**Comportamento**:
+
+* Um objeto `HookDefinition` com contagem de referência é criado no Xahau contendo os campos no Objeto HookSet, com todos os campos especificados (Namespace, Parâmetros, HookOn) tornando-se padrões (mas não Concessões).
+* Um array `Hooks` é criado na conta em execução, se ainda não existir. (Esta é a estrutura que contém os Hooks Correspondentes.)
+* Um objeto `Hook` é criado na posição do Hook Correspondente se ainda não existir.
+* O objeto `Hook` aponta para a `HookDefinition`.
+* O objeto `Hook` não contém campos exceto `HookHash` que aponta para a `HookDefinition` criada.
+* Se o flag `hsfNSDELETE` for especificado, quaisquer entradas HookState no namespace de destino serão excluídas se atualmente existirem.
+
+**Exemplo**:
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                CreateCode: fs.readFileSync('accept.wasm').toString('hex').toUpperCase(),
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                HookApiVersion: 0
+            }
+        }
+    ]
+}
+```
+
+### Operação de Instalação
+
+**Ocorre quando**:
+
+_Todas_ as seguintes condições são atendidas:
+
+* O Hook Correspondente não existe _ou_ `FLAG_OVERRIDE` é especificado.
+* O campo `HookHash` é especificado e não está em branco e contém o hash de um Hook que já existe como uma `HookDefinition` no ledger _ou_ o campo `CreateCode` é especificado e não está em branco e contém o bytecode webassembly válido para um hook válido que já existe no ledger como uma `HookDefinition`.
+
+**Comportamento**:
+
+* A contagem de referência do objeto `HookDefinition` é incrementada.
+* Um array `Hooks` é criado na conta em execução, se ainda não existir. (Esta é a estrutura que contém os Hooks Correspondentes.)
+* Um objeto `Hook` é criado na posição do Hook Correspondente se ainda não existir.
+* O objeto `Hook` aponta para a `HookDefinition`.
+* O objeto `Hook` contém todos os campos no Objeto HookSet, exceto quando:
+* Um campo ou par de chave dentro de um campo é idêntico aos Padrões do Hook definidos na `HookDefinition`, caso em que é omitido devido aos padrões.
+* Se o flag `hsfNSDELETE` for especificado, quaisquer entradas HookState no namespace de destino serão excluídas se atualmente existirem.
+
+**Exemplo**:
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {                
+                HookHash: "A5663784D04ED1B4408C6B97193464D27C9C3334AAF8BBB4FA5EB8E557FC4A2C",
+                HookOn: '0000000000000000',
+                HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+            }
+        }
+    ]
+}
+```
+
+### Operação de Atualização
+
+**Ocorre quando**:
+
+_Todas_ as seguintes condições são atendidas:
+
+* O Hook Correspondente existe.
+* `HookHash` está ausente.
+* `CreateCode` está ausente.
+* Um ou mais de `HookNamespace`, `HookParameters` ou `HookGrants` está presente.
+
+**Comportamento Geral**:
+
+* O Hook Correspondente é atualizado de forma que as mudanças desejadas sejam refletidas no Hook Correspondente.
+
+**Comportamento Específico**:
+
+Se `HookNamespace` for especificado e diferir do Namespace do Hook Correspondente:
+
+* o `HookNamespace` do Hook Correspondente é atualizado, e
+* se o flag `hsfNSDELETE` for especificado, todas as entradas HookState no namespace antigo são excluídas.
+
+Se `HookParameters` for especificado, então para cada entrada:
+
+* Se `HookParameterName` existir mas `HookParameterValue` estiver ausente e os Parâmetros do Hook Correspondente (seja especificamente ou via padrões) contiverem este `HookParameterName`, então o parâmetro é marcado como excluído no Hook Correspondente.
+* Se `HookParameterName` existir e `HookParameterValue` existir, então os Parâmetros do Hook Correspondente são modificados para incluir o parâmetro novo ou atualizado.
+
+Se `HookGrants` for especificado então:
+
+* O array `HookGrants` do Hook Correspondente é substituído pelo array.
+
+**Exemplo**:
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+                HookNamespace: addr.codec.sha256('new_accept').toString('hex').toUpperCase(),
+            }
+        }
+    ]
+}
+```
+
+### Operação de Exclusão
+
+**Ocorre quando**:
+
+_Todas_ as seguintes condições são atendidas:
+
+* O Hook Correspondente existe.
+* `hsfOVERRIDE` é especificado.
+* opcionalmente `hsfNSDELETE` também é especificado.
+* `HookHash` está ausente.
+* `CreateCode` está presente mas vazio.
+
+**Comportamento**:
+
+* A contagem de referência do objeto `HookDefinition` é decrementada.
+* Se a contagem de referência agora for zero, a `HookDefinition` é removida do ledger.
+* O objeto `Hook` na posição do Hook Correspondente é excluído, deixando uma posição vazia.
+* Se `hsfNSDELETE` for especificado, o namespace e todas as entradas HookState também são excluídas.
+
+**Exemplo**:
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+                CreateCode: "",
+                Flags: 1,
+            }
+        }
+    ]
+}
+```
+
+### Redefinição de Namespace
+
+**Ocorre quando**:
+
+_Todas_ as seguintes condições são atendidas:
+
+* `flags` está presente e `hsfNSDELETE` está definido. `hsfOVERRIDE` também pode ser opcionalmente especificado se o Hook nesta posição deve ser excluído.
+* `HookNamespace` é especificado.
+* `CreateCode` está ausente.
+* `HookHash` está ausente.
+* `HookGrants`, `HookParameters`, `HookOn` e `HookApiVersion` estão ausentes.
+
+**Comportamento**:
+
+* Se o Hook Correspondente existir, ele permanece, nada acontece com ele.
+* Um subconjunto de objetos HookState e o diretório HookState para o namespace especificado são removidos do ledger, até o limite definido de 512. Transações adicionais são necessárias para continuar o processo de exclusão até que todos os registros relevantes sejam removidos.
+
+**Exemplo**:
+
+```json
+{ 
+    Account: "r4GDFMLGJUKMjNhhycgt2d5LXCdXzCYPoc",
+    TransactionType: "SetHook",
+    Fee: "2000000",
+    Hooks:
+    [        
+        {                        
+            Hook: {
+              	HookNamespace: addr.codec.sha256('accept').toString('hex').toUpperCase(),
+                Flags: 3,
+            }
+        }
+    ]
+}
+```

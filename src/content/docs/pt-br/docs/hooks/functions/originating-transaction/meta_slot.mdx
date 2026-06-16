@@ -1,0 +1,83 @@
+---
+title: meta_slot
+description: Carrega os metadados da transação de origem em um slot
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+* Se o Hook estiver sendo [executado fracamente](/pt-br/docs/hooks/concepts/weak-and-strong), então insere os metadados da transação de origem no slot especificado ou em um novo slot, caso nenhum slot seja especificado
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t meta_slot (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function meta_slot(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t meta_slot_no = 
+		meta_slot(0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const meta_slot_no = meta_slot(0)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome     | Tipo      | Descrição                                                                   |
+| -------- | --------- | ----------------------------------------------------------------------------- |
+| slot_no | uint32_t | O número do slot no qual inserir, ou 0 caso deseje escolher o próximo disponível. |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Nome   | Tipo   | Descrição                               |
+| ------ | ------ | ----------------------------------------- |
+| slotno | number | O número do slot do qual recuperar os metadados. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>O slot no qual a otxn foi colocada<br /><br /><code>INVALID_ARGUMENT</code><br />- o número de slot especificado excede o maior número de slot possível<br /><br /><code>NO_FREE_SLOTS</code><br />- a solicitação não pôde ser concedida porque nenhum slot livre estava disponível para colocar a transação de origem.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- O hook está sendo <a href="/pt-br/docs/hooks/concepts/weak-and-strong">executado fortemente</a> e, portanto, nenhum metadado transacional está disponível.</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                                   |
+| ------------------- | --------------------------------------------- |
+| ErrorCode \| number | Retorna um código de erro ou os metadados do slot. |
+</TabItem>
+</Tabs>
+

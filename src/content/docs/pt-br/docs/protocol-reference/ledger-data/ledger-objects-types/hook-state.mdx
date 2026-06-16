@@ -1,0 +1,42 @@
+---
+title: Hook State
+---
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(Adicionado pela \[emenda Hooks]\[].)_
+
+Um objeto `HookState` descreve o estado de um hook, que é um trecho de código em execução no Xahau que pode interagir com transações. O objeto `HookState` armazena o estado do hook, que pode ser modificado pelo código do hook.
+
+### Exemplo JSON
+
+```json
+{
+  "OwnerNode": "0000000000000000",
+  "HookStateKey": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+  "HookStateData": "46060241FABCF692D4D934BA2A6C4427CD4279083E38C77CBE642243E43BE291",
+  "LedgerEntryType": "HookState",
+  "index": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924"
+}
+```
+
+### Campos
+
+Um objeto `HookState` tem os seguintes campos:
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                          |
+| ----------------- | --------- | ------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `OwnerNode`       | String    | UInt64              | Sim          | Uma dica indicando qual página do diretório do proprietário aponta para este objeto, caso o diretório consista em múltiplas páginas. |
+| `HookStateKey`    | String    | Hash256             | Sim          | A chave que identifica de forma única este estado de hook.                                                                          |
+| `HookStateData`   | String    | VL                  | Sim          | Os dados armazenados pelo hook. Pode ser qualquer dado que o código do hook decida armazenar.                                       |
+| `LedgerEntryType` | String    | UInt16              | Sim          | O valor `0x0043`, mapeado para a string `HookState`, indica que este objeto é um objeto HookState.                                  |
+
+#### Formato do ID do HookState
+
+[\[Fonte\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/Indexes.cpp#L193-L200)
+
+O ID de um objeto `HookState` é o \[SHA-512Half]\[] dos seguintes valores, concatenados em ordem:
+
+* A chave de espaço HookState (`0x0076`)
+* O AccountID da conta que possui o hook
+* O `HookStateKey` do objeto `HookState`
+* O `HookNamespace` do hook.

@@ -1,0 +1,69 @@
+---
+title: Convenções da API de Hooks
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Convenções de nomenclatura
+
+Todas as APIs de Hooks seguem uma convenção de nomenclatura padrão:
+
+|           |                 |              |                 |
+| --------- | --------------- | ------------ | --------------- |
+| namespace | \[ _ substantivo nº1 ] | \[ _ verbo ] | \[ _ substantivo nº2 ] |
+
+Isso pode parecer confuso a princípio, mas na verdade é bem simples:
+
+* Se o primeiro substantivo estiver ausente, ele é implicitamente o mesmo que o namespace
+* Se o verbo estiver ausente, ele é implicitamente `get`
+
+Assim:
+
+* `state()` significa: buscar um estado do hook.
+* `state_set()` significa: definir um estado do hook.
+* `state_foreign()` significa: buscar um estado de hook externo.
+
+### Modelo de memória
+
+Cada Hook é executado como um único stack frame. Toda a memória de trabalho deve existir dentro deste stack frame. Não há heap nem memória dinâmica.
+
+Quando os Hooks se comunicam com o `xahaud`, eles só podem passar valores _inteiros_. Tipicamente, esses inteiros são ponteiros dentro da memória do Hook. Como o Hook é executado dentro do xahaud, esses ponteiros podem então ser resolvidos pelo xahaud e ter seu conteúdo lido ou escrito conforme necessário para realizar a função da API de Hooks.
+
+### Funções permitidas
+
+Apenas duas funções são permitidas dentro de um Hook: `hook()` e `cbak()`. Leia sobre isso [aqui](/pt-br/docs/hooks/concepts/compiling-hooks)
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+Todos os parâmetros passados para uma API de Hooks devem ser de um dos tipos: `uint32_t, int32_t, uint64_t, int64_t`. Tipicamente, são ponteiros e tamanhos de buffers dentro do stack frame do Hook. Às vezes são [Números de Ponto Flutuante Codificados como Inteiros (XFL)](/pt-br/docs/hooks/concepts/floating-point-numbers-xfl) ou outros dados.
+
+Os parâmetros de uma API de Hooks seguem sempre a seguinte ordem:
+
+1. Ponteiro de escrita _se houver_
+2. Tamanho de escrita _se houver_
+3. Ponteiro de leitura _se houver_
+4. Tamanho de leitura _se houver_
+5. Específicos / outros campos _se houver_
+
+Algumas APIs de Hooks podem apenas escrever ou apenas ler da memória, e algumas podem não fazer nenhum dos dois, retornando um valor apenas pelo código de retorno.
+</TabItem>
+
+<TabItem label="JavaScript">
+Todos os parâmetros passados para uma API de Hooks devem ser de um dos tipos: `string, number[], bigint(xfl), object(json)`. Tipicamente, são ponteiros e tamanhos de buffers dentro do stack frame do Hook. Às vezes são [Números de Ponto Flutuante Codificados como Inteiros (XFL)](/pt-br/docs/hooks/concepts/floating-point-numbers-xfl) ou outros dados.
+
+Os parâmetros de uma API de Hooks seguem sempre a seguinte ordem:
+
+1. Variável de escrita _se houver_
+2. Variável de leitura _se houver_
+3. Específicos / outros campos _se houver_
+
+Algumas APIs de Hooks podem apenas escrever ou apenas ler da memória, e algumas podem não fazer nenhum dos dois, retornando um valor apenas pelo código de retorno.
+</TabItem>
+</Tabs>
+
+
+
+### Códigos de retorno
+
+Todas as APIs de Hooks retornam um _inteiro com sinal_. Leia sobre os códigos de retorno aqui: [Códigos de Retorno](/pt-br/docs/hooks/functions/overview/return-codes)
