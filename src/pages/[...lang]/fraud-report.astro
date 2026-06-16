@@ -1,7 +1,7 @@
 ---
 import FraudReportPage from '../../components/FraudReportPage.astro'
 import { fraudReportTranslations } from '../../i18n/fraudReportTranslations'
-import { defaultLocale, type Locale, locales } from '../../i18n/locales'
+import { defaultLocale, locales } from '../../i18n/locales'
 
 export function getStaticPaths() {
   return locales.map((locale) => {
