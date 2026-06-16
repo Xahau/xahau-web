@@ -1,13 +1,16 @@
 ---
 import { getEntry, render } from 'astro:content'
-import { nonDefaultLocales } from '../../i18n/locales'
+import { defaultLocale, locales } from '../../i18n/locales'
 import PageLayout from '../../layouts/PageLayout.astro'
 
 export function getStaticPaths() {
-  return nonDefaultLocales.map((lang) => ({
-    params: { lang: lang.toLowerCase() },
-    props: { locale: lang },
-  }))
+  return locales.map((locale) => {
+    const lang = locale === defaultLocale ? undefined : locale.toLowerCase()
+    return {
+      params: { lang },
+      props: { locale },
+    }
+  })
 }
 
 const { locale } = Astro.props
