@@ -2,17 +2,11 @@
 import '../../styles/main.css'
 import XahauRoadmap from '../../components/XahauRoadmap.astro'
 import roadmapData from '../../data/roadmap.json'
-import { defaultLocale, locales } from '../../i18n/locales'
 import BaseLayout from '../../layouts/BaseLayout.astro'
+import generateStaticPaths from '../../utils/generateStaticPaths'
 
 export function getStaticPaths() {
-  return locales.map((locale) => {
-    const lang = locale === defaultLocale ? undefined : locale.toLowerCase()
-    return {
-      params: { lang },
-      props: { locale },
-    }
-  })
+  return generateStaticPaths()
 }
 
 const { locale } = Astro.props

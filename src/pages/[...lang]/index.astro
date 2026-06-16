@@ -1,15 +1,9 @@
 ---
-import { defaultLocale, locales, nonDefaultLocales } from '../../i18n/locales'
 import IndexLayout from '../../layouts/IndexLayout.astro'
+import generateStaticPaths from '../../utils/generateStaticPaths'
 
 export function getStaticPaths() {
-  return locales.map((locale) => {
-    const lang = locale === defaultLocale ? undefined : locale.toLowerCase()
-    return {
-      params: { lang },
-      props: { locale },
-    }
-  })
+  return generateStaticPaths()
 }
 
 // TODO: Add frontmatter

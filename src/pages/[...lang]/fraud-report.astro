@@ -1,16 +1,10 @@
 ---
 import FraudReportPage from '../../components/FraudReportPage.astro'
 import { fraudReportTranslations } from '../../i18n/fraudReportTranslations'
-import { defaultLocale, locales } from '../../i18n/locales'
+import generateStaticPaths from '../../utils/generateStaticPaths'
 
 export function getStaticPaths() {
-  return locales.map((locale) => {
-    const lang = locale === defaultLocale ? undefined : locale.toLowerCase()
-    return {
-      params: { lang },
-      props: { locale },
-    }
-  })
+  return generateStaticPaths()
 }
 
 const { locale } = Astro.props
