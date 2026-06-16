@@ -6,13 +6,16 @@ import { defaultLocale, type Locale, locales } from '../../i18n/locales'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
 export function getStaticPaths() {
-  return locales.map((lang) => ({
-    params: { lang: lang === defaultLocale ? undefined : lang },
-  }))
+  return locales.map((locale) => {
+    const lang = locale === defaultLocale ? undefined : locale.toLowerCase()
+    return {
+      params: { lang },
+      props: { locale },
+    }
+  })
 }
 
-const { lang } = Astro.params
-const locale = (lang as Locale) ?? defaultLocale
+const { locale } = Astro.props
 const t = contestTranslations[locale]
 const _frontmatter = { title: t.page_title, description: t.page_subtitle }
 ---

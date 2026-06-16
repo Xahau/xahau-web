@@ -4,13 +4,16 @@ import { fraudReportTranslations } from '../../i18n/fraudReportTranslations'
 import { defaultLocale, type Locale, locales } from '../../i18n/locales'
 
 export function getStaticPaths() {
-  return locales.map((lang) => ({
-    params: { lang: lang === defaultLocale ? undefined : lang },
-  }))
+  return locales.map((locale) => {
+    const lang = locale === defaultLocale ? undefined : locale.toLowerCase()
+    return {
+      params: { lang },
+      props: { locale },
+    }
+  })
 }
 
-const { lang } = Astro.params
-const locale = (lang as Locale) ?? defaultLocale
+const { locale } = Astro.props
 const t = fraudReportTranslations[locale]
 ---
 

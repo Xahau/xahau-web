@@ -4,11 +4,14 @@ import { nonDefaultLocales } from '../../i18n/locales'
 import PageLayout from '../../layouts/PageLayout.astro'
 
 export function getStaticPaths() {
-  return nonDefaultLocales.map((lang) => ({ params: { lang } }))
+  return nonDefaultLocales.map((lang) => ({
+    params: { lang: lang.toLowerCase() },
+    props: { locale: lang },
+  }))
 }
 
-const { lang } = Astro.params
-const entry = await getEntry('privacy', lang)
+const { locale } = Astro.props
+const entry = await getEntry('privacy', locale)
 if (!entry) return Astro.redirect('/privacy-policy')
 
 const { Content } = await render(entry)
