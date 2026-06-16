@@ -1,0 +1,64 @@
+---
+title: Processo de Versionamento
+description: >-
+  Este documento descreve nosso fluxo de trabalho de versionamento no GitHub,
+  para agilizar o desenvolvimento, testes e implantação de novas funcionalidades
+  e correções.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Este documento descreve o processo de versionamento que usamos em nosso repositório no GitHub. Utilizamos um fluxo de trabalho com três branches: `dev`, `candidate` e `release`. Esse processo garante que todas as novas funcionalidades e correções sejam cuidadosamente testadas antes do lançamento.
+
+### Branch Dev
+
+O branch dev é o branch principal para o desenvolvimento contínuo. Todas as novas funcionalidades, correções de bugs e melhorias são mescladas neste branch. É o branch mais ativo e é onde os desenvolvedores devem basear seu trabalho.
+
+Para contribuir com o branch dev, siga estes passos:
+
+1. Faça um fork do repositório para sua própria conta no GitHub.
+2. Clone o repositório forkado para sua máquina local.
+3. Crie um novo branch para sua funcionalidade ou correção de bug.
+4. Faça suas alterações e faça commit delas no seu branch.
+5. Faça push do seu branch para o repositório forkado no GitHub.
+6. Crie um pull request do seu branch para o branch dev no repositório principal.
+
+<Aside type="caution">
+Todos os merges no branch dev devem ser feitos com squash
+</Aside>
+
+Os mantenedores do código revisarão seu pull request e fornecerão feedback. Uma vez que o código for aprovado, ele será mesclado no branch dev.
+
+### Branches Candidate
+
+Assim que as funcionalidades no branch `dev` estiverem prontas para testes, elas são mescladas em um branch `candidate`. Este branch serve como área de preparação para código que está quase pronto para lançamento.
+
+O código no branch `candidate` é testado minuciosamente. Quaisquer bugs ou problemas encontrados são corrigidos no branch `dev` e então mesclados de volta no branch `candidate`.
+
+O branch `candidate` normalmente fica nessa fase de testes por cerca de 2 semanas. No entanto, esse período pode ser maior ou menor, dependendo da urgência das correções ou do tamanho das novas funcionalidades.
+
+1. Crie um novo branch `candidate` a partir do `dev`.
+2. Crie um PR do branch `candidate` para o branch `release` com um nome como "Proposto."
+3. Atualize a "Visão Geral de Alto Nível da Mudança" para incluir os Pull Requests do `candidate`. Atualize o "Contexto da Mudança" para incluir quaisquer notas adicionais sobre os PRs.
+
+### Branch Release
+
+Após o código no branch `candidate` ter sido testado minuciosamente e todos os problemas terem sido resolvidos, ele é mesclado no branch `release`. Esta é a etapa final antes do lançamento do código.
+
+O branch `release` contém o código que está atualmente em produção ou está prestes a ser lançado. Somente código totalmente testado e estável deve estar neste branch.
+
+Uma vez que o código esteja no branch `release`, ele é marcado com um número de versão. Este número de versão é usado para rastrear o lançamento e também é usado ao criar notas de lançamento.
+
+No branch `release`, um binário é construído e publicado em https://build.xahau.tech/. Este binário é o produto final entregue aos usuários finais.
+
+Para lançar o código, siga estes passos:
+
+1. Mescle o pull request do `candidate` no branch release.
+2. Exclua o branch `candidate`.
+
+<Aside type="caution">
+Todos os merges no branch release devem ser feitos com \`git merge --ff-only candidate\`
+</Aside>
+
+### Resumo
+
+Este fluxo de trabalho com três branches garante que todo o código seja testado minuciosamente antes do lançamento. Ele nos permite detectar e corrigir problemas antes que cheguem à produção e fornece um caminho claro para mover o código do desenvolvimento ao lançamento. O uso de uma LAN personalizada para testes e métricas de perfil garante que nosso código não seja apenas funcional, mas também eficiente e performático.

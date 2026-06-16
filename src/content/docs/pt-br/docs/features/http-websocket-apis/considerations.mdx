@@ -1,0 +1,16 @@
+---
+title: Considerações
+---
+## Marcadores
+
+Alguns métodos retornam mais dados do que cabem eficientemente em uma única resposta. Quando os resultados excedem o limite de resposta, um campo `marker` é incluído na resposta. Este campo permite que você recupere páginas adicionais de dados por meio de solicitações subsequentes. Para continuar buscando dados, inclua o valor `marker` da resposta anterior em sua próxima solicitação. Se uma resposta não incluir um `marker`, significa que você chegou ao final do conjunto de dados.
+
+O formato do campo `marker` é intencionalmente não especificado. Cada servidor pode definir o `marker` conforme necessário, o que significa que pode ser uma string, um objeto aninhado ou outro tipo. O formato do `marker` pode variar entre servidores e até entre métodos no mesmo servidor. Cada `marker` é temporário e pode se tornar inválido após aproximadamente 10 minutos.
+
+## Limite de Taxa
+
+O servidor `xahaud` impõe limites de taxa em clientes de API que usam APIs públicas para evitar solicitações excessivas. O limite de taxa é aplicado com base no endereço IP do cliente, o que significa que múltiplos clientes compartilhando uma [tradução de endereço de rede (NAT)](https://en.wikipedia.org/wiki/Network_address_translation) compartilharão o mesmo limite de taxa associado ao seu IP público.
+
+Quando um cliente está se aproximando do limite de taxa, o servidor inclui um campo `"warning": "load"` no nível superior de uma resposta de API. Este aviso não aparece em todas as respostas, mas pode ser enviado várias vezes antes de o servidor desconectar o cliente. Clientes conectados como administrador estão isentos de limitação de taxa.
+
+Se um cliente exceder o limite de taxa, o servidor desconecta o cliente e bloqueia temporariamente novas solicitações daquele endereço IP. As APIs WebSocket e JSON-RPC lidam com desconexões de forma diferente, conforme descrito abaixo.

@@ -1,0 +1,63 @@
+---
+title: UNL Report
+---
+_(Adicionado pela \[emenda Hooks]\[].)_
+
+Um objeto `UNLReport` descreve um relatório da Lista de Nós Únicos (UNL), que é uma lista de nós validadores confiáveis pela rede para validar transações.
+
+### Exemplo JSON
+
+```json
+{
+  "LedgerEntryType": "UNLReport",
+  "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "PreviousTxnLgrSeq": 6,
+  "ImportVLKeys": [
+    {
+      "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+      "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo"
+    }
+  ],
+  "ActiveValidators": [
+    {
+      "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+      "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo"
+    }
+  ],
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### Campos
+
+Um objeto `UNLReport` tem os seguintes campos:
+
+| Campo               | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                                                                                             |
+| ------------------- | --------- | ------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LedgerEntryType`   | String    | UInt16              | Sim          | O valor `0x0073`, mapeado para a string `UNLReport`, indica que este objeto é um objeto UNLReport.                                                    |
+| `PreviousTxnID`     | String    | Hash256             | Sim          | O hash identificador da transação que mais recentemente modificou este objeto.                                                                        |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | Sim          | O índice do ledger que contém a transação que mais recentemente modificou este objeto.                                                                |
+| `ImportVLKeys`      | Array     | Array               | Não          | Um array de objetos, cada um representando uma chave de validador que foi importada. Cada objeto tem um campo `PublicKey` e um campo `Account` opcional. |
+| `ActiveValidators`  | Array     | Array               | Não          | Um array de objetos, cada um representando um validador ativo. Cada objeto tem um campo `PublicKey` e um campo `Account` opcional.                    |
+
+### Campos do ImportVLKey
+
+| Campo       | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                       |
+| ----------- | --------- | ------------------- | ------------ | ------------------------------------------------------------------------------- |
+| `PublicKey` | String    | VL                  | Sim          | A chave pública do validador importado.                                         |
+| `Account`   | String    | Account             | Não          | A conta associada à chave de validador importada. Este campo é opcional.        |
+
+### Campos do ActiveValidator
+
+| Campo       | Tipo JSON | \[Tipo Interno]\[] | Obrigatório? | Descrição                                                                 |
+| ----------- | --------- | ------------------- | ------------ | ------------------------------------------------------------------------- |
+| `PublicKey` | String    | VL                  | Sim          | A chave pública do validador ativo.                                       |
+| `Account`   | String    | Account             | Não          | A conta associada ao validador ativo. Este campo é opcional.              |
+
+### Formato do ID do UNLReport
+
+O ID do objeto `UNLReport` é o hash apenas da chave de espaço `UNLReport` (`0x0052`). Isso significa que o ID do objeto `UNLReport` em um ledger é sempre:
+
+```
+61E32E7A24A238F1C619D5F9DDCC41A94B33B66C0163F7EFCC8A19C9FD6F28DC
+```

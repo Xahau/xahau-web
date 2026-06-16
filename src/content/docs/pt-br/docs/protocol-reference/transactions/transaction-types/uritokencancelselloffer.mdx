@@ -1,0 +1,34 @@
+---
+title: URITokenCancelSellOffer
+description: >-
+  Uma transação URITokenCancelSellOffer cancela uma oferta de venda de um URIToken no
+  Xahau.
+---
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(Adicionado pela \[emenda URIToken]\[].)_
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "URITokenCancelSellOffer",
+    "Account": "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA",
+}
+```
+
+### Campos
+
+| Campo        | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                        |
+| ------------ | --------- | ------------------- | ---------------------------------------------------------------- |
+| `Account`    | String    | AccountID           | O endereço da conta que possui a oferta de venda a cancelar.     |
+| `URITokenID` | String    | Hash256             | O ID do URIToken para cancelar a oferta de venda.                |
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações URITokenCancelSellOffer podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro     | Descrição                                                                    |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `tecNO_PERMISSION` | Ocorre quando a conta que executa a transação não é a proprietária do token. |

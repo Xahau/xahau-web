@@ -1,0 +1,98 @@
+---
+title: util_sha512h
+description: Calcula um sha512-half sobre alguns dados
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Calcula um hash `SHA512` sobre os dados apontados por `read_ptr`
+* Escreve a primeira metade do hash em `write_ptr`
+</TabItem>
+
+<TabItem label="JavaScript">
+* Calcula um hash `SHA512` sobre os dados apontados por `data`
+* Retorna a primeira metade do hash
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_sha512h (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function util_sha512h(data: ByteArray | HexString): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### Exemplo
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash_out[32];
+if (util_sha512h(hash_out, 32, data_in_ptr, data_in_len) < 0)
+	rollback("Could not generate Hash", 23, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (util_sha512h(data) < 0)
+    rollback("Could not generate Hash", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Nome</th><th width="114">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Ponteiro para um buffer onde o hash será escrito</td></tr><tr><td>write_len</td><td>uint32_t</td><td>Tamanho do buffer de saída, deve ser pelo menos 32.</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Ponteiro para o buffer de onde os dados serão lidos (para calcular o hash sobre eles)</td></tr><tr><td>read_len</td><td>uint32_t</td><td>Tamanho dos dados de entrada</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th>Nome</th><th width="114">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>data</td><td>ByteArray or HexString</td><td>Os dados sobre os quais calcular o hash, podem ser fornecidos como um array de números ou uma string.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="137">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>int64_t</td><td>O número de bytes escritos, deve ser sempre 32.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.<br /><br /><code>TOO_SMALL</code><br />- O buffer de saída não é grande o suficiente</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="137">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>ByteArray</td><td>ErrorCode se houver um erro ao calcular o hash, caso contrário retorna o hash SHA512-half como um array de números.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+

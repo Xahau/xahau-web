@@ -1,0 +1,60 @@
+---
+title: AccountDelete
+description: >-
+  Uma transação AccountDelete exclui uma conta e quaisquer objetos que ela possui no
+  Xahau, se possível, enviando o XAH restante da conta para uma conta de
+  destino especificada.
+sidebar:
+  badge: 
+    text: Desabilitado
+    variant: danger
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Fonte](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/DeleteAccount.cpp)]
+
+_Adicionado pela emenda DeletableAccounts_
+
+<Aside type="danger" title="Não habilitado">
+A emenda _DeletableAccounts_ não está habilitada no momento.
+</Aside>
+
+### Exemplo
+
+```json
+{
+    "TransactionType": "AccountDelete",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "DestinationTag": 13,
+    "Fee": "2000000",
+    "Sequence": 2470665,
+    "Flags": 2147483648
+}
+```
+
+| Campo            | Tipo JSON              | \[Tipo Interno]\[] | Descrição                                                                                                                                                                      |
+| ---------------- | ---------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Destination`    | String - \[Address]\[] | AccountID          | O endereço de uma conta para receber qualquer XAH restante após a exclusão da conta remetente. Deve ser uma conta ativa no ledger e não pode ser a conta remetente.             |
+| `DestinationTag` | Number                 | UInt32             | _(Opcional)_ Tag de destino arbitrária que identifica um destinatário hospedado ou outras informações para o destinatário do XAH restante da conta excluída.                   |
+
+### Custo Especial de Transação
+
+Como medida adicional de dissuasão contra spam no ledger, a transação AccountDelete exige um custo de transação muito maior que o usual: em vez do mínimo padrão de 0,00001 XAH, o AccountDelete deve destruir pelo menos o valor da reserva do proprietário, atualmente 2 XRP. Isso desencoraja a criação excessiva de novas contas, pois o requisito de reserva não pode ser totalmente recuperado ao excluir a conta.
+
+O custo da transação sempre se aplica quando uma transação é incluída em um ledger validado, mesmo que a transação falhe ao excluir a conta. (Consulte Casos de Erro.) Para reduzir bastante as chances de pagar o alto custo de transação caso a conta não possa ser excluída, envie a transação com `fail_hard` habilitado.
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações AccountDelete podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro       | Descrição                                                                                                                                                                                                                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`        | Ocorre se a emenda DeletableAccounts não estiver habilitada.                                                                                                                                                                                                                                                                                |
+| `temDST_IS_SRC`      | Ocorre se o `Destination` corresponder ao remetente da transação (campo `Account`).                                                                                                                                                                                                                                                         |
+| `tecDST_TAG_NEEDED`  | Ocorre se a conta `Destination` exigir uma tag de destino, mas o campo `DestinationTag` não tiver sido fornecido.                                                                                                                                                                                                                           |
+| `tecNO_DST`          | Ocorre se a conta `Destination` não for uma conta ativa no ledger.                                                                                                                                                                                                                                                                          |
+| `tecNO_PERMISSION`   | Ocorre se a conta `Destination` exigir autorização de depósito e o remetente não estiver pré-autorizado.                                                                                                                                                                                                                                    |
+| `tecTOO_SOON`        | Ocorre se o número de `Sequence` do remetente for muito alto. O número de `Sequence` da transação mais 256 deve ser menor que o \[Índice do Ledger]\[] atual. Isso evita a repetição de transações antigas caso esta conta seja recriada após ser excluída.                                                                                  |
+| `tecHAS_OBLIGATIONS` | Ocorre se a conta a ser excluída estiver vinculada a objetos que não podem ser excluídos no ledger. (Isso inclui objetos criados por outras contas, como escrows e, por exemplo, NFTs cunhados, [mesmo que pertençam a outra conta](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/DeleteAccount.cpp#L197).)               |
+| `tefTOO_BIG`         | Ocorre se a conta remetente estiver vinculada a mais de 1000 objetos no ledger. A transação pode ser bem-sucedida em uma nova tentativa se alguns desses objetos forem excluídos separadamente antes.                                                                                                                                        |

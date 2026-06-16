@@ -1,0 +1,101 @@
+---
+title: CronSet
+description: >-
+  Uma transação CronSet permite que Hooks agendem auto-invocações recorrentes em
+  intervalos regulares, similar a cronjobs do Linux. Isso facilita estruturas
+  complexas de governança e processos automatizados dentro de frameworks de Hook.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/CronSet.cpp)]
+
+_(Adicionado pela emenda CronSet.)_
+
+### Exemplo
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "StartTime": 816348759,
+  "RepeatCount": 3,
+  "DelaySeconds": 120
+}
+```
+
+| Campo          | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                                                                              |
+| -------------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`      | String    | AccountID           | A conta Hook que inicia o cron. Esta é a conta que será invocada quando o cron executar.                                                                                               |
+| `StartTime`    | Number    | UInt32              | _(Opcional)_ Timestamp no formato Ripple Epoch indicando quando a primeira execução deve ocorrer. Use `0` para execução imediata. Se omitido ao excluir um cron, a transação o remove. |
+| `RepeatCount`  | Number    | UInt32              | _(Opcional)_ Número de vezes que o cron deve executar (máximo de 256 por transação). Pode ser estendido via transações CronSet subsequentes. Omitir ao excluir um cron.                |
+| `DelaySeconds` | Number    | UInt32              | _(Opcional)_ Intervalo de tempo em segundos entre cada execução. Omitir ao excluir um cron.                                                                                            |
+
+### Como o CronSet Funciona
+
+Transações CronSet habilitam a execução agendada e automatizada de Hooks na blockchain Xahau em intervalos regulares, eliminando a necessidade de serviços externos ou acionamentos manuais.
+
+O fluxo de trabalho envolve quatro etapas principais:
+
+1. Instalar um Hook com a flag `hsfCOLLECT` habilitada
+2. Habilitar a Coleta de Hook por Assinatura de Transação `asfTshCollect` na sua conta (SetFlag: 11)
+3. Criar uma transação CronSet com os parâmetros de agendamento
+4. Deixar o Xahau gerenciar a execução automática
+
+### Mecanismo de Execução
+
+Quando um cron está pronto para executar, o motor Cron insere uma pseudo-transação do tipo `Cron` no ledger, contendo um campo `Owner` referenciando a conta Hook de origem. Desenvolvedores de Hook devem habilitar chamadas de coleta, pois o Owner constitui uma parte interessada transacional fraca.
+
+O Hook agendado será invocado automaticamente nos intervalos especificados sem exigir acionamentos externos.
+
+### Formato de Tempo
+
+O Xahau utiliza o tempo no formato Ripple Epoch (segundos desde 1º de janeiro de 2000), não o tempo Unix. Para converter a partir de um objeto Date do JavaScript:
+
+```javascript
+const rippleEpochTime = Math.floor(Date.now() / 1000) - 946684800;
+```
+
+### Excluindo um Cron
+
+Para remover um Cron existente, omita `StartTime`, `RepeatCount` e `DelaySeconds` enquanto define `Flags: 1` (tfCronUnset):
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "Flags": 1
+}
+```
+
+### Estendendo o RepeatCount
+
+Ao atingir um limite mínimo, uma transação CronSet subsequente pode estender o contador de repetições além do limite inicial de 256 execuções, enviando uma nova transação CronSet com um `RepeatCount` atualizado.
+
+### Flags do CronSet
+
+Transações do tipo CronSet suportam valores adicionais no campo `Flags`, conforme abaixo:
+
+| Nome da Flag  | Valor Hex    | Valor Decimal | Descrição                                                                           |
+| ------------- | ------------ | ------------- | ----------------------------------------------------------------------------------- |
+| `tfCronUnset` | `0x00000001` | 1             | Remove um Cron existente. Todos os campos de agendamento devem ser omitidos ao usar esta flag. |
+
+### Limitações e Restrições
+
+- CronSet não pode ser delegado a outra conta atualmente
+- Hooks devem auto-emitir transações CronSet ou operar sob arranjos de gerenciamento conjunto
+- `RepeatCount`: Deve ser maior que 0 e não pode exceder 256 por transação (extensível via transações subsequentes)
+- `DelaySeconds`: Máximo de 31.536.000 segundos (365 dias)
+- `StartTime`: Deve ser o momento atual ou futuro; não pode exceder 365 dias à frente
+- Não é possível combinar a flag `tfCronUnset` com os campos `DelaySeconds`, `RepeatCount` ou `StartTime`
+- Ao criar um cron, `DelaySeconds` e `RepeatCount` devem ambos existir ou ambos estar ausentes
+
+### Casos de Erro
+
+Além dos erros que podem ocorrer em todas as transações, as transações CronSet podem resultar nos seguintes códigos de resultado:
+
+| Código de Erro     | Descrição                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`      | Ocorre se a funcionalidade Cron não estiver habilitada.                                                         |
+| `temINVALID_FLAG`  | Ocorre se flags inválidas estiverem definidas na transação.                                                     |
+| `temMALFORMED`     | Ocorre se a transação estiver malformada com combinações de campos inválidas.                                   |
+| `tecEXPIRED`       | Ocorre se `StartTime` estiver no passado ou mais de 365 dias no futuro.                                         |
+| `tefINTERNAL`      | Ocorre se a entrada do ledger da conta estiver ausente.                                                         |
+| `tefBAD_LEDGER`    | Ocorre se o objeto Cron estiver ausente, apontar para uma entrada não-cron, ou se a remoção do diretório do proprietário falhar. |

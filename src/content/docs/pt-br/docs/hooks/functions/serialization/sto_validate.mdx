@@ -1,0 +1,117 @@
+---
+title: sto_validate
+description: Valida um STObject
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/hooks/concepts/serialized-objects">Objetos Serializados</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="C">
+* Analisa um STObject apontado por `read_ptr`
+* Retorna 1 se a serialização for válida, 0 caso contrário.
+</TabItem>
+
+<TabItem label="JavaScript">
+* O `blob` (ex: transação serializada) é fornecido para ser validado.
+* Retorna o número 1 se o STObject for válido, 0 se não for, ou um código de erro se a validação falhar.
+</TabItem>
+</Tabs>
+
+
+
+### Definição
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_validate (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_validate(blob: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t result = 
+  sto_validate(tx_out, sizeof(tx_out));
+
+if (tx_len <= 0)
+    rollback("Invalid STO.", 12, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const result = sto_validate(tx_out)
+
+if (result <= 0)
+    rollback("Invalid STO.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="C">
+| Nome      | Tipo      | Descrição                                 |
+| --------- | --------- | ------------------------------------------- |
+| read_ptr | uint32_t | O buffer de onde o STObject de origem será lido |
+| read_len | uint32_t | O tamanho do objeto de origem             |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| Nome | Tipo                   | Descrição                                             |
+| ---- | ---------------------- | ------------------------------------------------------- |
+| blob | ByteArray \| HexString | O blob (ex: transação serializada) a ser validado. |
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="C">
+| Tipo     | Descrição                                                                                                                                                                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>1</code> se o STObject apontado por <code>read_ptr</code> for um STObject válido.<br /><code>0</code> se não for.<br /><br />Se negativo, um erro:<br /><code>OUT_OF_BOUNDS</code><br />- ponteiros/tamanhos especificados fora da memória do hook.</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| Tipo                | Descrição                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| ErrorCode \| number | Retorna o número 1 se o STObject for válido, 0 se não for, ou um código de erro se a validação falhar. |
+</TabItem>
+</Tabs>
+

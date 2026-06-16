@@ -1,0 +1,26 @@
+---
+title: Tipos de Pseudo-Transações
+---
+Pseudo-transações nunca são enviadas por usuários, nem propagadas pela rede. Em vez disso, um servidor pode optar por injetar pseudo-transações em um ledger proposto diretamente de acordo com regras de protocolo específicas. Se servidores suficientes propuserem exatamente a mesma pseudo-transação, o processo de consenso a aprova, e a pseudo-transação é incluída nos dados de transação daquele ledger.
+
+### Valores Especiais para Campos Comuns
+
+Alguns dos \[campos comuns]\[] obrigatórios para transações normais não fazem sentido para pseudo-transações. As pseudo-transações usam os seguintes valores especiais para esses campos comuns:
+
+| Campo           | Tipo JSON | \[Tipo Interno]\[] | Valor               |
+| --------------- | --------- | ------------------- | ------------------- |
+| `Account`       | String    | AccountID           | ACCOUNT_ZERO        |
+| `Fee`           | String    | Amount              | `0`                 |
+| `Sequence`      | Number    | UInt32              | `0`                 |
+| `SigningPubKey` | String    | Blob                | `""` (String vazia) |
+| `TxnSignature`  | String    | Blob                | `""` (String vazia) |
+
+As pseudo-transações usam os seguintes campos comuns normalmente:
+
+* `TransactionType`
+* `Flags`
+
+| Campo             | Tipo JSON | \[Tipo Interno]\[] | Descrição                                                                                                                      |
+| ----------------- | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `TransactionType` | String    | UInt16              | _(Obrigatório)_ O tipo da transação.                                                                                           |
+| `Flags`           | Number    | UInt32              | _(Opcional)_ Um conjunto de flags de bits para esta transação. O significado de flags específicas varia de acordo com o tipo de transação. |

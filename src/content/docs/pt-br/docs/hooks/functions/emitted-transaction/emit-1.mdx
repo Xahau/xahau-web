@@ -1,0 +1,70 @@
+---
+title: prepare
+description: Prepara uma transação JSON para emissão.
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceitos
+
+<LinkButton href="/pt-br/docs/protocol-reference/transactions/">Transações</LinkButton>
+
+### Comportamento
+
+<Tabs>
+<TabItem label="JavaScript">
+* Esta função recebe um objeto JSON de transação e o prepara para emissão.
+* A transação deve estar completa, exceto pelo campo Account, que deve ser sempre a conta Hook.
+</TabItem>
+</Tabs>
+
+### Definição
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function prepare(
+    txJson: Record<string, any> | Transaction
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+
+
+### Exemplo
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const prepared_txn = prepare({
+                TransactionType: "Payment",
+                Destination: util_raddr(p1address_ns),
+                Amount: parseFloat(drops_sent)*2
+            })
+```
+</TabItem>
+</Tabs>
+
+
+
+### Parâmetros
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th>Nome</th><th width="124">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>O JSON da transação, deve ser uma transação completa, exceto pelo Account (sempre a conta Hook).</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+
+
+### Código de Retorno
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="231">Tipo</th><th>Descrição</th></tr></thead><tbody><tr><td>ErrorCode | Record&#x3C;string, any> | Transaction</td><td>Retorna um ErrorCode se houver um erro, ou o JSON da transação preparada ou o objeto Transaction.</td></tr></tbody></table>
+</TabItem>
+</Tabs>
