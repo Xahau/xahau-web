@@ -81,6 +81,10 @@ Core amendment enabling Hook smart contract functionality on Xahau. _(Added by t
 
 Updates and improvements to the Hooks system.
 
+##### HooksUpdate2
+
+Adds the `prepare()` Hook API function. `prepare(write_ptr, write_len, read_ptr, read_len)` accepts a partial serialized transaction containing only transaction-type-specific fields and automatically injects all fields required for emission: `Account`, `Sequence`, `SigningPubKey`, `Fee`, `FirstLedgerSequence`, `LastLedgerSequence`, and `EmitDetails`. The output can be passed directly to `emit()`, eliminating the need to manually construct these boilerplate fields in hook code. _(Introduced in 2026.6.21-release+3350)_
+
 ##### Remit
 
 Implements [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156). A new simple but powerful what-you-see-is-what-you-get push payment transaction type. Enables [Remit transactions](/docs/protocol-reference/transactions/transaction-types/remit) that allow paying multiple currencies and URITokens in the same transaction to the same destination. The transaction automatically pays to create missing trustlines, automatically pays the reserves on transferred tokens, and automatically pays to create the destination account if it doesn't exist. You can mint a receipt or bonus URIToken in-line within the transaction. Optionally inform a third party Hook about the transaction. No partial payments and no pathing.

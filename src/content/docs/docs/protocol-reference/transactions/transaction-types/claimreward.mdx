@@ -89,7 +89,7 @@ Besides errors that can occur for all transactions, ClaimReward transactions can
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `temDISABLED`      | Occurs if the required amendment (`BalanceRewards` or `IOURewardClaim`) is not enabled.                                                        |
 | `temINVALID_FLAG`  | Occurs if the flag is set to a value other than 1. _(Requires the \[fixRewardClaimFlags amendment]\[].)_                                       |
-| `temMALFORMED`     | Occurs if `ClaimCurrency` is an MPT or XRP type, if the issuer equals `Account`, or if the transaction fields are otherwise incorrectly set.   |
+| `temMALFORMED`     | Occurs if `ClaimCurrency` is an non-currency or XAH type, if the issuer equals `Account`, or if the transaction fields are otherwise incorrectly set.   |
 | `temBAD_ISSUER`    | Occurs if `ClaimCurrency` is set but the issuer is the genesis account, or if `Issuer` is the genesis account but `ClaimCurrency` is also set. |
 | `terNO_ACCOUNT`    | Occurs if the sending account does not exist.                                                                                                  |
 | `tecNO_ISSUER`     | Occurs if the `Issuer` account does not exist.                                                                                                 |
