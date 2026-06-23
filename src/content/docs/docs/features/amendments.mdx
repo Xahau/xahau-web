@@ -81,6 +81,10 @@ Core amendment enabling Hook smart contract functionality on Xahau. _(Added by t
 
 Updates and improvements to the Hooks system.
 
+##### HookAPISerializedType240
+
+Fixes incorrect parsing of `STPathSet` fields (used by `sfPaths` in Payment transactions) within all `sto_` Hook API functions ([sto_subfield](/docs/hooks/functions/serialization/sto_subfield), [sto_subarray](/docs/hooks/functions/serialization/sto_subarray), [sto_emplace](/docs/hooks/functions/serialization/sto_emplace), [sto_erase](/docs/hooks/functions/serialization/sto_erase), [sto_validate](/docs/hooks/functions/serialization/sto_validate)). Before this amendment, PathSet fields were incorrectly treated as VL-encoded data, causing the internal parser (`get_stobject_length`) to misread the field boundary and corrupt the parsing of all subsequent fields in the object. PathSet fields are self-delimiting (using `0xFF` path-separator bytes and a `0x00` end-of-set byte) and are now parsed correctly. Also raises the maximum supported serialized type from `STI_VECTOR256` (19) to `STI_CURRENCY` (26), adding correct support for `STI_ISSUE` (24), `STI_XCHAIN_BRIDGE` (25), and `STI_CURRENCY` (26) within all `sto_` functions. _(Introduced in 2026.6.21-release+3350)_
+
 ##### NamedHooks
 
 Adds an optional `HookName` field (4–16 bytes, UTF-8) to the Hook slot in a [SetHook transaction](/docs/protocol-reference/transactions/transaction-types/sethook). When a hook installation carries a `HookName`, that hook will **only execute** if the incoming transaction also includes a matching top-level `HookName` field. Transactions without `HookName`, or with a different value, silently skip the named hook. `HookName` is also added as an optional common field on all transaction types so that submitters can target specific named hooks. This enables multiple hooks to coexist on an account with different entry points activated by different callers. _(Introduced in 2026.6.21-release+3350)_
