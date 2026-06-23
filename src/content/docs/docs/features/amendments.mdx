@@ -189,7 +189,7 @@ Fixes a bug that currently allows invalid flags to be provided to some transacti
 
 ##### HookOnV2
 
-Hooks may continue to specify `HookOn` with the existing behaviour, or optionally replace it with two separate fields: `HookOnIncoming` and `HookOnOutgoing`. Both use the same bitmask syntax as `HookOn` but differentiate between transactions originating from the Hook account (`HookOnOutgoing`) and transactions originating from another account (`HookOnIncoming`). Additionally, `HookCanEmit` may be specified to control which transaction types the Hook is allowed to emit, using the same syntax as `HookOn`. _(Introduced in 2026.6.21-release+3350)_
+Hooks may continue to specify `HookOn` with the existing behaviour, or optionally replace it with two separate fields: `HookOnIncoming` and `HookOnOutgoing`. Both use the same bitmask syntax as `HookOn` but differentiate between transactions originating from the Hook account (`HookOnOutgoing`) and transactions originating from another account (`HookOnIncoming`). _(Introduced in 2026.6.21-release+3350)_
 
 ##### PriceOracle
 
