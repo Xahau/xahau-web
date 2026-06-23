@@ -197,7 +197,7 @@ A port of the XRPL PriceOracle (XLS-47d) standard. Enables on-chain price feeds 
 
 ##### IOURewardClaim
 
-Expands the [ClaimReward](/docs/protocol-reference/transactions/transaction-types/claimreward) transaction type beyond genesis balance adjustments to issuers of other IOU currencies. Reward counters are held within the trustline (`LowReward`/`HighReward` objects on the [RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) object) and do not affect genesis balance adjustments. The transaction triggers any Hook installed on the account specified by the `Issuer` field, allowing that Hook to process and optionally pay out the reward. The reward-paying account does not need to be the issuer of the IOU currency. _(Introduced in 2026.6.21-release+3350)_
+Expands the [ClaimReward](/docs/protocol-reference/transactions/transaction-types/claimreward) transaction type beyond genesis balance adjustments to other IOU currencies. Reward counters are held within the trustline (`LowReward`/`HighReward` objects on the [RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) object) and do not affect genesis balance adjustments. The transaction triggers any Hook installed on the account specified by the `Issuer` field, allowing that Hook to process and optionally pay out the reward. The reward-paying account does not need to be the issuer of the IOU currency. _(Introduced in 2026.6.21-release+3350)_
 
 ##### fixCronStacking
 
