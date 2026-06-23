@@ -39,5 +39,4 @@ The `IOURewardClaim` amendment extends the reward mechanic to IOU currencies iss
 | Counters stored on | AccountRoot | RippleState (trustline) |
 | Accumulator type | UInt64 (drops / 1,000,000) | Amount (in the token's units) |
 | Payout handled by | Genesis account Hook | Issuer account Hook |
-| Opt-out flag | `tfOptOut` (flag 1) | Not applicable |
 | Issuer restriction | Must be genesis account | Any account with a Hook on `ttCLAIM_REWARD`, except AMM accounts |
