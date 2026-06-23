@@ -179,6 +179,10 @@ Fixes a bug that currently allows invalid flags to be provided to some transacti
 
 Hooks may continue to specify `HookOn` with the existing behaviour, or optionally replace it with two separate fields: `HookOnIncoming` and `HookOnOutgoing`. Both use the same bitmask syntax as `HookOn` but differentiate between transactions originating from the Hook account (`HookOnOutgoing`) and transactions originating from another account (`HookOnIncoming`). Additionally, `HookCanEmit` may be specified to control which transaction types the Hook is allowed to emit, using the same syntax as `HookOn`. _(Introduced in 2026.6.21-release+3350)_
 
+##### IOURewardClaim
+
+Expands the [ClaimReward](/docs/protocol-reference/transactions/transaction-types/claimreward) transaction type beyond genesis balance adjustments to issuers of other IOU currencies. The same reward logic (area under the curve of hold time vs. hold amount) is optionally applied to issuer currencies using the `ClaimCurrency` field. Reward counters are held within the trustline (`LowReward`/`HighReward` objects on the [RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) object) and do not affect genesis balance adjustments. The actual reward payout is handled by a Hook installed on the issuer account that fires on `ttCLAIM_REWARD`. _(Introduced in 2026.6.21-release+3350)_
+
 ##### fixCronStacking
 
 Fixes issues with Cron transaction stacking behavior.

@@ -41,7 +41,17 @@ The "issuer" for the balance in a trust line depends on whether the balance is p
         "currency": "USD",
         "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
         "value": "10"
-    }
+    },
+    "LowReward": {
+        "RewardLgrFirst": 1000000,
+        "RewardLgrLast": 1001234,
+        "RewardTime": 744000000,
+        "TrustLineRewardAccumulator": {
+            "currency": "USD",
+            "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            "value": "500"
+        }
+    },
     "index": "9CA88CDEDFF9252B3DE183CE35B038F57282BC9503CDFA1923EF9A95DF0D6F7B"
 }
 ```
@@ -65,8 +75,23 @@ A `RippleState` object has the following fields:
 | `LowQualityOut`     | Number    | UInt32        | No        | The outbound quality set by the low account, as an integer in the implied ratio `LowQualityOut`:1,000,000,000. As a special case, the value 0 is equivalent to 1 billion, or face value.                                               |
 | `PreviousTxnID`     | String    | Hash256       | Yes       | The identifying hash of the transaction that most recently modified this object.                                                                                                                                                       |
 | `PreviousTxnLgrSeq` | Number    | UInt32        | Yes       | The \[index of the ledger]\[Ledger Index] that contains the transaction that most recently modified this object.                                                                                                                       |
-| `LockCount`         | Number    | UInt32        | No        | The total number of lock balances on a RippleState ledger object                                                                                                                                                                       |
-| `LockedBalance`     | Object    | Amount        | No        | The current amount of locked tokens for a specific trustline                                                                                                                                                                           |
+| `LockCount`         | Number    | UInt32        | No        | The total number of lock balances on a RippleState ledger object.                                                                                                                                                                      |
+| `LockedBalance`     | Object    | Amount        | No        | The current amount of locked tokens for a specific trustline.                                                                                                                                                                          |
+| `LowReward`         | Object    | STObject      | No        | _(IOURewardClaim)_ IOU reward-tracking counters for the low account. Present only after the low account opts in via `ClaimReward` with `ClaimCurrency`. Contains `RewardLgrFirst`, `RewardLgrLast`, `RewardTime`, and `TrustLineRewardAccumulator`. |
+| `HighReward`        | Object    | STObject      | No        | _(IOURewardClaim)_ IOU reward-tracking counters for the high account. Present only after the high account opts in via `ClaimReward` with `ClaimCurrency`. Contains `RewardLgrFirst`, `RewardLgrLast`, `RewardTime`, and `TrustLineRewardAccumulator`. |
+
+### LowReward / HighReward Fields
+
+_(Added by the [IOURewardClaim amendment](/docs/features/amendments/#iourewardclaim).)_
+
+Both `LowReward` and `HighReward` are inner objects with the same structure. Which one is present depends on the canonical high/low ordering of the two accounts in the trustline.
+
+| Field                        | JSON Type | Internal Type | Description                                                                                          |
+| ---------------------------- | --------- | ------------- | ---------------------------------------------------------------------------------------------------- |
+| `RewardLgrFirst`             | Number    | UInt32        | The ledger sequence when the account first opted in to IOU rewards for this trustline.               |
+| `RewardLgrLast`              | Number    | UInt32        | The ledger sequence of the last time the reward accumulator was updated.                             |
+| `RewardTime`                 | Number    | UInt32        | The ledger close time (Ripple epoch seconds) when the counters were last reset by a `ClaimReward` transaction. |
+| `TrustLineRewardAccumulator` | Object    | Amount        | The running total of `balance × ledgers elapsed` since the last `ClaimReward`. Expressed in the trustline's currency. This is the value the issuer's Hook reads to calculate the reward payout. |
 
 ### RippleState Flags
 
