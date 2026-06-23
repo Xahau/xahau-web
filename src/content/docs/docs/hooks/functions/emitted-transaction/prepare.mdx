@@ -18,7 +18,7 @@ _(Requires the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2)
 * Reads a partial serialized transaction from `read_ptr`/`read_len`. The input must contain at minimum the `TransactionType` and all fields required by that transaction type, but included emission-specific fields will be **overwritten**.
 * Automatically injects all fields required for emission: `Account` (the Hook account), `Sequence` (0), `SigningPubKey` (all zeros), `Fee` (computed), `FirstLedgerSequence` (current ledger + 1), `LastLedgerSequence` (current ledger + 5), and `EmitDetails`.
 * Writes the complete, emission-ready transaction blob to `write_ptr`.
-* The output can be passed directly to [`emit()`](/docs/hooks/functions/emitted-transaction/emit-1).
+* The output can be passed directly to [`emit()`](/docs/hooks/functions/emitted-transaction/emit).
 * `etxn_reserve()` must be called before `prepare()`.
 </TabItem>
 

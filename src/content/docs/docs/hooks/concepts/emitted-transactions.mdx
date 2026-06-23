@@ -18,13 +18,13 @@ The solution: **Emitted Transactions**. We allow the Originating Transaction to 
 
 Emitted Transactions are _new_ transactions created by the execution of a Hook and entered into consensus for processing in the next ledger. The transaction may be of any Transaction Type but must follow strict emission rules.
 
-To emit a transaction the Hook first prepares the serialized transaction then calls [emit](/docs/hooks/functions/emitted-transaction/emit-1). With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), the [prepare()](/docs/hooks/functions/emitted-transaction/emit) API can build the complete emission-ready transaction automatically from a partial input, removing the need to manually set `Account`, `Sequence`, `SigningPubKey`, `Fee`, `FirstLedgerSequence`, `LastLedgerSequence`, and `EmitDetails`.
+To emit a transaction the Hook first prepares the serialized transaction then calls [emit](/docs/hooks/functions/emitted-transaction/emit). With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), the [prepare()](/docs/hooks/functions/emitted-transaction/prepare) API can build the complete emission-ready transaction automatically from a partial input, removing the need to manually set `Account`, `Sequence`, `SigningPubKey`, `Fee`, `FirstLedgerSequence`, `LastLedgerSequence`, and `EmitDetails`.
 
 Because emitted transactions can trigger Hooks in the next ledger which in turn may emit more transactions, all emitted transactions carry a `burden` and a `generation` field in their `EmitDetails` block. The `EmitDetails` block replaces the signature field in a traditional transaction.
 
 The `burden` and `generation` fields collectively prevent [Fork bomb](https://en.wikipedia.org/wiki/Fork_bomb) attacks on the ledger by exponentially increasing the cost of exponentially expanding emtited transactions.
 
-It is important to note that the Hooks API follows the strict rule of _no rewriting_. You _must_ present an emitted transaction in full, valid and canonically formed to xahaud for emission or it will be rejected. With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), the [`prepare()`](/docs/hooks/functions/emitted-transaction/emit) API automates this: the Hook provides only the transaction-type-specific fields and the runtime injects all required emission boilerplate. Without HooksUpdate2, the Hook must construct the complete transaction itself.
+It is important to note that the Hooks API follows the strict rule of _no rewriting_. You _must_ present an emitted transaction in full, valid and canonically formed to xahaud for emission or it will be rejected. With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), the [`prepare()`](/docs/hooks/functions/emitted-transaction/prepare) API automates this: the Hook provides only the transaction-type-specific fields and the runtime injects all required emission boilerplate. Without HooksUpdate2, the Hook must construct the complete transaction itself.
 
 ### Callbacks
 
@@ -34,7 +34,7 @@ If an emitted transaction expires before it can be accepted into a ledger (for a
 
 ### Emission Rules
 
-The [emit](/docs/hooks/functions/emitted-transaction/emit-1) Hook API will enforce the following rules on a proposed (to be emitted) transaction.
+The [emit](/docs/hooks/functions/emitted-transaction/emit) Hook API will enforce the following rules on a proposed (to be emitted) transaction.
 
 | # | Emission Rule                                          | Explanation                                                                                                                                                                                                                                              |
 | - | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

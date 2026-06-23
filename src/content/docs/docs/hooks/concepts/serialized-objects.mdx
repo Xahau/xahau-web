@@ -49,10 +49,10 @@ for (int i = 0; GUARD(3), i < 3; ++i)
 ### PathSet Support and Supported Serialized Types
 
 <Aside type="caution" title="PathSet parsing bug (pre-HookAPISerializedType240)">
-Without the [HookAPISerializedType240 amendment](/docs/features/amendments/#hookapiSerializedtype240), all `sto_` functions incorrectly parse `sfPaths` (STPathSet fields, used in Payment transactions with cross-currency routing). The internal parser misreads the PathSet boundary, corrupting the results for any field that appears after `sfPaths` in the serialized object. Hook developers processing Payment transactions with cross-currency paths must ensure this amendment is enabled.
+Without the [HookAPISerializedType240 amendment](/docs/features/amendments/#hookapiserializedtype240), all `sto_` functions incorrectly parse `sfPaths` (STPathSet fields, used in Payment transactions with cross-currency routing). The internal parser misreads the PathSet boundary, corrupting the results for any field that appears after `sfPaths` in the serialized object. Hook developers processing Payment transactions with cross-currency paths must ensure this amendment is enabled.
 </Aside>
 
-With the [HookAPISerializedType240 amendment](/docs/features/amendments/#hookapiSerializedType240), the following serialized types are correctly handled by all `sto_` functions:
+With the [HookAPISerializedType240 amendment](/docs/features/amendments/#hookapiserializedtype240), the following serialized types are correctly handled by all `sto_` functions:
 
 | STI Type | Code | Examples |
 |---|---|---|
