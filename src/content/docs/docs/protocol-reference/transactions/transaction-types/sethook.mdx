@@ -317,6 +317,7 @@ The following fields are used in the hook object:
 | `HookOnIncoming`    | String    | Hash256       | _(Optional, HookOnV2)_ Same syntax as `HookOn`. Triggers the hook on transactions originating from **another account**. Mutually exclusive with `HookOn`.         |
 | `HookOnOutgoing`    | String    | Hash256       | _(Optional, HookOnV2)_ Same syntax as `HookOn`. Triggers the hook on transactions originating from **the Hook account itself**. Mutually exclusive with `HookOn`. |
 | `HookCanEmit`       | String    | Hash256       | _(Optional)_ Same syntax as `HookOn`. Controls which transaction types the hook is allowed to emit. If absent, the hook may emit any transaction type.             |
+| `HookName`          | String    | Blob          | _(Optional, NamedHooks)_ A UTF-8 string (4–16 bytes, hex-encoded) assigned to this hook installation. When set, the hook only executes if the incoming transaction carries a matching top-level `HookName` field. Set to an empty blob to remove a previously assigned name. |
 | `HookApiVersion`    | Number    | UInt16        | The API version of the hook.                                                                                                                                       |
 | `Flags`             | Number    | UInt32        | Additional flags for the hook.                                                                                                                                     |
 

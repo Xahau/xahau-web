@@ -81,6 +81,10 @@ Core amendment enabling Hook smart contract functionality on Xahau. _(Added by t
 
 Updates and improvements to the Hooks system.
 
+##### NamedHooks
+
+Adds an optional `HookName` field (4–16 bytes, UTF-8) to the Hook slot in a [SetHook transaction](/docs/protocol-reference/transactions/transaction-types/sethook). When a hook installation carries a `HookName`, that hook will **only execute** if the incoming transaction also includes a matching top-level `HookName` field. Transactions without `HookName`, or with a different value, silently skip the named hook. `HookName` is also added as an optional common field on all transaction types so that submitters can target specific named hooks. This enables multiple hooks to coexist on an account with different entry points activated by different callers. _(Introduced in 2026.6.21-release+3350)_
+
 ##### HooksUpdate2
 
 Adds the `prepare()` Hook API function. `prepare(write_ptr, write_len, read_ptr, read_len)` accepts a partial serialized transaction containing only transaction-type-specific fields and automatically injects all fields required for emission: `Account`, `Sequence`, `SigningPubKey`, `Fee`, `FirstLedgerSequence`, `LastLedgerSequence`, and `EmitDetails`. The output can be passed directly to `emit()`, eliminating the need to manually construct these boilerplate fields in hook code. _(Introduced in 2026.6.21-release+3350)_
