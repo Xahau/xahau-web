@@ -175,6 +175,10 @@ Fixes issues with provisional double threading in transaction processing. Ensure
 
 Fixes a bug that currently allows invalid flags to be provided to some transactions. While these invalid flags currently do nothing, they should actually produce a malformed error. After this fix is applied, invalid flags will produce a malformed error as expected. _(Introduced in 2025.10.27-release+2405)_
 
+##### HookOnV2
+
+Hooks may continue to specify `HookOn` with the existing behaviour, or optionally replace it with two separate fields: `HookOnIncoming` and `HookOnOutgoing`. Both use the same bitmask syntax as `HookOn` but differentiate between transactions originating from the Hook account (`HookOnOutgoing`) and transactions originating from another account (`HookOnIncoming`). Additionally, `HookCanEmit` may be specified to control which transaction types the Hook is allowed to emit, using the same syntax as `HookOn`. _(Introduced in 2026.6.21-release+3350)_
+
 ##### fixCronStacking
 
 Fixes issues with Cron transaction stacking behavior.
