@@ -1,0 +1,103 @@
+---
+title: get_aggregate_price
+description: >-
+  Retrieves aggregated price statistics across multiple Price Oracle objects
+  for a given asset pair.
+---
+_(Added by the [PriceOracle amendment](/docs/features/amendments/#priceoracle).)_
+
+The `get_aggregate_price` method queries the price data stored in one or more [Oracle ledger objects](/docs/protocol-reference/ledger-data/ledger-objects-types/oracle) for a specified asset pair and returns aggregated statistics (mean, median, standard deviation). Optionally, outliers can be trimmed and a time window filter applied.
+
+### Request Format
+
+```json
+{
+    "command": "get_aggregate_price",
+    "ledger_index": "current",
+    "base_asset": "XAH",
+    "quote_asset": "USD",
+    "trim": 20,
+    "time_threshold": 300,
+    "oracles": [
+        {
+            "account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            "oracle_document_id": 1
+        },
+        {
+            "account": "rN7n3473SaZBCG4dFL83w7PB8LTfHBEDP",
+            "oracle_document_id": 2
+        }
+    ]
+}
+```
+
+### Request Parameters
+
+| Field            | JSON Type | Required? | Description                                                                                                                                                      |
+| ---------------- | --------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base_asset`     | String    | Yes       | The currency code of the asset being priced (e.g. `"XAH"`, `"BTC"`).                                                                                           |
+| `quote_asset`    | String    | Yes       | The currency code of the denomination (e.g. `"USD"`, `"EUR"`).                                                                                                  |
+| `oracles`        | Array     | Yes       | Array of up to **200** oracle references. Each entry must contain `account` (String, AccountID) and `oracle_document_id` (Number, UInt32).                       |
+| `trim`           | Number    | No        | Percentage (1–50) of outliers to remove from both ends of the price distribution before computing `trimmed_set` statistics.                                      |
+| `time_threshold` | Number    | No        | Maximum age in seconds for a price to be included. Prices with `LastUpdateTime < (latestTime - time_threshold)` are excluded. If omitted, all prices are included. |
+| `ledger_index`   | String or Number | No | The ledger to query. Defaults to `"current"`.                                                                                                              |
+
+### Response Format
+
+```json
+{
+    "result": {
+        "entire_set": {
+            "mean": "7.456",
+            "size": 5,
+            "standard_deviation": "0.12"
+        },
+        "trimmed_set": {
+            "mean": "7.45",
+            "size": 3,
+            "standard_deviation": "0.08"
+        },
+        "median": "7.46",
+        "time": 816348900,
+        "status": "success"
+    }
+}
+```
+
+### Response Fields
+
+| Field                           | JSON Type | Description                                                                                                        |
+| ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| `entire_set.mean`               | String    | Mean price across all collected data points (as a decimal string).                                                 |
+| `entire_set.size`               | Number    | Number of price data points used to compute the statistics.                                                        |
+| `entire_set.standard_deviation` | String    | Standard deviation of prices in the full set.                                                                      |
+| `trimmed_set.mean`              | String    | Mean price after removing the top and bottom `trim%` outliers. Only present if `trim` was specified.               |
+| `trimmed_set.size`              | Number    | Number of data points remaining after trimming. Only present if `trim` was specified.                              |
+| `trimmed_set.standard_deviation`| String    | Standard deviation after trimming. Only present if `trim` was specified.                                           |
+| `median`                        | String    | Median price across the full set.                                                                                  |
+| `time`                          | Number    | The most recent `LastUpdateTime` (Ripple Epoch) found across all queried Oracle objects.                           |
+
+### Algorithm
+
+1. Iterates through up to **200** oracle accounts and retrieves their `Oracle` ledger entries.
+2. For each Oracle, searches up to **3** historical transaction metadata entries to find a price for the requested `base_asset`/`quote_asset` pair.
+3. Applies the `time_threshold` filter: keeps only prices where `LastUpdateTime ≥ (latestTime - time_threshold)`.
+4. Computes mean, standard deviation, and median over the filtered set.
+5. If `trim` > 0: removes the top and bottom `trim%` by price value and recomputes statistics for `trimmed_set`.
+
+### Error Cases
+
+| Error Code            | Description                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| `rpcORACLE_MALFORMED` | An entry in `oracles` is missing or has an invalid `account` or `oracle_document_id`.          |
+| `rpcINVALID_PARAMS`   | Invalid parameter type, empty asset string, or `trim` outside the 1–50 range.                 |
+| `rpcOBJECT_NOT_FOUND` | No matching price data found for the requested asset pair across all queried Oracle objects.   |
+| `rpcINTERNAL`         | All data points were excluded by the `time_threshold` filter, leaving an empty result set.     |
+
+### Limits
+
+| Parameter     | Limit                      |
+| ------------- | -------------------------- |
+| `oracles`     | Max 200 entries per request |
+| History depth | Max 3 historical metadata entries searched per oracle |
+| `trim`        | 1–50 (%)                   |
