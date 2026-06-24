@@ -42,3 +42,27 @@ Ejemplos (asumiendo un entero sin signo de 256 bits):
 ### Calculadora HookOn
 
 <LinkCard title="Calculadora HookOn" href="https://richardah.github.io/xrpl-hookon-calculator/" />
+
+### Campo HookCanEmit
+
+_(Añadido por la [enmienda HookCanEmit](/es/docs/features/amendments/#hookcanemit).)_
+
+`HookCanEmit` usa la misma sintaxis de máscara de bits de 256 bits que `HookOn`, pero controla qué tipos de transacción puede **emitir** un Hook, en lugar de qué tipos lo activan.
+
+- Usa la misma semántica activo-bajo que `HookOn`, con el bit 22 (`ttHOOK_SET`) siendo activo-alto.
+- Si `HookCanEmit` está ausente, el Hook puede emitir cualquier tipo de transacción, incluyendo `SetHook`.
+
+### Campos HookOnIncoming y HookOnOutgoing
+
+_(Añadido por la [enmienda HookOnV2](/es/docs/features/amendments/#hookonv2).)_
+
+En lugar de especificar un único campo `HookOn`, los Hooks pueden opcionalmente reemplazarlo con dos campos separados que diferencian la dirección de la transacción que los activa:
+
+- **`HookOnIncoming`** — activa el Hook en transacciones **originadas desde otra cuenta** (la cuenta del Hook no es el iniciador).
+- **`HookOnOutgoing`** — activa el Hook en transacciones **originadas desde la propia cuenta del Hook**.
+
+Ambos campos usan la misma sintaxis de campo de bits que `HookOn`. `HookOnIncoming` y `HookOnOutgoing` son mutuamente excluyentes con `HookOn` — debes usar `HookOn` solo o el par `HookOnIncoming`/`HookOnOutgoing`, no ambos. Si solo se especifica uno del par, el Hook no se activará en la dirección no especificada.
+
+_Nota: Los campos `HookOnIncoming` y `HookOnOutgoing` no pueden configurarse con exactamente los mismos ajustes. Si necesitas que un Hook responda en ambas direcciones usando criterios idénticos, usa el campo `HookOn` en su lugar, ya que ofrece una forma más simple y apropiada de definir el comportamiento de activación compartida._
+
+Usar `HookOn` solo continúa funcionando exactamente como antes.
