@@ -29,7 +29,7 @@ The `IOURewardClaim` amendment extends the reward mechanic to IOU currencies iss
 
 1. **Opt-in**: A token holder submits a `ClaimReward` transaction with the `ClaimCurrency` field specifying the IOU. This initialises reward-tracking counters (`LowReward` or `HighReward`) directly on the trustline ([RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) ledger object).
 2. **Accumulation**: After every transaction that modifies the trustline balance, the ledger automatically updates the `TrustLineRewardAccumulator` field. This tracks the cumulative product of balance × ledgers elapsed since the last reset.
-3. **Claim**: When the holder submits another `ClaimReward` with `ClaimCurrency`, the ledger resets the counters and fires the issuer's Hook (which must be installed and must fire on `ttCLAIM_REWARD`). The Hook reads the accumulated value and emits a reward payment in whatever form the issuer chooses.
+3. **Claim**: When the holder submits another `ClaimReward` with `ClaimCurrency`, the ledger resets the counters and fires the issuer's Hook (which must be installed and must fire on `ClaimReward` transaction). The Hook reads the accumulated value and emits a reward payment in whatever form the issuer chooses.  
 
 #### Key differences from XAH genesis rewards
 
@@ -39,4 +39,4 @@ The `IOURewardClaim` amendment extends the reward mechanic to IOU currencies iss
 | Counters stored on | AccountRoot | RippleState (trustline) |
 | Accumulator type | UInt64 (drops / 1,000,000) | Amount (in the token's units) |
 | Payout handled by | Genesis account Hook | Issuer account Hook |
-| Issuer restriction | Must be genesis account | Any account with a Hook on `ttCLAIM_REWARD`, except AMM accounts |
+| Issuer restriction | Must be genesis account | Any account with a Hook on `ClaimReward` transaction, except AMM accounts |
