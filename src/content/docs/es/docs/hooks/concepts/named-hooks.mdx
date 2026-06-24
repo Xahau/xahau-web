@@ -1,0 +1,105 @@
+---
+title: Named Hooks
+description: Activa hooks específicos en una cuenta usando una puerta de ejecución basada en nombre.
+---
+
+_(Añadido por la [enmienda NamedHooks](/es/docs/features/amendments/#namedhooks).)_
+
+### Descripción general
+
+Por defecto, cada hook instalado en una cuenta se ejecuta en cada tipo de transacción para el que ha sido configurado mediante `HookOn`. Los Named Hooks permiten que un hook instalado declare una **puerta de ejecución**: el hook solo se ejecuta si la transacción que lo activa lleva un valor `HookName` coincidente.
+
+Esto permite que varios hooks coexistan en la misma cuenta, cada uno con un caso de uso diferente, donde los llamantes seleccionan qué hook activar incluyendo el `HookName` apropiado en su transacción.
+
+### Cómo funciona
+
+**1. Nombrar el hook en el momento de la instalación**
+
+Establece el campo `HookName` dentro del slot `Hook` de una [transacción SetHook](/es/docs/protocol-reference/transactions/transaction-types/sethook):
+
+```json
+{
+    "TransactionType": "SetHook",
+    "Account": "rHookOwner...",
+    "Hooks": [
+        {
+            "Hook": {
+                "HookHash": "A5663784D04ED1B4408C6B97193464D27C9C3334AAF8BBB4FA5EB8E557FC4A2C",
+                "HookOn": "0000000000000000",
+                "HookNamespace": "...",
+                "HookName": "6D795F68616E646C6572"
+            }
+        }
+    ]
+}
+```
+
+`HookName` es una cadena UTF-8 codificada en hexadecimal (p. ej. `6D795F68616E646C6572` = `"my_handler"`). Se almacena por instalación en el [objeto Hook del ledger](/es/docs/protocol-reference/ledger-data/ledger-objects-types/hook) de la cuenta y no se comparte con la [HookDefinition](/es/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition).
+
+**2. Activar el hook por nombre en una transacción**
+
+Cualquier tipo de transacción puede incluir el campo `HookName` de nivel superior para apuntar al hook nombrado:
+
+```json
+{
+    "TransactionType": "Payment",
+    "Account": "rSender...",
+    "Destination": "rHookOwner...",
+    "Amount": "1000000",
+    "HookName": "6D795F68616E646C6572"
+}
+```
+
+Cuando el ledger procesa esta transacción y llega a la cadena de hooks en `rHookOwner`:
+
+- Los hooks **sin** un `HookName` establecido → se ejecutan normalmente (comportamiento sin cambios).
+- Los hooks **con** un `HookName` que coincide con el `HookName` de la transacción → se ejecutan.
+- Los hooks **con** un `HookName` que **no coincide** → se omiten silenciosamente (sin error).
+
+Las transacciones que **no** llevan el campo `HookName` omitirán todos los hooks nombrados de la cuenta.
+
+### Restricciones de HookName
+
+| Restricción       | Valor                          |
+| ----------------- | ------------------------------ |
+| Longitud mínima   | 4 bytes (8 caracteres hex en JSON) |
+| Longitud máxima   | 16 bytes (32 caracteres hex en JSON) |
+| Codificación      | UTF-8 válido                   |
+| Eliminar nombre   | Establecer en blob vacío (`""`) en una operación de actualización |
+
+### Eliminar un nombre
+
+Para eliminar un nombre previamente asignado a un slot de hook, envía una operación de actualización con `HookName` establecido en un blob vacío:
+
+```json
+{
+    "TransactionType": "SetHook",
+    "Account": "rHookOwner...",
+    "Hooks": [
+        {
+            "Hook": {
+                "HookName": ""
+            }
+        }
+    ]
+}
+```
+
+Tras la eliminación, el hook vuelve a la ejecución incondicional (gobernada únicamente por sus configuraciones de `HookOn` / `HookOnIncoming` / `HookOnOutgoing`).
+
+### Cálculo de comisiones
+
+El cálculo de comisiones de hook respeta la misma lógica de puerta: los hooks nombrados que serían omitidos por una transacción (nombre no coincidente o ausente) **no** se contabilizan al calcular la comisión de ejecución de hook para esa transacción.
+
+### Casos de error
+
+| Código de error | Condición |
+| --------------- | --------- |
+| `temDISABLED`   | `HookName` está presente en un slot Hook pero la enmienda `NamedHooks` no está habilitada. |
+| `temMALFORMED`  | `HookName` presente como campo de transacción de nivel superior pero `Hooks` o `NamedHooks` no está activo; o el valor no supera la validación de UTF-8 o longitud. |
+
+### Casos de uso
+
+- **Cuentas multipropósito**: instala varios hooks especializados (p. ej. procesador de pagos, manejador de gobernanza, gestor de escrow), cada uno controlado por un nombre diferente.
+- **Invocación selectiva**: contratos externos o usuarios pueden activar selectivamente solo el hook relevante para su interacción sin afectar a los demás.
+- **Migración gradual**: despliega una nueva versión de hook bajo un nombre diferente y migra los llamantes de forma incremental sin eliminar el hook anterior.

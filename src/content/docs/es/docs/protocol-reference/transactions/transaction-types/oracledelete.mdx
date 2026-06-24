@@ -1,0 +1,39 @@
+---
+title: OracleDelete
+description: >-
+  Una transacción OracleDelete elimina un objeto Price Oracle existente del
+  ledger, liberando las reservas del propietario que mantenía.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/DeleteOracle.cpp)]
+
+_(Añadido por la [enmienda PriceOracle](/es/docs/features/amendments/#priceoracle).)_
+
+### Ejemplo
+
+```json
+{
+    "TransactionType": "OracleDelete",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "OracleDocumentID": 1
+}
+```
+
+### Campos
+
+| Campo              | Tipo JSON | \[Internal Type]\[] | Descripción                                                                                  |
+| ------------------ | --------- | ------------------- | -------------------------------------------------------------------------------------------- |
+| `Account`          | String    | AccountID           | La dirección de la cuenta propietaria del Oracle. Solo el propietario puede eliminar el objeto. |
+| `OracleDocumentID` | Number    | UInt32              | El ID de documento del objeto Oracle a eliminar.                                             |
+
+### Coste especial de transacción
+
+Las transacciones OracleDelete tienen el coste de transacción estándar.
+
+### Casos de error
+
+| Código de error   | Descripción                                                          |
+| ----------------- | -------------------------------------------------------------------- |
+| `temDISABLED`     | La enmienda PriceOracle no está habilitada.                          |
+| `temINVALID_FLAG` | Se especificaron flags inválidos.                                    |
+| `terNO_ACCOUNT`   | La cuenta emisora no existe.                                         |
+| `tecNO_ENTRY`     | No existe ningún objeto Oracle para la cuenta y `OracleDocumentID` indicados. |
