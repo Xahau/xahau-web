@@ -88,7 +88,7 @@ Both `LowReward` and `HighReward` are inner objects with the same structure. `Lo
 
 | Field                        | JSON Type | Internal Type | Description                                                                                          |
 | ---------------------------- | --------- | ------------- | ---------------------------------------------------------------------------------------------------- |
-| `RewardLgrFirst`             | Number    | UInt32        | The ledger sequence when the account first opted in to IOU rewards for this trustline.               |
+| `RewardLgrFirst`             | Number    | UInt32        | The ledger sequence when the account first opted in to IOU rewards for this trustline. It gets updated every time `ClaimReward` is executed. The field will be deleted if the account opts out |
 | `RewardLgrLast`              | Number    | UInt32        | The ledger sequence of the last time the reward accumulator was updated.                             |
 | `RewardTime`                 | Number    | UInt32        | The ledger close time (Ripple epoch seconds) when the counters were last reset by a `ClaimReward` transaction. |
 | `TrustLineRewardAccumulator` | Object    | Amount        | The running total of `balance × ledgers elapsed` since the last `ClaimReward`. Expressed in the trustline's currency. This is the value the issuer's Hook reads to calculate the reward payout. |
