@@ -99,6 +99,14 @@ export const featuresTranslations = {
     checks_para2:
       "The ledger has dedicated transactions for creating a check, cashing it, or canceling it. Few other platforms have this kind of native deferred payment instrument; Xahau's check system provides an extra layer of payment control, all enforced by the network's rules without requiring custom smart contracts.",
 
+    // Price Oracles solo
+    oracle_label: 'Data Feeds',
+    oracle_h4: 'Price Oracles: Native On-Ledger Price Feeds',
+    oracle_para1:
+      'Xahau provides a built-in Price Oracle system that brings real-world asset prices directly onto the ledger. Data providers can publish and update price data for any asset pair, and multiple oracle entries can be aggregated on-chain to derive a single trusted reference price, all without relying on external smart contracts or off-chain middleware.',
+    oracle_para2:
+      'Applications such as DeFi protocols, automated market makers, or compliance tools can query the on-ledger aggregate price through a standardized interface. Because oracle data is validated and stored as first-class ledger objects, it inherits the same finality, auditability, and security guarantees as any other transaction on Xahau.',
+
     // Act III — Governance & Identity
     act3_label: 'Governance & Identity',
 

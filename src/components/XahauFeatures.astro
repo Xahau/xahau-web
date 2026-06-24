@@ -156,6 +156,16 @@ const t = featuresTranslations[locale] ?? featuresTranslations.en
         <p>{t.checks_para2}</p>
       </div>
     </div>
+
+    <!-- PRICE ORACLES ─ solo wide ───────────────────────────────────────── -->
+    <div class="xf-solo">
+      <span class="xf-lbl lbl-fin">{t.oracle_label}</span>
+      <h4>{t.oracle_h4}</h4>
+      <div class="xf-solo-cols">
+        <p>{t.oracle_para1}</p>
+        <p>{t.oracle_para2}</p>
+      </div>
+    </div>
   </div><!-- /act-fin -->
 
   <!-- ══════════════════════════════════════════════════════════════════════
@@ -439,7 +449,8 @@ const t = featuresTranslations[locale] ?? featuresTranslations.en
   .act-proto .xf-solo h4 {
     color: var(--grn2);
   }
-  .act-fin .xf-detail h4 {
+  .act-fin .xf-detail h4,
+  .act-fin .xf-solo h4 {
     color: var(--teal2);
   }
   .act-gov .xf-detail h4,
