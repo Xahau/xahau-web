@@ -62,7 +62,7 @@ Transactions of the ClaimReward type support additional values in the `Flags` fi
 
 | Flag Name  | Hex Value    | Decimal Value | Description                                                                                                                                                       |
 | ---------- | ------------ | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tfOptOut` | `0x00000001` | 1             | Opts the account out of XAH genesis rewards by removing reward-related fields from the account's ledger object. Not applicable when `ClaimCurrency` is specified. |
+| `tfOptOut` | `0x00000001` | 1             | Opts the account out of rewards by removing reward-related fields from the account's ledger object. |
 
 ### Special Transaction Cost
 
@@ -74,7 +74,7 @@ _(Requires the \[IOURewardClaim amendment]\[].)_
 
 When `ClaimCurrency` is specified, the transaction follows the IOU reward path:
 
-1. The `Issuer` account must have a Hook installed that fires on `ttCLAIM_REWARD`. The Hook is responsible for calculating and distributing the reward payout.
+1. The `Issuer` account must have a Hook installed that fires on `ClaimReward` transaction. The Hook is responsible for calculating and distributing the reward payout.
 2. On first claim, a `LowReward` or `HighReward` reward-tracking object is initialised on the trustline ([RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) ledger object) between `Account` and the issuer. Which side is used depends on the canonical high/low ordering of the two accounts.
 3. After every subsequent transaction that changes the trustline balance, the ledger automatically updates `TrustLineRewardAccumulator` inside the tracking object using the same area-under-the-curve formula as genesis XAH rewards.
 4. When a `ClaimReward` with `ClaimCurrency` is submitted, the ledger resets the reward counters on the trustline and fires the issuer's Hook, which reads the accumulated value and emits a reward payment.
