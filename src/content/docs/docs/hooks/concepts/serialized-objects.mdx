@@ -62,10 +62,10 @@ With the [HookAPISerializedType240 amendment](/docs/features/amendments/#hookapi
 | `STI_HASH128` | 4 | `sfEmailHash` |
 | `STI_HASH256` | 5 | `sfLedgerHash`, `sfTransactionHash` |
 | `STI_AMOUNT` | 6 | `sfAmount`, `sfFee` |
-| `STI_VL` | 7 | `sfPublicKey`, `sfMemos`, blobs |
+| `STI_VL` | 7 | `sfPublicKey`, blobs |
 | `STI_ACCOUNT` | 8 | `sfAccount`, `sfDestination` |
 | `STI_OBJECT` | 14 | `sfTransaction`, inner objects |
-| `STI_ARRAY` | 15 | `sfHooks`, `sfSigners` |
+| `STI_ARRAY` | 15 | `sfHooks`, `sfMemos`, `sfSigners` |
 | `STI_UINT8` | 16 | `sfCloseResolution` |
 | `STI_UINT160` | 17 | `sfTakerPaysCurrency` |
 | `STI_PATHSET` | 18 | `sfPaths` _(fixed by HookAPISerializedType240)_ |
