@@ -26,6 +26,16 @@ These methods are intended exclusively for trusted personnel responsible for mai
 | logrotate       | Reopen the log file.                                            |
 | node_to_shard | Transfer data from the ledger store to the shard store.         |
 
+### Catalogue Methods
+
+These methods create, load, and monitor [catalogue files](/docs/infrastructure/catalogues-and-pinned-history) — archives of historical ledger ranges used to build archival and historical-query nodes.
+
+| Method             | Description                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| catalogue_create | Stream a range of ledgers into a single archive file (optionally compressed).         |
+| catalogue_load   | Load ledgers from a catalogue file and pin them. Requires `pinned_type` to be configured. |
+| catalogue_status | Report progress of an in-flight catalogue create/load job.                            |
+
 ### Server Control Methods
 
 | Method         | Description                                       |
