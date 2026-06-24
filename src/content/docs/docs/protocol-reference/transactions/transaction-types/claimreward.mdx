@@ -94,5 +94,5 @@ Besides errors that can occur for all transactions, ClaimReward transactions can
 | `terNO_ACCOUNT`    | Occurs if the sending account does not exist.                                                                                                  |
 | `tecNO_ISSUER`     | Occurs if the `Issuer` account does not exist.                                                                                                 |
 | `tecNO_PERMISSION` | Occurs if the issuer account is an AMM account. AMM accounts cannot have reward Hooks.                                                         |
-| `tecNO_TARGET`     | Occurs if the issuer account has no Hooks, or none of its Hooks fires on `ttCLAIM_REWARD`.                                                     |
+| `tecNO_TARGET`     | Occurs if the issuer account has no Hooks, or none of its Hooks fires on `ClaimReward` transaction.                                                     |
 | `tecNO_LINE`       | Occurs if no trustline exists between `Account` and the issuer for the specified `ClaimCurrency`.                                              |
