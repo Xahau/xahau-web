@@ -3,12 +3,17 @@ title: xport_cancel
 description: >-
   Cancel a shadow ticket from within a hook, freeing the associated reserve.
 ---
+import { Aside } from '@astrojs/starlight/components';
 
 ### Behaviour
 
-- Cancels a shadow ticket created by a previous `xport()` call or Export transaction.
+- Cancels a shadow ticket created by a successful Export transaction, including one that originated from a previous `xport()` call.
 - The shadow ticket is deleted and its reserve is freed.
 - Use this when an exported transaction was never submitted to the target chain and the shadow ticket is no longer needed.
+
+<Aside type="caution">
+Only cancel when you are certain the signed blob was not and will not be submitted to the target chain. Once it has been submitted, import the target-chain proof/result to consume the shadow ticket instead.
+</Aside>
 
 ### Definition
 
@@ -37,3 +42,9 @@ if (result < 0)
 | Type    | Description                                                                                   |
 | ------- | --------------------------------------------------------------------------------------------- |
 | int64_t | The cancelled ticket sequence on success. Check for `result >= 0`, not `result == 1`. If negative, an error: `DOESNT_EXIST` — no shadow ticket found for the specified ticket sequence on this account. |
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export)
+- [xport()](/docs/hooks/functions/utilities/xport)

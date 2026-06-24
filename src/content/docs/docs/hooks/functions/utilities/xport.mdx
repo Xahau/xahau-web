@@ -12,7 +12,8 @@ import { Aside } from '@astrojs/starlight/components';
 - The transaction hash is written to `write_ptr`.
 - Queues a wrapper `Export` transaction through the emitted transaction path. When that export later succeeds, it creates an `ltSHADOW_TICKET` for replay protection.
 - `xport_reserve()` must be called before `xport()`.
-- The serialized inner transaction must satisfy the same inner transaction rules as a user-submitted [Export transaction](/docs/protocol-reference/transactions/transaction-types/export): matching account, `Sequence` `0`, a `TicketSequence`, empty `SigningPubKey`, and a valid target-chain fee.
+- The serialized inner transaction must satisfy the same Xahau-enforced inner transaction rules as a user-submitted [Export transaction](/docs/protocol-reference/transactions/transaction-types/export): matching account, `Sequence` `0`, a `TicketSequence`, and valid cross-chain `NetworkID` handling.
+- Target-chain validity is still the hook author's responsibility, including the target-chain fee and SignerList setup.
 
 <Aside type="tip">
 The exported transaction flows through the same validator multisigning process as a user-submitted Export transaction. The signed result appears in the transaction metadata as `ExportResult`.
@@ -56,3 +57,10 @@ if (result < 0)
 | Type    | Description                                                                                                |
 | ------- | ---------------------------------------------------------------------------------------------------------- |
 | int64_t | The number of bytes written (32) on success. If negative, an error: `PREREQUISITE_NOT_MET` — `xport_reserve()` was not called first. `TOO_MANY_EXPORTED_TXN` — exceeded the reserved export count. `TOO_SMALL` — `write_len` is less than 32. `OUT_OF_BOUNDS` — pointers/lengths outside of hook memory. `EXPORT_FAILURE` — the inner transaction cannot be wrapped or the generated Export fails validation/preflight. `INTERNAL_ERROR` — the hook cannot allocate a required export nonce. |
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export)
+- [xport_reserve()](/docs/hooks/functions/utilities/xport_reserve)
+- [xport_cancel()](/docs/hooks/functions/utilities/xport_cancel)

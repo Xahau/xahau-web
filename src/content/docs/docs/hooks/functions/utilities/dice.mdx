@@ -35,6 +35,8 @@ if (roll < 0)
 
 // Roll a d100, accept any valid tier (including consensus fallback)
 int64_t percent = dice(100, 1, 0);
+if (percent < 0)
+    rollback(SBUF("No entropy available"), 1);
 ```
 
 ### Parameters
@@ -46,7 +48,11 @@ int64_t percent = dice(100, 1, 0);
 | `min_count` | uint32_t | Minimum number of validator reveals required. Use `0` to accept any count.        |
 
 <Aside type="caution">
-For high-value outcomes (lotteries, games with real stakes), use `min_tier=3` and a reasonable `min_count` (e.g. 5+). For cosmetic randomness (shuffling display order), `min_tier=1, min_count=0` is acceptable.
+Applications that depend on unpredictable outcomes should require `min_tier=3` and choose `min_count` according to their validator/network assumptions. For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
+</Aside>
+
+<Aside type="note">
+`dice()` reduces a 32-bit random value modulo `sides`. For exact uniformity over large or sensitive ranges, use `random()` and rejection sampling.
 </Aside>
 
 <Aside type="note">
@@ -68,4 +74,10 @@ Each call to `dice()` draws fresh entropy, even within the same hook execution. 
 - The consensus entropy digest
 - An internal call counter that increments per call
 
-This ensures deterministic replay (same inputs → same outputs) while providing unique values per call.
+This ensures deterministic replay (same inputs → same outputs) while using different derivation input per call.
+
+### Related
+
+- [Consensus Entropy overview](/docs/features/consensus-entropy)
+- [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
+- [random()](/docs/hooks/functions/utilities/random)

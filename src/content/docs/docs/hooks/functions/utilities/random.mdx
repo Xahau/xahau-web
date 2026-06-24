@@ -35,7 +35,9 @@ if (result < 0)
 
 // Get 64 random bytes, accept any valid tier
 uint8_t seed[64];
-random(SBUF(seed), 1, 0);
+int64_t seed_written = random(SBUF(seed), 1, 0);
+if (seed_written != sizeof(seed))
+    rollback(SBUF("No entropy available"), 1);
 ```
 
 ### Parameters
@@ -48,7 +50,7 @@ random(SBUF(seed), 1, 0);
 | `min_count` | uint32_t | Minimum number of validator reveals required. Use `0` to accept any count.        |
 
 <Aside type="caution">
-For high-value outcomes (lotteries, games with real stakes), use `min_tier=3` and a reasonable `min_count` (e.g. 5+). For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
+Applications that depend on unpredictable outcomes should require `min_tier=3` and choose `min_count` according to their validator/network assumptions. For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
 </Aside>
 
 <Aside type="note">
@@ -63,4 +65,10 @@ Open-ledger hook execution is provisional and uses the previous ledger's entropy
 
 ### Determinism
 
-Each call to `random()` produces different bytes, even within the same hook execution. The per-call input includes the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, and an incrementing call counter. Internally, 32-byte blocks are generated via `sha512Half` and then chained (`sha512Half(previous_block)`) for additional blocks. This ensures deterministic replay while providing unique output per call.
+Each call to `random()` uses different derivation input, even within the same hook execution. The per-call input includes the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, and an incrementing call counter. Internally, 32-byte blocks are generated via `sha512Half` and then chained (`sha512Half(previous_block)`) for additional blocks. This ensures deterministic replay.
+
+### Related
+
+- [Consensus Entropy overview](/docs/features/consensus-entropy)
+- [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
+- [dice()](/docs/hooks/functions/utilities/dice)

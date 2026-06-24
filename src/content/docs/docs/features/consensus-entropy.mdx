@@ -6,7 +6,9 @@ description: >-
 ---
 import { Aside, LinkCard } from '@astrojs/starlight/components';
 
-Consensus Entropy gives Xahau hooks access to per-ledger randomness derived from a validator commit/reveal scheme. This enables on-chain applications like lotteries, games, random selection, and shuffling — all with deterministic, auditable randomness that no single party can predict or manipulate.
+Consensus Entropy gives Xahau hooks access to per-ledger randomness derived from a validator commit/reveal scheme. It supports applications like lotteries, games, random selection, and shuffling with deterministic replay and tiered quality labels.
+
+_(Requires the [ConsensusEntropy amendment](/docs/features/amendments/#consensusentropy).)_
 
 ## User Guide
 
@@ -19,24 +21,24 @@ Each consensus round produces entropy through a three-phase pipeline:
 3. **Inject** — the agreed reveal set is mixed deterministically and written to the `ConsensusEntropy` ledger entry as a pseudo-transaction
 
 <Aside type="note">
-Entropy is locked **after** user intent — validators commit before the transaction set is known, so users cannot condition their transactions on the randomness outcome. This is "Same-Ledger Usable Randomness."
+Validators commit before the transaction set is finalized, then reveal after convergence. Hooks can use the resulting entropy during final ledger-close execution.
 </Aside>
 
 ### Entropy Tiers
 
 Not all entropy is equally strong. Every RNG-enabled ledger carries a tiered entropy object — hooks must explicitly state what quality they require:
 
-| Tier | Name | Strength | Use Case |
-|------|------|----------|----------|
-| 3 | Validator Quorum | Strong — 80% of validators aligned | Lotteries, games with real stakes |
-| 2 | Participant Aligned | Medium — sub-quorum but intersection-safe validator cohort | Degraded-network randomness that callers explicitly accept |
-| 1 | Consensus Fallback | Weak — deterministic from public inputs | Cosmetic shuffling, non-adversarial randomness |
+| Tier | Name | Source | Typical Use |
+|------|------|--------|-------------|
+| 3 | Validator Quorum | Validator commit/reveal with 80% validator alignment | Outcomes that require validator-quorum entropy |
+| 2 | Participant Aligned | Participant-aligned commit/reveal below full validator quorum | Degraded-network outcomes that explicitly accept weaker entropy |
+| 1 | Consensus Fallback | Deterministic public-input fallback | Cosmetic shuffling, non-adversarial randomness |
 
 <Aside type="caution">
 Tier 1 (consensus fallback) entropy is derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, baseTxSetHash, seq)` — it is **grindable** by transaction submitters. Never use it for high-value outcomes.
 </Aside>
 
-Zero-entropy ledgers do not occur. When neither the validator-quorum gate nor the participant-aligned gate succeeds, a labeled fallback is injected instead.
+RNG-enabled ledgers always receive either validator-derived entropy or a consensus-fallback digest. When neither the validator-quorum gate nor the participant-aligned gate succeeds, a labeled fallback is injected instead.
 
 Tier 2 is intentionally weaker than Tier 3. It can appear when the agreed entropy sidecar reaches the participant-aligned threshold but not the full validator-quorum threshold, and Hooks only accept it if they set `min_tier <= 2`.
 
@@ -58,17 +60,21 @@ Writes exactly `write_len` random bytes to a buffer (`1..512` bytes). Entropy is
 
 ```c
 uint8_t buf[32];
-random(SBUF(buf), 3, 5);  // 32 bytes of strong random data
+int64_t written = random(SBUF(buf), 3, 5);  // 32 bytes of validator-quorum random data
+if (written != sizeof(buf))
+    rollback(SBUF("Entropy unavailable"), 1);
 ```
 
 Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy doesn't meet the stated requirements. There are no default parameters — hooks must explicitly choose their entropy quality at every call site.
+
+`min_count` is the number of validator reveals required by the caller. Higher values fail closed more often on small or degraded networks, so choose it from the expected active validator/reveal count for the target network. For applications that depend on unpredictable outcomes, require tier 3 and choose `min_count` according to the network's validator assumptions.
 
 ### Choosing Tier Requirements
 
 | Application | Suggested `min_tier` | Suggested `min_count` |
 |-------------|---------------------|----------------------|
-| Lottery / raffle | 3 | 5+ |
-| Game with real stakes | 3 | 5+ |
+| Lottery / raffle | 3 | Network-specific |
+| Game with real stakes | 3 | Network-specific |
 | Degraded-network outcome that explicitly accepts weaker entropy | 2 | Network-specific |
 | Random selection (non-financial) | 1 | 0 |
 | Cosmetic shuffling | 1 | 0 |
@@ -79,7 +85,7 @@ Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy doesn
 Randomness is derived per-call from a combination of the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, and an incrementing call counter. This means:
 
 - Different hooks on the same transaction get different randomness
-- Multiple calls within one hook get different results
+- Multiple calls within one hook use different derivation inputs
 - Same inputs always produce the same outputs (deterministic replay)
 
 ### Speculative Execution
