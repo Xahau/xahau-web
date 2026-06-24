@@ -18,7 +18,7 @@ import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 * Emit the transaction into consensus when valid
 * Write canonical transaction hash to `write_ptr`
 
-With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), use [`prepare()`](/docs/hooks/functions/emitted-transaction/emit) before `emit()` to automatically inject all required emission fields (`Account`, `Sequence`, `SigningPubKey`, `Fee`, `EmitDetails`, etc.) from a partial transaction.
+With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), use [`prepare()`](/docs/hooks/functions/emitted-transaction/prepare) before `emit()` to automatically inject all required emission fields (`Account`, `Sequence`, `SigningPubKey`, `Fee`, `EmitDetails`, etc.) from a partial transaction.
 </TabItem>
 
 <TabItem label="JavaScript">
@@ -60,8 +60,9 @@ function emit(
 <Tabs>
 <TabItem label="C">
 ```c
-if (emit(tx, tx_len) < 0)
-    rollback("Failed to emit!", 15, 1);
+uint8_t emithash[32];  
+if (emit(SBUF(emithash), SBUF(tx)) < 0)  
+    rollback(SBUF("hook: emit failed"), __LINE__); 
 ```
 
 
