@@ -85,6 +85,7 @@ Offline `--import` is **not** supported when `pinned_type` is configured. Migrat
 
 ## Obtaining a catalogue
 
+{/* TODO(distribution): no public/community .catl archive exists as of writing — operators self-create and self-distribute. If an official archive or signed-hash list appears, link it here and revisit the trust paragraph below. */}
 There is currently **no public catalogue archive**. Operators create their own catalogues (`catalogue_create`, on a node that already holds the range) and distribute them — for example by scp or HTTP. The producer and consumer needn't be the same operator, but a catalogue is network-specific and is rejected on load if its network ID doesn't match.
 
 A catalogue carries a SHA-512 that `catalogue_load` verifies automatically, and the same hash is reported when the file is created. The format has **no built-in signature**, so *trusting* a file you didn't make is out of band: rely on the producer publishing (and ideally signing) the catalogue's SHA-512, and confirm your copy matches before loading.
@@ -241,6 +242,8 @@ sqlite3 /data/state.db "SELECT RangeSet FROM PinnedLedgers WHERE Key = 1;"
 ## Reclaiming space
 
 The persistent backend is never rotated, so it grows as you add pinned history — monitor its disk usage. Note the on-disk size is **not** the catalogue file size: the file holds compressed deltas, while the backend stores reconstructed node data, so budget for more than the `.catl` size.
+
+{/* TODO(sizing): add a concrete on-disk figure — rough bytes/ledger or an expansion factor of the pinned NuDB vs the compressed .catl — once we have real numbers. Hard to pin down currently: per-ledger tx volume has been low/uneven lately. Until then this stays a qualitative "budget for more". */}
 
 There is no command to un-pin a range. To reclaim the space you must stop the node and remove the pinned store manually.
 
