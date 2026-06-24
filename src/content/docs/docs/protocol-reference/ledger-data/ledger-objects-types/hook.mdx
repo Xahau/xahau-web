@@ -46,8 +46,12 @@ The following fields are used in the hook object:
 | Field            | JSON Type | Internal Type | Description                    |
 | ---------------- | --------- | ------------- | ------------------------------ |
 | `HookHash`          | String    | Hash256       | The hash of the hook.                                                                                                                                              |
+| `CreateCode`        | String    | Blob          | The hex-encoded WebAssembly binary (WASM) that defines the hook's logic. Present when the hook was installed with inline code rather than referencing an existing `HookDefinition` object. |
+| `HookGrants`        | Array     | Array         | An array of grant objects specifying which accounts are permitted to set or modify this hook on the hook account's behalf.                                         |
+| `HookNamespace`     | String    | Hash256       | A 32-byte (64 hex character) namespace that segregates this hook's state data from other hooks on the same account. Must be unique per hook slot.                 |
 | `HookParameters`    | Array     | Array         | The parameters of the hook.                                                                                                                                        |
-| `HookOn`            | String    | Hash256       | The transaction/s on which the hook is triggered. Mutually exclusive with `HookOnIncoming`/`HookOnOutgoing`.                                                       |
+| `HookApiVersion`    | Number    | UInt16        | The version of the Hooks API used by this hook. Determines which hook API functions are available to the WASM binary at runtime.                                   |
+| `HookOn`            | String    | Hash256       | The transaction type(s) on which the hook is triggered. Mutually exclusive with `HookOnIncoming`/`HookOnOutgoing`.                                                       |
 | `HookOnIncoming`    | String    | Hash256       | _(HookOnV2)_ Same syntax as `HookOn`. Triggers the hook on transactions originating from another account. Mutually exclusive with `HookOn`.                        |
 | `HookOnOutgoing`    | String    | Hash256       | _(HookOnV2)_ Same syntax as `HookOn`. Triggers the hook on transactions originating from the Hook account itself. Mutually exclusive with `HookOn`.                |
 | `HookCanEmit`       | String    | Hash256       | Same syntax as `HookOn`. Controls which transaction types the hook is allowed to emit. If absent, the hook may emit any transaction type.                           |

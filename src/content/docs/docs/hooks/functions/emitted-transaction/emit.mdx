@@ -23,7 +23,7 @@ With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), use 
 
 <TabItem label="JavaScript">
 * This function emits the provided transaction JSON.
-* On success, it returns the number of emitted transaction hashes.&#x20;
+* On success, it returns the emitted transaction hashes.&#x20;
 * If there is an error, it returns an error code.
 </TabItem>
 </Tabs>
@@ -101,7 +101,7 @@ if(typeof emitResult === 'number')
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="127">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>On success, the number of bytes of transaction hash written (32), or:<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- <code>emit_reserve</code> must be called first<br /><br /><code>TOO_MANY_EMITTED_TXN</code><br />- the number of emitted transactions is now greater than the promise made when <code>emit_reserve</code> was called earlier<br /><br /><code>EMISSION_FAILURE</code><br />- the transaction was malformed according to the emission rules.</td></tr></tbody></table>
+<table><thead><tr><th width="127">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>On success, the number of bytes of transaction hash written (32), or:<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- <code>etxn_reserve</code> must be called first<br /><br /><code>TOO_MANY_EMITTED_TXN</code><br />- the number of emitted transactions is now greater than the promise made when <code>etxn_reserve</code> was called earlier<br /><br /><code>EMISSION_FAILURE</code><br />- the transaction was malformed according to the emission rules.</td></tr></tbody></table>
 
 
 </TabItem>

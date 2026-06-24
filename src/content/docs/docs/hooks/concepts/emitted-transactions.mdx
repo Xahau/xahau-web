@@ -24,7 +24,7 @@ Because emitted transactions can trigger Hooks in the next ledger which in turn 
 
 The `burden` and `generation` fields collectively prevent [Fork bomb](https://en.wikipedia.org/wiki/Fork_bomb) attacks on the ledger by exponentially increasing the cost of exponentially expanding emtited transactions.
 
-It is important to note that the Hooks API follows the strict rule of _no rewriting_. You _must_ present an emitted transaction in full, valid and canonically formed to xahaud for emission or it will be rejected. With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), the [`prepare()`](/docs/hooks/functions/emitted-transaction/prepare) API automates this: the Hook provides only the transaction-type-specific fields and the runtime injects all required emission boilerplate. Without HooksUpdate2, the Hook must construct the complete transaction itself.
+It is important to note that the Hooks API follows the strict rule of _no rewriting_. You _must_ present an emitted transaction in full, valid and canonically formed to xahaud for emission or it will be rejected. With the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2), the [prepare()](/docs/hooks/functions/emitted-transaction/prepare) API automates this: the Hook provides only the transaction-type-specific fields and the runtime injects all required emission boilerplate. Without HooksUpdate2, the Hook must construct the complete transaction itself.
 
 ### Callbacks
 

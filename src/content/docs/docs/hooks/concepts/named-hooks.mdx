@@ -96,7 +96,7 @@ Hook fee calculation respects the same gating logic: named hooks that would be s
 | Error Code     | Condition |
 | -------------- | --------- |
 | `temDISABLED`  | `HookName` is present in a Hook slot but the `NamedHooks` amendment is not enabled. |
-| `temMALFORMED` | `HookName` present as a top-level transaction field but `featureHooks` or `featureNamedHooks` is not active; or the value fails UTF-8 / length validation. |
+| `temMALFORMED` | `HookName` present as a top-level transaction field but `Hooks` or `NamedHooks` is not active; or the value fails UTF-8 / length validation. |
 
 ### Use Cases
 

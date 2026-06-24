@@ -93,6 +93,18 @@ Adds an optional `HookName` field (4–16 bytes, UTF-8) to the Hook slot in a [S
 
 Adds the `prepare()` Hook API function. `prepare(write_ptr, write_len, read_ptr, read_len)` accepts a partial serialized transaction containing only transaction-type-specific fields and automatically injects all fields required for emission: `Account`, `Sequence`, `SigningPubKey`, `Fee`, `FirstLedgerSequence`, `LastLedgerSequence`, and `EmitDetails`. The output can be passed directly to `emit()`, eliminating the need to manually construct these boilerplate fields in hook code. _(Introduced in 2026.6.21-release+3350)_
 
+##### HookOnV2
+
+Hooks may continue to specify `HookOn` with the existing behaviour, or optionally replace it with two separate fields: `HookOnIncoming` and `HookOnOutgoing`. Both use the same bitmask syntax as `HookOn` but differentiate between transactions originating from the Hook account (`HookOnOutgoing`) and transactions originating from another account (`HookOnIncoming`). _(Introduced in 2026.6.21-release+3350)_
+
+##### PriceOracle
+
+A port of the XRPL PriceOracle (XLS-47d) standard. Enables on-chain price feeds by allowing accounts to publish asset price data as [Oracle ledger objects](/docs/protocol-reference/ledger-data/ledger-objects-types/oracle). Introduces two new transactions: [OracleSet](/docs/protocol-reference/transactions/transaction-types/oracleset) (create or update an Oracle) and [OracleDelete](/docs/protocol-reference/transactions/transaction-types/oracledelete) (remove an Oracle). Also adds the `get_aggregate_price` RPC method for querying aggregated prices across multiple oracles. Each Oracle object stores 1–10 asset/quote price pairs (1–5 pairs consume 1 owner reserve; 6–10 consume 2). The integer `AssetPrice`, together with `Scale`, encodes the price as `AssetPrice` × 10^(-`Scale`). _(Introduced in 2026.6.21-release+3350)_
+
+##### IOURewardClaim
+
+Expands the [ClaimReward](/docs/protocol-reference/transactions/transaction-types/claimreward) transaction type beyond genesis balance adjustments to other IOU currencies. Reward counters are held within the trustline (`LowReward`/`HighReward` objects on the [RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) object) and do not affect genesis balance adjustments. The transaction triggers any Hook installed on the account specified by the `Issuer` field, allowing that Hook to process and optionally pay out the reward. The reward-paying account does not need to be the issuer of the IOU currency. _(Introduced in 2026.6.21-release+3350)_
+
 ##### Remit
 
 Implements [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156). A new simple but powerful what-you-see-is-what-you-get push payment transaction type. Enables [Remit transactions](/docs/protocol-reference/transactions/transaction-types/remit) that allow paying multiple currencies and URITokens in the same transaction to the same destination. The transaction automatically pays to create missing trustlines, automatically pays the reserves on transferred tokens, and automatically pays to create the destination account if it doesn't exist. You can mint a receipt or bonus URIToken in-line within the transaction. Optionally inform a third party Hook about the transaction. No partial payments and no pathing.
@@ -186,18 +198,6 @@ Fixes issues with provisional double threading in transaction processing. Ensure
 ##### fixInvalidTxFlags
 
 Fixes a bug that currently allows invalid flags to be provided to some transactions. While these invalid flags currently do nothing, they should actually produce a malformed error. After this fix is applied, invalid flags will produce a malformed error as expected. _(Introduced in 2025.10.27-release+2405)_
-
-##### HookOnV2
-
-Hooks may continue to specify `HookOn` with the existing behaviour, or optionally replace it with two separate fields: `HookOnIncoming` and `HookOnOutgoing`. Both use the same bitmask syntax as `HookOn` but differentiate between transactions originating from the Hook account (`HookOnOutgoing`) and transactions originating from another account (`HookOnIncoming`). _(Introduced in 2026.6.21-release+3350)_
-
-##### PriceOracle
-
-A port of the XRPL PriceOracle (XLS-47d) standard. Enables on-chain price feeds by allowing accounts to publish asset price data as [Oracle ledger objects](/docs/protocol-reference/ledger-data/ledger-objects-types/oracle). Introduces two new transactions: [OracleSet](/docs/protocol-reference/transactions/transaction-types/oracleset) (create or update an Oracle) and [OracleDelete](/docs/protocol-reference/transactions/transaction-types/oracledelete) (remove an Oracle). Also adds the `get_aggregate_price` RPC method for querying aggregated prices across multiple oracles. Each Oracle object stores 1–10 asset/quote price pairs (1–5 pairs consume 1 owner reserve; 6–10 consume 2). Prices are stored as scaled integers (`AssetPrice × 10^(-Scale)`). _(Introduced in 2026.6.21-release+3350)_
-
-##### IOURewardClaim
-
-Expands the [ClaimReward](/docs/protocol-reference/transactions/transaction-types/claimreward) transaction type beyond genesis balance adjustments to other IOU currencies. Reward counters are held within the trustline (`LowReward`/`HighReward` objects on the [RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) object) and do not affect genesis balance adjustments. The transaction triggers any Hook installed on the account specified by the `Issuer` field, allowing that Hook to process and optionally pay out the reward. The reward-paying account does not need to be the issuer of the IOU currency. _(Introduced in 2026.6.21-release+3350)_
 
 ##### fixCronStacking
 

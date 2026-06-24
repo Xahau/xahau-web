@@ -98,11 +98,11 @@ _All_ of the following conditions are met:
 
 * The Corresponding Hook does not exist _or_`FLAG_OVERRIDE` is specified.
 * `CreateCode` field is specified and is not blank and contains the valid web assembly bytecode for a valid Hook.
-* No instance of the same web assembly bytecode already exists on the XRPL. (If it does and all other requirements are met then interpret as an Install Operation — see below.)
+* No instance of the same web assembly bytecode already exists on  Xahau. (If it does and all other requirements are met then interpret as an Install Operation — see below.)
 
 **Behaviour**:
 
-* A reference counted `HookDefinition` object is created on the Xahau containing the fields in the HookSet Object, with all specified fields (Namespace, Parameters, HookOn) becoming defaults (but not Grants.)
+* A reference counted `HookDefinition` object is created on  Xahau containing the fields in the HookSet Object, with all specified fields (Namespace, Parameters, HookOn) becoming defaults (but not Grants.)
 * A `Hooks` array is created on the executing account, if it doesn't already exist. (This is the structure that contains the Corresponding Hooks.)
 * A `Hook` object is created at the Corresponding Hook position if one does not already exist.
 * The `Hook` object points at the `HookDefinition`.

@@ -84,7 +84,7 @@ A `RippleState` object has the following fields:
 
 _(Added by the [IOURewardClaim amendment](/docs/features/amendments/#iourewardclaim).)_
 
-Both `LowReward` and `HighReward` are inner objects with the same structure. Which one is present depends on the canonical high/low ordering of the two accounts in the trustline.
+Both `LowReward` and `HighReward` are inner objects with the same structure. `LowReward` is present if the low account has opted in to IOU rewards for this trustline, and `HighReward` is present if the high account has opted in. Both can be present if both accounts have opted in. The canonical high/low ordering only determines which side an account maps to.
 
 | Field                        | JSON Type | Internal Type | Description                                                                                          |
 | ---------------------------- | --------- | ------------- | ---------------------------------------------------------------------------------------------------- |

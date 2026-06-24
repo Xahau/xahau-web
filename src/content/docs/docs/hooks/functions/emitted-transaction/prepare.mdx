@@ -24,7 +24,7 @@ _(Requires the [HooksUpdate2 amendment](/docs/features/amendments/#hooksupdate2)
 
 <TabItem label="JavaScript">
 * This function takes a transaction JSON object and prepares it for emission.
-* The transaction must be complete except for the Account field, which should always be the Hook account.
+* The transaction must be complete except for the Account, Sequence, SigningPubKey, Fee, FirstLedgerSequence, LastLedgerSequence, and EmitDetails fields.
 </TabItem>
 </Tabs>
 
@@ -114,7 +114,7 @@ const prepared_txn = prepare({
 
 | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | On success, the number of bytes written to `write_ptr` (the size of the prepared transaction blob). The result can be passed directly as `read_ptr`/`read_len` to `emit()`.<br /><br />If negative, an error:<br />`OUT_OF_BOUNDS` — pointers/lengths fall outside hook memory.<br />`PREREQUISITE_NOT_MET` — `etxn_reserve()` must be called before `prepare()`.<br />`INVALID_ARGUMENT` — the input blob is not a valid serialized transaction, or the transaction cannot be prepared (e.g. fee computation failed).<br />`INTERNAL_ERROR` — failed to generate `EmitDetails` or re-serialize the transaction. |
+| int64_t | On success, the number of bytes written to `write_ptr` (the size of the prepared transaction blob). The returned value is the length of the prepared transaction. Pass the original buffer as `read_ptr` and the returned length as `read_len` when calling `emit()`.<br /><br />If negative, an error:<br />`OUT_OF_BOUNDS` — pointers/lengths fall outside hook memory.<br />`PREREQUISITE_NOT_MET` — `etxn_reserve()` must be called before `prepare()`.<br />`INVALID_ARGUMENT` — the input blob is not a valid serialized transaction, or the transaction cannot be prepared (e.g. fee computation failed).<br />`INTERNAL_ERROR` — failed to generate `EmitDetails` or re-serialize the transaction. |
 
 </TabItem>
 
