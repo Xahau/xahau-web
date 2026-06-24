@@ -90,7 +90,7 @@ The `get_aggregate_price` method queries the price data stored in one or more [O
 | Error Code            | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | `rpcORACLE_MALFORMED` | An entry in `oracles` is missing or has an invalid `account` or `oracle_document_id`.          |
-| `rpcINVALID_PARAMS`   | Invalid parameter type, empty asset string, or `trim` outside the 1–50 range.                 |
+| `rpcINVALID_PARAMS`   | Invalid parameter type, empty asset string, or `trim` outside the 1–25 range.                 |
 | `rpcOBJECT_NOT_FOUND` | No matching price data found for the requested asset pair across all queried Oracle objects.   |
 | `rpcINTERNAL`         | All data points were excluded by the `time_threshold` filter, leaving an empty result set.     |
 
