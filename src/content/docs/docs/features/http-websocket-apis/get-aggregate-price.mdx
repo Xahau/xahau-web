@@ -38,7 +38,7 @@ The `get_aggregate_price` method queries the price data stored in one or more [O
 | `base_asset`     | String    | Yes       | The currency code of the asset being priced (e.g. `"XAH"`, `"BTC"`).                                                                                           |
 | `quote_asset`    | String    | Yes       | The currency code of the denomination (e.g. `"USD"`, `"EUR"`).                                                                                                  |
 | `oracles`        | Array     | Yes       | Array of up to **200** oracle references. Each entry must contain `account` (String, AccountID) and `oracle_document_id` (Number, UInt32).                       |
-| `trim`           | Number    | No        | Percentage (1–50) of outliers to remove from both ends of the price distribution before computing `trimmed_set` statistics.                                      |
+| `trim`           | Number    | No        | Percentage (1–25) of outliers to remove from both ends of the price distribution before computing `trimmed_set` statistics.                                      |
 | `time_threshold` | Number    | No        | Maximum age in seconds for a price to be included. Prices with `LastUpdateTime < (latestTime - time_threshold)` are excluded. If omitted, all prices are included. |
 | `ledger_index`   | String or Number | No | The ledger to query. Defaults to `"current"`.                                                                                                              |
 
