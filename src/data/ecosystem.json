@@ -5,6 +5,12 @@
     "ja": "エコシステム",
     "pt-BR": "Ecossistema"
   },
+  "description": {
+    "en": "Xahau around the world",
+    "es": "Xahau alrededor del mundo",
+    "ja": "世界中のXahau",
+    "pt-BR": "Xahau around the world"
+  },
   "buildonxahau": {
     "en": "built on or around Xahau",
     "es": "creados en Xahau o en torno a ella",

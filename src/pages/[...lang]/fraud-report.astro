@@ -1,0 +1,14 @@
+---
+import FraudReportPage from '../../components/FraudReportPage.astro'
+import { fraudReportTranslations } from '../../i18n/fraudReportTranslations'
+import generateStaticPaths from '../../utils/generateStaticPaths'
+
+export function getStaticPaths() {
+  return generateStaticPaths()
+}
+
+const { locale } = Astro.props
+const t = fraudReportTranslations[locale]
+---
+
+<FraudReportPage t={t} />
