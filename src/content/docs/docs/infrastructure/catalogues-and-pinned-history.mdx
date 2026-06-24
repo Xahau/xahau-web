@@ -85,9 +85,9 @@ Offline `--import` is **not** supported when `pinned_type` is configured. Migrat
 
 ## Obtaining a catalogue
 
-A catalogue file is produced by `catalogue_create` on a node that **already holds** the range, then copied (scp, HTTP, etc.) to the node that will load it. The two need not be the same operator — but a catalogue is network-specific and is rejected on load if its network ID doesn't match.
+There is currently **no public catalogue archive**. Operators create their own catalogues (`catalogue_create`, on a node that already holds the range) and distribute them — for example by scp or HTTP. The producer and consumer needn't be the same operator, but a catalogue is network-specific and is rejected on load if its network ID doesn't match.
 
-If you already run a full-history node, you can create catalogues yourself; otherwise obtain the `.catl` for your range from a node that has it.
+A catalogue carries a SHA-512 that `catalogue_load` verifies automatically, and the same hash is reported when the file is created. The format has **no built-in signature**, so *trusting* a file you didn't make is out of band: rely on the producer publishing (and ideally signing) the catalogue's SHA-512, and confirm your copy matches before loading.
 
 ### Creating a catalogue
 
