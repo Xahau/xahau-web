@@ -2,6 +2,8 @@
 title: Serialized Objects
 description: Manipulate raw serialized xahaud objects!
 ---
+import { Aside } from '@astrojs/starlight/components';
+
 ### What are Serialized Objects?
 
 Xahau has canonical [serialized](/docs/protocol-reference/binary-format) forms of all objects subject to consensus. When writing a Hook it is inevitable you will come across serialized objects. These manifest as buffers containing what might appear to the developer as opaque binary blobs. In fact you can read these with the [XRPL-Binary-Visualiser](https://richardah.github.io/xrpl-binary-visualizer/).
@@ -43,6 +45,34 @@ for (int i = 0; GUARD(3), i < 3; ++i)
     // the above now point at the memo ... do something here
 }
 ```
+
+### PathSet Support and Supported Serialized Types
+
+<Aside type="caution" title="PathSet parsing bug (pre-HookAPISerializedType240)">
+Without the [HookAPISerializedType240 amendment](/docs/features/amendments/#hookapiserializedtype240), all `sto_` functions incorrectly parse `sfPaths` (STPathSet fields, used in Payment transactions with cross-currency routing). The internal parser misreads the PathSet boundary, corrupting the results for any field that appears after `sfPaths` in the serialized object. Hook developers processing Payment transactions with cross-currency paths must ensure this amendment is enabled.
+</Aside>
+
+With the [HookAPISerializedType240 amendment](/docs/features/amendments/#hookapiserializedtype240), the following serialized types are correctly handled by all `sto_` functions:
+
+| STI Type | Code | Examples |
+|---|---|---|
+| `STI_UINT16` | 1 | `sfTransactionType` |
+| `STI_UINT32` | 2 | `sfFlags`, `sfSequence`, `sfOfferSequence` |
+| `STI_UINT64` | 3 | `sfHookOn` |
+| `STI_HASH128` | 4 | `sfEmailHash` |
+| `STI_HASH256` | 5 | `sfLedgerHash`, `sfTransactionHash` |
+| `STI_AMOUNT` | 6 | `sfAmount`, `sfFee` |
+| `STI_VL` | 7 | `sfPublicKey`, blobs |
+| `STI_ACCOUNT` | 8 | `sfAccount`, `sfDestination` |
+| `STI_OBJECT` | 14 | `sfTransaction`, inner objects |
+| `STI_ARRAY` | 15 | `sfHooks`, `sfMemos`, `sfSigners` |
+| `STI_UINT8` | 16 | `sfCloseResolution` |
+| `STI_UINT160` | 17 | `sfTakerPaysCurrency` |
+| `STI_PATHSET` | 18 | `sfPaths` _(fixed by HookAPISerializedType240)_ |
+| `STI_VECTOR256` | 19 | `sfHookNamespaces` |
+| `STI_ISSUE` | 24 | _(added by HookAPISerializedType240)_ |
+| `STI_XCHAIN_BRIDGE` | 25 | _(added by HookAPISerializedType240)_ |
+| `STI_CURRENCY` | 26 | _(added by HookAPISerializedType240)_ |
 
 ### Overlap with slots
 
