@@ -1,0 +1,39 @@
+---
+title: xport_cancel
+description: >-
+  Cancel a shadow ticket from within a hook, freeing the associated reserve.
+---
+
+### Behaviour
+
+- Cancels a shadow ticket created by a previous `xport()` call or Export transaction.
+- The shadow ticket is deleted and its reserve is freed.
+- Use this when an exported transaction was never submitted to the target chain and the shadow ticket is no longer needed.
+
+### Definition
+
+```c
+int64_t xport_cancel (
+    uint32_t ticket_seq
+);
+```
+
+### Example
+
+```c
+int64_t result = xport_cancel(2);  // cancel shadow ticket for TicketSequence 2
+if (result < 0)
+    rollback(SBUF("Cancel failed"), 1);
+```
+
+### Parameters
+
+| Name       | Type     | Description                                                    |
+| ---------- | -------- | -------------------------------------------------------------- |
+| ticket_seq | uint32_t | The ticket sequence of the shadow ticket to cancel.             |
+
+### Return Code
+
+| Type    | Description                                                                                   |
+| ------- | --------------------------------------------------------------------------------------------- |
+| int64_t | The cancelled ticket sequence on success. Check for `result >= 0`, not `result == 1`. If negative, an error: `DOESNT_EXIST` — no shadow ticket found for the specified ticket sequence on this account. |

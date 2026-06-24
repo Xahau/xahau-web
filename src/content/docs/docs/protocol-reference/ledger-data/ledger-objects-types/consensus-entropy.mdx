@@ -1,0 +1,60 @@
+---
+title: ConsensusEntropy
+description: >-
+  The ConsensusEntropy ledger entry stores per-ledger randomness derived from
+  validator commit/reveal, used by hooks via the dice() and random() APIs.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/Change.cpp)]
+
+_(Added by the \[ConsensusEntropy amendment]\[].)_
+
+The `ConsensusEntropy` object is a singleton ledger entry that stores the per-ledger entropy digest produced by the validator commit/reveal scheme. It is updated each ledger by a `ttCONSENSUS_ENTROPY` pseudo-transaction injected deterministically at ledger build time.
+
+Hooks consume this entropy through the `dice()` and `random()` hook API functions.
+
+### Fields
+
+| Field             | JSON Type | \[Internal Type]\[] | Description                                                                      |
+| ----------------- | --------- | ------------------- | -------------------------------------------------------------------------------- |
+| `Digest`          | String    | Hash256             | The entropy digest for this ledger.                                               |
+| `EntropyCount`    | Number    | UInt16              | Number of validator reveals used to derive the digest. `0` for consensus fallback. |
+| `EntropyTier`     | Number    | UInt8               | The entropy tier (see below).                                                     |
+| `LedgerSequence`  | Number    | UInt32              | Ledger sequence this entropy was produced for.                                     |
+| `PreviousTxnID`   | String    | Hash256             | Transaction ID of the transaction that last modified this object.                  |
+| `PreviousTxnLgrSeq` | Number  | UInt32              | Ledger sequence of the transaction that last modified this object.                 |
+
+### Entropy Tiers
+
+Every RNG-enabled ledger carries a tiered entropy object. The tier indicates the strength of the randomness source:
+
+| Tier | Value | Description                                                                                      |
+| ---- | ----- | ------------------------------------------------------------------------------------------------ |
+| `validator_quorum`    | 3 | Strong — derived from validator commit/reveal with 80% UNL alignment. Minimal grind surface.       |
+| `participant_aligned` | 2 | Sub-quorum aligned cohort entropy that reached the participant threshold but not full validator quorum. |
+| `consensus_fallback`  | 1 | Deterministic fallback — derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, baseTxSetHash, seq)`. Grindable. |
+
+<Aside type="caution">
+Tier 1 (`consensus_fallback`) entropy is deterministic and derivable from public inputs. It is grindable by transaction submitters, especially on quiet ledgers. Hooks handling high-value outcomes (lotteries, games) should require `min_tier=3` (validator quorum) in their `dice()` / `random()` calls.
+</Aside>
+
+### How Entropy is Produced
+
+Each consensus round follows a three-phase pipeline:
+
+1. **Commit**: proposing validators generate a secret and broadcast `sha512Half(secret, pubKey, seq)` as a commitment on their first proposal
+2. **Reveal**: after the transaction set converges, validators broadcast their secret
+3. **Inject**: reveals are sorted by public key and mixed via `sha512Half(key₁ || reveal₁ || key₂ || reveal₂ || ...)` — the result is injected as the `Digest`
+
+If neither the validator-quorum threshold nor the participant-aligned threshold is reached, a `consensus_fallback` digest is injected instead. Zero-entropy ledgers do not occur on RNG-enabled networks.
+
+### Standalone Mode
+
+In standalone mode (single-node testing), synthetic deterministic entropy is injected:
+```
+sha512Half("standalone-entropy", seq)
+```
+This allows hooks using `dice()` / `random()` to function during development without a validator network.
+
+Standalone mode labels this synthetic entropy as tier 3 with count 20. Use it for local development only; real network ledgers can fall back to tier 1 when validator entropy is unavailable.

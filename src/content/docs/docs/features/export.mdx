@@ -1,0 +1,112 @@
+---
+title: Cross-Chain Export
+description: >-
+  Export transactions from Xahau to other chains with validator multisigning —
+  no bridges, no single custodian.
+---
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+Cross-Chain Export lets Xahau accounts create transactions for other chains (e.g. XRPL mainnet) that the Xahau validator set collectively multisigns. No single party holds the signing keys — the validator UNL acts as a distributed signer.
+
+## User Guide
+
+### Overview
+
+The Export feature enables trustless cross-chain operations without bridges or custodians:
+
+1. Submit an Export transaction on Xahau containing the inner transaction you want executed on the target chain
+2. Validators collectively sign the inner transaction during the consensus round
+3. Extract the multisigned blob from the transaction metadata
+4. Submit it to the target chain
+5. Import the proof of execution back to Xahau to complete the round-trip
+
+<Aside type="note">
+In the typical case, validator quorum is reached in the **same ledger** the Export is submitted — all validators attach their signatures during the consensus round.
+</Aside>
+
+### Quick Start
+
+#### 1. Set Up the Target Chain Account
+
+On the target chain (e.g. XRPL), the account needs a [SignerList](https://xrpl.org/docs/references/protocol/ledger-data/ledger-entry-types/signerlist) containing the Xahau validator keys as signers.
+
+#### 2. Create Tickets on the Target Chain
+
+Exported transactions use `TicketSequence` (not regular sequence numbers) to avoid sequence jams:
+
+```json
+{
+  "TransactionType": "TicketCreate",
+  "Account": "rYourAccount...",
+  "TicketCount": 1
+}
+```
+
+#### 3. Submit the Export on Xahau
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "Fee": "1000000",
+  "LastLedgerSequence": 900,
+  "ExportedTxn": {
+    "TransactionType": "Payment",
+    "Account": "rYourAccount...",
+    "Destination": "rRecipient...",
+    "Amount": "1000000",
+    "Fee": "1000",
+    "Sequence": 0,
+    "TicketSequence": 2,
+    "Flags": 2147483648,
+    "SigningPubKey": "",
+    "LastLedgerSequence": 100
+  }
+}
+```
+
+The top-level `LastLedgerSequence` controls how long Xahau retries the Export while waiting for validator signatures. The inner `ExportedTxn.LastLedgerSequence` is part of the target-chain transaction and does not expire the Xahau Export.
+
+#### 4. Extract the Signed Blob
+
+On success, the transaction metadata contains an `ExportResult` with the complete multisigned inner transaction including the `Signers` array. Serialize `ExportResult.ExportedTxn` and submit it to the target chain.
+
+#### 5. Import Back (Round-Trip)
+
+After execution on the target chain, build an XPOP and submit it as an `Import` transaction on Xahau to consume the shadow ticket.
+
+### Shadow Tickets
+
+Every successful Export that carries an `ExportedTxn` creates a **shadow ticket** — an on-ledger record keyed by `(Account, TicketSequence)` that tracks outstanding exports and provides replay protection.
+
+- **Created** on `tesSUCCESS` of the Export
+- **Consumed** when the XPOP is imported back
+- **Cancelled** via Export with `CancelTicketSequence` or `xport_cancel()` from hooks
+
+### Retriable Semantics
+
+If validator quorum isn't reached in the submission ledger, the Export automatically retries each ledger until `LastLedgerSequence`. If quorum is never reached, the Export expires with `tecEXPORT_EXPIRED` — the sequence is consumed cleanly and the account is not blocked.
+
+The open ledger can contain up to 8 pending exports total across all accounts. Separately, each account can hold up to 8 outstanding shadow tickets. If either limit is reached, new Export transactions fail with `tecDIR_FULL`.
+
+### Hook API (xport)
+
+Hooks can programmatically export transactions using the `xport` API:
+
+```c
+xport_reserve(1);  // reserve 1 export slot
+
+// ... build inner tx blob ...
+
+uint8_t hash[32];
+xport(SBUF(hash), SBUF(tx_blob));  // returns inner tx hash
+
+xport_cancel(ticket_seq);  // cancel a shadow ticket
+```
+
+## Reference
+
+<LinkCard title="Export Transaction Reference" href="/docs/protocol-reference/transactions/transaction-types/export" />
+<LinkCard title="xport_reserve()" href="/docs/hooks/functions/utilities/xport_reserve" />
+<LinkCard title="xport()" href="/docs/hooks/functions/utilities/xport" />
+<LinkCard title="xport_cancel()" href="/docs/hooks/functions/utilities/xport_cancel" />

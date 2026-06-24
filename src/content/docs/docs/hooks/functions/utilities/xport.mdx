@@ -1,0 +1,58 @@
+---
+title: xport
+description: >-
+  Export a cross-chain transaction from within a hook, to be multisigned by
+  the Xahau validator set.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+- Exports a serialized transaction blob for cross-chain multisigning by the Xahau validator set.
+- The transaction hash is written to `write_ptr`.
+- Queues a wrapper `Export` transaction through the emitted transaction path. When that export later succeeds, it creates an `ltSHADOW_TICKET` for replay protection.
+- `xport_reserve()` must be called before `xport()`.
+- The serialized inner transaction must satisfy the same inner transaction rules as a user-submitted [Export transaction](/docs/protocol-reference/transactions/transaction-types/export): matching account, `Sequence` `0`, a `TicketSequence`, empty `SigningPubKey`, and a valid target-chain fee.
+
+<Aside type="tip">
+The exported transaction flows through the same validator multisigning process as a user-submitted Export transaction. The signed result appears in the transaction metadata as `ExportResult`.
+</Aside>
+
+### Definition
+
+```c
+int64_t xport (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+
+### Example
+
+```c
+xport_reserve(1);
+
+// ... build inner tx blob ...
+
+uint8_t hash[32];
+int64_t result = xport(SBUF(hash), SBUF(tx_blob));
+if (result < 0)
+    rollback(SBUF("Export failed"), 1);
+```
+
+### Parameters
+
+| Name      | Type     | Description                                          |
+| --------- | -------- | ---------------------------------------------------- |
+| write_ptr | uint32_t | Pointer to a 32-byte buffer to receive the tx hash.   |
+| write_len | uint32_t | Length of the write buffer (must be at least 32).      |
+| read_ptr  | uint32_t | Pointer to the serialized inner transaction blob.      |
+| read_len  | uint32_t | Length of the transaction blob.                        |
+
+### Return Code
+
+| Type    | Description                                                                                                |
+| ------- | ---------------------------------------------------------------------------------------------------------- |
+| int64_t | The number of bytes written (32) on success. If negative, an error: `PREREQUISITE_NOT_MET` — `xport_reserve()` was not called first. `TOO_MANY_EXPORTED_TXN` — exceeded the reserved export count. `TOO_SMALL` — `write_len` is less than 32. `OUT_OF_BOUNDS` — pointers/lengths outside of hook memory. `EXPORT_FAILURE` — the inner transaction cannot be wrapped or the generated Export fails validation/preflight. `INTERNAL_ERROR` — the hook cannot allocate a required export nonce. |

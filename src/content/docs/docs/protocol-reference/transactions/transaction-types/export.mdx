@@ -1,0 +1,160 @@
+---
+title: Export
+description: >-
+  Export creates a cross-chain transaction on Xahau that the validator set
+  collectively multisigns, producing a ready-to-submit blob for a target chain.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/Export.cpp)]
+
+_(Added by the \[Export amendment]\[].)_
+
+An Export transaction lets a Xahau account create a transaction for another chain (e.g. XRPL mainnet) that the Xahau validator set collectively multisigns. No single party holds the signing keys — the validator UNL acts as a distributed signer.
+
+The inner transaction (`ExportedTxn`) is signed by validators during the consensus round. On success, the complete multisigned transaction is available in the transaction metadata as `ExportResult`.
+
+### Example
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "Fee": "1000000",
+  "LastLedgerSequence": 900,
+  "ExportedTxn": {
+    "TransactionType": "Payment",
+    "Account": "rYourAccount...",
+    "Destination": "rRecipient...",
+    "Amount": "1000000",
+    "Fee": "1000",
+    "Sequence": 0,
+    "TicketSequence": 2,
+    "Flags": 2147483648,
+    "SigningPubKey": "",
+    "LastLedgerSequence": 100
+  }
+}
+```
+
+### Fields
+
+| Field                  | JSON Type | \[Internal Type]\[] | Required? | Description                                                                      |
+| ---------------------- | --------- | ------------------- | --------- | -------------------------------------------------------------------------------- |
+| `ExportedTxn`          | Object    | STObject            | Yes, unless `CancelTicketSequence` is used | The inner transaction to be multisigned by validators for the target chain.      |
+| `CancelTicketSequence` | Number    | UInt32              | Yes, unless `ExportedTxn` is used | Ticket sequence of a shadow ticket to cancel (if the export was never submitted). |
+| `LastLedgerSequence`   | Number    | UInt32              | No, but strongly recommended | Top-level retry deadline for the Xahau Export transaction. Without it, an Export that cannot reach validator signature quorum continues retrying instead of expiring cleanly. |
+
+Exactly one of `ExportedTxn` or `CancelTicketSequence` must be present. Including both, or neither, makes the transaction malformed.
+
+### Inner Transaction Rules
+
+The `ExportedTxn` object must follow these rules:
+
+| Field              | Requirement                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| `Account`          | Must match the outer Export transaction's `Account`.                                             |
+| `Sequence`         | Must be `0`.                                                                                     |
+| `TicketSequence`   | Required. A pre-created ticket on the target chain.                                              |
+| `SigningPubKey`     | Must be `""` (empty string). Validators will multisign the transaction.                          |
+| `Fee`              | Must cover multisign overhead on the target chain: `(1 + signerCount) × baseFee`.                |
+| `NetworkID`        | Omit when targeting XRPL mainnet (which has no NetworkID). Must NOT match Xahau's NetworkID if set. |
+| `LastLedgerSequence`| Set generously — the transaction won't execute until you submit it to the target chain.          |
+
+<Aside type="tip">
+The target chain account must have a SignerList containing the Xahau validator public keys as signers. Create tickets on the target chain before submitting the Export.
+</Aside>
+
+### Retriable Semantics
+
+Export is retriable — if validator signature quorum is not reached in the submission ledger, the transaction retries in subsequent ledgers until the **outer Export transaction's** `LastLedgerSequence`:
+
+| Condition                    | Result              | Description                                       |
+| ---------------------------- | ------------------- | ------------------------------------------------- |
+| Quorum met before LLS        | `tesSUCCESS`        | Signatures collected, ExportResult in metadata.    |
+| No quorum, before LLS        | `terRETRY_EXPORT`   | Retries automatically in the next ledger.          |
+| Quorum met at LLS             | `tesSUCCESS`        | Final chance, quorum reached.                      |
+| No quorum at LLS              | `tecEXPORT_EXPIRED` | Export expires cleanly. Sequence consumed.         |
+| Past LLS                      | `tefMAX_LEDGER`     | Never reaches doApply.                             |
+
+<Aside type="note">
+In the typical case (99.9%), quorum is reached in the same ledger the Export is submitted — all validators attach their signatures during the consensus round.
+</Aside>
+
+### Shadow Tickets
+
+When an Export carrying `ExportedTxn` succeeds, a **shadow ticket** is created on Xahau keyed by `(Account, TicketSequence)`. This tracks which exports are outstanding and provides replay protection.
+
+- **Created**: on `tesSUCCESS` of the Export transaction
+- **Consumed**: when the corresponding XPOP is imported back to Xahau via an `Import` transaction
+- **Cancelled**: by submitting another Export with the `CancelTicketSequence` field, or via the `xport_cancel()` hook API
+
+### ExportResult Metadata
+
+On success, the transaction metadata contains an `ExportResult` object with the complete multisigned transaction:
+
+```json
+{
+  "ExportResult": {
+    "LedgerSequence": 42,
+    "TransactionHash": "ABC123...",
+    "ExportedTxn": {
+      "TransactionType": "Payment",
+      "Account": "rYourAccount...",
+      "Destination": "rRecipient...",
+      "Amount": "1000000",
+      "Fee": "1000",
+      "Sequence": 0,
+      "TicketSequence": 2,
+      "SigningPubKey": "",
+      "Signers": [
+        {
+          "Signer": {
+            "Account": "rValidator1...",
+            "SigningPubKey": "03ABCD...",
+            "TxnSignature": "3045..."
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+Serialize the `ExportedTxn` from `ExportResult` and submit it as a raw transaction blob to the target chain.
+
+`ExportResult.TransactionHash` is the hash of the outer Xahau Export transaction. The target-chain transaction blob is `ExportResult.ExportedTxn` after serialization.
+
+### Completing the Round-Trip
+
+After the exported transaction executes on the target chain:
+
+1. Build an **XPOP** (cross-chain proof of execution) from the target chain's validated ledger data using the [Validation-Ledger-Tx-Store-to-xPOP](https://github.com/Xahau/Validation-Ledger-Tx-Store-to-xPOP) tool.
+2. Submit the XPOP as an `Import` transaction on Xahau. This consumes the shadow ticket and completes the round-trip.
+
+### Error Cases
+
+| Error Code          | Cause                                                          |
+| ------------------- | -------------------------------------------------------------- |
+| `temMALFORMED`      | Inner transaction fails validation rules (wrong Account, etc.) |
+| `tecDIR_FULL`       | The open ledger already contains the maximum number of pending exports, or the account already has the maximum number of shadow tickets. |
+| `tecEXPORT_EXPIRED` | `LastLedgerSequence` reached without achieving quorum.          |
+| `tecNO_ENTRY`       | A cancel export specified a shadow ticket that does not exist or does not match this account. |
+| `tefMAX_LEDGER`     | Transaction submitted after its `LastLedgerSequence`.           |
+
+### Hook API
+
+Hooks can programmatically export transactions using the `xport` API:
+
+```c
+xport_reserve(1);  // reserve 1 export slot
+
+// ... build inner tx blob ...
+
+uint8_t hash[32];
+xport(SBUF(hash), SBUF(tx_blob));  // returns inner tx hash
+
+xport_cancel(ticket_seq);  // cancel a shadow ticket
+```
+
+The emitted export flows through the same validator multisigning process as a user-submitted Export transaction. Hooks can reserve up to two exports per execution with `xport_reserve()`.
