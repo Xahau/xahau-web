@@ -18,13 +18,13 @@ La solución: **Transacciones emitidas**. Permitimos que la Transacción Origina
 
 Las Transacciones emitidas son transacciones _nuevas_ creadas por la ejecución de un Hook y que entran en consenso para ser procesadas en el siguiente ledger. La transacción puede ser de cualquier tipo, pero debe seguir reglas estrictas de emisión.
 
-Para emitir una transacción, el Hook primero prepara la transacción serializada y luego llama a [emit](/es/docs/hooks/functions/emitted-transaction/emit-1).
+Para emitir una transacción, el Hook primero prepara la transacción serializada y luego llama a [emit](/es/docs/hooks/functions/emitted-transaction/emit). Con la [enmienda HooksUpdate2](/es/docs/features/amendments/#hooksupdate2), la API [prepare()](/es/docs/hooks/functions/emitted-transaction/prepare) puede construir automáticamente la transacción completa lista para emisión a partir de una entrada parcial, eliminando la necesidad de establecer manualmente `Account`, `Sequence`, `SigningPubKey`, `Fee`, `FirstLedgerSequence`, `LastLedgerSequence` y `EmitDetails`.
 
 Dado que las transacciones emitidas pueden activar Hooks en el siguiente ledger, que a su vez pueden emitir más transacciones, todas las transacciones emitidas incluyen un campo `burden` y un campo `generation` dentro de su bloque `EmitDetails`. El bloque `EmitDetails` reemplaza el campo de firma en una transacción tradicional.
 
 Los campos `burden` y `generation` previenen conjuntamente ataques de tipo [Fork bomb](https://en.wikipedia.org/wiki/Fork_bomb) en el ledger al aumentar exponencialmente el coste de las transacciones emitidas que crecen de forma exponencial.
 
-Es importante destacar que la API de Hooks sigue la regla estricta de _no reescritura_. Debes presentar una transacción emitida completa, válida y canónicamente formada a xahaud para su emisión, o será rechazada. No es responsabilidad de xahaud construir tu transacción por ti. El Hook debe hacerlo por sí mismo.
+Es importante destacar que la API de Hooks sigue la regla estricta de _no reescritura_. Debes presentar una transacción emitida completa, válida y canónicamente formada a xahaud para su emisión, o será rechazada. Con la [enmienda HooksUpdate2](/es/docs/features/amendments/#hooksupdate2), la API [prepare()](/es/docs/hooks/functions/emitted-transaction/prepare) automatiza esto: el Hook proporciona solo los campos específicos del tipo de transacción y el runtime inyecta todo el código repetitivo de emisión requerido. Sin HooksUpdate2, el Hook debe construir la transacción completa por sí mismo.
 
 ### Callbacks
 
@@ -34,7 +34,7 @@ Si una transacción emitida expira antes de poder ser aceptada en un ledger (por
 
 ### Reglas de emisión
 
-La API [emit](/es/docs/hooks/functions/emitted-transaction/emit-1) aplicará las siguientes reglas sobre una transacción propuesta (a emitir):
+La API [emit](/es/docs/hooks/functions/emitted-transaction/emit) aplicará las siguientes reglas sobre una transacción propuesta (a emitir):
 
 | # | Regla de emisión                                     | Explicación                                                                                                                                                                                                                                             |
 | - | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

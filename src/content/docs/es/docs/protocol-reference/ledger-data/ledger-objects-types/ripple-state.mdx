@@ -44,6 +44,16 @@ El "emisor" del saldo en una línea de confianza depende de si el saldo es posit
         "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
         "value": "10"
     },
+    "LowReward": {
+        "RewardLgrFirst": 1000000,
+        "RewardLgrLast": 1001234,
+        "RewardTime": 744000000,
+        "TrustLineRewardAccumulator": {
+            "currency": "USD",
+            "issuer": "rsA2LpzuawewSBQXkiju3YQTMzW13pAAdW",
+            "value": "500"
+        }
+    },
     "index": "9CA88CDEDFF9252B3DE183CE35B038F57282BC9503CDFA1923EF9A95DF0D6F7B"
 }
 ```
@@ -69,6 +79,21 @@ Un objeto `RippleState` tiene los siguientes campos:
 | `PreviousTxnLgrSeq` | Number    | UInt32        | Sí          | El \[índice del ledger]\[Ledger Index] que contiene la transacción que modificó más recientemente este objeto.                                                                                                                         |
 | `LockCount`         | Number    | UInt32        | No          | El número total de saldos bloqueados en un objeto de ledger RippleState.                                                                                                                                                               |
 | `LockedBalance`     | Object    | Amount        | No          | El monto actual de tokens bloqueados para una línea de confianza específica.                                                                                                                                                           |
+| `LowReward`         | Object    | STObject      | No          | _(IOURewardClaim)_ Contadores de seguimiento de recompensas IOU para la cuenta baja. Presente solo después de que la cuenta baja opte mediante `ClaimReward` con `ClaimCurrency`. Contiene `RewardLgrFirst`, `RewardLgrLast`, `RewardTime` y `TrustLineRewardAccumulator`. |
+| `HighReward`        | Object    | STObject      | No          | _(IOURewardClaim)_ Contadores de seguimiento de recompensas IOU para la cuenta alta. Presente solo después de que la cuenta alta opte mediante `ClaimReward` con `ClaimCurrency`. Contiene `RewardLgrFirst`, `RewardLgrLast`, `RewardTime` y `TrustLineRewardAccumulator`. |
+
+### Campos LowReward / HighReward
+
+_(Añadido por la [enmienda IOURewardClaim](/es/docs/features/amendments/#iourewardclaim).)_
+
+Tanto `LowReward` como `HighReward` son objetos internos con la misma estructura. `LowReward` está presente si la cuenta baja ha optado por las recompensas IOU para esta línea de confianza, y `HighReward` está presente si la cuenta alta ha optado. Ambos pueden estar presentes si ambas cuentas han optado. El ordenamiento canónico alto/bajo solo determina a qué lado se mapea una cuenta.
+
+| Campo                        | Tipo JSON | Tipo Interno | Descripción                                                                                          |
+| ---------------------------- | --------- | ------------- | ---------------------------------------------------------------------------------------------------- |
+| `RewardLgrFirst`             | Number    | UInt32        | El número de secuencia del ledger cuando la cuenta optó por primera vez por las recompensas IOU para esta línea de confianza. Se actualiza cada vez que se ejecuta `ClaimReward`. El campo se eliminará si la cuenta opta por salir. |
+| `RewardLgrLast`              | Number    | UInt32        | El número de secuencia del ledger de la última vez que se actualizó el acumulador de recompensas.    |
+| `RewardTime`                 | Number    | UInt32        | El tiempo de cierre del ledger (segundos en epoch de Ripple) cuando los contadores fueron reiniciados por última vez por una transacción `ClaimReward`. |
+| `TrustLineRewardAccumulator` | Object    | Amount        | El total acumulado de `saldo × ledgers transcurridos` desde el último `ClaimReward`. Expresado en la moneda de la línea de confianza. Este es el valor que el Hook del emisor lee para calcular el pago de recompensa. |
 
 ### Indicadores RippleState
 

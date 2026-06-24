@@ -1,0 +1,103 @@
+---
+title: get_aggregate_price
+description: >-
+  Obtiene estadísticas de precios agregados de múltiples objetos Price Oracle
+  para un par de activos determinado.
+---
+_(Añadido por la [enmienda PriceOracle](/es/docs/features/amendments/#priceoracle).)_
+
+El método `get_aggregate_price` consulta los datos de precio almacenados en uno o más [objetos Oracle del ledger](/es/docs/protocol-reference/ledger-data/ledger-objects-types/oracle) para un par de activos especificado y devuelve estadísticas agregadas (media, mediana, desviación estándar). Opcionalmente, se pueden eliminar valores atípicos y aplicar un filtro de ventana temporal.
+
+### Formato de solicitud
+
+```json
+{
+    "command": "get_aggregate_price",
+    "ledger_index": "current",
+    "base_asset": "XAH",
+    "quote_asset": "USD",
+    "trim": 20,
+    "time_threshold": 300,
+    "oracles": [
+        {
+            "account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+            "oracle_document_id": 1
+        },
+        {
+            "account": "rN7n3473SaZBCG4dFL83w7PB8LTfHBEDP",
+            "oracle_document_id": 2
+        }
+    ]
+}
+```
+
+### Parámetros de solicitud
+
+| Campo            | Tipo JSON        | ¿Requerido? | Descripción                                                                                                                                                      |
+| ---------------- | ---------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base_asset`     | String           | Sí          | El código de moneda del activo que se está cotizando (p. ej. `"XAH"`, `"BTC"`).                                                                                |
+| `quote_asset`    | String           | Sí          | El código de moneda de la denominación (p. ej. `"USD"`, `"EUR"`).                                                                                               |
+| `oracles`        | Array            | Sí          | Array de hasta **200** referencias de oracle. Cada entrada debe contener `account` (String, AccountID) y `oracle_document_id` (Number, UInt32).                  |
+| `trim`           | Number           | No          | Porcentaje (1–25) de valores atípicos a eliminar de ambos extremos de la distribución de precios antes de calcular las estadísticas de `trimmed_set`.            |
+| `time_threshold` | Number           | No          | Antigüedad máxima en segundos para que un precio sea incluido. Los precios con `LastUpdateTime < (latestTime - time_threshold)` se excluyen. Si se omite, se incluyen todos los precios. |
+| `ledger_index`   | String o Number  | No          | El ledger a consultar. Por defecto `"current"`.                                                                                                                  |
+
+### Formato de respuesta
+
+```json
+{
+    "result": {
+        "entire_set": {
+            "mean": "7.456",
+            "size": 5,
+            "standard_deviation": "0.12"
+        },
+        "trimmed_set": {
+            "mean": "7.45",
+            "size": 3,
+            "standard_deviation": "0.08"
+        },
+        "median": "7.46",
+        "time": 816348900,
+        "status": "success"
+    }
+}
+```
+
+### Campos de respuesta
+
+| Campo                           | Tipo JSON | Descripción                                                                                                        |
+| ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| `entire_set.mean`               | String    | Precio medio de todos los puntos de datos recogidos (como cadena decimal).                                         |
+| `entire_set.size`               | Number    | Número de puntos de datos de precio utilizados para calcular las estadísticas.                                     |
+| `entire_set.standard_deviation` | String    | Desviación estándar de los precios en el conjunto completo.                                                        |
+| `trimmed_set.mean`              | String    | Precio medio tras eliminar el `trim%` superior e inferior de valores atípicos. Solo presente si se especificó `trim`. |
+| `trimmed_set.size`              | Number    | Número de puntos de datos restantes tras el recorte. Solo presente si se especificó `trim`.                        |
+| `trimmed_set.standard_deviation`| String    | Desviación estándar tras el recorte. Solo presente si se especificó `trim`.                                        |
+| `median`                        | String    | Precio mediano del conjunto completo.                                                                              |
+| `time`                          | Number    | El `LastUpdateTime` (epoch de Ripple) más reciente encontrado entre todos los objetos Oracle consultados.          |
+
+### Algoritmo
+
+1. Itera a través de hasta **200** cuentas de oracle y recupera sus entradas del ledger `Oracle`.
+2. Para cada Oracle, busca en hasta **3** entradas de metadatos de transacciones históricas para encontrar un precio para el par `base_asset`/`quote_asset` solicitado.
+3. Aplica el filtro `time_threshold`: conserva solo los precios donde `LastUpdateTime ≥ (latestTime - time_threshold)`.
+4. Calcula la media, la desviación estándar y la mediana sobre el conjunto filtrado.
+5. Si `trim` > 0: elimina el `trim%` superior e inferior por valor de precio y recalcula las estadísticas para `trimmed_set`.
+
+### Casos de error
+
+| Código de error       | Descripción                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| `rpcORACLE_MALFORMED` | Una entrada en `oracles` tiene un `account` o `oracle_document_id` faltante o inválido.        |
+| `rpcINVALID_PARAMS`   | Tipo de parámetro inválido, cadena de activo vacía, o `trim` fuera del rango 1–25.             |
+| `rpcOBJECT_NOT_FOUND` | No se encontraron datos de precio coincidentes para el par de activos solicitado en ninguno de los objetos Oracle consultados. |
+| `rpcINTERNAL`         | Todos los puntos de datos fueron excluidos por el filtro `time_threshold`, dejando un conjunto de resultados vacío. |
+
+### Límites
+
+| Parámetro      | Límite                                                        |
+| -------------- | ------------------------------------------------------------- |
+| `oracles`      | Máximo 200 entradas por solicitud                             |
+| Profundidad histórica | Máximo 3 entradas de metadatos históricas buscadas por oracle |
+| `trim`         | 1–50 (%)                                                      |

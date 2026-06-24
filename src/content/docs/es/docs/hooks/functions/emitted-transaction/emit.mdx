@@ -1,45 +1,72 @@
 ---
-title: prepare
-description: Prepara una transacción JSON para su emisión.
+title: emit
+description: Emite una nueva transacción desde el hook
 ---
 import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
 
 ### Conceptos
 
-<LinkButton href="/es/docs/protocol-reference/transactions">Transacciones</LinkButton>
+<LinkButton href="/es/docs/hooks/concepts/emitted-transactions">Transacciones Emitidas</LinkButton>
+<LinkButton href="/es/docs/hooks/functions/emitted-transaction/prepare">prepare()</LinkButton>
 
 ### Comportamiento
 
 <Tabs>
+<TabItem label="C">
+* Lee una transacción de `read_ptr`
+* Valida la transacción contra las reglas de emisión
+* Emite la transacción al consenso cuando es válida
+* Escribe el hash canónico de la transacción en `write_ptr`
+
+Con la [enmienda HooksUpdate2](/es/docs/features/amendments/#hooksupdate2), usa [`prepare()`](/es/docs/hooks/functions/emitted-transaction/prepare) antes de `emit()` para inyectar automáticamente todos los campos de emisión requeridos (`Account`, `Sequence`, `SigningPubKey`, `Fee`, `EmitDetails`, etc.) a partir de una transacción parcial.
+</TabItem>
+
 <TabItem label="JavaScript">
-* Esta función toma un objeto JSON de transacción y lo prepara para su emisión.
-* La transacción debe estar completa excepto el campo Account, que siempre debe ser la cuenta del Hook.
+* Esta función emite el JSON de transacción proporcionado.
+* En caso de éxito, devuelve los hashes de la transacción emitida.
+* Si hay un error, devuelve un código de error.
 </TabItem>
 </Tabs>
 
 ### Definición
 
 <Tabs>
+<TabItem label="C">
+```c
+int64_t emit (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
 <TabItem label="JavaScript">
 ```javascript
-function prepare(
+function emit(
     txJson: Record<string, any> | Transaction
-  ): ErrorCode | Record<string, any> | Transaction
-````
-
+  ): ErrorCode | ByteArray
+```
 </TabItem>
 </Tabs>
 
 ### Ejemplo
 
 <Tabs>
+<TabItem label="C">
+```c
+uint8_t emithash[32];  
+if (emit(SBUF(emithash), SBUF(tx)) < 0)  
+    rollback(SBUF("hook: emit failed"), __LINE__); 
+```
+</TabItem>
+
 <TabItem label="JavaScript">
 ```javascript
-const prepared_txn = prepare({
-                TransactionType: "Payment",
-                Destination: util_raddr(p1address_ns),
-                Amount: parseFloat(drops_sent)*2
-            })
+const emitResult = emit(txJson)
+if(typeof emitResult === 'number')
+    rollback("Failed to emit!", 1)
 ```
 </TabItem>
 </Tabs>
@@ -47,15 +74,23 @@ const prepared_txn = prepare({
 ### Parámetros
 
 <Tabs>
+<TabItem label="C">
+<table><thead><tr><th>Nombre</th><th width="124">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>write_ptr</td><td>uint32_t</td><td>Puntero a un buffer donde escribir el hash de la transacción</td></tr><tr><td>write_len</td><td>uint32_t</td><td>El tamaño del buffer para escribir el hash de la transacción (debe ser 32)</td></tr><tr><td>read_ptr</td><td>uint32_t</td><td>Puntero a la transacción a emitir</td></tr><tr><td>read_len</td><td>uint32_t</td><td>La longitud de la transacción</td></tr></tbody></table>
+</TabItem>
+
 <TabItem label="JavaScript">
-<table><thead><tr><th>Nombre</th><th width="124">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>El JSON de la transacción, debe estar completo excepto el campo Account (siempre la cuenta del Hook).</td></tr></tbody></table>
+<table><thead><tr><th>Nombre</th><th width="124">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>El JSON de la transacción a emitir.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
 
 ### Código de retorno
 
 <Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="127">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>int64_t</td><td>En caso de éxito, el número de bytes del hash de transacción escritos (32), o:<br /><br />Si es negativo, un error:<br /><code>OUT_OF_BOUNDS</code><br />- punteros/longitudes especificados fuera de la memoria del hook.<br /><br /><code>PREREQUISITE_NOT_MET</code><br />- se debe llamar primero a <code>etxn_reserve</code><br /><br /><code>TOO_MANY_EMITTED_TXN</code><br />- el número de transacciones emitidas es ahora mayor que la promesa hecha cuando se llamó a <code>etxn_reserve</code><br /><br /><code>EMISSION_FAILURE</code><br />- la transacción estaba malformada según las reglas de emisión.</td></tr></tbody></table>
+</TabItem>
+
 <TabItem label="JavaScript">
-<table><thead><tr><th width="231">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>ErrorCode | Record&#x3C;string, any> | Transaction</td><td>Devuelve un ErrorCode si hay un error, o el JSON de la transacción preparada o el objeto Transaction.</td></tr></tbody></table>
+<table><thead><tr><th width="231">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>Devuelve un ErrorCode si hay un error, o un array de hashes de la transacción emitida en caso de éxito.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
