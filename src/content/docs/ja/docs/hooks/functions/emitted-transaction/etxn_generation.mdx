@@ -1,0 +1,78 @@
+---
+title: etxn_generation
+description: 仮想的に発行されるトランザクションのgenerationを取得します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/ja/docs/hooks/concepts/emitted-transactions">発行トランザクション</LinkButton>
+
+### 動作
+
+* 発行されるトランザクションが持つgenerationを返します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_generation (
+    void
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_generation(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t generation = 
+  etxn_generation();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const generation = etxn_generation()
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+パラメーターはありません
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------- |
+| int64_t | 発行トランザクションが`emit()`に正常に渡されるために必要なgeneration |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型     | 説明                                                                                         |
+| ------ | --------------------------------------------------------------------------------------------------- |
+| number | エラーがある場合はErrorCodeを返し、成功するとgenerationの結果を示す数値を返します。 |
+</TabItem>
+</Tabs>

@@ -1,0 +1,127 @@
+---
+title: float_compare
+description: 2つのXFL浮動小数点数を比較します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 2つのXFL浮動小数点数の比較を評価します
+* 比較結果をint64_tにエンコードされた真偽値として返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 2つのXFL浮動小数点数の比較を評価します
+* エラーコード、または比較結果を数値として返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_compare (
+    int64_t float1,
+    int64_t float2,
+    uint32_t mode
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_compare(
+    f1: bigint,
+    f2: bigint,
+    mode: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+if (float_compare(pusd_to_send, 0, COMPARE_LESS) == 1)
+{
+  // pusd_to_send is less than 0
+}
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+if (float_compare(pusd_to_send, 0n, COMPARE_LESS) == 1)
+{
+  // pusd_to_send is less than 0
+}
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+
+
+| 名前   | 型        | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| float1 | int64_t  | 比較の第1オペランドを表すXFL浮動小数点格納数                                                                                                                                                                                                                                                                                                                                                                                            |
+| float2 | int64_t  | 比較の第2オペランドを表すXFL浮動小数点格納数                                                                                                                                                                                                                                                                                                                                                                                            |
+| mode   | uint32_t | 次のフラグのいずれか（または論理的に有効な組み合わせ）で構成されるビットフラグフィールド:<br /><code>COMPARE_EQUAL</code> `1`<br /><code>COMPARE_LESS</code> `2`<br /><code>COMPARE_GREATER</code> `4`<br /><br />有効な組み合わせ:<br /><code>COMPARE_LESS</code> \| <code>COMPARE_GREATER</code><br />-等しくない<br /><br /><code>COMPARE_LESS</code> \| <code>COMPARE_EQUAL</code><br />-以下<br /><br /><code>COMPARE_GREATER</code> \| <code>COMPARE_EQUAL</code><br />-以上 |
+
+<Aside type="caution">
+負のエラーコードも`non-zero`に分類されるため、関数が`non-zero`ではなく`1`を返したことを必ず確認してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前 | 型     | 説明                                                           |
+| ---- | ------ | -------------------------------------------------------------- |
+| f1   | bigint | 比較する第1の浮動小数点数。                                   |
+| f2   | bigint | 比較する第2の浮動小数点数。                                   |
+| mode | number | 比較モード（例:より小さい、等しい、より大きい）。             |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+
+
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                  |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | 比較が論理的に偽の場合は<code>0</code>。<br />比較が論理的に真の場合は<code>1</code>。<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターの1つが有効なXFL格納数ではありません<br /><br /><code>INVALID_ARGUMENT</code><br />-指定された比較フラグの組み合わせが無効です。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                  | 説明                                                        |
+| ------------------- | ----------------------------------------------------------- |
+| ErrorCode or number | エラーコード、または比較結果を数値として返します。          |
+</TabItem>
+</Tabs>

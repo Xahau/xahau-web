@@ -1,0 +1,96 @@
+---
+title: Directory Node
+---
+[出典](https://github.com/ripple/rippled/blob/5d2d88209f1732a0f8d592012094e345cbe3e675/src/ripple/protocol/impl/LedgerFormats.cpp#L44)
+
+`DirectoryNode`オブジェクトタイプは、レジャーの状態ツリーにある他のオブジェクトへのリンク一覧を提供します。概念上の1つの _Directory_ は二重連結リストとして表され、1つ以上の`DirectoryNode`オブジェクトがそれぞれ最大32個の他のオブジェクトIDを含みます。最初のオブジェクトはディレクトリのrootと呼ばれ、root以外のすべてのオブジェクトは必要に応じて追加または削除できます。
+
+Directoryには2種類あります。
+
+* **Ownerディレクトリ** は、`RippleState`（トラストライン）や`Offer`オブジェクトなど、アカウントが所有する他のオブジェクトを一覧表示します。
+* **Offerディレクトリ** は、分散型取引所で利用可能なOfferを一覧表示します。1つのOfferディレクトリには、同じトークン（通貨コードと発行者）に対して同じ為替レートを持つすべてのOfferが含まれます。
+
+### JSONの例
+
+_Offerディレクトリ_
+
+```json
+{
+    "ExchangeRate": "4F069BA8FF484000",
+    "Flags": 0,
+    "Indexes": [
+        "AD7EAE148287EF12D213A251015F86E6D4BD34B3C4A0A1ED9A17198373F908AD"
+    ],
+    "LedgerEntryType": "DirectoryNode",
+    "RootIndex": "1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000",
+    "TakerGetsCurrency": "0000000000000000000000000000000000000000",
+    "TakerGetsIssuer": "0000000000000000000000000000000000000000",
+    "TakerPaysCurrency": "0000000000000000000000004A50590000000000",
+    "TakerPaysIssuer": "5BBC0F22F61D9224A110650CFE21CC0C4BE13098",
+    "index": "1BBEF97EDE88D40CEE2ADE6FEF121166AFE80D99EBADB01A4F069BA8FF484000"
+}
+```
+
+_Ownerディレクトリ_
+
+```json
+{
+    "Flags": 0,
+    "Indexes": [
+        "AD7EAE148287EF12D213A251015F86E6D4BD34B3C4A0A1ED9A17198373F908AD",
+        "E83BBB58949A8303DF07172B16FB8EFBA66B9191F3836EC27A4568ED5997BAC5"
+    ],
+    "ReferenceCount": "1",
+    "LedgerEntryType": "DirectoryNode",
+    "Owner": "rpR95n1iFkTqpoy1e878f4Z1pVHVtWKMNQ",
+    "RootIndex": "193C591BF62482468422313F9D3274B5927CA80B4DD3707E42015DD609E39C94",
+    "index": "193C591BF62482468422313F9D3274B5927CA80B4DD3707E42015DD609E39C94"
+}
+```
+
+### フィールド
+
+| フィールド         | JSON型   | \[内部型]\[]        | 必須?    | 説明                                                                                                                                                                                                                |
+| ------------------- | --------- | ------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Owner`             | String    | AccountID           | いいえ    | （Ownerディレクトリのみ）このディレクトリ内のオブジェクトを所有するアカウントのアドレス。                                                                                                                               |
+| `TakerGetsCurrency` | String    | Hash160             | いいえ    | （Offerディレクトリのみ）このディレクトリ内のOfferにおける`TakerGets`金額の通貨コード。                                                                                                                    |
+| `TakerGetsIssuer`   | String    | Hash160             | いいえ    | （Offerディレクトリのみ）このディレクトリ内のOfferにおける`TakerGets`金額の発行者。                                                                                                                           |
+| `TakerPaysCurrency` | String    | Hash160             | いいえ    | （Offerディレクトリのみ）このディレクトリ内のOfferにおける`TakerPays`金額の通貨コード。                                                                                                                    |
+| `TakerPaysIssuer`   | String    | Hash160             | いいえ    | （Offerディレクトリのみ）このディレクトリ内のOfferにおける`TakerPays`金額の発行者。                                                                                                                           |
+| `ExchangeRate`      | String    | UInt64              | いいえ    | （Offerディレクトリのみ）**非推奨**。使用しないでください。                                                                                                                                                                       |
+| `ReferenceCount`    | String    | UInt64              | いいえ    | レジャーでの参照カウントにより、同じHookの複数のインストールをレジャー上の同一オブジェクトへ向けられるため、保存負荷と手数料を削減できます。Hookがインストールされているアカウントがなくなったときだけ削除されます。 |
+| `Indexes`           | Array     | Vector256           | はい       | このDirectoryの内容。ほかのオブジェクトIDの配列です。                                                                                                                                                          |
+| `IndexNext`         | Number    | UInt64              | いいえ    | このDirectoryが複数ページで構成される場合、このIDは連鎖内の次のオブジェクトを指し、末尾では先頭へ戻ります。                                                                                                   |
+| `IndexPrevious`     | Number    | UInt64              | いいえ    | このDirectoryが複数ページで構成される場合、このIDは連鎖内の前のオブジェクトを指し、先頭では末尾へ戻ります。                                                                                         |
+| `NFTokenID`         | String    | Hash256             | いいえ    | 未使用です。                                                                                                                                                                                                                     |
+
+### DirectoryのID形式
+
+DirectoryNodeのIDを作成する式は、DirectoryNodeが表す内容に応じて3つあります。
+
+* Ownerディレクトリの最初のページ（rootとも呼ばれます）
+* Offerディレクトリの最初のページ
+* どちらかの種類の後続ページ
+
+**Ownerディレクトリの最初のページ** のIDは、次の値を順番に連結したものの \[SHA-512Half][]です。
+
+* Ownerディレクトリ スペースキー (`0x004F`)
+* `Owner`フィールドのAccountID
+
+**Offerディレクトリの最初のページ** には特別なIDがあります。上位192ビットはオーダーブックを定義し、残りの64ビットはそのディレクトリ内のOfferの為替レートを定義します。（IDはビッグエンディアンなので、オーダーブックはより上位のビットにあり先頭に来て、レートはより下位のビットにあり末尾に来ます。）
+
+これは、オーダーブックを最良のOfferから最悪のOfferへたどる方法を提供します。具体的には、最初の192ビットは、次の値を順番に連結したものの \[SHA-512Half][]の最初の192ビットです。
+
+* Book Directoryスペースキー (`0x0042`)
+* `TakerPaysCurrency`の160ビット通貨コード
+* `TakerGetsCurrency`の160ビット通貨コード
+* `TakerPaysIssuer`のAccountID
+* `TakerGetsIssuer`のAccountID
+
+OfferディレクトリのIDの下位64ビットは、そのディレクトリ内のOffer（群）における`TakerPays` 額を`TakerGets`金額で割ったものを、Xahauの内部金額形式で表した64ビット値です。
+
+**DirectoryNodeがDirectoryの最初のページではない場合**（OwnerディレクトリかOfferディレクトリかに関係なく）、そのIDは次の値を順番に連結したものの \[SHA-512Half][]です。
+
+* DirectoryNodeスペースキー (`0x0064`)
+* root DirectoryNodeのID
+* このオブジェクトのページ番号。（0がroot DirectoryNodeなので、この値は1以上の整数です。）

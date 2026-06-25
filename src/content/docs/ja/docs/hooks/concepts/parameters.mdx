@@ -1,0 +1,57 @@
+---
+title: パラメーター
+description: インストール時パラメーターによりHooksを汎用的で柔軟にする
+---
+### パラメーター
+
+Hook開発者は、自分のHookで _インストール時_ パラメーター（Hookパラメーターと呼ばれます）を使用することを選択できます。これにより、そのHookの後続のインストーラーは、プログラマーが定義した特定の挙動を、Hookを再コンパイルまたは再アップロードせずに変更できます（少なくとも1つのアカウントが既存のHook定義をまだ[参照](/ja/docs/hooks/concepts/reference-counted-hook-definitions)していることを前提とします）。
+
+Hookパラメーターは、[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)中に設定され、Hookがランタイムに取得できるKey-Valueペアの集合です。`ParameterName`キーと`ParameterValue`はいずれも_hex_ Blobとして設定され、それぞれ最大長は32バイトと256バイトです。
+
+[SetHookトランザクション](/ja/docs/hooks/concepts/sethook-transaction)では、インストールされるHookごとに最大 _16_ 個のHookパラメーターを定義できます。
+
+### パラメーターの設定
+
+`HookParameters`配列は、以下に示すように`Hooks`配列内の各`Hook`の中で任意で定義されます。
+
+```json
+TransactionType: "SetHook",
+Hooks:
+[   
+    {   
+        Hook: {
+            ...,
+            HookParameters:
+            [   
+                {   
+                    HookParameter:
+                    {   
+                        HookParameterName:  "ABCDEF12",
+                        HookParameterValue: "12345678"
+                    }   
+                },  
+                ...  // optionally up to 15 more Hook Parameters
+            ]   
+        }   
+    }   
+],  
+... 
+```
+
+### デフォルトパラメーター
+
+[新しいHookを設定](/ja/docs/hooks/concepts/sethook-transaction)する最初のユーザーはHookパラメーターを定義でき、それらはそのHookの_デフォルトパラメーター_になります。これは、後続のユーザーが[同じ_HookDefinition_を参照](/ja/docs/hooks/concepts/reference-counted-hook-definitions)する場合、デフォルトで最初に設定されたHookパラメーターを受け取ることを意味します。
+
+後続のユーザーは独自のパラメーターを指定でき、そのインストールについてデフォルトパラメーターを上書きできます。
+
+後続のインストールでパラメーターを消去するには、`ParameterValue`キーを指定せずに`ParameterName`キーを指定します。
+
+### Hooksでパラメーターを使用する
+
+パラメーターは、それらが設定されたHooksから[hook_param](/ja/docs/hooks/functions/hook-context/hook_param)を使用して読み取れます。
+
+Hookチェーンに複数のHookがインストールされている場合、限られた状況では[hook_param_set](/ja/docs/hooks/functions/hook-context/hook_param_set)を使用して、同じアカウント上でチェーンの後方にあるHookのHookパラメーターを変更できます。
+
+### ランタイムパラメーター
+
+XahauおよびXahauテストネットでは、前述のルールとサイズ制限に従って、HookParametersを任意のトランザクションタイプのトップレベルに含めることもできます。これらのパラメーターは、[otxn_param](/ja/docs/hooks/functions/originating-transaction/otxn_param) APIを使用してHook内からアクセスできます。

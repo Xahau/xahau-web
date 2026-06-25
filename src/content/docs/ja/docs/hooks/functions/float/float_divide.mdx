@@ -1,0 +1,102 @@
+---
+title: float_divide
+description: XFLを別のXFL浮動小数点数で除算します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFLを別のXFLで除算します
+* 新しいXFLをint64_tとして返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 1つの浮動小数点数表現を別の表現で除算します。
+* エラーコード、または商をbigintとして返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_divide (
+    int64_t float1,
+    int64_t float2
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+ function float_divide(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t still_one =
+    float_divide(float_one(), float_one());
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const still_one =
+    float_divide(float_one(), float_one())
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前   | 型       | 説明                                                         |
+| ------ | -------- | ------------------------------------------------------------ |
+| float1 | int64_t | 分子として機能するXFL浮動小数点格納数                       |
+| float2 | int64_t | 分母として機能するXFL浮動小数点格納数                       |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前 | 型     | 説明                |
+| ---- | ------ | ------------------- |
+| f1   | bigint | 被除数の浮動小数点数。 |
+| f2   | bigint | 除数の浮動小数点数。   |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17)格納数<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターが有効なXFL格納数ではないか、除算の結果が表現できないXFLになりました。<br /><br /><code>DIVISION_BY_ZERO</code><br />-指定されたパラメーターがゼロでした。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                                       |
+| ------------------- | ------------------------------------------ |
+| bigint or ErrorCode | エラーコード、または商をbigintとして返します。 |
+</TabItem>
+</Tabs>
