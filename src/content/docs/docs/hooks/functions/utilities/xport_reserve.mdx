@@ -1,0 +1,48 @@
+---
+title: xport_reserve
+description: >-
+  Reserve export slots for cross-chain transaction exports from within a hook.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+- Declares how many cross-chain exports this hook execution will perform.
+- Must be called before any `xport()` calls, similar to how `etxn_reserve()` must precede `emit()`.
+- The valid count is `1` or `2`.
+- Also reserves emitted-transaction capacity for the wrapper `Export` transactions.
+- If the hook also uses `emit()`, call `etxn_reserve()` before `xport_reserve()`.
+- After `xport_reserve()` sets the combined emitted-transaction reservation, a later `etxn_reserve()` call fails with `ALREADY_SET`.
+
+### Definition
+
+```c
+int64_t xport_reserve (
+    uint32_t count
+);
+```
+
+### Example
+
+```c
+if (xport_reserve(1) < 0)
+    rollback(SBUF("Export reserve failed"), 1);
+```
+
+### Parameters
+
+| Name  | Type     | Description                                                        |
+| ----- | -------- | ------------------------------------------------------------------ |
+| count | uint32_t | The number of exports this hook execution will perform. Must be `1` or `2`. |
+
+### Return Code
+
+| Type    | Description                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------- |
+| int64_t | The reserved count on success. If negative, an error: `ALREADY_SET` — the hook already called this function. `TOO_SMALL` — `count` is `0`. `TOO_BIG` — `count` is greater than `2`. |
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [xport()](/docs/hooks/functions/utilities/xport)
+- [xport_cancel()](/docs/hooks/functions/utilities/xport_cancel)
