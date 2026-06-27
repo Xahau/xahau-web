@@ -103,7 +103,7 @@ This amendment adds a new field to HookSet objects: `HookCanEmit` is syntactical
 
 ##### Export
 
-Enables [Export transactions](/docs/protocol-reference/transactions/transaction-types/export), allowing a Xahau account or Hook to create a cross-chain transaction that the active validator set collectively multisigns. Successful exports produce an `ExportResult` in metadata; exports that carry an inner transaction also create a shadow ticket on Xahau for replay protection.
+Enables [Export transactions](/docs/protocol-reference/transactions/transaction-types/export), allowing a Xahau account or Hook to create a cross-chain transaction that the active validator set collectively multisigns. Successful exports produce an `ExportResult` in metadata (a reference to the validator signatures, which clients assemble into the submittable transaction); exports that carry an inner transaction also create a shadow ticket that latches the pending callback — not a permanent replay tombstone (see [Cross-Chain Export](/docs/features/export#shadow-tickets)).
 
 ##### ConsensusEntropy
 

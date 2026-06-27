@@ -33,7 +33,7 @@ Validator quorum is normally expected in the **same ledger** the Export is submi
 - The target-chain account must have a SignerList whose signer accounts are derived from the active Xahau validator public keys, using the active validator list for the exporting network.
 - The target SignerQuorum and signer weights must accept the validator multisig set that Xahau will produce.
 - Keep the target SignerList aligned with validator-set changes. A stale target SignerList can make future exported blobs fail on the target chain.
-- For XRPL-mainnet-style target transactions with no `NetworkID`, the exporting Xahau network must have a nonzero local `NETWORK_ID`.
+- For XRPL-mainnet-style target transactions with no `NetworkID`, the exporting Xahau network must have a local `NETWORK_ID` **greater than 1024**. Networks with `NETWORK_ID` ≤ 1024 cannot disambiguate a self-target and reject these exports.
 
 ### Quick Start
 
@@ -78,11 +78,16 @@ Exported transactions use [TicketCreate transactions](/docs/protocol-reference/t
 
 The top-level `LastLedgerSequence` controls how long Xahau retries the Export while waiting for validator signatures. The inner `ExportedTxn.LastLedgerSequence` is part of the target-chain transaction and does not expire the Xahau Export. Both values are absolute ledger indexes; calculate them from the current Xahau and target-chain ledger indexes before submitting.
 
-#### 4. Extract the Signed Blob
+#### 4. Assemble and Submit the Signed Transaction
 
-On success, the transaction metadata contains an `ExportResult` with the complete multisigned inner transaction including the `Signers` array. Serialize `ExportResult.ExportedTxn` and submit it to the target chain.
+On success, the transaction metadata contains an `ExportResult` holding an `ExportSignatureHash` — a reference to the per-export `ttEXPORT_SIGNATURES` witness that carries the validator signatures — **not** a ready-to-submit blob. You assemble the target-chain transaction yourself from your inner `ExportedTxn` template plus those signatures, using the same canonical contract Xahau uses internally:
 
-Before relying on production exports, test that the `ExportResult.ExportedTxn.Signers[].Signer.Account` values are authorized by the target-chain SignerList.
+- derive each `Signer.Account` from its validator signing public key
+- sort the `Signers` array by `Account` (AccountID order)
+- leave the top-level `SigningPubKey` empty (`""`)
+- cap `Signers` to the target chain's multisign maximum (32 with `ExpandedSignerList`, 8 without)
+
+Serialize the assembled transaction and submit it to the target chain. Before relying on production exports, confirm the assembled `Signers[].Signer.Account` values are authorized by the target-chain SignerList. See the [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export#exportresult-metadata) for the full metadata shape.
 
 #### 5. Import Back (Round-Trip)
 
@@ -90,11 +95,15 @@ After execution on the target chain, build an XPOP from the target chain's valid
 
 ### Shadow Tickets
 
-Every successful Export that carries an `ExportedTxn` creates a **shadow ticket** — an on-ledger record keyed by `(Account, TicketSequence)` that tracks outstanding exports and provides replay protection.
+Every successful Export that carries an `ExportedTxn` creates a **shadow ticket** — an on-ledger record keyed by `(Account, TicketSequence)` that tracks an outstanding export.
 
 - **Created** on `tesSUCCESS` of the Export
 - **Consumed** when the XPOP is imported back
 - **Cancelled** via Export with `CancelTicketSequence` or `xport_cancel()` from hooks
+
+<Aside type="caution">
+A shadow ticket is a pending-callback **latch**, not a permanent replay tombstone. It blocks a second *live* export for the same `(Account, TicketSequence)`, but once an Import consumes it the same inner transaction can be re-exported and the original XPOP passes the Import hash check again. The ticket path has **no protocol-level exactly-once guard** — value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the inner transaction hash in Hook State).
+</Aside>
 
 ### Retriable Semantics
 

@@ -12,7 +12,7 @@ _(Added by the \[Export amendment]\[].)_
 
 An Export transaction lets a Xahau account create a transaction for another chain (e.g. XRPL mainnet) that the Xahau validator set collectively multisigns. No single party holds the signing keys — the validator UNL acts as a distributed signer.
 
-The inner transaction (`ExportedTxn`) is signed by validators during the consensus round. On success, the complete multisigned transaction is available in the transaction metadata as `ExportResult`.
+The inner transaction (`ExportedTxn`) is signed by validators during the consensus round. On success, the transaction metadata contains an `ExportResult` that references the collected validator signatures (via `ExportSignatureHash`); clients assemble the submittable multisigned transaction from that reference (see [ExportResult Metadata](#exportresult-metadata)).
 
 ### Example
 
@@ -87,7 +87,7 @@ Validator quorum is normally expected in the same ledger the Export is submitted
 
 ### Shadow Tickets
 
-When an Export carrying `ExportedTxn` succeeds, a **shadow ticket** is created on Xahau keyed by `(Account, TicketSequence)`. This tracks which exports are outstanding and provides replay protection.
+When an Export carrying `ExportedTxn` succeeds, a **shadow ticket** is created on Xahau keyed by `(Account, TicketSequence)`. It is a pending-callback **latch**, not a permanent replay tombstone — it blocks a second live export for the same `(Account, TicketSequence)`, but does not prevent re-export of the identical inner transaction after the ticket is consumed. The ticket path has no protocol-level exactly-once guard; value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the inner transaction hash in Hook State).
 
 - **Created**: on `tesSUCCESS` of the Export transaction
 - **Consumed**: when the corresponding XPOP is imported back to Xahau via an `Import` transaction
@@ -95,39 +95,30 @@ When an Export carrying `ExportedTxn` succeeds, a **shadow ticket** is created o
 
 ### ExportResult Metadata
 
-On success, the transaction metadata contains an `ExportResult` object with the complete multisigned transaction:
+On success, the transaction metadata contains an `ExportResult` object that **references** the validator signatures rather than embedding the assembled transaction:
 
 ```json
 {
   "ExportResult": {
     "LedgerSequence": 42,
     "TransactionHash": "ABC123...",
-    "ExportedTxn": {
-      "TransactionType": "Payment",
-      "Account": "rYourAccount...",
-      "Destination": "rRecipient...",
-      "Amount": "1000000",
-      "Fee": "1000",
-      "Sequence": 0,
-      "TicketSequence": 2,
-      "SigningPubKey": "",
-      "Signers": [
-        {
-          "Signer": {
-            "Account": "rValidator1...",
-            "SigningPubKey": "03ABCD...",
-            "TxnSignature": "3045..."
-          }
-        }
-      ]
-    }
+    "ExportSignatureHash": "DEF456..."
   }
 }
 ```
 
-Serialize the `ExportedTxn` from `ExportResult` and submit it as a raw transaction blob to the target chain.
+- `LedgerSequence` — the Xahau ledger in which validator quorum was reached
+- `TransactionHash` — the hash of the outer Xahau Export transaction
+- `ExportSignatureHash` — a reference to the per-export `ttEXPORT_SIGNATURES` witness pseudo-transaction that carries the collected validator signatures
 
-`ExportResult.TransactionHash` is the hash of the outer Xahau Export transaction. The target-chain transaction blob is `ExportResult.ExportedTxn` after serialization.
+The metadata no longer contains a ready-to-submit blob. Clients assemble the target-chain transaction from the original `ExportedTxn` template plus the witness signatures, applying Xahau's canonical contract:
+
+- derive each `Signer.Account` from its validator signing public key
+- sort the `Signers` array by `Account` (AccountID order)
+- leave the top-level `SigningPubKey` empty (`""`)
+- cap `Signers` to the destination protocol maximum (`STTx::maxMultiSigners()` — 32 with `ExpandedSignerList`, 8 without)
+
+This is the same recipe Xahau uses to compute the shadow ticket's stored hash, so an assembled transaction that matches the shadow ticket will also match the XPOP when it executes on the target chain.
 
 ### Completing the Round-Trip
 
