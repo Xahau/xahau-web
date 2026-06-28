@@ -9,14 +9,14 @@ import { Aside } from '@astrojs/starlight/components';
 ### Behaviour
 
 - Exports a serialized transaction blob for cross-chain multisigning by the Xahau validator set.
-- The transaction hash is written to `write_ptr`.
+- The emitted Export wrapper transaction hash is written to `write_ptr`.
 - Queues a wrapper `Export` transaction through the emitted transaction path. When that export later succeeds, it creates an `ltSHADOW_TICKET` that latches the pending callback for `(Account, TicketSequence)` — not a permanent replay tombstone (see the [Shadow Tickets](/docs/features/export#shadow-tickets) replay-safety contract).
 - `xport_reserve()` must be called before `xport()`.
 - The serialized inner transaction must satisfy the same Xahau-enforced inner transaction rules as a user-submitted [Export transaction](/docs/protocol-reference/transactions/transaction-types/export): matching account, `Sequence` `0`, a `TicketSequence`, and valid cross-chain `NetworkID` handling.
 - Target-chain validity is still the hook author's responsibility, including the target-chain fee and SignerList setup.
 
 <Aside type="tip">
-The exported transaction flows through the same validator multisigning process as a user-submitted Export transaction. The signed result appears in the transaction metadata as `ExportResult`.
+The exported transaction flows through the same validator multisigning process as a user-submitted Export transaction. The resulting `ExportResult` metadata references the signature witness used to assemble the target-chain transaction.
 </Aside>
 
 ### Definition
@@ -47,7 +47,7 @@ if (result < 0)
 
 | Name      | Type     | Description                                          |
 | --------- | -------- | ---------------------------------------------------- |
-| write_ptr | uint32_t | Pointer to a 32-byte buffer to receive the tx hash.   |
+| write_ptr | uint32_t | Pointer to a 32-byte buffer to receive the emitted Export wrapper tx hash. |
 | write_len | uint32_t | Length of the write buffer (must be at least 32).      |
 | read_ptr  | uint32_t | Pointer to the serialized inner transaction blob.      |
 | read_len  | uint32_t | Length of the transaction blob.                        |

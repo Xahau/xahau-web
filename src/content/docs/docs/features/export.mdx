@@ -18,7 +18,7 @@ The Export feature coordinates a target-chain transaction through the Xahau vali
 
 1. Submit an Export transaction on Xahau containing the inner transaction you want executed on the target chain
 2. Validators collectively sign the inner transaction during the consensus round
-3. Extract the multisigned blob from the transaction metadata
+3. Assemble the multisigned target-chain transaction from the signature witness referenced in the transaction metadata
 4. Submit it to the target chain
 5. Import the proof of execution back to Xahau to complete the round-trip
 
@@ -102,7 +102,7 @@ Every successful Export that carries an `ExportedTxn` creates a **shadow ticket*
 - **Cancelled** via Export with `CancelTicketSequence` or `xport_cancel()` from hooks
 
 <Aside type="caution">
-A shadow ticket is a pending-callback **latch**, not a permanent replay tombstone. It blocks a second *live* export for the same `(Account, TicketSequence)`, but once an Import consumes it the same inner transaction can be re-exported and the original XPOP passes the Import hash check again. The ticket path has **no protocol-level exactly-once guard** — value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the inner transaction hash in Hook State).
+A shadow ticket is a pending-callback **latch**, not a permanent replay tombstone. It blocks a second *live* export for the same `(Account, TicketSequence)`, but once an Import consumes it the same inner transaction can be re-exported and the original XPOP passes the Import hash check again. The ticket path has **no protocol-level exactly-once guard** — value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the signed target-chain transaction hash, or a hook-defined business key, in Hook State).
 </Aside>
 
 ### Retriable Semantics
@@ -122,7 +122,7 @@ if (xport_reserve(1) < 0)
 // ... build inner tx blob ...
 
 uint8_t hash[32];
-int64_t result = xport(SBUF(hash), SBUF(tx_blob));  // returns inner tx hash
+int64_t result = xport(SBUF(hash), SBUF(tx_blob));  // returns the emitted Export wrapper tx hash
 if (result < 0)
     rollback(SBUF("Export failed"), 1);
 

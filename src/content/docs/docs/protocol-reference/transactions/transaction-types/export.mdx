@@ -2,7 +2,8 @@
 title: Export
 description: >-
   Export creates a cross-chain transaction on Xahau that the validator set
-  collectively multisigns, producing a ready-to-submit blob for a target chain.
+  collectively multisigns, producing validator signatures clients assemble for
+  a target chain.
 ---
 import { Aside } from '@astrojs/starlight/components';
 
@@ -63,7 +64,7 @@ The `ExportedTxn` object is checked by Xahau for these rules:
 
 Target-chain validity is still the submitter's responsibility. The exported transaction should use a fee high enough for target-chain multisign overhead, and the produced target-chain blob uses an empty `SigningPubKey` plus validator multisigners.
 
-If the exporting Xahau network has `NETWORK_ID == 0`, an `ExportedTxn` with no `NetworkID` is rejected as malformed. Configure Xahau with a nonzero network ID before exporting no-`NetworkID` target transactions such as XRPL mainnet transactions.
+If the exporting Xahau network has `NETWORK_ID <= 1024`, an `ExportedTxn` with no `NetworkID` is rejected as malformed. Configure Xahau with a network ID greater than 1024 before exporting no-`NetworkID` target transactions such as XRPL mainnet transactions.
 
 <Aside type="tip">
 The target chain account must have a SignerList containing the Xahau validator public keys as signers. Create tickets on the target chain before submitting the Export.
@@ -87,7 +88,7 @@ Validator quorum is normally expected in the same ledger the Export is submitted
 
 ### Shadow Tickets
 
-When an Export carrying `ExportedTxn` succeeds, a **shadow ticket** is created on Xahau keyed by `(Account, TicketSequence)`. It is a pending-callback **latch**, not a permanent replay tombstone — it blocks a second live export for the same `(Account, TicketSequence)`, but does not prevent re-export of the identical inner transaction after the ticket is consumed. The ticket path has no protocol-level exactly-once guard; value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the inner transaction hash in Hook State).
+When an Export carrying `ExportedTxn` succeeds, a **shadow ticket** is created on Xahau keyed by `(Account, TicketSequence)`. It is a pending-callback **latch**, not a permanent replay tombstone — it blocks a second live export for the same `(Account, TicketSequence)`, but does not prevent re-export of the identical inner transaction after the ticket is consumed. The ticket path has no protocol-level exactly-once guard; value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the signed target-chain transaction hash, or a hook-defined business key, in Hook State).
 
 - **Created**: on `tesSUCCESS` of the Export transaction
 - **Consumed**: when the corresponding XPOP is imported back to Xahau via an `Import` transaction
@@ -145,7 +146,7 @@ if (xport_reserve(1) < 0)
 // ... build inner tx blob ...
 
 uint8_t hash[32];
-int64_t result = xport(SBUF(hash), SBUF(tx_blob));  // returns inner tx hash
+int64_t result = xport(SBUF(hash), SBUF(tx_blob));  // returns the emitted Export wrapper tx hash
 if (result < 0)
     rollback(SBUF("Export failed"), 1);
 
