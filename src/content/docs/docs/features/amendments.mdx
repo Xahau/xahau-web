@@ -125,6 +125,14 @@ This amendment ensures all accounts involved in a transaction (all transactional
 
 This amendment adds a new field to HookSet objects: `HookCanEmit` is syntactically identical to the `HookOn` field, except that it controls which transaction types the Hook is allowed to emit rather than which transaction types trigger the hook. Note that it uses the same active-low semantics as `HookOn` with `SetHook` being active high. However if the field is absent it's taken to be that the Hook may emit any transaction including `SetHook`. Adds the `HookCanEmit` field to [HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition) objects.
 
+##### Export
+
+Enables [Export transactions](/docs/protocol-reference/transactions/transaction-types/export), allowing a Xahau account or Hook to create a cross-chain transaction that the active validator set collectively multisigns. Successful exports produce an `ExportResult` in metadata (a reference to the validator signatures, which clients assemble into the submittable transaction); exports that carry an inner transaction also create a shadow ticket that latches the pending callback — not a permanent replay tombstone (see [Cross-Chain Export](/docs/features/export#shadow-tickets)).
+
+##### ConsensusEntropy
+
+Enables per-ledger [Consensus Entropy](/docs/features/consensus-entropy), allowing Hooks to call `dice()` and `random()` with explicit `min_tier` and `min_count` requirements. The ledger stores the selected digest, participant count, and entropy tier in the singleton [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy).
+
 ##### Clawback
 
 Enables [Clawback transactions](/docs/protocol-reference/transactions/transaction-types/clawback) that allow issuers to revoke tokens that were previously issued by their account. This is a ported feature from the XRPL. _(Introduced in 2025.7.9-release+1951)_

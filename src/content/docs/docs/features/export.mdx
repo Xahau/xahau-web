@@ -1,0 +1,137 @@
+---
+title: Cross-Chain Export
+description: >-
+  Export transactions from Xahau to other chains with validator multisigning —
+  a consensus-coordinated path for producing target-chain multisigned blobs.
+---
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+Cross-Chain Export lets Xahau accounts create transactions for other XRPL-compatible chains (for example, XRPL mainnet) that the active Xahau validator set collectively multisigns.
+
+_(Requires the [Export amendment](/docs/features/amendments/#export).)_
+
+## User Guide
+
+### Overview
+
+The Export feature coordinates a target-chain transaction through the Xahau validator set:
+
+1. Submit an Export transaction on Xahau containing the inner transaction you want executed on the target chain
+2. Validators collectively sign the inner transaction during the consensus round
+3. Assemble the multisigned target-chain transaction from the signature witness referenced in the transaction metadata
+4. Submit it to the target chain
+5. Import the proof of execution back to Xahau to complete the round-trip
+
+<Aside type="note">
+Validator quorum is normally expected in the **same ledger** the Export is submitted. If quorum is not reached, the Export retries until its top-level `LastLedgerSequence`.
+</Aside>
+
+### Prerequisites
+
+- The target chain must support XRPL-style transactions, tickets, signer lists, and multisigning.
+- The target-chain account must be the same AccountID/classic address as the outer Xahau `Account`; the inner `ExportedTxn.Account` must match it.
+- The target-chain account must have a SignerList whose signer accounts are derived from the active Xahau validator public keys, using the active validator list for the exporting network.
+- The target SignerQuorum and signer weights must accept the validator multisig set that Xahau will produce.
+- Keep the target SignerList aligned with validator-set changes. A stale target SignerList can make future exported blobs fail on the target chain.
+- For XRPL-mainnet-style target transactions with no `NetworkID`, the exporting Xahau network must have a local `NETWORK_ID` **greater than 1024**. Networks with `NETWORK_ID` ≤ 1024 cannot disambiguate a self-target and reject these exports.
+
+### Quick Start
+
+#### 1. Set Up the Target Chain Account
+
+On the target chain (e.g. XRPL), the account needs a [SignerList](https://xrpl.org/docs/references/protocol/ledger-data/ledger-entry-types/signerlist) containing the active Xahau validator keys as signers.
+
+#### 2. Create Tickets on the Target Chain
+
+Exported transactions use [TicketCreate transactions](/docs/protocol-reference/transactions/transaction-types/ticketcreate) and `TicketSequence` (not regular sequence numbers) to avoid sequence jams:
+
+```json
+{
+  "TransactionType": "TicketCreate",
+  "Account": "rYourAccount...",
+  "TicketCount": 1
+}
+```
+
+#### 3. Submit the Export on Xahau
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "Fee": "1000000",
+  "LastLedgerSequence": 12345680,
+  "ExportedTxn": {
+    "TransactionType": "Payment",
+    "Account": "rYourAccount...",
+    "Destination": "rRecipient...",
+    "Amount": "1000000",
+    "Fee": "1000",
+    "Sequence": 0,
+    "TicketSequence": 2,
+    "Flags": 2147483648,
+    "SigningPubKey": "",
+    "LastLedgerSequence": 98765500
+  }
+}
+```
+
+The top-level `LastLedgerSequence` controls how long Xahau retries the Export while waiting for validator signatures. The inner `ExportedTxn.LastLedgerSequence` is part of the target-chain transaction and does not expire the Xahau Export. Both values are absolute ledger indexes; calculate them from the current Xahau and target-chain ledger indexes before submitting.
+
+#### 4. Assemble and Submit the Signed Transaction
+
+On success, the transaction metadata contains an `ExportResult` holding an `ExportSignatureHash` — a reference to the per-export `ttEXPORT_SIGNATURES` witness that carries the validator signatures — **not** a ready-to-submit blob. You assemble the target-chain transaction yourself from your inner `ExportedTxn` template plus those signatures, using the same canonical contract Xahau uses internally:
+
+- derive each `Signer.Account` from its validator signing public key
+- sort the `Signers` array by `Account` (AccountID order)
+- leave the top-level `SigningPubKey` empty (`""`)
+- cap `Signers` to the target chain's multisign maximum (32 with `ExpandedSignerList`, 8 without)
+
+Serialize the assembled transaction and submit it to the target chain. Before relying on production exports, confirm the assembled `Signers[].Signer.Account` values are authorized by the target-chain SignerList. See the [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export#exportresult-metadata) for the full metadata shape.
+
+#### 5. Import Back (Round-Trip)
+
+After execution on the target chain, build an XPOP from the target chain's validated ledger data and submit it as an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) on Xahau to consume the shadow ticket. Callback imports still validate the XPOP's validator-list freshness and anti-downgrade rules before consuming the ticket. If the signed blob was not and will not be submitted to the target chain, cancel the shadow ticket instead.
+
+### Shadow Tickets
+
+Every successful Export that carries an `ExportedTxn` creates a **shadow ticket** — an on-ledger record keyed by `(Account, TicketSequence)` that tracks an outstanding export.
+
+- **Created** on `tesSUCCESS` of the Export
+- **Consumed** when the XPOP is imported back
+- **Cancelled** via Export with `CancelTicketSequence` or `xport_cancel()` from hooks
+
+<Aside type="caution">
+A shadow ticket is a pending-callback **latch**, not a permanent replay tombstone. It blocks a second *live* export for the same `(Account, TicketSequence)`, but once an Import consumes it the same inner transaction can be re-exported and the original XPOP passes the Import hash check again. The ticket path has **no protocol-level exactly-once guard** — value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the signed target-chain transaction hash, or a hook-defined business key, in Hook State).
+</Aside>
+
+### Retriable Semantics
+
+If validator quorum isn't reached in the submission ledger, the Export automatically retries each ledger until `LastLedgerSequence`. If quorum is never reached, the Export expires with `tecEXPORT_EXPIRED` — the sequence is consumed cleanly and the account is not blocked.
+
+The open ledger can contain up to 8 pending exports total across all accounts. Separately, each account can hold up to 8 outstanding shadow tickets. If either limit is reached, new Export transactions fail with `tecDIR_FULL`.
+
+### Hook API (xport)
+
+Hooks can programmatically export transactions using the `xport` API:
+
+```c
+if (xport_reserve(1) < 0)
+    rollback(SBUF("Export reserve failed"), 1);
+
+// ... build inner tx blob ...
+
+uint8_t hash[32];
+int64_t result = xport(SBUF(hash), SBUF(tx_blob));  // returns the emitted Export wrapper tx hash
+if (result < 0)
+    rollback(SBUF("Export failed"), 1);
+
+xport_cancel(ticket_seq);  // cancel a shadow ticket
+```
+
+## Reference
+
+<LinkCard title="Export Transaction Reference" href="/docs/protocol-reference/transactions/transaction-types/export" />
+<LinkCard title="xport_reserve()" href="/docs/hooks/functions/utilities/xport_reserve" />
+<LinkCard title="xport()" href="/docs/hooks/functions/utilities/xport" />
+<LinkCard title="xport_cancel()" href="/docs/hooks/functions/utilities/xport_cancel" />

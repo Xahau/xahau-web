@@ -1,0 +1,74 @@
+---
+title: random
+description: >-
+  Write random bytes derived from consensus entropy to a buffer,
+  with caller-specified minimum entropy quality requirements.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+- Writes random bytes to the buffer pointed to by `write_ptr`, derived from the current ledger's consensus entropy.
+- Writes exactly `write_len` bytes and returns `write_len` on success. Internally, entropy is generated in 32-byte blocks and rounded up as needed.
+- `write_len` must be between 1 and 512 bytes.
+- The hook must specify minimum entropy quality requirements (`min_tier`, `min_count`). If the current ledger's entropy does not meet these requirements, the call fails with `TOO_LITTLE_ENTROPY`.
+
+### Definition
+
+```c
+int64_t random (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t min_tier,
+    uint32_t min_count
+);
+```
+
+### Example
+
+```c
+// Get 32 random bytes, require validator quorum tier
+uint8_t buf[32];
+int64_t result = random(SBUF(buf), 3, 5);
+if (result < 0)
+    rollback(SBUF("No entropy available"), 1);
+
+// Get 64 random bytes, accept any valid tier
+uint8_t seed[64];
+int64_t seed_written = random(SBUF(seed), 1, 0);
+if (seed_written != sizeof(seed))
+    rollback(SBUF("No entropy available"), 1);
+```
+
+### Parameters
+
+| Name        | Type     | Description                                                                      |
+| ----------- | -------- | -------------------------------------------------------------------------------- |
+| `write_ptr` | uint32_t | Pointer to the output buffer.                                                     |
+| `write_len` | uint32_t | Length of the output buffer. Must be between 1 and 512 bytes.                      |
+| `min_tier`  | uint32_t | Minimum entropy tier required: `1` = consensus fallback, `2` = participant aligned, `3` = validator quorum. |
+| `min_count` | uint32_t | Minimum number of validator reveals required. Use `0` to accept any count.        |
+
+<Aside type="caution">
+Applications that depend on unpredictable outcomes should require `min_tier=3` and choose `min_count` according to their validator/network assumptions. For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
+</Aside>
+
+<Aside type="note">
+Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `random()` output can differ between preview and final execution.
+</Aside>
+
+### Return Code
+
+| Type    | Description                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------- |
+| int64_t | The number of bytes written on success, equal to `write_len`. If negative, an error: `TOO_SMALL` — `write_len` is `0`. `TOO_BIG` — `write_len` is greater than `512`. `OUT_OF_BOUNDS` — pointers/lengths specified outside of hook memory. `INVALID_ARGUMENT` — `min_tier` is outside `1..3` or the requirements are malformed. `TOO_LITTLE_ENTROPY` — entropy is unavailable, stale, or below the specified `min_tier` / `min_count` requirements. |
+
+### Determinism
+
+Each call to `random()` uses different derivation input, even within the same hook execution. The per-call input includes the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, callback/direct dispatch flag, and an incrementing call counter. Internally, 32-byte blocks are generated via `sha512Half` and then chained (`sha512Half(previous_block)`) for additional blocks. This ensures deterministic replay.
+
+### Related
+
+- [Consensus Entropy overview](/docs/features/consensus-entropy)
+- [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
+- [dice()](/docs/hooks/functions/utilities/dice)

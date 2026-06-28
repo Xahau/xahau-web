@@ -1,0 +1,83 @@
+---
+title: dice
+description: >-
+  Return a random integer in [0, sides) derived from consensus entropy,
+  with caller-specified minimum entropy quality requirements.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+- Returns a random integer in the range `[0, sides)` derived from the current ledger's consensus entropy.
+- The hook must specify minimum entropy quality requirements (`min_tier`, `min_count`). If the current ledger's entropy does not meet these requirements, the call fails with `TOO_LITTLE_ENTROPY`.
+
+<Aside type="tip">
+Hooks must explicitly state their entropy requirements. There are no defaults — this is a deliberate design choice so that entropy quality is reviewable at the call site.
+</Aside>
+
+### Definition
+
+```c
+int64_t dice (
+    uint32_t sides,
+    uint32_t min_tier,
+    uint32_t min_count
+);
+```
+
+### Example
+
+```c
+// Roll a d6, require strong validator entropy from at least 5 validators
+int64_t roll = dice(6, 3, 5);
+if (roll < 0)
+    rollback(SBUF("No entropy available"), 1);
+
+// Roll a d100, accept any valid tier (including consensus fallback)
+int64_t percent = dice(100, 1, 0);
+if (percent < 0)
+    rollback(SBUF("No entropy available"), 1);
+```
+
+### Parameters
+
+| Name        | Type     | Description                                                                      |
+| ----------- | -------- | -------------------------------------------------------------------------------- |
+| `sides`     | uint32_t | Number of sides. Result is in `[0, sides)`.                                       |
+| `min_tier`  | uint32_t | Minimum entropy tier required: `1` = consensus fallback, `2` = participant aligned, `3` = validator quorum. |
+| `min_count` | uint32_t | Minimum number of validator reveals required. Use `0` to accept any count.        |
+
+<Aside type="caution">
+Applications that depend on unpredictable outcomes should require `min_tier=3` and choose `min_count` according to their validator/network assumptions. For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
+</Aside>
+
+<Aside type="note">
+`dice()` reduces a 32-bit random value modulo `sides`. For exact uniformity over large or sensitive ranges, use `random()` and rejection sampling.
+</Aside>
+
+<Aside type="note">
+Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `dice()` output can differ between preview and final execution.
+</Aside>
+
+### Return Code
+
+| Type    | Description                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------- |
+| int64_t | A random integer in `[0, sides)` on success. If negative, an error: `INVALID_ARGUMENT` — `sides` is `0`, `min_tier` is outside `1..3`, or the requirements are malformed. `TOO_LITTLE_ENTROPY` — entropy is unavailable, stale, or below the specified `min_tier` / `min_count` requirements. `INTERNAL_ERROR` — the entropy API returned an unexpected byte count. |
+
+### Determinism
+
+Each call to `dice()` draws fresh entropy, even within the same hook execution. The reduced result can still repeat, especially for small `sides` values. The randomness is derived from:
+
+- Ledger sequence, transaction ID, hook hash, account, chain position
+- Originating account, strong/weak execution flag, and callback/direct dispatch flag
+- The consensus entropy digest
+- An internal call counter that increments per call
+
+This ensures deterministic replay (same inputs → same outputs) while using different derivation input per call.
+
+### Related
+
+- [Consensus Entropy overview](/docs/features/consensus-entropy)
+- [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
+- [random()](/docs/hooks/functions/utilities/random)
