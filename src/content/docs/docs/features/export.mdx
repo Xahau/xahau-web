@@ -91,7 +91,7 @@ Serialize the assembled transaction and submit it to the target chain. Before re
 
 #### 5. Import Back (Round-Trip)
 
-After execution on the target chain, build an XPOP from the target chain's validated ledger data and submit it as an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) on Xahau to consume the shadow ticket. If the signed blob was not and will not be submitted to the target chain, cancel the shadow ticket instead.
+After execution on the target chain, build an XPOP from the target chain's validated ledger data and submit it as an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) on Xahau to consume the shadow ticket. Callback imports still validate the XPOP's validator-list freshness and anti-downgrade rules before consuming the ticket. If the signed blob was not and will not be submitted to the target chain, cancel the shadow ticket instead.
 
 ### Shadow Tickets
 

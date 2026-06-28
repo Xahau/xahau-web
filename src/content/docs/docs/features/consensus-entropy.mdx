@@ -82,7 +82,7 @@ Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy doesn
 
 ### Determinism
 
-Randomness is derived per-call from a combination of the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, and an incrementing call counter. This means:
+Randomness is derived per-call from a combination of the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, callback/direct dispatch flag, and an incrementing call counter. This means:
 
 - Different hooks on the same transaction get different randomness
 - Multiple calls within one hook use different derivation inputs

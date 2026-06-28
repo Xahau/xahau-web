@@ -70,7 +70,7 @@ Open-ledger hook execution is provisional and uses the previous ledger's entropy
 Each call to `dice()` draws fresh entropy, even within the same hook execution. The reduced result can still repeat, especially for small `sides` values. The randomness is derived from:
 
 - Ledger sequence, transaction ID, hook hash, account, chain position
-- Originating account and strong/weak execution flag
+- Originating account, strong/weak execution flag, and callback/direct dispatch flag
 - The consensus entropy digest
 - An internal call counter that increments per call
 

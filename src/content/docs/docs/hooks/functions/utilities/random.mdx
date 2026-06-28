@@ -65,7 +65,7 @@ Open-ledger hook execution is provisional and uses the previous ledger's entropy
 
 ### Determinism
 
-Each call to `random()` uses different derivation input, even within the same hook execution. The per-call input includes the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, and an incrementing call counter. Internally, 32-byte blocks are generated via `sha512Half` and then chained (`sha512Half(previous_block)`) for additional blocks. This ensures deterministic replay.
+Each call to `random()` uses different derivation input, even within the same hook execution. The per-call input includes the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, callback/direct dispatch flag, and an incrementing call counter. Internally, 32-byte blocks are generated via `sha512Half` and then chained (`sha512Half(previous_block)`) for additional blocks. This ensures deterministic replay.
 
 ### Related
 

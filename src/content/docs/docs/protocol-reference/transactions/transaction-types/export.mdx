@@ -123,7 +123,7 @@ This is the same recipe Xahau uses to compute the shadow ticket's stored hash, s
 
 ### Completing the Round-Trip
 
-After target-chain execution, submit an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) with an XPOP to consume the shadow ticket.
+After target-chain execution, submit an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) with an XPOP to consume the shadow ticket. Callback imports still validate the XPOP's validator-list freshness and anti-downgrade rules before consuming the ticket.
 
 ### Error Cases
 
