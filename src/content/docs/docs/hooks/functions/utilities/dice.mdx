@@ -44,11 +44,11 @@ if (percent < 0)
 | Name        | Type     | Description                                                                      |
 | ----------- | -------- | -------------------------------------------------------------------------------- |
 | `sides`     | uint32_t | Number of sides. Result is in `[0, sides)`.                                       |
-| `min_tier`  | uint32_t | Minimum entropy tier required: `1` = consensus fallback, `2` = participant aligned, `3` = validator quorum. |
+| `min_tier`  | uint32_t | Minimum entropy tier required: `1` = consensus fallback, `2` = participant aligned, `3` = validator quorum, `4` = validator full (reveals from every active validator). |
 | `min_count` | uint32_t | Minimum number of validator reveals required. Use `0` to accept any count.        |
 
 <Aside type="caution">
-Applications that depend on unpredictable outcomes should require `min_tier=3` and choose `min_count` according to their validator/network assumptions. For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
+Applications that depend on unpredictable outcomes should require `min_tier=3` (or `min_tier=4` to reject any round where an active validator withheld its reveal) and choose `min_count` according to their validator/network assumptions. For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
 </Aside>
 
 <Aside type="note">
@@ -63,7 +63,7 @@ Open-ledger hook execution is provisional and uses the previous ledger's entropy
 
 | Type    | Description                                                                                          |
 | ------- | ---------------------------------------------------------------------------------------------------- |
-| int64_t | A random integer in `[0, sides)` on success. If negative, an error: `INVALID_ARGUMENT` — `sides` is `0`, `min_tier` is outside `1..3`, or the requirements are malformed. `TOO_LITTLE_ENTROPY` — entropy is unavailable, stale, or below the specified `min_tier` / `min_count` requirements. `INTERNAL_ERROR` — the entropy API returned an unexpected byte count. |
+| int64_t | A random integer in `[0, sides)` on success. If negative, an error: `INVALID_ARGUMENT` — `sides` is `0`, `min_tier` is outside `1..4`, or the requirements are malformed. `TOO_LITTLE_ENTROPY` — entropy is unavailable, stale, or below the specified `min_tier` / `min_count` requirements. `INTERNAL_ERROR` — the entropy API returned an unexpected byte count. |
 
 ### Determinism
 

@@ -20,6 +20,7 @@ Hooks consume this entropy through the `dice()` and `random()` hook API function
 | ----------------- | --------- | ------------------- | -------------------------------------------------------------------------------- |
 | `Digest`          | String    | Hash256             | The entropy digest for this ledger.                                               |
 | `EntropyCount`    | Number    | UInt16              | Number of validator reveals used to derive the digest. `0` for consensus fallback. |
+| `EntropyDenominator` | Number | UInt16              | Number of active validators in the parent-ledger view (after Negative UNL) that the reveals were drawn from — the denominator for the `EntropyCount` participation fraction (`EntropyCount` / `EntropyDenominator`). `0` for consensus fallback. |
 | `EntropyTier`     | Number    | UInt8               | The entropy tier (see below).                                                     |
 | `LedgerSequence`  | Number    | UInt32              | Ledger sequence this entropy was produced for.                                     |
 | `PreviousTxnID`   | String    | Hash256             | Transaction ID of the transaction that last modified this object.                  |
@@ -31,12 +32,13 @@ Every RNG-enabled ledger carries a tiered entropy object. The tier indicates the
 
 | Tier | Value | Description                                                                                      |
 | ---- | ----- | ------------------------------------------------------------------------------------------------ |
+| `validator_full`      | 4 | Reveals from **every** active validator in the ledger-anchored view (`EntropyCount == EntropyDenominator`). Any missing active validator downgrades the tier, so requiring it fails closed on selective withholding — at the cost of availability (a single offline validator prevents it). |
 | `validator_quorum`    | 3 | Validator-quorum commit/reveal entropy with 80% UNL alignment.       |
 | `participant_aligned` | 2 | Participant-aligned commit/reveal entropy below full validator quorum. |
 | `consensus_fallback`  | 1 | Deterministic public-input fallback derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, baseTxSetHash, seq)`. Grindable. |
 
 <Aside type="caution">
-Tier 1 (`consensus_fallback`) entropy is deterministic and derivable from public inputs. It is grindable by transaction submitters, especially on quiet ledgers. Hooks handling high-value outcomes (lotteries, games) should require `min_tier=3` (validator quorum) in their `dice()` / `random()` calls.
+Tier 1 (`consensus_fallback`) entropy is deterministic and derivable from public inputs. It is grindable by transaction submitters, especially on quiet ledgers. Hooks handling high-value outcomes (lotteries, games) should require at least `min_tier=3` (validator quorum) in their `dice()` / `random()` calls — or `min_tier=4` (`validator_full`) to additionally reject any round in which an active validator withheld its reveal.
 </Aside>
 
 ### How Entropy is Produced
@@ -57,7 +59,7 @@ sha512Half("standalone-entropy", seq)
 ```
 This allows hooks using `dice()` / `random()` to function during development without a validator network.
 
-Standalone mode labels this synthetic entropy as tier 3 with count 20. Use it for local development only; real network ledgers can fall back to tier 1 when validator entropy is unavailable.
+Standalone mode labels this synthetic entropy as tier 4 (`validator_full`) with count 20 and denominator 20. This lets `min_tier=4` hooks pass locally. Use it for local development only; real network ledgers can fall back to tier 1 when validator entropy is unavailable.
 
 ### Related
 

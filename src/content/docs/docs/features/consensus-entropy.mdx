@@ -30,6 +30,7 @@ Not all entropy is equally strong. Every RNG-enabled ledger carries a tiered ent
 
 | Tier | Name | Source | Typical Use |
 |------|------|--------|-------------|
+| 4 | Validator Full | Reveals from **every** active validator (`EntropyCount == EntropyDenominator`) | Highest-assurance outcomes that must reject any selective withholding — fails closed if any active validator is absent |
 | 3 | Validator Quorum | Validator commit/reveal with 80% validator alignment | Outcomes that require validator-quorum entropy |
 | 2 | Participant Aligned | Participant-aligned commit/reveal below full validator quorum | Degraded-network outcomes that explicitly accept weaker entropy |
 | 1 | Consensus Fallback | Deterministic public-input fallback | Cosmetic shuffling, non-adversarial randomness |
@@ -67,12 +68,13 @@ if (written != sizeof(buf))
 
 Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy doesn't meet the stated requirements. There are no default parameters — hooks must explicitly choose their entropy quality at every call site.
 
-`min_count` is the number of validator reveals required by the caller. Higher values fail closed more often on small or degraded networks, so choose it from the expected active validator/reveal count for the target network. For applications that depend on unpredictable outcomes, require tier 3 and choose `min_count` according to the network's validator assumptions.
+`min_count` is the number of validator reveals required by the caller. Higher values fail closed more often on small or degraded networks, so choose it from the expected active validator/reveal count for the target network. The `ConsensusEntropy` object records `EntropyDenominator` — the active validator view size for the accepted result — so you can read the actual participation ratio (`EntropyCount / EntropyDenominator`) to calibrate `min_count` deliberately. For applications that depend on unpredictable outcomes, require tier 3 (or tier 4, `validator_full`, to reject any round where an active validator withheld) and choose `min_count` according to the network's validator assumptions.
 
 ### Choosing Tier Requirements
 
 | Application | Suggested `min_tier` | Suggested `min_count` |
 |-------------|---------------------|----------------------|
+| Highest-assurance (reject any withholding) | 4 | Network-specific |
 | Lottery / raffle | 3 | Network-specific |
 | Game with real stakes | 3 | Network-specific |
 | Degraded-network outcome that explicitly accepts weaker entropy | 2 | Network-specific |
@@ -92,7 +94,7 @@ Randomness is derived per-call from a combination of the entropy digest, ledger 
 
 Open-ledger (speculative) hook execution uses the **previous** ledger's entropy. Final execution during ledger close uses the current ledger's entropy. This means `dice()` / `random()` results may differ between speculative and final execution — treat speculative results like provisional `tesSUCCESS`.
 
-Standalone single-node execution injects synthetic tier-3 entropy with count 20 for development. That makes `min_tier=3` checks pass locally, but quiet network ledgers can still fall back to tier 1.
+Standalone single-node execution injects synthetic tier-4 (`validator_full`) entropy with count 20 and denominator 20 for development. That makes `min_tier=4` checks pass locally, but quiet network ledgers can still fall back to tier 1.
 
 ## Reference
 
