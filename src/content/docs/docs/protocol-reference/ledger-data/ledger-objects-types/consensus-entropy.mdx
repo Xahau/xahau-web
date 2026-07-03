@@ -10,7 +10,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 _(Added by the \[ConsensusEntropy amendment]\[].)_
 
-The `ConsensusEntropy` object is a singleton ledger entry that stores the per-ledger entropy digest produced by the validator commit/reveal scheme. It is updated each ledger by a `ttCONSENSUS_ENTROPY` pseudo-transaction injected deterministically at ledger build time.
+The `ConsensusEntropy` object is a singleton ledger entry that stores the per-ledger entropy digest and participation metadata produced by the validator commit/reveal scheme. It is updated each ledger by a `ttCONSENSUS_ENTROPY` pseudo-transaction injected deterministically at ledger build time.
 
 Hooks consume this entropy through the `dice()` and `random()` hook API functions.
 
@@ -21,6 +21,7 @@ Hooks consume this entropy through the `dice()` and `random()` hook API function
 | `Digest`          | String    | Hash256             | The entropy digest for this ledger.                                               |
 | `EntropyCount`    | Number    | UInt16              | Number of validator reveals used to derive the digest. `0` for consensus fallback. |
 | `EntropyDenominator` | Number | UInt16              | Number of active validators in the parent-ledger view (after Negative UNL) that the reveals were drawn from — the denominator for the `EntropyCount` participation fraction (`EntropyCount` / `EntropyDenominator`). `0` for consensus fallback. |
+| `EntropyContributors` | String | VL                  | Byte bitmask of active validators whose reveals contributed to the digest. Bits are ordered by the canonical parent-ledger active validator view after Negative UNL. Empty for consensus fallback. |
 | `EntropyTier`     | Number    | UInt8               | The entropy tier (see below).                                                     |
 | `LedgerSequence`  | Number    | UInt32              | Ledger sequence this entropy was produced for.                                     |
 | `PreviousTxnID`   | String    | Hash256             | Transaction ID of the transaction that last modified this object.                  |
@@ -47,9 +48,11 @@ Each consensus round follows a three-phase pipeline:
 
 1. **Commit**: proposing validators generate a secret and broadcast `sha512Half(secret, pubKey, seq)` as a commitment on their first proposal
 2. **Reveal**: after the transaction set converges, validators broadcast their secret
-3. **Inject**: reveals are sorted by public key and mixed via `sha512Half(key₁ || reveal₁ || key₂ || reveal₂ || ...)` — the result is injected as the `Digest`
+3. **Inject**: reveals are sorted by public key and mixed via `sha512Half(key₁ || reveal₁ || key₂ || reveal₂ || ...)` — the result is injected as the `Digest`, with `EntropyTier`, `EntropyCount`, `EntropyDenominator`, and `EntropyContributors` labeling the accepted result
 
 If neither the validator-quorum threshold nor the participant-aligned threshold is reached, a `consensus_fallback` digest is injected instead. RNG-enabled ledgers always receive either validator-derived entropy or a consensus-fallback digest.
+
+`EntropyContributors` is accountability metadata. It records who contributed to the accepted result, but `dice()` and `random()` derive per-call randomness from the digest and their own domain-separated call inputs.
 
 ### Standalone Mode
 
@@ -59,7 +62,7 @@ sha512Half("standalone-entropy", seq)
 ```
 This allows hooks using `dice()` / `random()` to function during development without a validator network.
 
-Standalone mode labels this synthetic entropy as tier 4 (`validator_full`) with count 20 and denominator 20. This lets `min_tier=4` hooks pass locally. Use it for local development only; real network ledgers can fall back to tier 1 when validator entropy is unavailable.
+Standalone mode labels this synthetic entropy as tier 4 (`validator_full`) with count 20, denominator 20, and a contributor bitmap with the first 20 validators marked. This lets `min_tier=4` hooks pass locally. Use it for local development only; real network ledgers can fall back to tier 1 when validator entropy is unavailable.
 
 ### Related
 

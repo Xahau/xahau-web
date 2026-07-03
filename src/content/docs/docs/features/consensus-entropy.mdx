@@ -6,7 +6,7 @@ description: >-
 ---
 import { Aside, LinkCard } from '@astrojs/starlight/components';
 
-Consensus Entropy gives Xahau hooks access to per-ledger randomness derived from a validator commit/reveal scheme. It supports applications like lotteries, games, random selection, and shuffling with deterministic replay and tiered quality labels.
+Consensus Entropy gives Xahau hooks access to per-ledger randomness derived from a validator commit/reveal scheme. It supports applications like lotteries, games, random selection, and shuffling with deterministic replay, tiered quality labels, and ledger-visible contributor accountability.
 
 _(Requires the [ConsensusEntropy amendment](/docs/features/amendments/#consensusentropy).)_
 
@@ -18,7 +18,7 @@ Each consensus round produces entropy through a three-phase pipeline:
 
 1. **Commit** — each proposing validator generates a secret and broadcasts a cryptographic commitment (`sha512Half(secret, pubKey, seq)`) on their first proposal
 2. **Reveal** — after the transaction set converges, validators broadcast their secret
-3. **Inject** — the agreed reveal set is mixed deterministically and written to the `ConsensusEntropy` ledger entry as a pseudo-transaction
+3. **Inject** — the agreed reveal set is mixed deterministically and written to the `ConsensusEntropy` ledger entry as a pseudo-transaction, along with tier, count, denominator, and contributor metadata
 
 <Aside type="note">
 Validators commit before the transaction set is finalized, then reveal after convergence. Hooks can use the resulting entropy during final ledger-close execution.
@@ -68,7 +68,7 @@ if (written != sizeof(buf))
 
 Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy doesn't meet the stated requirements. There are no default parameters — hooks must explicitly choose their entropy quality at every call site.
 
-`min_count` is the number of validator reveals required by the caller. Higher values fail closed more often on small or degraded networks, so choose it from the expected active validator/reveal count for the target network. The `ConsensusEntropy` object records `EntropyDenominator` — the active validator view size for the accepted result — so you can read the actual participation ratio (`EntropyCount / EntropyDenominator`) to calibrate `min_count` deliberately. For applications that depend on unpredictable outcomes, require tier 3 (or tier 4, `validator_full`, to reject any round where an active validator withheld) and choose `min_count` according to the network's validator assumptions.
+`min_count` is the number of validator reveals required by the caller. Higher values fail closed more often on small or degraded networks, so choose it from the expected active validator/reveal count for the target network. The `ConsensusEntropy` object records `EntropyDenominator` — the active validator view size for the accepted result — so you can read the actual participation ratio (`EntropyCount / EntropyDenominator`) to calibrate `min_count` deliberately. It also records `EntropyContributors`, a bitmap over the canonical active validator view, so operators and applications can inspect which validators contributed over time. For applications that depend on unpredictable outcomes, require tier 3 (or tier 4, `validator_full`, to reject any round where an active validator withheld) and choose `min_count` according to the network's validator assumptions.
 
 ### Choosing Tier Requirements
 
@@ -94,7 +94,7 @@ Randomness is derived per-call from a combination of the entropy digest, ledger 
 
 Open-ledger (speculative) hook execution uses the **previous** ledger's entropy. Final execution during ledger close uses the current ledger's entropy. This means `dice()` / `random()` results may differ between speculative and final execution — treat speculative results like provisional `tesSUCCESS`.
 
-Standalone single-node execution injects synthetic tier-4 (`validator_full`) entropy with count 20 and denominator 20 for development. That makes `min_tier=4` checks pass locally, but quiet network ledgers can still fall back to tier 1.
+Standalone single-node execution injects synthetic tier-4 (`validator_full`) entropy with count 20, denominator 20, and a contributor bitmap with the first 20 validators marked for development. That makes `min_tier=4` checks pass locally, but quiet network ledgers can still fall back to tier 1.
 
 ## Reference
 
