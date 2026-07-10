@@ -31,9 +31,14 @@ Validator quorum is normally expected in the **same ledger** the Export is submi
 - The target chain must support XRPL-style transactions, tickets, signer lists, and multisigning.
 - The target-chain account must be the same AccountID/classic address as the outer Xahau `Account`; the inner `ExportedTxn.Account` must match it.
 - The target-chain account must have a SignerList whose signer accounts are derived from the active Xahau validator public keys, using the active validator list for the exporting network.
+- The original validator population in Xahau's ledger-anchored `UNLReport` must not exceed Xahau's 32-signer protocol bound. Export does not publish signatures or materialize while the source authority is larger, even if NegativeUNL temporarily reduces the effective view. A target chain with a lower limit requires a correspondingly smaller deployment.
 - The target SignerQuorum and signer weights must accept the validator multisig set that Xahau will produce.
 - Keep the target SignerList aligned with validator-set changes. A stale target SignerList can make future exported blobs fail on the target chain.
 - For XRPL-mainnet-style target transactions with no `NetworkID`, the exporting Xahau network must have a local `NETWORK_ID` **greater than 1024**. Networks with `NETWORK_ID` ≤ 1024 cannot disambiguate a self-target and reject these exports.
+
+<Aside type="caution">
+Xahau's 80% Export witness threshold, the target account's `SignerQuorum`, and the quorum used to validate the returned XPOP are three separate decisions. Operators must keep the destination SignerList, signer weights, quorum, and validator-key lifecycle aligned with the source network.
+</Aside>
 
 ### Quick Start
 
@@ -85,13 +90,15 @@ On success, the transaction metadata contains an `ExportResult` holding an `Expo
 - derive each `Signer.Account` from its validator signing public key
 - sort the `Signers` array by `Account` (AccountID order)
 - leave the top-level `SigningPubKey` empty (`""`)
-- cap `Signers` to the target chain's multisign maximum (32 with `ExpandedSignerList`, 8 without)
+- enforce the target chain's multisign maximum (32 with `ExpandedSignerList`, 8 without)
+
+The serialization cap is defensive; it is not committee selection. Xahau refuses to publish signatures or materialize an Export when the original source authority cannot fit the destination limit.
 
 Serialize the assembled transaction and submit it to the target chain. Before relying on production exports, confirm the assembled `Signers[].Signer.Account` values are authorized by the target-chain SignerList. See the [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export#exportresult-metadata) for the full metadata shape.
 
 #### 5. Import Back (Round-Trip)
 
-After execution on the target chain, build an XPOP from the target chain's validated ledger data and submit it as an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) on Xahau to consume the shadow ticket. Callback imports still validate the XPOP's validator-list freshness and anti-downgrade rules before consuming the ticket. If the signed blob was not and will not be submitted to the target chain, cancel the shadow ticket instead.
+After execution on the target chain, build an XPOP from the target chain's validated ledger data and submit it as an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) on Xahau to consume the shadow ticket. Callback imports still validate the XPOP's validator-list freshness and anti-downgrade rules before consuming the ticket. If the target transaction executes before the shadow ticket exists, Import returns `telSHADOW_TICKET_REQUIRED` without entering consensus; relay the same XPOP again after the latch is created.
 
 ### Shadow Tickets
 
@@ -99,15 +106,21 @@ Every successful Export that carries an `ExportedTxn` creates a **shadow ticket*
 
 - **Created** on `tesSUCCESS` of the Export
 - **Consumed** when the XPOP is imported back
-- **Cancelled** via Export with `CancelTicketSequence` or `xport_cancel()` from hooks
+- **Cancelled** via Export with `CancelTicketSequence` or `xport_cancel()` from hooks, deleting the latch and freeing its reserve
+
+The ticket stores a `Digest` of the canonical target signing intent rather than one fully signed target transaction ID. Different destination-valid signer subsets have different transaction IDs but match the same latch when their non-authorization fields describe the same signing intent.
 
 <Aside type="caution">
 A shadow ticket is a pending-callback **latch**, not a permanent replay tombstone. It blocks a second *live* export for the same `(Account, TicketSequence)`, but once an Import consumes it the same inner transaction can be re-exported and the original XPOP passes the Import hash check again. The ticket path has **no protocol-level exactly-once guard** — value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the signed target-chain transaction hash, or a hook-defined business key, in Hook State).
 </Aside>
 
+<Aside type="caution">
+Cancellation does not revoke validator signatures already published in proposals. The target transaction may still execute after its source latch is deleted, in which case the returned XPOP cannot trigger the callback unless the matching latch is created again. Cancel only under an explicit recovery policy that accounts for this possibility.
+</Aside>
+
 ### Retriable Semantics
 
-If validator quorum isn't reached in the submission ledger, the Export automatically retries each ledger until `LastLedgerSequence`. If quorum is never reached, the Export expires with `tecEXPORT_EXPIRED` — the sequence is consumed cleanly and the account is not blocked.
+If validator quorum isn't reached in the submission ledger, the Export automatically retries each ledger until `LastLedgerSequence`. The same retry path applies when there is no ledger-anchored `UNLReport` or the original validator population exceeds the destination signer cap. If completion remains impossible, the Export expires with `tecEXPORT_EXPIRED` — the sequence is consumed cleanly and the account is not blocked.
 
 The open ledger can contain up to 8 pending exports total across all accounts. Separately, each account can hold up to 8 outstanding shadow tickets. If either limit is reached, new Export transactions fail with `tecDIR_FULL`.
 

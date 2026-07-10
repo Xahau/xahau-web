@@ -1,10 +1,10 @@
 ---
 title: Import
 description: >-
-  Import is a new transaction which accepts an XPOP from the XRPL Mainnet chain
-  (network_id=0) or Testnet (network_id=1) and provides account synchronisation.
+  Import accepts an XPOP from an XRPL-compatible network for account
+  synchronisation, burn-to-mint processing, or an Export callback.
 ---
-\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/Import.cpp)]
 
 _(Added by the \[Import amendment]\[].)_
 
@@ -33,6 +33,15 @@ _(Added by the \[Import amendment]\[].)_
 * If the account is Non Activated then the `Sequence` must be 0 and the `Fee` must also be 0
 * If the account is Activated then the `Sequence` and the `Fee` are calculated using the standard method.
 * If the `Issuer` field is present then the `Fee` must be calculated using the standard method.
+* An Export callback without its matching shadow ticket returns `telSHADOW_TICKET_REQUIRED` before consensus, fee or sequence consumption, and Hook execution.
+
+### Export Callbacks
+
+When the embedded XPOP transaction uses `TicketSequence`, Import treats it as the return path for a successful [Export transaction](/docs/protocol-reference/transactions/transaction-types/export). A matching shadow ticket must already exist for `(Account, TicketSequence)`.
+
+The shadow ticket matches the embedded transaction's canonical signing intent, not its fully signed transaction ID. Different destination-valid multisigner subsets for the same intent can therefore complete the callback. Import still verifies the XPOP, validator-list freshness, and target-ledger finality before Hooks run and the ticket is consumed.
+
+If the target transaction executes before Xahau creates the latch, relay the same XPOP later. If the latch was cancelled, published target signatures remain valid; cancellation is not revocation.
 
 ### Notes
 
