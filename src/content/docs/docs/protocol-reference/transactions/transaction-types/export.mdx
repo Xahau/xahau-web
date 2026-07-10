@@ -68,7 +68,7 @@ Target-chain validity is still the submitter's responsibility. The exported tran
 If the exporting Xahau network has `NETWORK_ID <= 1024`, an `ExportedTxn` with no `NetworkID` is rejected as malformed. Configure Xahau with a network ID greater than 1024 before exporting no-`NetworkID` target transactions such as XRPL mainnet transactions.
 
 <Aside type="tip">
-The target chain account must have a SignerList containing the Xahau validator public keys as signers. Create tickets on the target chain before submitting the Export. The destination signer population and policy are an operational contract: Xahau cannot inspect the remote SignerList.
+The target chain account must have a SignerList containing the Xahau validator public keys as signers. Its weights and quorum must represent authority equivalent to Xahau's Export/validation threshold. A lower threshold is a pre-finality safety gap; a higher threshold can strand a successful source latch. XRPL ledger-validation quorum remains independent and is proved later by XPOP. Xahau cannot inspect this remote policy.
 </Aside>
 
 <Aside type="caution">

@@ -32,12 +32,12 @@ Validator quorum is normally expected in the **same ledger** the Export is submi
 - The target-chain account must be the same AccountID/classic address as the outer Xahau `Account`; the inner `ExportedTxn.Account` must match it.
 - The target-chain account must have a SignerList whose signer accounts are derived from the active Xahau validator public keys, using the active validator list for the exporting network.
 - The original validator population in Xahau's ledger-anchored `UNLReport` must not exceed Xahau's 32-signer protocol bound. Export does not publish signatures or materialize while the source authority is larger, even if NegativeUNL temporarily reduces the effective view. A target chain with a lower limit requires a correspondingly smaller deployment.
-- The target SignerQuorum and signer weights must accept the validator multisig set that Xahau will produce.
+- The target SignerQuorum and signer weights must mirror Xahau's Export/validation threshold over the same validator-derived key universe.
 - Keep the target SignerList aligned with validator-set changes. A stale target SignerList can make future exported blobs fail on the target chain.
 - For XRPL-mainnet-style target transactions with no `NetworkID`, the exporting Xahau network must have a local `NETWORK_ID` **greater than 1024**. Networks with `NETWORK_ID` ≤ 1024 cannot disambiguate a self-target and reject these exports.
 
 <Aside type="caution">
-Xahau's 80% Export witness threshold, the target account's `SignerQuorum`, and the quorum used to validate the returned XPOP are three separate decisions. Operators must keep the destination SignerList, signer weights, quorum, and validator-key lifecycle aligned with the source network.
+Xahau's Export/validation threshold and the target account's `SignerQuorum` are separate mechanisms but must represent equivalent authority for the bounded MVP. A lower target threshold weakens the defense for publishing executable shares before Xahau finality; a higher threshold can leave a successful source latch without enough signatures to execute. XRPL's ledger-validation quorum is a third, independent decision proved later by XPOP.
 </Aside>
 
 ### Quick Start
@@ -117,6 +117,8 @@ A shadow ticket is a pending-callback **latch**, not a permanent replay tombston
 <Aside type="caution">
 Cancellation does not revoke validator signatures already published in proposals. The target transaction may still execute after its source latch is deleted, in which case the returned XPOP cannot trigger the callback unless the matching latch is created again. Cancel only under an explicit recovery policy that accounts for this possibility.
 </Aside>
+
+Cancellation exists so an abandoned round trip does not retain account reserve and an outstanding shadow-ticket slot forever. Treat it as resource reclamation after external evidence such as target `LastLedgerSequence` expiry, destination Ticket consumption, or SignerList invalidation, not as cancellation of the target transaction.
 
 ### Retriable Semantics
 
