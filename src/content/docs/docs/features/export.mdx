@@ -40,6 +40,8 @@ Validator quorum is normally expected in the **same ledger** the Export is submi
 Xahau's Export/validation threshold and the target account's `SignerQuorum` are separate mechanisms but must represent equivalent authority for the bounded MVP. A lower target threshold weakens the defense for publishing executable shares before Xahau finality; a higher threshold can leave a successful source latch without enough signatures to execute. XRPL's ledger-validation quorum is a third, independent decision proved later by XPOP.
 </Aside>
 
+An optional hardened SignerList profile also requires a separate executor/relayer signer. Configure its weight and `SignerQuorum` so validator quorum alone is insufficient and the executor still needs the full validator threshold. The executor adds its signature only after observing the validated Xahau latch, making proposal-exposed validator shares inert beforehand. This introduces a liveness/censorship key and consumes one signer slot, leaving room for at most 31 source validator identities in a 32-entry SignerList.
+
 ### Quick Start
 
 #### 1. Set Up the Target Chain Account
@@ -119,6 +121,8 @@ Cancellation does not revoke validator signatures already published in proposals
 </Aside>
 
 Cancellation exists so an abandoned round trip does not retain account reserve and an outstanding shadow-ticket slot forever. Treat it as resource reclamation after external evidence such as target `LastLedgerSequence` expiry, destination Ticket consumption, or SignerList invalidation, not as cancellation of the target transaction.
+
+With a mandatory executor signer, a validated cancellation observed before the executor signs can prevent target authorization. It still cannot revoke an executor signature that has already been released.
 
 ### Retriable Semantics
 
