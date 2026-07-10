@@ -75,9 +75,9 @@ The target chain account must have a SignerList containing the Xahau validator p
 Xahau publishes no Export signature shares without a ledger-anchored `UNLReport`, or when its original pre-NegativeUNL validator population exceeds Xahau's `STTx::maxMultiSigners()` bound of 32. A temporary NegativeUNL reduction does not select a smaller bridge committee. A target chain that permits only 8 signers requires an operator-enforced source deployment of at most 8; Xahau cannot inspect that remote rule.
 </Aside>
 
-#### Optional Submitter Co-Signer
+#### Required Submitter Co-Signer
 
-A destination SignerList may require a submitter co-signer, held by the target-submission process, in addition to validator quorum. If validator weights total `V` and required validator weight is `q`, assigning submitter weight `V` and `SignerQuorum = V + q` requires both. The process signs only after observing a validated source latch, so proposal-exposed validator shares cannot execute by themselves. Its key becomes a liveness/censorship dependency and consumes one SignerList entry; an expanded 32-entry list can then represent at most 31 source validator identities.
+The bounded MVP destination SignerList requires a submitter co-signer, held by the target-submission process, in addition to validator quorum. If validator weights total `V` and required validator weight is `q`, assigning submitter weight `V` and `SignerQuorum = V + q` requires both. The process signs only after observing a validated source latch, so proposal-exposed validator shares cannot execute by themselves. Its key becomes a liveness/censorship dependency and consumes one SignerList entry; an expanded 32-entry list can then represent at most 31 source validator identities. The current protocol has no committee selector for a larger UNL.
 
 ### Retriable Semantics
 

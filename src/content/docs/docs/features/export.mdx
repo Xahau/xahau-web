@@ -31,7 +31,7 @@ Validator quorum is normally expected in the **same ledger** the Export is submi
 - The target chain must support XRPL-style transactions, tickets, signer lists, and multisigning.
 - The target-chain account must be the same AccountID/classic address as the outer Xahau `Account`; the inner `ExportedTxn.Account` must match it.
 - The target-chain account must have a SignerList whose signer accounts are derived from the active Xahau validator public keys, using the active validator list for the exporting network.
-- The original validator population in Xahau's ledger-anchored `UNLReport` must not exceed Xahau's 32-signer protocol bound. Export does not publish signatures or materialize while the source authority is larger, even if NegativeUNL temporarily reduces the effective view. A target chain with a lower limit requires a correspondingly smaller deployment.
+- The original validator population in Xahau's ledger-anchored `UNLReport` must not exceed Xahau's 32-signer protocol bound. The required submitter co-signer consumes one destination entry, so the practical full-view deployment limit is 31 source validators. Export does not publish signatures or materialize while the source authority is larger, even if NegativeUNL temporarily reduces the effective view.
 - The target SignerQuorum and signer weights must mirror Xahau's Export/validation threshold over the same validator-derived key universe.
 - Keep the target SignerList aligned with validator-set changes. A stale target SignerList can make future exported blobs fail on the target chain.
 - For XRPL-mainnet-style target transactions with no `NetworkID`, the exporting Xahau network must have a local `NETWORK_ID` **greater than 1024**. Networks with `NETWORK_ID` ≤ 1024 cannot disambiguate a self-target and reject these exports.
@@ -40,7 +40,7 @@ Validator quorum is normally expected in the **same ledger** the Export is submi
 Xahau's Export/validation threshold and the target account's `SignerQuorum` are separate mechanisms but must represent equivalent authority for the bounded MVP. A lower target threshold weakens the defense for publishing executable shares before Xahau finality; a higher threshold can leave a successful source latch without enough signatures to execute. XRPL's ledger-validation quorum is a third, independent decision proved later by XPOP.
 </Aside>
 
-An optional hardened SignerList profile also requires a submitter co-signer held by the target-submission process. Configure its weight and `SignerQuorum` so validator quorum alone is insufficient and the submitter still needs the full validator threshold. It adds its signature only after observing the validated Xahau latch, making proposal-exposed validator shares inert beforehand. This introduces a liveness/censorship key and consumes one signer slot, leaving room for at most 31 source validator identities in a 32-entry SignerList.
+The bounded MVP SignerList requires a submitter co-signer held by the target-submission process. Configure its weight and `SignerQuorum` so validator quorum alone is insufficient and the submitter still needs the full validator threshold. It adds its signature only after observing the validated Xahau latch, making proposal-exposed validator shares inert beforehand. This introduces a liveness/censorship key. The current protocol does not implement a committee for larger source UNLs; that would be a separately governed destination trust model.
 
 ### Quick Start
 
