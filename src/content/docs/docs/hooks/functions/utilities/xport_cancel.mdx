@@ -16,7 +16,7 @@ import { Aside } from '@astrojs/starlight/components';
 A destination transaction may still execute after cancellation. Its returned XPOP cannot trigger the callback while the latch is absent. Use this resource-reclamation escape hatch only after external evidence such as target `LastLedgerSequence` expiry, destination Ticket consumption, or SignerList invalidation, or under an explicit recovery policy that accepts delayed target execution and callback replay. Otherwise import the target-chain proof to consume the shadow ticket.
 </Aside>
 
-If the destination SignerList requires a separate submission-authorizer key, the target-submission process can honor a validated cancellation by refusing to add its final signature. This protection applies only before that signature is broadcast or otherwise released.
+If the destination SignerList requires a submitter co-signer, the target-submission process honors a validated cancellation by refusing to add its release signature.
 
 ### Definition
 
