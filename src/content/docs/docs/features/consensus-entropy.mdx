@@ -45,42 +45,66 @@ Tier 2 is intentionally weaker than Tier 3. It can appear when the agreed entrop
 
 ### Hook API
 
-#### dice(sides, min_tier, min_count)
+#### dice(sides, min_tier)
 
 Returns a random integer in `[0, sides)`:
 
 ```c
-int64_t roll = dice(6, 3, 5);  // d6, require validator quorum, at least 5 reveals
+int64_t roll = dice(6, 3);  // d6, require validator-quorum entropy
 if (roll < 0)
     rollback(SBUF("Entropy unavailable"), 1);
 ```
 
-#### random(write_ptr, write_len, min_tier, min_count)
+#### random(write_ptr, write_len, min_tier)
 
 Writes exactly `write_len` random bytes to a buffer (`1..512` bytes). Entropy is generated internally in 32-byte blocks:
 
 ```c
 uint8_t buf[32];
-int64_t written = random(SBUF(buf), 3, 5);  // 32 bytes of validator-quorum random data
+int64_t written = random(SBUF(buf), 3);  // 32 bytes of validator-quorum random data
 if (written != sizeof(buf))
     rollback(SBUF("Entropy unavailable"), 1);
 ```
 
-Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy doesn't meet the stated requirements. There are no default parameters — hooks must explicitly choose their entropy quality at every call site.
+Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy is below the stated tier. There is no default — hooks must explicitly choose their entropy quality at every call site.
 
-`min_count` is the number of validator reveals required by the caller. Higher values fail closed more often on small or degraded networks, so choose it from the expected active validator/reveal count for the target network. The `ConsensusEntropy` object records `EntropyDenominator` — the active validator view size for the accepted result — so you can read the actual participation ratio (`EntropyCount / EntropyDenominator`) to calibrate `min_count` deliberately. It also records `EntropyContributors`, a bitmap over the canonical active validator view, so operators and applications can inspect which validators contributed over time. For applications that depend on unpredictable outcomes, require tier 3 (or tier 4, `validator_full`, to reject any round where an active validator withheld) and choose `min_count` according to the network's validator assumptions.
+#### entropy_status()
+
+Returns the current ledger's entropy metadata — tier, reveal count, and participation denominator — packed into a single non-negative value, so hooks can enforce any participation policy in their own code:
+
+```c
+int64_t status = entropy_status();
+if (status < 0)
+    rollback(SBUF("Entropy unavailable"), 1);
+
+uint32_t tier = ENTROPY_TIER(status);
+uint32_t count = ENTROPY_COUNT(status);
+uint32_t denominator = ENTROPY_DENOMINATOR(status);
+
+// Classify the tier before any count/denominator arithmetic:
+// consensus fallback is tier 1 with count = denominator = 0.
+if (tier < 3)
+    rollback(SBUF("Validator entropy required"), 1);
+
+// Example policy: at least 4/5 of active validators contributed.
+if ((uint64_t)5 * count < (uint64_t)4 * denominator)
+    rollback(SBUF("Insufficient participation"), 1);
+
+int64_t roll = dice(6, 3);
+```
+
+The `ENTROPY_TIER`, `ENTROPY_COUNT`, and `ENTROPY_DENOMINATOR` macros ship with the hook API headers. Common policies include tolerating a single absent validator (`denominator - count <= 1`), requiring a participation ratio (`5*count >= 4*denominator`, computed with widened arithmetic), or requiring an absolute reveal floor (`count >= 20`). `entropy_status()` exposes metadata only — the entropy digest itself is never exposed to hooks; randomness is only drawn through `dice()` and `random()`.
 
 ### Choosing Tier Requirements
 
-| Application | Suggested `min_tier` | Suggested `min_count` |
-|-------------|---------------------|----------------------|
-| Highest-assurance (reject any withholding) | 4 | Network-specific |
-| Lottery / raffle | 3 | Network-specific |
-| Game with real stakes | 3 | Network-specific |
-| Degraded-network outcome that explicitly accepts weaker entropy | 2 | Network-specific |
-| Random selection (non-financial) | 1 | 0 |
-| Cosmetic shuffling | 1 | 0 |
-| Moderate-value outcome | 3 | 1 |
+| Application | Suggested `min_tier` | Additional policy via `entropy_status()` |
+|-------------|---------------------|------------------------------------------|
+| Highest-assurance (reject any withholding) | 4 | None needed — tier 4 already means every active validator contributed |
+| Lottery / raffle | 3 | e.g. tolerate one absentee: `denominator - count <= 1` |
+| Game with real stakes | 3 | e.g. participation ratio: `5*count >= 4*denominator` |
+| Degraded-network outcome that explicitly accepts weaker entropy | 2 | Application-specific |
+| Random selection (non-financial) | 1 | None |
+| Cosmetic shuffling | 1 | None |
 
 ### Determinism
 
@@ -101,3 +125,4 @@ Standalone single-node execution injects synthetic tier-4 (`validator_full`) ent
 <LinkCard title="ConsensusEntropy Ledger Object" href="/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy" />
 <LinkCard title="dice() Reference" href="/docs/hooks/functions/utilities/dice" />
 <LinkCard title="random() Reference" href="/docs/hooks/functions/utilities/random" />
+<LinkCard title="entropy_status() Reference" href="/docs/hooks/functions/utilities/entropy-status" />

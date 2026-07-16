@@ -11,7 +11,7 @@ import { Aside } from '@astrojs/starlight/components';
 - Writes random bytes to the buffer pointed to by `write_ptr`, derived from the current ledger's consensus entropy.
 - Writes exactly `write_len` bytes and returns `write_len` on success. Internally, entropy is generated in 32-byte blocks and rounded up as needed.
 - `write_len` must be between 1 and 512 bytes.
-- The hook must specify minimum entropy quality requirements (`min_tier`, `min_count`). If the current ledger's entropy does not meet these requirements, the call fails with `TOO_LITTLE_ENTROPY`.
+- The hook must specify a minimum entropy tier (`min_tier`). If the current ledger's entropy is below it, the call fails with `TOO_LITTLE_ENTROPY`.
 
 ### Definition
 
@@ -19,8 +19,7 @@ import { Aside } from '@astrojs/starlight/components';
 int64_t random (
     uint32_t write_ptr,
     uint32_t write_len,
-    uint32_t min_tier,
-    uint32_t min_count
+    uint32_t min_tier
 );
 ```
 
@@ -29,13 +28,13 @@ int64_t random (
 ```c
 // Get 32 random bytes, require validator quorum tier
 uint8_t buf[32];
-int64_t result = random(SBUF(buf), 3, 5);
+int64_t result = random(SBUF(buf), 3);
 if (result < 0)
     rollback(SBUF("No entropy available"), 1);
 
 // Get 64 random bytes, accept any valid tier
 uint8_t seed[64];
-int64_t seed_written = random(SBUF(seed), 1, 0);
+int64_t seed_written = random(SBUF(seed), 1);
 if (seed_written != sizeof(seed))
     rollback(SBUF("No entropy available"), 1);
 ```
@@ -47,10 +46,9 @@ if (seed_written != sizeof(seed))
 | `write_ptr` | uint32_t | Pointer to the output buffer.                                                     |
 | `write_len` | uint32_t | Length of the output buffer. Must be between 1 and 512 bytes.                      |
 | `min_tier`  | uint32_t | Minimum entropy tier required: `1` = consensus fallback, `2` = participant aligned, `3` = validator quorum, `4` = validator full (reveals from every active validator). |
-| `min_count` | uint32_t | Minimum number of validator reveals required. Use `0` to accept any count.        |
 
 <Aside type="caution">
-Applications that depend on unpredictable outcomes should require `min_tier=3` (or `min_tier=4` to reject any round where an active validator withheld its reveal) and choose `min_count` according to their validator/network assumptions. For cosmetic randomness, `min_tier=1, min_count=0` is acceptable.
+Applications that depend on unpredictable outcomes should require `min_tier=3` (or `min_tier=4` to reject any round where an active validator withheld its reveal). For finer participation policies — reveal-count floors or ratios — read [`entropy_status()`](/docs/hooks/functions/utilities/entropy-status) and enforce them in hook code before drawing bytes. For cosmetic randomness, `min_tier=1` is acceptable.
 </Aside>
 
 <Aside type="note">
@@ -61,7 +59,7 @@ Open-ledger hook execution is provisional and uses the previous ledger's entropy
 
 | Type    | Description                                                                                          |
 | ------- | ---------------------------------------------------------------------------------------------------- |
-| int64_t | The number of bytes written on success, equal to `write_len`. If negative, an error: `TOO_SMALL` — `write_len` is `0`. `TOO_BIG` — `write_len` is greater than `512`. `OUT_OF_BOUNDS` — pointers/lengths specified outside of hook memory. `INVALID_ARGUMENT` — `min_tier` is outside `1..4` or the requirements are malformed. `TOO_LITTLE_ENTROPY` — entropy is unavailable, stale, or below the specified `min_tier` / `min_count` requirements. |
+| int64_t | The number of bytes written on success, equal to `write_len`. If negative, an error: `TOO_SMALL` — `write_len` is `0`. `TOO_BIG` — `write_len` is greater than `512`. `OUT_OF_BOUNDS` — pointers/lengths specified outside of hook memory. `INVALID_ARGUMENT` — `min_tier` is outside `1..4`. `TOO_LITTLE_ENTROPY` — entropy is unavailable, stale, or below the specified `min_tier`. |
 
 ### Determinism
 
@@ -72,3 +70,4 @@ Each call to `random()` uses different derivation input, even within the same ho
 - [Consensus Entropy overview](/docs/features/consensus-entropy)
 - [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
 - [dice()](/docs/hooks/functions/utilities/dice)
+- [entropy_status()](/docs/hooks/functions/utilities/entropy-status)

@@ -12,7 +12,7 @@ _(Added by the \[ConsensusEntropy amendment]\[].)_
 
 The `ConsensusEntropy` object is a singleton ledger entry that stores the per-ledger entropy digest and participation metadata produced by the validator commit/reveal scheme. It is updated each ledger by a `ttCONSENSUS_ENTROPY` pseudo-transaction injected deterministically at ledger build time.
 
-Hooks consume this entropy through the `dice()` and `random()` hook API functions.
+Hooks consume this entropy through the `dice()` and `random()` hook API functions, and read the participation metadata (tier, reveal count, denominator) through `entropy_status()`.
 
 ### Fields
 
@@ -69,3 +69,4 @@ Standalone mode labels this synthetic entropy as tier 4 (`validator_full`) with 
 - [Consensus Entropy overview](/docs/features/consensus-entropy)
 - [dice()](/docs/hooks/functions/utilities/dice)
 - [random()](/docs/hooks/functions/utilities/random)
+- [entropy_status()](/docs/hooks/functions/utilities/entropy-status)

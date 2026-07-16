@@ -1,0 +1,78 @@
+---
+title: entropy_status
+description: >-
+  Read the current ledger's consensus entropy metadata — tier, reveal count,
+  and participation denominator — as a single packed value.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+- Returns the current ledger's consensus entropy metadata packed into a single non-negative `int64_t`: entropy tier, validator reveal count, and participation denominator.
+- Takes no arguments and writes nothing to hook memory.
+- Exposes metadata only. The entropy digest itself is never exposed to hooks — randomness is only drawn through [`dice()`](/docs/hooks/functions/utilities/dice) and [`random()`](/docs/hooks/functions/utilities/random).
+
+### Definition
+
+```c
+int64_t entropy_status ();
+```
+
+### Packed Return Layout
+
+| Bits    | Value       | Extraction macro      |
+| ------- | ----------- | --------------------- |
+| 32..39  | Entropy tier (`1..4`) | `ENTROPY_TIER(status)` |
+| 16..31  | Validator reveal count | `ENTROPY_COUNT(status)` |
+| 0..15   | Participation denominator | `ENTROPY_DENOMINATOR(status)` |
+
+The `ENTROPY_TIER`, `ENTROPY_COUNT`, and `ENTROPY_DENOMINATOR` macros ship with the hook API headers. Every valid packed status is non-negative; check for a negative error before applying the macros.
+
+### Example
+
+```c
+int64_t status = entropy_status();
+if (status < 0)
+    rollback(SBUF("Entropy unavailable"), 1);
+
+uint32_t tier = ENTROPY_TIER(status);
+uint32_t count = ENTROPY_COUNT(status);
+uint32_t denominator = ENTROPY_DENOMINATOR(status);
+
+// Classify the tier before any count/denominator arithmetic:
+// consensus fallback is tier 1 with count = denominator = 0.
+if (tier < 3)
+    rollback(SBUF("Validator entropy required"), 1);
+
+// Example participation policies:
+// tolerate a single absent validator
+if (denominator - count > 1)
+    rollback(SBUF("Too many absentees"), 1);
+
+// or: require at least 4/5 participation (widened arithmetic)
+if ((uint64_t)5 * count < (uint64_t)4 * denominator)
+    rollback(SBUF("Insufficient participation"), 1);
+
+int64_t roll = dice(6, 3);
+```
+
+<Aside type="caution">
+Always classify the tier before doing count/denominator arithmetic. Consensus fallback is tier `1` with `count = denominator = 0` — ratio or subtraction policies evaluated against those zeros without a tier check will not mean what you expect.
+</Aside>
+
+<Aside type="note">
+Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `entropy_status()` output can differ between preview and final execution.
+</Aside>
+
+### Return Code
+
+| Type    | Description                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------- |
+| int64_t | A non-negative packed status on success (see layout above). If negative, an error: `DOESNT_EXIST` — no consensus entropy entry is available. `INTERNAL_ERROR` — the entropy entry is malformed. |
+
+### Related
+
+- [Consensus Entropy overview](/docs/features/consensus-entropy)
+- [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
+- [dice()](/docs/hooks/functions/utilities/dice)
+- [random()](/docs/hooks/functions/utilities/random)
