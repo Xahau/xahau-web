@@ -103,7 +103,7 @@ This amendment adds a new field to HookSet objects: `HookCanEmit` is syntactical
 
 ##### Export
 
-Enables [Export transactions](/docs/protocol-reference/transactions/transaction-types/export), allowing a Xahau account or Hook to create a cross-chain transaction that the active validator set collectively multisigns. Successful exports produce an `ExportResult` in metadata (a reference to the validator signatures, which clients assemble into the submittable transaction); exports that carry an inner transaction also create a shadow ticket keyed to the canonical target signing intent. Signature publication requires a ledger-anchored validator view whose original population fits the destination multisign cap (see [Cross-Chain Export](/docs/features/export#shadow-tickets)).
+Enables [Export transactions](/docs/protocol-reference/transactions/transaction-types/export), allowing a Xahau account or Hook to create an immutable [ExportCommittee](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee) and record a target-chain transaction intent for that committee to multisign. Validators release shares only after the source ledger validates; shares are streamed immediately, while a later [ExportSignatures witness](/docs/protocol-reference/transactions/pseudo-transaction-types/export-signatures) records the exact release-stamped target transaction and signature quorum. An account-owned [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch), keyed by the source Export transaction hash, coordinates publication, witness, cancellation, and returned-XPOP arrival.
 
 ##### ConsensusEntropy
 

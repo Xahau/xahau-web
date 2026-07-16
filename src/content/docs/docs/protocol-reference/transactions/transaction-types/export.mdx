@@ -1,21 +1,38 @@
 ---
 title: Export
 description: >-
-  Export creates a cross-chain transaction on Xahau that the validator set
-  collectively multisigns, producing validator signatures clients assemble for
-  a target chain.
+  Export manages validator committees and records target-chain transaction
+  intents for post-validation multisigning.
 ---
 import { Aside } from '@astrojs/starlight/components';
 
 \[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/Export.cpp)]
 
-_(Added by the \[Export amendment]\[].)_
+_(Added by the \[Export amendment][].)_
 
-An Export transaction lets a Xahau account create a transaction for another chain (e.g. XRPL mainnet) that the Xahau validator set collectively multisigns. No single party holds the signing keys — the validator UNL acts as a distributed signer.
+An Export transaction has four mutually exclusive forms:
 
-The inner transaction (`ExportedTxn`) is signed by validators during the consensus round. On success, the transaction metadata contains an `ExportResult` that references the collected validator signatures (via `ExportSignatureHash`); clients assemble the submittable multisigned transaction from that reference (see [ExportResult Metadata](#exportresult-metadata)).
+- **Committee setup:** create an immutable account-owned validator roster.
+- **Intent:** admit an unsigned target transaction using an existing committee, optionally creating the matching committee in the same transaction.
+- **Latch control:** stop publication for, or erase, an existing ExportLatch identified by W.
+- **Committee deletion:** erase an unused committee object.
 
-### Example
+Committee members sign only after the ledger containing an intent is validated. A later `ExportSignatures` pseudo-transaction records the release-stamped target transaction and sufficient signatures.
+
+### Committee Setup Example
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "Fee": "1000000",
+  "ExportCommittee": "[CONCATENATED_33_BYTE_MASTER_KEYS_HEX]"
+}
+```
+
+Xahau canonicalizes the roster and derives its `ExportCommitteeHash`. The object can then be referenced by direct transactions and Hooks.
+
+### Intent Example
 
 ```json
 {
@@ -23,6 +40,7 @@ The inner transaction (`ExportedTxn`) is signed by validators during the consens
   "Account": "rYourAccount...",
   "Fee": "1000000",
   "LastLedgerSequence": 12345680,
+  "ExportCommitteeHash": "[COMMITTEE_DIGEST]",
   "ExportedTxn": {
     "TransactionType": "Payment",
     "Account": "rYourAccount...",
@@ -38,141 +56,154 @@ The inner transaction (`ExportedTxn`) is signed by validators during the consens
 }
 ```
 
-The two `LastLedgerSequence` values are absolute ledger indexes, not durations. The outer value is for the Xahau Export; the inner value is for the target-chain transaction.
+To create and use a committee atomically, include the matching `ExportCommittee` roster as well as `ExportCommitteeHash` in the intent.
 
-### Fields
+### Latch Control Examples
 
-| Field                  | JSON Type | \[Internal Type]\[] | Required? | Description                                                                      |
-| ---------------------- | --------- | ------------------- | --------- | -------------------------------------------------------------------------------- |
-| `ExportedTxn`          | Object    | STObject            | Yes, unless `CancelTicketSequence` is used | The inner transaction to be multisigned by validators for the target chain.      |
-| `CancelTicketSequence` | Number    | UInt32              | Yes, unless `ExportedTxn` is used | Ticket sequence of a shadow ticket to delete, releasing its owner reserve. This does not revoke published signatures. |
-| `LastLedgerSequence`   | Number    | UInt32              | No, but strongly recommended | Top-level retry deadline for the Xahau Export transaction. Without it, an Export that cannot reach validator signature quorum continues retrying instead of expiring cleanly. |
-
-Exactly one of `ExportedTxn` or `CancelTicketSequence` must be present. Including both, or neither, makes the transaction malformed.
-
-### Inner Transaction Rules
-
-The `ExportedTxn` object is checked by Xahau for these rules:
-
-| Field              | Requirement                                                                                     |
-| ------------------ | ----------------------------------------------------------------------------------------------- |
-| `Account`          | Must match the outer Export transaction's `Account`.                                             |
-| `Sequence`         | Must be `0`.                                                                                     |
-| `TicketSequence`   | Required. A pre-created ticket on the target chain.                                              |
-| `NetworkID`        | Omit when targeting XRPL mainnet (which has no NetworkID). Must NOT match Xahau's NetworkID if set. |
-| `SigningPubKey`    | Required and empty. `TxnSignature` and `Signers` must be absent; validators authorize the unsigned multisign envelope. |
-| `LastLedgerSequence`| Set generously — the transaction won't execute until you submit it to the target chain.          |
-
-Target-chain validity is still the submitter's responsibility. The exported transaction should use a fee high enough for target-chain multisign overhead, and the produced target-chain blob uses an empty `SigningPubKey` plus validator multisigners.
-
-If the exporting Xahau network has `NETWORK_ID <= 1024`, an `ExportedTxn` with no `NetworkID` is rejected as malformed. Configure Xahau with a network ID greater than 1024 before exporting no-`NetworkID` target transactions such as XRPL mainnet transactions.
-
-<Aside type="tip">
-The target chain account must have a SignerList containing the Xahau validator public keys as signers. Its weights and quorum must represent authority equivalent to Xahau's Export/validation threshold. A lower threshold is a pre-finality safety gap; a higher threshold can strand a successful source latch. XRPL ledger-validation quorum remains independent and is proved later by XPOP. Xahau cannot inspect this remote policy.
-</Aside>
-
-<Aside type="caution">
-Xahau publishes no Export signature shares without a ledger-anchored `UNLReport`, or when its original pre-NegativeUNL validator population exceeds Xahau's `STTx::maxMultiSigners()` bound of 32. A temporary NegativeUNL reduction does not select a smaller bridge committee. A target chain that permits only 8 signers requires an operator-enforced source deployment of at most 8; Xahau cannot inspect that remote rule.
-</Aside>
-
-#### Required Submitter Co-Signer
-
-The bounded MVP destination SignerList requires a submitter co-signer, held by the target-submission process, in addition to validator quorum. If validator weights total `V` and required validator weight is `q`, assigning submitter weight `V` and `SignerQuorum = V + q` requires both. The process signs only after observing a validated source latch, so proposal-exposed validator shares cannot execute by themselves. Its key becomes a liveness/censorship dependency and consumes one SignerList entry; an expanded 32-entry list can then represent at most 31 source validator identities. The current protocol has no committee selector for a larger UNL.
-
-### Retriable Semantics
-
-Export is retriable — if validator signature quorum is not reached in the submission ledger, the transaction retries in subsequent ledgers until the **outer Export transaction's** `LastLedgerSequence`:
-
-| Condition                    | Result              | Description                                       |
-| ---------------------------- | ------------------- | ------------------------------------------------- |
-| Quorum met before LLS        | `tesSUCCESS`        | Signatures collected, ExportResult in metadata.    |
-| No quorum, before LLS        | `terRETRY_EXPORT`   | Retries automatically in the next ledger.          |
-| No ledger-anchored validator view | `terRETRY_EXPORT` | No executable shares are published; retries automatically. |
-| Original validator population exceeds target cap | `terRETRY_EXPORT` | No executable shares are published; retries automatically. |
-| Quorum met at LLS             | `tesSUCCESS`        | Final chance, quorum reached.                      |
-| No quorum at LLS              | `tecEXPORT_EXPIRED` | Export expires cleanly. Sequence consumed.         |
-| Past LLS                      | `tefMAX_LEDGER`     | Never reaches doApply.                             |
-
-<Aside type="note">
-Validator quorum is normally expected in the same ledger the Export is submitted. If quorum is not reached, the Export follows the retriable path above.
-</Aside>
-
-### Shadow Tickets
-
-When an Export carrying `ExportedTxn` succeeds, a **shadow ticket** is created on Xahau keyed by `(Account, TicketSequence)`. Its `Digest` is the canonical signing hash of the normalized target transaction, independent of `Signers`, `TxnSignature`, and `SigningPubKey`. Therefore, any destination-valid signer subset for that exact signing intent can complete the callback even though each subset has a different target transaction ID.
-
-A shadow ticket is a pending-callback **latch**, not a permanent replay tombstone — it blocks a second live export for the same `(Account, TicketSequence)`, but does not prevent re-export of the identical inner transaction after the ticket is consumed. The ticket path has no protocol-level exactly-once guard; value-bearing import-callback hooks must implement their own replay protection (for example, deduplicating on the signed target-chain transaction hash, or a hook-defined business key, in Hook State).
-
-- **Created**: on `tesSUCCESS` of the Export transaction
-- **Consumed**: when the corresponding XPOP is imported back to Xahau via an `Import` transaction
-- **Cancelled**: by submitting another Export with the `CancelTicketSequence` field, or via the `xport_cancel()` hook API
-
-### ExportResult Metadata
-
-On success, the transaction metadata contains an `ExportResult` object that **references** the validator signatures rather than embedding the assembled transaction:
+Stop further publication while retaining callback readiness:
 
 ```json
 {
-  "ExportResult": {
-    "LedgerSequence": 42,
-    "TransactionHash": "ABC123...",
-    "ExportSignatureHash": "DEF456..."
-  }
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "TransactionHash": "[W]"
 }
 ```
 
-- `LedgerSequence` — the Xahau ledger in which validator quorum was reached
-- `TransactionHash` — the hash of the outer Xahau Export transaction
-- `ExportSignatureHash` — a reference to the per-export `ttEXPORT_SIGNATURES` witness pseudo-transaction that carries the collected validator signatures
+Erase the latch and forfeit any later callback:
 
-The metadata no longer contains a ready-to-submit blob. Clients assemble the target-chain transaction from the original `ExportedTxn` template plus the witness signatures, applying Xahau's canonical contract:
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "TransactionHash": "[W]",
+  "Flags": 65536
+}
+```
 
-- derive each `Signer.Account` from its validator signing public key
-- sort the `Signers` array by `Account` (AccountID order)
-- leave the top-level `SigningPubKey` empty (`""`)
-- enforce the destination protocol maximum (`STTx::maxMultiSigners()` — 32 with `ExpandedSignerList`, 8 without)
+`65536` is `tfExportEraseLatch` (`0x00010000`).
 
-The shadow ticket does not store the assembled transaction ID. It stores the canonical signing-intent hash, so another valid signer subset for the same target transaction still matches during Import.
+### Committee Deletion Example
 
-### Completing the Round-Trip
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "ExportCommitteeHash": "[COMMITTEE_DIGEST]",
+  "Flags": 131072
+}
+```
 
-After target-chain execution, submit an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) with an XPOP to consume the shadow ticket. Callback imports still validate the XPOP's validator-list freshness and anti-downgrade rules before consuming the ticket.
+`131072` is `tfExportEraseCommittee` (`0x00020000`). Committee deletion is rejected while the account owns any live Export latch.
 
-If a valid callback XPOP arrives before the matching shadow ticket exists, Import returns `telSHADOW_TICKET_REQUIRED` before consensus, fees, sequence consumption, or Hook execution. Relay the same XPOP again after the latch appears. Deleting a latch does not revoke signatures already published to the peer network.
+### Fields
+
+| Field | JSON Type | \[Internal Type]\[] | Used by | Description |
+| ----- | --------- | ------------------- | ------- | ----------- |
+| `ExportedTxn` | Object | STObject | Intent | The unsigned target-chain transaction. |
+| `TransactionHash` | String | Hash256 | Latch control | W, the source Export transaction hash identifying the latch. |
+| `ExportCommitteeHash` | String | Hash256 | Intent or committee deletion | Content digest identifying an account-owned ExportCommittee. Required by every intent. |
+| `ExportCommittee` | String | Blob | Committee setup or inline intent | One to 32 concatenated compressed validator master public keys. |
+| `LastLedgerSequence` | Number | UInt32 | Intent | Mandatory outer admission deadline, at most five Xahau ledgers beyond the ledger evaluating the transaction. It does not set the post-validation publication deadline. |
+| `Flags` | Number | UInt32 | Control forms | `tfExportEraseLatch` erases a latch; `tfExportEraseCommittee` erases a committee. Intent and setup accept no Export-specific flag. |
+
+The form is selected by its fields. Mixing unrelated forms is malformed.
+
+### Committee Objects and Eligibility
+
+`ExportCommittee` contains compressed validator **master** public keys. Xahau sorts the supplied keys lexicographically, rejects duplicates or invalid encodings, and stores the canonical bytes in an [ExportCommittee ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee). Its digest commits to the canonical member count and roster and is independent of network ID.
+
+A bare setup transaction checks only the roster's structure, so an account can stage a future committee. Every actual intent checks that every committee master appears in the admitting ledger's immediate-parent `UNLReport` before NegativeUNL subtraction. If the parent report is unavailable or any member is absent, the intent returns `tecEXPORT_COMMITTEE_UNAVAILABLE` and creates no latch.
+
+There is no protocol-default committee. An intent that omits an inline roster must reference an existing object owned by the same account. The source content threshold is fixed at `ceil(0.8 * committee size)` and cannot be lowered by the transaction.
+
+An account can own multiple immutable committees. Committee deletion requires that the account have no live Export latches, including latches that have already received a witness, because witness replay still resolves committee membership from ledger state.
+
+### Target Transaction Rules
+
+Xahau checks `ExportedTxn` as follows:
+
+| Field | Requirement |
+| ----- | ----------- |
+| `Account` | Must match the outer Export `Account`. |
+| `Sequence` | Must be `0`. |
+| `TicketSequence` | Required and nonzero. A second live Export from the same account cannot reuse the same target Ticket. |
+| `NetworkID` | If present, must not equal Xahau's local NetworkID. If absent, the local source NetworkID must be greater than 1024. |
+| `SigningPubKey` | Required and empty. `TxnSignature` and `Signers` must be absent. |
+| `Memos` | Ordinary Memos are preserved. The reserved MemoType `xahau/export` must be absent because the protocol appends it after validation. |
+| `LastLedgerSequence` | Optional to Xahau but recommended as a finite target-chain validity bound. |
+
+The target fee, Ticket availability, SignerList membership, signer weights, and target-chain validity remain the integrator's responsibility.
+
+### Admission and Publication
+
+A valid intent returns `tesSUCCESS` and creates an [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch) keyed by `(Account, W)`, where W is the source Export transaction ID. It does not wait for signatures and does not use `terRETRY_EXPORT`.
+
+The outer `LastLedgerSequence` bounds only admission. On admission, Xahau writes a separate publication deadline to the latch. Selected validators release shares only after exact source-ledger validation. If publication ends before a witness forms, signing work stops but the latch, owner reserve, and Import callback readiness remain until completion or explicit erase.
+
+The admitted ledger can contain at most 8 Export intents. An account can own at most 8 live latches, and the global pending-signature directory can contain at most 64 latches.
+
+### Release-Stamped Target
+
+After source validation, validators append a canonical final `xahau/export` Memo to the base target transaction. The Memo commits to the source and target network IDs, W, and the exact validated source ledger sequence and hash. Existing Memos remain byte-identical and in their original order.
+
+Validators sign that stamped transaction. The later [ExportSignatures witness](/docs/protocol-reference/transactions/pseudo-transaction-types/export-signatures) stores the exact unsigned stamped transaction and the signature entries. The original Export metadata is not retroactively changed.
+
+### Target SignerList
+
+The target account must authorize accounts derived from the committee members' current validator signing public keys. Its weights and `SignerQuorum` should require the authority intended by the account operator. Xahau validates live signing-key-to-master-key manifest attribution but cannot inspect the target SignerList.
+
+<Aside type="caution">
+Validator manifest rotation can change a signing-key-derived target account. Integrators must update the target SignerList under their own handoff policy. A separately required operator signer can add a destination-specific approval gate, but it is optional and consumes one of the target chain's signer slots.
+</Aside>
+
+### Latch Control
+
+Control with no Export-specific flag removes the latch from pending publication and marks it stopped. It deliberately retains the latch, owner reserve, and callback readiness because already published shares may still execute on the target chain.
+
+Control with `tfExportEraseLatch` removes the latch and releases the reserve in any state. It also intentionally forfeits callback handling for any later XPOP.
+
+Neither control form revokes signatures already released. A nonexistent or wrong-account W returns `tecNO_ENTRY`.
+
+### Completing the Round Trip
+
+After target execution validates, submit an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) containing its XPOP. Import reads the canonical final Memo, uses `(Account, W)` to locate the latch, and verifies that the normalized target signing intent matches.
+
+Witness and XPOP arrival are symmetric:
+
+- Witness first stores its transaction hash on the latch.
+- XPOP first records that the proof has arrived.
+- The second fact erases the latch and releases its reserve.
+
+The witness is not a gate on Hook callback execution. A stream assembler may execute the target transaction before the witness appears on Xahau.
 
 ### Error Cases
 
-| Error Code          | Cause                                                          |
-| ------------------- | -------------------------------------------------------------- |
-| `temMALFORMED`      | Inner transaction fails validation rules (wrong Account, etc.) |
-| `tecDIR_FULL`       | The open ledger already contains the maximum number of pending exports, or the account already has the maximum number of shadow tickets. |
-| `tecEXPORT_EXPIRED` | `LastLedgerSequence` reached without achieving quorum.          |
-| `tecNO_ENTRY`       | A cancel export specified a shadow ticket that does not exist or does not match this account. |
-| `tefMAX_LEDGER`     | Transaction submitted after its `LastLedgerSequence`.           |
+| Error Code | Cause |
+| ---------- | ----- |
+| `temDISABLED` | The Export amendment is not enabled. |
+| `temMALFORMED` | The operation forms are mixed or absent; committee bytes or digest are invalid; target authorization, Ticket, network, or reserved Memo rules fail; or an intent lacks its required outer deadline. |
+| `temINVALID_FLAG` | The selected form uses unsupported flags. |
+| `tecNO_ENTRY` | An intent references no matching committee, or a control transaction references no matching object. |
+| `tecEXPORT_COMMITTEE_UNAVAILABLE` | The parent has no usable `UNLReport`, or at least one selected committee master is absent from its pre-NegativeUNL view. |
+| `tecHAS_OBLIGATIONS` | Committee deletion was requested while the account still owns a live Export latch. |
+| `tecDIR_FULL` | The per-ledger, per-account, global pending, or owner-directory limit is reached. |
+| `tecDUPLICATE` | A latch already exists for W, or another live latch for the account uses the same target Ticket. |
+| `tecINSUFFICIENT_RESERVE` | The account cannot fund a new committee or latch owner reserve. |
+| `tefMAX_LEDGER` | The intent is processed after its outer `LastLedgerSequence`. |
 
 ### Hook API
 
-Hooks can programmatically export transactions using the `xport` API:
+Hooks use `xport_reserve()` and `xport()` to emit the intent form. `xport()` receives the 32-byte digest of an existing account-owned committee and writes W to the supplied output buffer. It does not silently choose a committee.
 
-```c
-if (xport_reserve(1) < 0)
-    rollback(SBUF("Export reserve failed"), 1);
-
-// ... build inner tx blob ...
-
-uint8_t hash[32];
-int64_t result = xport(SBUF(hash), SBUF(tx_blob));  // returns the emitted Export wrapper tx hash
-if (result < 0)
-    rollback(SBUF("Export failed"), 1);
-
-xport_cancel(ticket_seq);  // cancel a shadow ticket
-```
-
-The emitted export flows through the same validator multisigning process as a user-submitted Export transaction. Hooks can reserve up to two exports per execution with `xport_reserve()`.
+`xport_cancel()` accepts W plus flags: `0` stops publication and retains the latch; `tfExportEraseLatch` erases it.
 
 ### Related
 
 - [Cross-Chain Export overview](/docs/features/export)
+- [ExportCommittee ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee)
+- [ExportSignatures witness](/docs/protocol-reference/transactions/pseudo-transaction-types/export-signatures)
+- [ExportLatch ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch)
 - [xport()](/docs/hooks/functions/utilities/xport)
 - [xport_reserve()](/docs/hooks/functions/utilities/xport_reserve)
 - [xport_cancel()](/docs/hooks/functions/utilities/xport_cancel)

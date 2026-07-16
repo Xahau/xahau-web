@@ -54,6 +54,12 @@ A `UNLReport` object has the following fields:
 | `PublicKey` | String    | VL                  | Yes       | The public key of the active validator.                                   |
 | `Account`   | String    | Account             | No        | The account associated with the active validator. This field is optional. |
 
+### Use by Export
+
+An account-owned [ExportCommittee](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee) stores a canonical list of validator master public keys. When an [Export intent](/docs/protocol-reference/transactions/transaction-types/export) is admitted, every committee member must appear in the exact parent ledger's pre-NegativeUNL `ActiveValidators` set. If any member is absent, the intent returns `tecEXPORT_COMMITTEE_UNAVAILABLE`.
+
+The `UNLReport` does not store Export committees or current validator signing keys. It anchors validator master identities; during live share processing, xahaud resolves each selected master to its current signing key through the manifest system.
+
 ### UNLReport ID Format
 
 The `UNLReport` object ID is the hash of the `UNLReport` space key (`0x0052`) only. This means that the ID of the `UNLReport` object in a ledger is always:

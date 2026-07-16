@@ -1,0 +1,81 @@
+---
+title: ExportCommittee
+description: >-
+  An immutable account-owned roster of validator master keys used to authorize
+  post-validation Export signatures.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/include/xrpl/protocol/detail/ledger_entries.macro)]
+
+_(Added by the \[Export amendment][].)_
+
+An `ExportCommittee` stores an immutable canonical roster of validator master public keys for one account. An [Export transaction](/docs/protocol-reference/transactions/transaction-types/export) creates the object, and later Export intents reference it by `ExportCommitteeHash`.
+
+The owning account pays one owner reserve while the object exists. An account can own multiple committees.
+
+### Example JSON
+
+```json
+{
+  "LedgerEntryType": "ExportCommittee",
+  "Account": "rYourAccount...",
+  "ExportCommitteeHash": "[COMMITTEE_DIGEST]",
+  "ExportCommittee": "[CANONICAL_CONCATENATED_MASTER_KEYS_HEX]",
+  "OwnerNode": "0000000000000000",
+  "index": "[LEDGER_OBJECT_ID]"
+}
+```
+
+### Fields
+
+| Field | JSON Type | \[Internal Type]\[] | Description |
+| ----- | --------- | ------------------- | ----------- |
+| `LedgerEntryType` | String | UInt16 | The value mapped to `ExportCommittee`. |
+| `Account` | String | AccountID | Account that owns the committee and pays its reserve. |
+| `ExportCommitteeHash` | String | Hash256 | Network-neutral content digest of the canonical roster. |
+| `ExportCommittee` | String | Blob | Between 1 and 32 lexicographically sorted, concatenated 33-byte compressed validator master public keys. |
+| `OwnerNode` | String | UInt64 | Page hint for the account owner directory. |
+
+### Canonical Roster and Digest
+
+Committee setup accepts public keys in any order. Xahau validates each compressed key, sorts the keys lexicographically, rejects duplicates, and stores the resulting canonical bytes.
+
+`ExportCommitteeHash` is the SHA-512Half of these values concatenated in order:
+
+- The `ECM` Export-committee hash prefix.
+- The committee member count as a 32-bit integer.
+- The canonical concatenated roster bytes.
+
+The digest does not include network ID or account ID. The ledger object key includes the owning account, so two accounts can use the same roster and digest while owning separate objects.
+
+### Eligibility and Quorum
+
+A committee object records policy; it does not prove that its members are currently eligible. Bare setup may stage a future roster. Whenever an Export intent uses the committee, Xahau checks every master key against the admitting ledger's immediate-parent `UNLReport` before NegativeUNL subtraction.
+
+Committee positions are the zero-based indexes in the canonical roster. The protocol derives the content threshold as `ceil(0.8 * member count)`. Neither the object nor the intent stores a weaker threshold.
+
+Live share processing uses validator manifests to bind each roster master to its current validator signing key. Manifests do not mutate the stored roster.
+
+<Aside type="caution">
+The target chain's SignerList contains accounts derived from validator signing keys, not these master keys. Operators must update the remote SignerList when validator signing keys rotate.
+</Aside>
+
+### Deletion
+
+Delete the object with an Export transaction containing its `ExportCommitteeHash` and `tfExportEraseCommittee`. Deletion is rejected while the owner has any live Export latch, even if that latch references another committee. This preserves the roster needed by witness apply and replay.
+
+### ExportCommittee ID Format
+
+The ledger object ID is the SHA-512Half of these values concatenated in order:
+
+- The ExportCommittee ledger namespace prefix (`0x4563`).
+- The owning `Account` ID.
+- `ExportCommitteeHash`.
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [Export transaction](/docs/protocol-reference/transactions/transaction-types/export)
+- [ExportLatch ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch)
+- [UNLReport ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/unl-report)

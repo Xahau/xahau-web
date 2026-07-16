@@ -33,15 +33,17 @@ _(Added by the \[Import amendment]\[].)_
 * If the account is Non Activated then the `Sequence` must be 0 and the `Fee` must also be 0
 * If the account is Activated then the `Sequence` and the `Fee` are calculated using the standard method.
 * If the `Issuer` field is present then the `Fee` must be calculated using the standard method.
-* An Export callback without its matching shadow ticket returns `telSHADOW_TICKET_REQUIRED` before consensus, fee or sequence consumption, and Hook execution.
+* An Export callback without its matching ExportLatch returns `telEXPORT_LATCH_REQUIRED` before consensus, fee or sequence consumption, and Hook execution.
 
 ### Export Callbacks
 
-When the embedded XPOP transaction uses `TicketSequence`, Import treats it as the return path for a successful [Export transaction](/docs/protocol-reference/transactions/transaction-types/export). A matching shadow ticket must already exist for `(Account, TicketSequence)`.
+When the embedded XPOP transaction contains the canonical final `xahau/export` Memo, Import treats it as the return path for an [Export transaction](/docs/protocol-reference/transactions/transaction-types/export). The Memo's source Export transaction hash W identifies an [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch) keyed by `(Account, W)`.
 
-The shadow ticket matches the embedded transaction's canonical signing intent, not its fully signed transaction ID. Different destination-valid multisigner subsets for the same intent can therefore complete the callback. Import still verifies the XPOP, validator-list freshness, and target-ledger finality before Hooks run and the ticket is consumed.
+Import projects the release-stamped target transaction back to its canonical identity form and verifies the latch's normalized intent digest. Different destination-valid signer subsets for the same intent can therefore complete the callback even though they have different target transaction IDs. Import still verifies the XPOP, validator-list freshness, and target-ledger finality before Hooks run.
 
-If the target transaction executes before Xahau creates the latch, relay the same XPOP later. If the latch was cancelled, published target signatures remain valid; cancellation is not revocation.
+The signature witness is not a prerequisite for callback execution. An assembler can use the post-validation signature stream and return XPOP before the on-ledger witness appears. In that order, Import records XPOP arrival on the latch; the later witness erases the latch and releases its reserve. If the witness arrived first, Import is the second fact and performs the erase.
+
+Stopping Export publication retains callback readiness. Explicitly erasing the latch with `tfExportEraseLatch` forfeits it, so a later callback returns `telEXPORT_LATCH_REQUIRED`. Neither operation revokes signatures already published.
 
 ### Notes
 

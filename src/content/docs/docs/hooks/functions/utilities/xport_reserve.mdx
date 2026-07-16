@@ -39,7 +39,7 @@ if (xport_reserve(1) < 0)
 
 | Type    | Description                                                                                          |
 | ------- | ---------------------------------------------------------------------------------------------------- |
-| int64_t | The reserved count on success. If negative, an error: `ALREADY_SET` — the hook already called this function. `TOO_SMALL` — `count` is `0`. `TOO_BIG` — `count` is greater than `2`. |
+| int64_t | The reserved count on success. If negative, an error: `ALREADY_SET` — the Hook already called this function. `TOO_SMALL` — `count` is `0`. `TOO_BIG` — `count` is greater than `2`, or the combined existing emitted-transaction reservation and Export reservation would exceed 255. |
 
 ### Related
 

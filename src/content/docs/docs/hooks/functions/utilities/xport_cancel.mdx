@@ -1,53 +1,73 @@
 ---
 title: xport_cancel
 description: >-
-  Cancel a shadow ticket from within a hook, freeing the associated reserve.
+  Stop signature publication for an Export latch, or explicitly erase it.
 ---
 import { Aside } from '@astrojs/starlight/components';
 
 ### Behaviour
 
-- Cancels a shadow ticket created by a successful Export transaction, including one that originated from a previous `xport()` call.
-- The shadow ticket is deleted and its reserve is freed.
-- It releases one of the account's bounded outstanding shadow-ticket slots.
-- It does not revoke validator signature shares already published to the peer network.
+`xport_cancel()` controls the ExportLatch owned by the current Hook account and identified by the 32-byte source Export transaction hash W.
+
+- With `flags == 0`, it stops further signature publication but retains the latch, owner reserve, and Import callback readiness.
+- With `flags == tfExportEraseLatch` (`0x00010000`), it erases the latch, releases its reserve, and intentionally forfeits any later callback.
+- Neither mode revokes signatures already released.
+- A Hook cannot control the latch being created or consumed by the same currently executing Export or Import transaction.
 
 <Aside type="caution">
-A destination transaction may still execute after cancellation. Its returned XPOP cannot trigger the callback while the latch is absent. Use this resource-reclamation escape hatch only after external evidence such as target `LastLedgerSequence` expiry, destination Ticket consumption, or SignerList invalidation, or under an explicit recovery policy that accepts delayed target execution and callback replay. Otherwise import the target-chain proof to consume the shadow ticket.
+Use erase only when losing callback readiness is acceptable. A target transaction assembled from previously published shares can still execute after either lifecycle operation.
 </Aside>
-
-If the destination SignerList requires a submitter co-signer, the target-submission process honors a validated cancellation by refusing to add its release signature.
 
 ### Definition
 
 ```c
 int64_t xport_cancel (
-    uint32_t ticket_seq
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t flags
 );
 ```
 
-### Example
+### Examples
+
+Stop publication and retain the latch:
 
 ```c
-int64_t result = xport_cancel(2);  // cancel shadow ticket for TicketSequence 2
-if (result < 0)
-    rollback(SBUF("Cancel failed"), 1);
+int64_t result = xport_cancel(SBUF(origin), 0);
+if (result != 1)
+    rollback(SBUF("Stop Export failed"), 1);
+```
+
+Erase the latch and release reserve:
+
+```c
+int64_t result = xport_cancel(SBUF(origin), 0x00010000U);
+if (result != 1)
+    rollback(SBUF("Erase Export failed"), 1);
 ```
 
 ### Parameters
 
-| Name       | Type     | Description                                                    |
-| ---------- | -------- | -------------------------------------------------------------- |
-| ticket_seq | uint32_t | The ticket sequence of the shadow ticket to cancel.             |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `read_ptr` | uint32_t | Pointer to the 32-byte W value returned by `xport()`. |
+| `read_len` | uint32_t | Must be exactly 32. |
+| `flags` | uint32_t | `0` to stop publication and retain the latch, or `tfExportEraseLatch` to erase it. |
 
 ### Return Code
 
-| Type    | Description                                                                                   |
-| ------- | --------------------------------------------------------------------------------------------- |
-| int64_t | The cancelled ticket sequence on success. Check for `result >= 0`, not `result == 1`. If negative, an error: `DOESNT_EXIST` — no shadow ticket found for the specified ticket sequence on this account. |
+Returns `1` on success. Negative results include:
+
+| Error | Description |
+| ----- | ----------- |
+| `OUT_OF_BOUNDS` | The input pointer or length is outside Hook memory. |
+| `INVALID_ARGUMENT` | W is zero, `read_len` is not 32, or the flags are unsupported. |
+| `PREREQUISITE_NOT_MET` | The current Export or Import execution is creating or consuming this same latch. |
+| `DOESNT_EXIST` | No matching ExportLatch exists for W and the current Hook account. |
 
 ### Related
 
 - [Cross-Chain Export overview](/docs/features/export)
 - [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export)
+- [ExportLatch ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch)
 - [xport()](/docs/hooks/functions/utilities/xport)
