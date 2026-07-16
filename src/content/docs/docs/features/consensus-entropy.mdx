@@ -24,6 +24,10 @@ Each consensus round produces entropy through a three-phase pipeline:
 Validators commit before the transaction set is finalized, then reveal after convergence. Hooks can use the resulting entropy during final ledger-close execution.
 </Aside>
 
+<Aside type="caution">
+Before activating ConsensusEntropy, every validator that participates in proposals must run compatible software. On networks using NegativeUNL, activate `NegativeUNLActiveViewCap` no later than ConsensusEntropy so producer-side disable voting and entropy selection use the same parent-ledger denominator.
+</Aside>
+
 ### Entropy Tiers
 
 Not all entropy is equally strong. Every RNG-enabled ledger carries a tiered entropy object — hooks must explicitly state what quality they require:
@@ -36,7 +40,7 @@ Not all entropy is equally strong. Every RNG-enabled ledger carries a tiered ent
 | 1 | Consensus Fallback | Deterministic public-input fallback | Cosmetic shuffling, non-adversarial randomness |
 
 <Aside type="caution">
-Tier 1 (consensus fallback) entropy is derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, baseTxSetHash, seq)` — it is **grindable** by transaction submitters. Never use it for high-value outcomes.
+Tier 1 (consensus fallback) entropy is derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, buildTxSetHash, seq)`, where `buildTxSetHash` is the sanitized pre-injection live-build transaction-set hash after supplied extension pseudo-transactions are removed. It is **grindable** by transaction submitters. Never use it for high-value outcomes.
 </Aside>
 
 RNG-enabled ledgers always receive either validator-derived entropy or a consensus-fallback digest. When neither the validator-quorum gate nor the participant-aligned gate succeeds, a labeled fallback is injected instead.

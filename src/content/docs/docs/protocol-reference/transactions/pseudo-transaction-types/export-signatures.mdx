@@ -33,7 +33,7 @@ The witness is not part of the original Export transaction's metadata. It appear
     "SigningPubKey": "",
     "Memos": ["[CALLER_MEMOS_THEN_FINAL_XAHAU_EXPORT_MEMO]"]
   },
-  "EntropyContributors": "01",
+  "ExportContributors": "01",
   "ExportSigners": [
     {
       "ExportSigner": {
@@ -52,7 +52,7 @@ The witness is not part of the original Export transaction's metadata. It appear
 | `LedgerSequence` | Number | UInt32 | Ledger index containing this witness. |
 | `TransactionHash` | String | Hash256 | W, the source Export transaction hash. |
 | `ExportedTxn` | Object | STObject | Exact unsigned release-stamped target transaction signed by the validators. It has an empty `SigningPubKey` and no `Signers` or `TxnSignature`. |
-| `EntropyContributors` | String | Blob | Exact-width LSB-first bitmap over the immutable ExportCommittee's canonical roster, identifying the positions represented in `ExportSigners`. Despite the shared field name, these are Export contributors, not RNG contributors. |
+| `ExportContributors` | String | Blob | Exact-width LSB-first bitmap over the immutable ExportCommittee's canonical roster, identifying the positions represented in `ExportSigners`. |
 | `ExportSigners` | Array | STArray | Validator signing public keys and multisignatures. Entries correspond in order to the set contributor positions from lowest to highest. |
 
 The contributor bitmap's population must equal the number of signer entries and satisfy `ceil(0.8 * committee size)`. Duplicate signing keys and duplicate signer AccountIDs are invalid, and every signature is verified against the stored release-stamped transaction.

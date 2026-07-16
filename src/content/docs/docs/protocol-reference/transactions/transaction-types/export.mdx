@@ -182,8 +182,8 @@ The witness is not a gate on Hook callback execution. A stream assembler may exe
 | Error Code | Cause |
 | ---------- | ----- |
 | `temDISABLED` | The Export amendment is not enabled. |
-| `temMALFORMED` | The operation forms are mixed or absent; committee bytes or digest are invalid; target authorization, Ticket, network, or reserved Memo rules fail; or an intent lacks its required outer deadline. |
-| `temINVALID_FLAG` | The selected form uses unsupported flags. |
+| `temMALFORMED` | The operation forms are mixed or absent; a defined Export flag is used on the wrong form; committee bytes or digest are invalid; target authorization, Ticket, network, or reserved Memo rules fail; or an intent lacks its required outer deadline. |
+| `temINVALID_FLAG` | `Flags` contains a bit outside `tfExportMask`. |
 | `tecNO_ENTRY` | An intent references no matching committee, or a control transaction references no matching object. |
 | `tecEXPORT_COMMITTEE_UNAVAILABLE` | The parent has no usable `UNLReport`, or at least one selected committee master is absent from its pre-NegativeUNL view. |
 | `tecHAS_OBLIGATIONS` | Committee deletion was requested while the account still owns a live Export latch. |

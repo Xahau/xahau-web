@@ -36,7 +36,7 @@ _(Added by the \[Import amendment]\[].)_
 
 ### Export Callbacks
 
-When the embedded XPOP transaction contains the canonical final `xahau/export` Memo, Import treats it as the return path for an [Export transaction](/docs/protocol-reference/transactions/transaction-types/export). The Memo's source Export transaction hash W identifies an [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch) keyed by `(Account, W)`.
+An inner XPOP transaction with `TicketSequence` selects the Export callback path. On that path, the canonical final `xahau/export` Memo is mandatory, and its source Export transaction hash W identifies an [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch) keyed by `(Account, W)`. An inner transaction that uses `Sequence` instead follows the burn-to-mint path; adding an Export Memo does not change that discriminator.
 
 Import projects the release-stamped target transaction back to its canonical identity form and verifies the latch's normalized intent digest. Different destination-valid signer subsets for the same intent can therefore complete the callback even though they have different target transaction IDs. Import still verifies the XPOP, validator-list freshness, and target-ledger finality before Hooks run.
 

@@ -34,6 +34,8 @@ The Export intent succeeds before signatures exist. Closing a ledger, agreeing o
 - The target account's SignerList must authorize accounts derived from the committee members' validator signing keys. Its weights and threshold must match the intended custody policy.
 - Operators must keep the target SignerList aligned with validator manifest rotations. Xahau verifies live signing-key-to-master-key attribution, but it cannot inspect or update the remote SignerList.
 - For an XRPL-mainnet-style target transaction with no `NetworkID`, the source Xahau network must use a local `NETWORK_ID` greater than 1024. An explicit target `NetworkID` must not equal the source network ID.
+- Before activation, every validator that participates in proposals must run compatible software because Export extends consensus proposal payloads.
+- On networks using NegativeUNL, activate `NegativeUNLActiveViewCap` no later than Export so NegativeUNL vote production and Export alignment use the same parent-ledger denominator.
 
 <Aside type="caution">
 XRPL verifies ordinary keys and signatures, not Xahau finality or committee membership. A lower target `SignerQuorum` weakens the intended authority; a higher or stale threshold can make a valid Xahau witness unusable. A separately required operator signer is an optional destination policy, not an Export protocol requirement, and consumes one of the target's signer slots.
@@ -54,7 +56,7 @@ XRPL verifies ordinary keys and signatures, not Xahau finality or committee memb
 
 The roster contains between 1 and 32 members. Committee setup only verifies the roster's structure; it may stage a future committee. Every actual Export intent rechecks that all members belong to the immediate parent's pre-NegativeUNL validator view. There is no protocol-default committee.
 
-The source content threshold is fixed at `ceil(0.8 * committee size)`, called **qC**. The intent chooses a stored committee but cannot lower qC. The separate alignment threshold **qV** is `ceil(0.8 * effective active-validator count)`, computed after the capped NegativeUNL subtraction. It coordinates the accepted share-set root; it does not replace qC or prove the target account's SignerList configuration.
+The source content threshold is fixed at `ceil(0.8 * committee size)`, called **qC**. The intent chooses a stored committee but cannot lower qC. The separate alignment threshold **qV** is `ceil(0.8 * effective active-validator count)`, computed after the capped NegativeUNL subtraction, with a fail-closed floor of one for an empty view. It coordinates the accepted share-set root; it does not replace qC or prove the target account's SignerList configuration.
 
 An account may own multiple committee objects. A committee cannot be deleted while that account has any live Export latch, because witness apply and replay still resolve the roster by digest.
 
@@ -132,7 +134,6 @@ Each event has this shape:
   "origin_txid": "[W]",
   "origin_ledger_seq": 12345679,
   "origin_ledger_hash": "[VALIDATED_ORIGIN_LEDGER_HASH]",
-  "trigger_txid": "[W]",
   "committee_position": 3,
   "signing_key": "n9...",
   "signature": "[HEX_SIGNATURE]"

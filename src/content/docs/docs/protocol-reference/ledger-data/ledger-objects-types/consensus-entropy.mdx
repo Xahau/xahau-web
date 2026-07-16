@@ -36,7 +36,7 @@ Every RNG-enabled ledger carries a tiered entropy object. The tier indicates the
 | `validator_full`      | 4 | Reveals from **every** active validator in the ledger-anchored view (`EntropyCount == EntropyDenominator`). Any missing active validator downgrades the tier, so requiring it fails closed on selective withholding — at the cost of availability (a single offline validator prevents it). |
 | `validator_quorum`    | 3 | Validator-quorum commit/reveal entropy with 80% UNL alignment.       |
 | `participant_aligned` | 2 | Participant-aligned commit/reveal entropy below full validator quorum. |
-| `consensus_fallback`  | 1 | Deterministic public-input fallback derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, baseTxSetHash, seq)`. Grindable. |
+| `consensus_fallback`  | 1 | Deterministic public-input fallback derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, buildTxSetHash, seq)`, where `buildTxSetHash` is the sanitized pre-injection live-build set hash. Grindable. |
 
 <Aside type="caution">
 Tier 1 (`consensus_fallback`) entropy is deterministic and derivable from public inputs. It is grindable by transaction submitters, especially on quiet ledgers. Hooks handling high-value outcomes (lotteries, games) should require at least `min_tier=3` (validator quorum) in their `dice()` / `random()` calls — or `min_tier=4` (`validator_full`) to additionally reject any round in which an active validator withheld its reveal.
@@ -48,7 +48,7 @@ Each consensus round follows a three-phase pipeline:
 
 1. **Commit**: proposing validators generate a secret and broadcast `sha512Half(secret, pubKey, seq)` as a commitment on their first proposal
 2. **Reveal**: after the transaction set converges, validators broadcast their secret
-3. **Inject**: reveals are sorted by public key and mixed via `sha512Half(key₁ || reveal₁ || key₂ || reveal₂ || ...)` — the result is injected as the `Digest`, with `EntropyTier`, `EntropyCount`, `EntropyDenominator`, and `EntropyContributors` labeling the accepted result
+3. **Inject**: pairs are sorted by signing-key bytes and then reveal digest. Each signing key is encoded in canonical variable-length form (including its length prefix), followed by the 256-bit reveal; `sha512Half` of the concatenated pairs becomes the `Digest`. `EntropyTier`, `EntropyCount`, `EntropyDenominator`, and `EntropyContributors` label the accepted result.
 
 If neither the validator-quorum threshold nor the participant-aligned threshold is reached, a `consensus_fallback` digest is injected instead. RNG-enabled ledgers always receive either validator-derived entropy or a consensus-fallback digest.
 
