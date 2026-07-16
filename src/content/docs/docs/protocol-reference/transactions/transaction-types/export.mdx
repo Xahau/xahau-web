@@ -137,7 +137,7 @@ The target fee, Ticket availability, SignerList membership, signer weights, and 
 
 ### Admission and Publication
 
-A valid intent returns `tesSUCCESS` and creates an [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch) keyed by `(Account, W)`, where W is the source Export transaction ID. It does not wait for signatures and does not use `terRETRY_EXPORT`.
+A valid intent returns `tesSUCCESS` and creates an [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch) keyed by `(Account, W)`, where W is the source Export transaction ID. Signature collection starts asynchronously after the admitting ledger validates.
 
 The outer `LastLedgerSequence` bounds only admission. On admission, Xahau writes a separate publication deadline to the latch. Selected validators release shares only after exact source-ledger validation. If publication ends before a witness forms, signing work stops but the latch, owner reserve, and Import callback readiness remain until completion or explicit erase.
 

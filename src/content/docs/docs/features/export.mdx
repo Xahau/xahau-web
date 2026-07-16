@@ -88,7 +88,7 @@ The outer `LastLedgerSequence` is mandatory and may be at most five Xahau ledger
 
 The inner `LastLedgerSequence` belongs to the target chain. Xahau does not require it, but a finite value limits how long disclosed signatures can remain executable. Leave enough target-ledger time for source validation, share collection, assembly, and submission.
 
-Admission returns `tesSUCCESS` and creates the latch immediately. It does not wait or return `terRETRY_EXPORT` while signatures collect.
+Admission returns `tesSUCCESS` and creates the latch immediately. Signatures collect asynchronously after the admitting ledger validates.
 
 ### Release Stamp
 
