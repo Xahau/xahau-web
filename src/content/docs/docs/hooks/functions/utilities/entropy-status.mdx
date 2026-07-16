@@ -1,21 +1,21 @@
 ---
 title: entropy_status
 description: >-
-  Read the current ledger's consensus entropy metadata — tier, reveal count,
-  and participation denominator — as a single packed value.
+  Read the consensus entropy metadata visible to the current Hook execution —
+  tier, reveal count, and participation denominator — as a single packed value.
 ---
 import { Aside } from '@astrojs/starlight/components';
 
 ### Behaviour
 
-- Returns the current ledger's consensus entropy metadata packed into a single non-negative `int64_t`: entropy tier, validator reveal count, and participation denominator.
+- Returns the consensus entropy metadata visible to the current Hook execution, packed into a single non-negative `int64_t`: entropy tier, validator reveal count, and participation denominator.
 - Takes no arguments and writes nothing to hook memory.
 - Exposes metadata only. The entropy digest itself is never exposed to hooks — randomness is only drawn through [`dice()`](/docs/hooks/functions/utilities/dice) and [`random()`](/docs/hooks/functions/utilities/random).
 
 ### Definition
 
 ```c
-int64_t entropy_status ();
+int64_t entropy_status (void);
 ```
 
 ### Packed Return Layout
