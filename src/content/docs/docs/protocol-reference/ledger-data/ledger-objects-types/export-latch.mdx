@@ -62,7 +62,7 @@ The latch is keyed by the owning account and W, the source Export transaction ha
 - When the witness arrives first, `ExportSignatureHash` is added and `ExportNode` is removed.
 - When XPOP arrives first, `lsfExportXpopSeen` is set. Publication can continue so the witness can still complete the pair.
 - When the second of witness and XPOP arrives, the latch is erased and the owner reserve is released.
-- Stop control or publication expiry removes `ExportNode` and retains the latch.
+- Stop control removes `ExportNode` immediately and retains the latch. Publication expiry immediately makes the latch ineligible for further signing or witness work; its pending-directory link is removed lazily when later Export work prunes expired latches.
 - `tfExportEraseLatch` removes the latch immediately in any state.
 
 <Aside type="caution">

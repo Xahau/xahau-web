@@ -54,7 +54,7 @@ XRPL verifies ordinary keys and signatures, not Xahau finality or committee memb
 
 The roster contains between 1 and 32 members. Committee setup only verifies the roster's structure; it may stage a future committee. Every actual Export intent rechecks that all members belong to the immediate parent's pre-NegativeUNL validator view. There is no protocol-default committee.
 
-The source content threshold is fixed at `ceil(0.8 * committee size)`, called **qC**. The intent chooses a stored committee but cannot lower qC. The separate full-validator-view threshold **qV** coordinates the accepted share-set root; it does not replace qC or prove the target account's SignerList configuration.
+The source content threshold is fixed at `ceil(0.8 * committee size)`, called **qC**. The intent chooses a stored committee but cannot lower qC. The separate alignment threshold **qV** is `ceil(0.8 * effective active-validator count)`, computed after the capped NegativeUNL subtraction. It coordinates the accepted share-set root; it does not replace qC or prove the target account's SignerList configuration.
 
 An account may own multiple committee objects. A committee cannot be deleted while that account has any live Export latch, because witness apply and replay still resolve the roster by digest.
 
