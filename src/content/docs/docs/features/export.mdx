@@ -92,6 +92,14 @@ The inner `LastLedgerSequence` belongs to the target chain. Xahau does not requi
 
 Admission returns `tesSUCCESS` and creates the latch immediately. Signatures collect asynchronously after the admitting ledger validates.
 
+An Export intent pays more than an ordinary transaction because it initiates
+committee-wide share publication and creates a permanent witness. The required
+fee scales deterministically with the selected committee size and serialized
+target size, in addition to the normal transaction fee; use the server's fee
+calculation rather than hard-coding the examples above. Committee setup,
+committee deletion, and latch control do not initiate signing and retain the
+ordinary transaction fee schedule.
+
 ### Release Stamp
 
 The submitted `ExportedTxn` is the base target transaction. Callers may include ordinary Memos, but must not supply the reserved MemoType `xahau/export`.
@@ -194,6 +202,8 @@ Neither operation revokes shares that validators already published. Erase only w
 - At most 64 latches may remain in the global pending-signature directory.
 - One Hook execution may reserve at most 2 exports.
 - A committee may contain at most 32 members.
+- The post-stamp target transaction may serialize to at most 2,048 bytes.
+- The self-contained ExportSignatures witness may serialize to at most 8,192 bytes.
 - The current admission and post-validation publication windows are each capped at 5 ledgers.
 
 ### Hook API
