@@ -1,5 +1,5 @@
 ---
-title: entropy_status
+title: entropy_cr_status
 description: >-
   Read the consensus entropy metadata visible to the current Hook execution —
   tier, reveal count, and participation denominator — as a single packed value.
@@ -10,12 +10,12 @@ import { Aside } from '@astrojs/starlight/components';
 
 - Returns the consensus entropy metadata visible to the current Hook execution, packed into a single non-negative `int64_t`: entropy tier, validator reveal count, and participation denominator.
 - Takes no arguments and writes nothing to hook memory.
-- Exposes metadata only. The entropy digest itself is never exposed to hooks — randomness is only drawn through [`dice()`](/docs/hooks/functions/utilities/dice) and [`random()`](/docs/hooks/functions/utilities/random).
+- Exposes metadata only. The entropy digest itself is never exposed to hooks — randomness is only drawn through [`entropy_cr_dice()`](/docs/hooks/functions/utilities/entropy-cr-dice) and [`entropy_cr_random()`](/docs/hooks/functions/utilities/entropy-cr-random).
 
 ### Definition
 
 ```c
-int64_t entropy_status (void);
+int64_t entropy_cr_status (void);
 ```
 
 ### Packed Return Layout
@@ -31,7 +31,7 @@ The `ENTROPY_TIER`, `ENTROPY_COUNT`, and `ENTROPY_DENOMINATOR` macros ship with 
 ### Example
 
 ```c
-int64_t status = entropy_status();
+int64_t status = entropy_cr_status();
 if (status < 0)
     rollback(SBUF("Entropy unavailable"), 1);
 
@@ -53,7 +53,7 @@ if (denominator - count > 1)
 if ((uint64_t)5 * count < (uint64_t)4 * denominator)
     rollback(SBUF("Insufficient participation"), 1);
 
-int64_t roll = dice(6, 3);
+int64_t roll = entropy_cr_dice(6, 3);
 ```
 
 <Aside type="caution">
@@ -61,7 +61,7 @@ Always classify the tier before doing count/denominator arithmetic. Consensus fa
 </Aside>
 
 <Aside type="note">
-Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `entropy_status()` output can differ between preview and final execution.
+Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `entropy_cr_status()` output can differ between preview and final execution.
 </Aside>
 
 ### Return Code
@@ -74,5 +74,5 @@ Open-ledger hook execution is provisional and uses the previous ledger's entropy
 
 - [Consensus Entropy overview](/docs/features/consensus-entropy)
 - [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
-- [dice()](/docs/hooks/functions/utilities/dice)
-- [random()](/docs/hooks/functions/utilities/random)
+- [entropy_cr_dice()](/docs/hooks/functions/utilities/entropy-cr-dice)
+- [entropy_cr_random()](/docs/hooks/functions/utilities/entropy-cr-random)

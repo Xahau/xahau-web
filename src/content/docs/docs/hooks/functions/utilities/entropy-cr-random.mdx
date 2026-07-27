@@ -1,5 +1,5 @@
 ---
-title: random
+title: entropy_cr_random
 description: >-
   Write random bytes derived from consensus entropy to a buffer,
   with caller-specified minimum entropy quality requirements.
@@ -16,7 +16,7 @@ import { Aside } from '@astrojs/starlight/components';
 ### Definition
 
 ```c
-int64_t random (
+int64_t entropy_cr_random (
     uint32_t write_ptr,
     uint32_t write_len,
     uint32_t min_tier
@@ -28,13 +28,13 @@ int64_t random (
 ```c
 // Get 32 random bytes, require validator quorum tier
 uint8_t buf[32];
-int64_t result = random(SBUF(buf), 3);
+int64_t result = entropy_cr_random(SBUF(buf), 3);
 if (result < 0)
     rollback(SBUF("No entropy available"), 1);
 
 // Get 64 random bytes, accept any valid tier
 uint8_t seed[64];
-int64_t seed_written = random(SBUF(seed), 1);
+int64_t seed_written = entropy_cr_random(SBUF(seed), 1);
 if (seed_written != sizeof(seed))
     rollback(SBUF("No entropy available"), 1);
 ```
@@ -48,11 +48,11 @@ if (seed_written != sizeof(seed))
 | `min_tier`  | uint32_t | Minimum entropy tier required: `1` = consensus fallback, `2` = participant aligned, `3` = validator quorum, `4` = validator full (reveals from every active validator). |
 
 <Aside type="caution">
-Applications that depend on unpredictable outcomes should require `min_tier=3` (or `min_tier=4` to reject any round where an active validator withheld its reveal). For finer participation policies — reveal-count floors or ratios — read [`entropy_status()`](/docs/hooks/functions/utilities/entropy-status) and enforce them in hook code before drawing bytes. For cosmetic randomness, `min_tier=1` is acceptable.
+Applications that depend on unpredictable outcomes should require `min_tier=3` (or `min_tier=4` to reject any round where an active validator withheld its reveal). For finer participation policies — reveal-count floors or ratios — read [`entropy_cr_status()`](/docs/hooks/functions/utilities/entropy-cr-status) and enforce them in hook code before drawing bytes. For cosmetic randomness, `min_tier=1` is acceptable.
 </Aside>
 
 <Aside type="note">
-Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `random()` output can differ between preview and final execution.
+Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `entropy_cr_random()` output can differ between preview and final execution.
 </Aside>
 
 ### Return Code
@@ -63,11 +63,11 @@ Open-ledger hook execution is provisional and uses the previous ledger's entropy
 
 ### Determinism
 
-Each call to `random()` uses different derivation input, even within the same hook execution. The per-call input includes the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, callback/direct dispatch flag, and an incrementing call counter. Internally, 32-byte blocks are generated via `sha512Half` and then chained (`sha512Half(previous_block)`) for additional blocks. This ensures deterministic replay.
+Each call to `entropy_cr_random()` uses different derivation input, even within the same hook execution. The per-call input includes the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, callback/direct dispatch flag, and an incrementing call counter. Internally, 32-byte blocks are generated via `sha512Half` and then chained (`sha512Half(previous_block)`) for additional blocks. This ensures deterministic replay.
 
 ### Related
 
 - [Consensus Entropy overview](/docs/features/consensus-entropy)
 - [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
-- [dice()](/docs/hooks/functions/utilities/dice)
-- [entropy_status()](/docs/hooks/functions/utilities/entropy-status)
+- [entropy_cr_dice()](/docs/hooks/functions/utilities/entropy-cr-dice)
+- [entropy_cr_status()](/docs/hooks/functions/utilities/entropy-cr-status)

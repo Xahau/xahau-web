@@ -2,13 +2,15 @@
 title: Consensus Entropy (RNG)
 description: >-
   Consensus-derived randomness for hooks — deterministic, tiered, and
-  available every ledger via dice() and random() hook API functions.
+  available every ledger via entropy_cr_dice() and entropy_cr_random() hook API functions.
 ---
 import { Aside, LinkCard } from '@astrojs/starlight/components';
 
 Consensus Entropy gives Xahau hooks access to per-ledger randomness derived from a validator commit/reveal scheme. It supports applications like lotteries, games, random selection, and shuffling with deterministic replay, tiered quality labels, and ledger-visible contributor accountability.
 
 _(Requires the [ConsensusEntropy amendment](/docs/features/amendments/#consensusentropy).)_
+
+The `entropy_cr_*` import family is permanently scoped to this commit/reveal contract. A future entropy mechanism will use distinct Hook imports rather than changing these calls.
 
 ## User Guide
 
@@ -49,35 +51,35 @@ Tier 2 is intentionally weaker than Tier 3. It can appear when the agreed entrop
 
 ### Hook API
 
-#### dice(sides, min_tier)
+#### entropy_cr_dice(sides, min_tier)
 
 Returns a random integer in `[0, sides)`:
 
 ```c
-int64_t roll = dice(6, 3);  // d6, require validator-quorum entropy
+int64_t roll = entropy_cr_dice(6, 3);  // d6, require validator-quorum entropy
 if (roll < 0)
     rollback(SBUF("Entropy unavailable"), 1);
 ```
 
-#### random(write_ptr, write_len, min_tier)
+#### entropy_cr_random(write_ptr, write_len, min_tier)
 
 Writes exactly `write_len` random bytes to a buffer (`1..512` bytes). Entropy is generated internally in 32-byte blocks:
 
 ```c
 uint8_t buf[32];
-int64_t written = random(SBUF(buf), 3);  // 32 bytes of validator-quorum random data
+int64_t written = entropy_cr_random(SBUF(buf), 3);  // 32 bytes of validator-quorum random data
 if (written != sizeof(buf))
     rollback(SBUF("Entropy unavailable"), 1);
 ```
 
 Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy is below the stated tier. There is no default — hooks must explicitly choose their entropy quality at every call site.
 
-#### entropy_status()
+#### entropy_cr_status()
 
 Returns the current ledger's entropy metadata — tier, reveal count, and participation denominator — packed into a single non-negative value, so hooks can enforce any participation policy in their own code:
 
 ```c
-int64_t status = entropy_status();
+int64_t status = entropy_cr_status();
 if (status < 0)
     rollback(SBUF("Entropy unavailable"), 1);
 
@@ -94,14 +96,14 @@ if (tier < 3)
 if ((uint64_t)5 * count < (uint64_t)4 * denominator)
     rollback(SBUF("Insufficient participation"), 1);
 
-int64_t roll = dice(6, 3);
+int64_t roll = entropy_cr_dice(6, 3);
 ```
 
-The `ENTROPY_TIER`, `ENTROPY_COUNT`, and `ENTROPY_DENOMINATOR` macros ship with the hook API headers. Common policies include tolerating a single absent validator (`denominator - count <= 1`), requiring a participation ratio (`5*count >= 4*denominator`, computed with widened arithmetic), or requiring an absolute reveal floor (`count >= 20`). `entropy_status()` exposes metadata only — the entropy digest itself is never exposed to hooks; randomness is only drawn through `dice()` and `random()`.
+The `ENTROPY_TIER`, `ENTROPY_COUNT`, and `ENTROPY_DENOMINATOR` macros ship with the hook API headers. Common policies include tolerating a single absent validator (`denominator - count <= 1`), requiring a participation ratio (`5*count >= 4*denominator`, computed with widened arithmetic), or requiring an absolute reveal floor (`count >= 20`). `entropy_cr_status()` exposes metadata only — the entropy digest itself is never exposed to hooks; randomness is only drawn through `entropy_cr_dice()` and `entropy_cr_random()`.
 
 ### Choosing Tier Requirements
 
-| Application | Suggested `min_tier` | Additional policy via `entropy_status()` |
+| Application | Suggested `min_tier` | Additional policy via `entropy_cr_status()` |
 |-------------|---------------------|------------------------------------------|
 | Highest-assurance (reject any withholding) | 4 | None needed — tier 4 already means every active validator contributed |
 | Lottery / raffle | 3 | e.g. tolerate one absentee: `denominator - count <= 1` |
@@ -120,13 +122,13 @@ Randomness is derived per-call from a combination of the entropy digest, ledger 
 
 ### Speculative Execution
 
-Open-ledger (speculative) hook execution uses the **previous** ledger's entropy. Final execution during ledger close uses the current ledger's entropy. This means `dice()` / `random()` results may differ between speculative and final execution — treat speculative results like provisional `tesSUCCESS`.
+Open-ledger (speculative) hook execution uses the **previous** ledger's entropy. Final execution during ledger close uses the current ledger's entropy. This means `entropy_cr_dice()` / `entropy_cr_random()` results may differ between speculative and final execution — treat speculative results like provisional `tesSUCCESS`.
 
 Standalone single-node execution injects synthetic tier-4 (`validator_full`) entropy with count 20, denominator 20, and a contributor bitmap with the first 20 validators marked for development. That makes `min_tier=4` checks pass locally, but quiet network ledgers can still fall back to tier 1.
 
 ## Reference
 
 <LinkCard title="ConsensusEntropy Ledger Object" href="/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy" />
-<LinkCard title="dice() Reference" href="/docs/hooks/functions/utilities/dice" />
-<LinkCard title="random() Reference" href="/docs/hooks/functions/utilities/random" />
-<LinkCard title="entropy_status() Reference" href="/docs/hooks/functions/utilities/entropy-status" />
+<LinkCard title="entropy_cr_dice() Reference" href="/docs/hooks/functions/utilities/entropy-cr-dice" />
+<LinkCard title="entropy_cr_random() Reference" href="/docs/hooks/functions/utilities/entropy-cr-random" />
+<LinkCard title="entropy_cr_status() Reference" href="/docs/hooks/functions/utilities/entropy-cr-status" />
