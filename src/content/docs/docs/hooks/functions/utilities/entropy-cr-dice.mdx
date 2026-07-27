@@ -1,0 +1,82 @@
+---
+title: entropy_cr_dice
+description: >-
+  Return a random integer in [0, sides) derived from consensus entropy,
+  with caller-specified minimum entropy quality requirements.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+- Returns a random integer in the range `[0, sides)` derived from the current ledger's consensus entropy.
+- The hook must specify a minimum entropy tier (`min_tier`). If the current ledger's entropy is below it, the call fails with `TOO_LITTLE_ENTROPY`.
+
+<Aside type="tip">
+Hooks must explicitly state their entropy requirements. There are no defaults — this is a deliberate design choice so that entropy quality is reviewable at the call site.
+</Aside>
+
+### Definition
+
+```c
+int64_t entropy_cr_dice (
+    uint32_t sides,
+    uint32_t min_tier
+);
+```
+
+### Example
+
+```c
+// Roll a d6, require validator-quorum entropy
+int64_t roll = entropy_cr_dice(6, 3);
+if (roll < 0)
+    rollback(SBUF("No entropy available"), 1);
+
+// Roll a d100, accept any valid tier (including consensus fallback)
+int64_t percent = entropy_cr_dice(100, 1);
+if (percent < 0)
+    rollback(SBUF("No entropy available"), 1);
+```
+
+### Parameters
+
+| Name        | Type     | Description                                                                      |
+| ----------- | -------- | -------------------------------------------------------------------------------- |
+| `sides`     | uint32_t | Number of sides. Result is in `[0, sides)`.                                       |
+| `min_tier`  | uint32_t | Minimum entropy tier required: `1` = consensus fallback, `2` = participant aligned, `3` = validator quorum, `4` = validator full (reveals from every active validator). |
+
+<Aside type="caution">
+Applications that depend on unpredictable outcomes should require `min_tier=3` (or `min_tier=4` to reject any round where an active validator withheld its reveal). For finer participation policies — reveal-count floors or ratios — read [`entropy_cr_status()`](/docs/hooks/functions/utilities/entropy-cr-status) and enforce them in hook code before rolling. For cosmetic randomness, `min_tier=1` is acceptable.
+</Aside>
+
+<Aside type="note">
+`entropy_cr_dice()` draws 32-bit values and applies deterministic rejection sampling, so results are uniform over `[0, sides)` with no modulo bias.
+</Aside>
+
+<Aside type="note">
+Open-ledger hook execution is provisional and uses the previous ledger's entropy. Final ledger-close execution uses the current ledger's entropy, so `entropy_cr_dice()` output can differ between preview and final execution.
+</Aside>
+
+### Return Code
+
+| Type    | Description                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------- |
+| int64_t | A random integer in `[0, sides)` on success. If negative, an error: `INVALID_ARGUMENT` — `sides` is `0` or `min_tier` is outside `1..4`. `TOO_LITTLE_ENTROPY` — entropy is unavailable, stale, or below the specified `min_tier`. `INTERNAL_ERROR` — the entropy API returned an unexpected byte count. |
+
+### Determinism
+
+Each call to `entropy_cr_dice()` draws fresh entropy, even within the same hook execution. The reduced result can still repeat, especially for small `sides` values. The randomness is derived from:
+
+- Ledger sequence, transaction ID, hook hash, account, chain position
+- Originating account, strong/weak execution flag, and callback/direct dispatch flag
+- The consensus entropy digest
+- An internal call counter that increments per call
+
+This ensures deterministic replay (same inputs → same outputs) while using different derivation input per call.
+
+### Related
+
+- [Consensus Entropy overview](/docs/features/consensus-entropy)
+- [ConsensusEntropy ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy)
+- [entropy_cr_random()](/docs/hooks/functions/utilities/entropy-cr-random)
+- [entropy_cr_status()](/docs/hooks/functions/utilities/entropy-cr-status)

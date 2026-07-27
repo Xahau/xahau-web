@@ -137,6 +137,8 @@ export default defineConfig({
             'docs/features/balance-adjustments',
             'docs/features/governance-game',
             'docs/features/burn-2-mint',
+            'docs/features/export',
+            'docs/features/consensus-entropy',
             'docs/features/versioning-process',
           ],
         },
