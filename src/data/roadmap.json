@@ -140,6 +140,50 @@
 
   "items": [
     {
+      "id": "price-oracle",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q2",
+      "span": 2,
+      "tag": {
+        "en": "Feature · Activated",
+        "es": "Función · lista para enmienda",
+        "pt-BR": "Funcionalidade · pronta para emenda"
+      },
+      "title": {
+        "en": "PriceOracle",
+        "es": "PriceOracle",
+        "pt-BR": "PriceOracle"
+      },
+      "description": {
+        "en": "Native on-ledger price feed primitive — tamper-resistant asset prices for DeFi, AMM and Hooks. Merged into the xahaud dev branch, awaiting amendment vote.",
+        "es": "Primitiva nativa de precios en el ledger — precios de activos resistentes a manipulación para DeFi, AMM y Hooks. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
+        "pt-BR": "Primitiva nativa de feed de preços no ledger — preços de ativos resistentes a adulterações para DeFi, AMM e Hooks. Integrada ao branch dev do xahaud, aguardando votação de emenda."
+      }
+    },
+    {
+      "id": "iou-reward-claim",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q2",
+      "endQuarter": "2026-Q3",
+      "tag": {
+        "en": "Feature · Activated",
+        "es": "Función · en desarrollo",
+        "pt-BR": "Funcionalidade · em desenvolvimento"
+      },
+      "title": {
+        "en": "IOURewardClaim",
+        "es": "IOURewardClaim",
+        "pt-BR": "IOURewardClaim"
+      },
+      "description": {
+        "en": "Extends the current RewardClaim for XAH to make it available for IOU tokens as well — letting projects use Hooks to distribute rewards based on a user's token holdings.",
+        "es": "Extiende el RewardClaim actual de XAH para ofrecerlo también a tokens IOU — permitiendo a los proyectos usar Hooks para distribuir recompensas según las tenencias de tokens de un usuario.",
+        "pt-BR": "Estende o RewardClaim atual do XAH para torná-lo disponível também para tokens IOU — permitindo que projetos usem Hooks para distribuir recompensas com base nas posições de tokens de um usuário."
+      }
+    },
+    {
       "id": "rng",
       "lane": "tech",
       "status": "feature",
@@ -199,50 +243,6 @@
         "en": "Automated Market Maker primitive for deep native liquidity on the Xahau DEX. Merged into the xahaud dev branch, awaiting amendment vote.",
         "es": "Primitiva Automated Market Maker para liquidez nativa profunda en el DEX de Xahau. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
         "pt-BR": "Primitiva de Automated Market Maker para liquidez nativa profunda no DEX da Xahau. Integrada ao branch dev do xahaud, aguardando votação de emenda."
-      }
-    },
-    {
-      "id": "price-oracle",
-      "lane": "tech",
-      "status": "feature",
-      "quarter": "2026-Q2",
-      "span": 2,
-      "tag": {
-        "en": "Feature · ready for amendment",
-        "es": "Función · lista para enmienda",
-        "pt-BR": "Funcionalidade · pronta para emenda"
-      },
-      "title": {
-        "en": "PriceOracle",
-        "es": "PriceOracle",
-        "pt-BR": "PriceOracle"
-      },
-      "description": {
-        "en": "Native on-ledger price feed primitive — tamper-resistant asset prices for DeFi, AMM and Hooks. Merged into the xahaud dev branch, awaiting amendment vote.",
-        "es": "Primitiva nativa de precios en el ledger — precios de activos resistentes a manipulación para DeFi, AMM y Hooks. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
-        "pt-BR": "Primitiva nativa de feed de preços no ledger — preços de ativos resistentes a adulterações para DeFi, AMM e Hooks. Integrada ao branch dev do xahaud, aguardando votação de emenda."
-      }
-    },
-    {
-      "id": "iou-reward-claim",
-      "lane": "tech",
-      "status": "feature",
-      "quarter": "2026-Q2",
-      "endQuarter": "2026-Q3",
-      "tag": {
-        "en": "Feature · in development",
-        "es": "Función · en desarrollo",
-        "pt-BR": "Funcionalidade · em desenvolvimento"
-      },
-      "title": {
-        "en": "IOURewardClaim",
-        "es": "IOURewardClaim",
-        "pt-BR": "IOURewardClaim"
-      },
-      "description": {
-        "en": "Extends the current RewardClaim for XAH to make it available for IOU tokens as well — letting projects use Hooks to distribute rewards based on a user's token holdings.",
-        "es": "Extiende el RewardClaim actual de XAH para ofrecerlo también a tokens IOU — permitiendo a los proyectos usar Hooks para distribuir recompensas según las tenencias de tokens de un usuario.",
-        "pt-BR": "Estende o RewardClaim atual do XAH para torná-lo disponível também para tokens IOU — permitindo que projetos usem Hooks para distribuir recompensas com base nas posições de tokens de um usuário."
       }
     },
     {
