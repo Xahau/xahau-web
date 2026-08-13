@@ -156,9 +156,9 @@
         "pt-BR": "PriceOracle"
       },
       "description": {
-        "en": "Native on-ledger price feed primitive — tamper-resistant asset prices for DeFi, AMM and Hooks. Merged into the xahaud dev branch, awaiting amendment vote.",
-        "es": "Primitiva nativa de precios en el ledger — precios de activos resistentes a manipulación para DeFi, AMM y Hooks. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
-        "pt-BR": "Primitiva nativa de feed de preços no ledger — preços de ativos resistentes a adulterações para DeFi, AMM e Hooks. Integrada ao branch dev do xahaud, aguardando votação de emenda."
+        "en": "Native on-ledger price feed primitive — tamper-resistant asset prices for DeFi, AMM and Hooks.",
+        "es": "Primitiva nativa de precios en el ledger — precios de activos resistentes a manipulación para DeFi, AMM y Hooks.",
+        "pt-BR": "Primitiva nativa de feed de preços no ledger — preços de ativos resistentes a adulterações para DeFi, AMM e Hooks."
       }
     },
     {
@@ -252,9 +252,9 @@
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
       "tag": {
-        "en": "Feature · in development",
-        "es": "Función · en desarrollo",
-        "pt-BR": "Funcionalidade · em desenvolvimento"
+        "en": "Feature · ready for amendment",
+        "es": "Función · lista para enmienda",
+        "pt-BR": "Funcionalidade · pronta para emenda"
       },
       "title": { "en": "NamedHook", "es": "NamedHook", "pt-BR": "NamedHook" },
       "description": {
