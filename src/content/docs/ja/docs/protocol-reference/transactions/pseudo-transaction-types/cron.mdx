@@ -1,0 +1,60 @@
+---
+title: Cron
+description: >-
+  Cronエンジンは、予定されたHookの実行時刻になると、Cron擬似トランザクションを自動的に挿入します。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Cron.cpp)]
+
+_(\[Cron amendment]\[]により追加。)_
+
+`Cron`擬似トランザクションは、予定されたHookの実行時刻になると、Cronエンジンによってレジャーへ自動的に挿入されます。この擬似トランザクションは、`Owner`フィールドで指定されたアカウント上のHookの実行を引き起こします。
+
+### 例
+
+```json
+{
+  "TransactionType": "Cron",
+  "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+  "Fee": "0",
+  "LedgerSequence": 21225473,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TxnSignature": "",
+  "Owner": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm"
+}
+```
+
+### フィールド
+
+| フィールド | JSON型 | \[内部型]\[] | 説明 |
+| ----- | --------- | ------------------- | ----------- |
+| `Owner` | String | AccountID | 予定されたHook実行を所有するアカウントです。cron実行時に呼び出されるアカウントでもあります。 |
+| `LedgerSequence` | Number    | UInt32              | この擬似トランザクションが現れる \[ledger index]\[]です。同じ変更の他の出現と区別するために使われます。 |
+
+
+### 共通フィールド
+
+擬似トランザクションとして、`Cron`は共通フィールドに標準の擬似トランザクション値を使います。
+
+| フィールド | 値 |
+| ----- | ----- |
+| `Account` | `rrrrrrrrrrrrrrrrrrrrrhoLvTp` (`ACCOUNT_ZERO`) |
+| `Fee` | `0` |
+| `Sequence` | `0` |
+| `SigningPubKey` | `""` (空文字列) |
+| `TxnSignature` | `""` (空文字列) |
+
+### 実行動作
+
+[`Cron ledger object`](/ja/docs/protocol-reference/ledger-data/ledger-objects-types/cron)が実行可能な状態になると（`StartTime`、`DelaySeconds`、`RepeatCount`フィールドに基づく）、Cronエンジンは`Cron`擬似トランザクションを自動的にレジャーへ挿入します。
+
+この擬似トランザクションには、予定されたHookを持つアカウントを参照する`Owner`フィールドが含まれます。そのアカウント上のHookは自動的に呼び出され、実行中はそのアカウントが **weak transactional stakeholder (TSH)** として扱われます。
+
+**重要:** `Owner`はCron擬似トランザクション実行時にweak transactional stakeholderとなるため、Hook開発者は自分のHookでcollect call（`hsfCOLLECT`フラグ）を有効にする必要があります。さらに、そのアカウントでは`asfTshCollect`フラグも有効でなければなりません。
+
+### 関連ドキュメント
+
+* [CronSetトランザクション](/ja/docs/protocol-reference/transactions/transaction-types/cronset):予定されたHook実行を作成、更新、または削除します
+* [Cronレジャーオブジェクト](/ja/docs/protocol-reference/ledger-data/ledger-objects-types/cron):予定されたHook実行を表すレジャーオブジェクト
+* [弱と強](/ja/docs/hooks/concepts/weak-and-strong):トランザクションの利害関係者について
+* [コレクトコールHooks](/ja/docs/hooks/concepts/collect-call): weak TSH Hookの実行方法

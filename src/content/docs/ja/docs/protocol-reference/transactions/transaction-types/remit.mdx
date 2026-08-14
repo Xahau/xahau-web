@@ -1,0 +1,118 @@
+---
+title: Remit
+description: >-
+  Remitトランザクションを使うと、複数の支払いタイプの送信、URITokenのミント、URITokenリストの転送、アカウントの有効化をまとめて行えます。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+Remitトランザクションは、_アカウント有効化、トラストライン、URIToken準備金_ にかかるすべての手数料を支払います。
+</Aside>
+
+[\[ソース\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/Remit.cpp)
+
+_(\[Remit amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "TransactionType": "Remit",
+    "Account": "rGvbdrdCxG2tk9ZU2673XmsjRdHCDQEpt7",
+    "Amounts": [
+        {
+            "AmountEntry": {
+                "Amount": "1000000"
+            }
+        }, {
+            "AmountEntry": {
+                "Amount": {
+                    "currency": "USD",
+                    "issuer": "rExKpRKXNz25UAjbckCRtQsJFcSfjL9Er3",
+                    "value": "1"
+                }
+            }
+        }
+    ],
+    "Destination": "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn",
+    "URITokenIDs": [
+        "714F206C865D334721B2F3388BEAF33AA91BC1D78C71941D10A2A653C873EDD3"
+    ],
+    "MintURIToken": {
+        "Digest": "6F11A4DF4EE794E2800BB361173D454BFBECB3D7506C4F4CB0EC5AE98BE43747",
+        "Flags": 1,
+        "URI": "697066733A2F2F"
+    }
+}
+```
+
+| フィールド            | JSON型 | \[Internal Type]\[] | 説明                                                                                                      |
+| ---------------- | --------- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `Account`        | String    | AccountID           | アカウントを有効化し、paymentを送信し、URITokenをミント/転送するアカウントのアドレス。                         |
+| `Destination`    | String    | AccountID           | paymentおよび/またはURITokenを受け取るアカウントの固有アドレス。                                            |
+| `DestinationTag` | Number    | UInt32              | _(任意)_ 共有カストディアカウントへの入金に使うDestinationTag。                                               |
+| `MintURIToken`   | Object    | STObject            | _(任意)_ `Destination`にミントしたいURITokenの詳細を含む`MintURIToken`STObject。                           |
+| `URITokenIDs`    | Array     | STArray             | _(任意)_ `Destination`に転送するURITokenIDs（256-bit hash）の配列。 _Limit 32._                               |
+| `Amounts`        | Array     | STArray             | _(任意)_ `Destination`に送信したい`AmountEntry`STObjectの配列。 _Limit 32._                                 |
+| `Inform`         | String    | AccountID           | _(任意)_ hookをインストールでき、Remitが発生したときに通知を受け取れるアカウントの固有アドレス。          |
+| `Blob`           | String    | Blob                | _(任意)_ Hooksで使うためにtxに追加できる任意のhexadecimal値。                                             |
+| `InvoiceID`      | String    | Hash256             | _(任意)_ このremitの特定の理由または識別子を表す任意の256-bit hash。                                        |
+
+### AmountEntryフィールド
+
+| フィールド    | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                            |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------- |
+| `Amount` | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | アカウントが`Destination`に送信したい通貨の金額。                     |
+
+### MintURITokenフィールド
+
+| フィールド    | JSON型 | \[Internal Type]\[] | 説明                                                 |
+| -------- | --------- | ------------------- | ----------------------------------------------------------- |
+| `URI`    | String    | String              | ミントされたURITokenに関連付けられるURI。（最大256 byte） |
+| `Digest` | String    | Hash256             | _(任意)_ URITokenのdigest。                           |
+| `Flags`  | Number    | UInt32              | _(任意)_ mint transactionのフラグ                     |
+
+### MintURITokenフラグ
+
+`MintURIToken` STObjectは、`Flags`フィールドで次の値をサポートします。
+
+| フラグ名    | Hex値    | 10進値 | 説明                                                                                     |
+| ------------ | ------------ | ------------- | ----------------------------------------------------------------------------------------------- |
+| `tfBurnable` | `0x00000001` | 1             | issuerがミントされた`URIToken`を破棄できるようにします。（`URIToken`のownerは _常に_ 破棄できます。） |
+
+### 特別なトランザクションコスト
+
+Remitトランザクションには標準のトランザクションコストが適用されます。これは、Xahauのすべてのトランザクションに必要な最小feeです。
+
+最小feeに加えて、Remitトランザクションは次のfeeも差し引きます。
+
+| Action               | Fee                          |
+| -------------------- | ---------------------------- |
+| `Account Activation` | Standard Reserve Requirement |
+| `Create Trustline`   | Standard Reserve Requirement |
+| `URIToken Mint`      | Standard Reserve Requirement |
+| `URIToken Transfer`  | Standard Reserve Requirement |
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、Remitトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード                     | 説明                                                                                                                                        |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temINVALID_FLAG`              | `tfFullyCanonicalSig`に固有のフラグが設定されている場合に発生します。                                                                              |
+| `temREDUNDANT`                 | `Account`が `Destination`と同じ場合に発生します。                                                                                               |
+| `temMALFORMED (Inform & Blob)` | `sfInform`がsourceまたはdestinationと同じ、またはBlobが128kibを超える場合に発生します。                                                 |
+| `temMALFORMED (AmountEntry)`   | `AmountEntry`の数が32を超える、期待される`AmountEntry`がない、native currencyが複数回現れる、issued currencyが複数回現れる場合に発生します。 |
+| `temMALFORMED (MintURIToken)`  | `sfMintURIToken`に無効なフィールドが含まれる、URIが指定されていない、URIが長すぎる/短すぎる、MintURIToken内に無効なUTF8がある場合に発生します。 |
+| `temMALFORMED (URITokenIDs)`   | URITokenIDsが短すぎる/長すぎる、またはURITokenIDが重複している場合に発生します。                                                                 |
+| `temBAD_AMOUNT`                | AmountEntry内のAmountが無効な場合に発生します。                                                                                                 |
+| `terNO_ACCOUNT`                | source accountが存在しない場合に発生します。                                                                                                       |
+| `tecNO_TARGET`                 | `sfInform`フィールドが存在するのにアカウントが存在しない場合に発生します。                                                                      |
+| `tecNO_PERMISSION`             | `disallowIncomingRemit`が`Destination`で有効な場合に発生します。                                                                               |
+| `tecNO_PERMISSION`             | `Destination`で`DepositAuthorization`が有効な場合に発生します。                                                                                |
+| `tecDST_TAG_NEEDED`            | destination accountがdestination tagを必要としているのに、トランザクションに含まれていない場合に発生します。                                  |
+| `tecDUPLICATE`                 | そのissuerのMintURIToken URIがすでに存在する場合に発生します。                                                                                 |
+| `tecDIR_FULL`                  | sourceまたはdestination accountのdirectoryがいっぱいの場合に発生します。                                                                   |
+| `tecNO_ENTRY`                  | URITokenが存在しない場合に発生します。                                                                                                           |
+| `tecNO_PERMISSION`             | URITokenがsource accountに所有されていない場合に発生します。                                                                                   |
+| `tecUNFUNDED_PAYMENT`          | source accountがトランザクションを実行するために必要な資金を持っていない場合に発生します。（XAHまたはissued currencies）                      |

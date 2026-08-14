@@ -1,0 +1,49 @@
+---
+title: xahaudを更新する
+---
+xahaudの更新手順はインストール方法によって異なりますが、いずれの方法も [https://build.xahau.tech](https://build.xahau.tech)で公開されるリリースに依存します。validator、ハブ、その他の「重要な」インフラを更新する際は、更新のためにサーバーを再起動する前にネットワークの健全性を確認してください。crontabのエントリと更新スクリプトで更新を自動化することも可能ですが、ネットワークが不安定なタイミングで再起動が発生する可能性があるため、管理者には推奨されません。同様に、人が介在することで更新の成功を確認でき、ダウンタイムを最小化できます。
+
+## バックアップ
+ユーザーは常に次のバックアップを保持すべきです。
+1. 主要な設定ファイル: `xahaud.cfg`
+    -保存場所はインストール種別によって異なります。
+2. trusted validatorsファイル: `validators-xahau.txt`
+    -保存場所は`xahaud.cfg`で指定されます。
+3. サーバーのID資格情報: `wallet.db`
+    - `xahaud.cfg`で定義されたデータベースディレクトリにあります。
+4. validatorは、validation private keyを安全なオフラインの場所にバックアップしておく必要があります。
+
+## Dockerコンテナの更新
+Dockerコンテナ内のxahaudを更新するには、[https://build.xahau.tech](https://build.xahau.tech)からダウンロードした新しいバージョンで、現在実行中のバイナリを置き換えます。これは、コンテナ内のxahaudバイナリだけを置き換える方法でも、コンテナ全体を更新する方法でも実施できます。
+<br></br>
+実行中のDockerコンテナ内のxahaudバイナリを更新するには:
+1. [スクリプト](https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh)をダウンロードします: `wget https://gist.githubusercontent.com/WietseWind/2ed35d85dcd056d82645de2958934f86/raw/34be773fd6af42e82cc3a21baf70bfb1e2a6c583/update.sh`
+2. スクリプトを編集し、1行目をインストールしたい [リリースバージョン](https://build.xahau.tech)に変更します。
+3. スクリプトを実行します: `bash ./update.sh`
+4. xahaudが実行されていることを確認します: `docker exec xahaud-[mainnet/testnet] xahaud server_info`
+<br></br>
+データベースや設定ファイルを上書きせずに (これらは .gitignoreにより無視されます)、現在のDockerイメージを新しいバージョンに置き換えるには:
+1. リポジトリへ移動します: `cd [/path/to/docker-repo]`
+2. 最新版に更新します: `git pull`
+3. 実行中のDockerコンテナを一覧表示し、xahaudコンテナ名を確認します: `docker ps`
+4. 古いxahaudインスタンスを停止します: `docker stop xahaud-[mainnet/testnet]`
+5. 古いインスタンスを削除します: `docker rm xahaud-[mainnet/testnet]`
+6. 新しいインスタンスを起動します: `./build && ./up`
+
+## ローカルインストールの更新
+ローカルにインストールしたxahaudを更新するには、現在のバイナリを新しいバイナリに置き換えるだけです。
+1. 新しいバイナリを [https://build.xahau.tech](https://build.xahau.tech)からダウンロードします。
+2. 新しいバイナリに実行権限を付与します: `chmod +x [/path/to/download]`
+3. 現在実行中のxahaudインスタンスを停止します: `/opt/xahaud/bin/xahaud stop`
+4. 古いバイナリを新しいバイナリに置き換えます: `mv [/path/to/download] /opt/xahaud/bin/xahaud`
+5. xahaudを起動します: `systemctl start xahaud`
+6. xahaudが実行中であることを確認します: `/opt/xahaud/bin/xahaud server_info`
+<br></br>
+上記の手順を自動化する [スクリプト](https://gist.githubusercontent.com/WietseWind/9480a4fc95e904e54524406005c8c963/raw/2b200fdc2e5b471ae4f6625674aff1765d63e744/update.sh)もあります。
+
+## バイナリファイルの更新
+xahaudのバイナリファイル更新は、基本的に最初のインストール手順と同じです。
+1. 現在実行中のバージョンを削除します: `rm [/path/to/xahaud]`
+2. 新しいバージョンを [https://build.xahau.tech](https://build.xahau.tech)からダウンロードします。
+3. ダウンロードしたファイルを実行可能にします: `chmod 500 [/path/to/xahaud]`
+4. xahaudを起動します: `./[path/to/xahud] --net --conf [/path/to/xahaud.cfg]`

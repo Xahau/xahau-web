@@ -1,0 +1,141 @@
+---
+title: sto_emplace
+description: 既存のSTObjectの正規位置にフィールドを挿入します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/serialized-objects">シリアライズ済みオブジェクト</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `sread_ptr`が指すSTObject `S`（ソースオブジェクト）を解析します
+* `fread_ptr`が指すSTObject `F`（挿入/emplaceする対象）を解析します
+* `F`を`S`内の正規位置`field_id`に配置した新しいSTObjectを`write_ptr`に書き込みます
+
+<Aside type="caution" title="フィールドIDのエンコード">
+`sto_` APIは、次の形式でエンコードされた`field_id`パラメーターを受け取ります: `(type << 16U) + field`\
+したがって、typeが1、fieldが2の場合は`0x10002U`になります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* パラメーター`sto`でSTOオブジェクトを受け取ります
+* パラメーター`field_bytes`で追加するフィールドを表すバイト列を受け取ります
+* パラメーター`field_id`で追加するフィールドのIDを受け取ります
+* バイナリエンコードされたレジャーデータ形式の更新済みSTOオブジェクトを返します。操作に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_emplace (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t sread_ptr,
+    uint32_t sread_len,
+    uint32_t fread_ptr,
+    uint32_t fread_len,
+    uint32_t field_id
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_emplace(
+    sto: ByteArray | HexString,
+    field_bytes: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t tx_out[1024];
+
+int64_t tx_len =
+    sto_emplace(tx_out, sizeof(tx_out),
+                tx_in, tx_len,
+                sequence_field, 5, sfSequence);
+
+if (tx_len <= 0)
+    rollback("Emplacing failed.", 17, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const tx_out = sto_emplace(tx_in, sequence_field, sfSequence)
+if (typeof tx_out === 'number')
+    rollback("Emplacing failed.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前       | 型        | 説明                                                                                                                                                                    |
+| ---------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | 変更後のSTObjectを書き込むバッファ                                                                                                                                     |
+| write_len | uint32_t | 出力バッファの長さ                                                                                                                                                      |
+| sread_ptr | uint32_t | ソースSTObjectを読み取るバッファ                                                                                                                                        |
+| sread_len | uint32_t | ソースオブジェクトの長さ                                                                                                                                                |
+| fread_ptr | uint32_t | emplace/挿入するフィールドを読み取るバッファ                                                                                                                            |
+| fread_len | uint32_t | emplace/挿入するフィールドの長さ                                                                                                                                        |
+| field_id  | uint32_t | 挿入位置を形成する`sf`コード（位置）。これがソースオブジェクトに既に存在する場合、既存のフィールドが上書きされます。存在しない場合は挿入されます。                     |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前         | 型                     | 説明                                                                          |
+| ------------ | ---------------------- | ----------------------------------------------------------------------------- |
+| sto          | ByteArray \| HexString | フィールドを追加する対象のSTOオブジェクト（バイナリエンコードされたレジャーデータ）。 |
+| field_bytes | ByteArray \| HexString | 追加するフィールドを表すバイト列。                                            |
+| field_id    | number                 | 追加するフィールドのID。                                                      |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="169">型</th><th>説明</th></tr></thead><tbody><tr><td>int64_t</td><td><code>write_ptr</code>に書き込まれたバイト数<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-ポインター/長さがHookメモリ外を指定しています。<br /><br /><code>TOO_SMALL</code><br />-フィールドが上書きされるだけの場合でも、出力バッファは少なくともソースオブジェクト + 挿入されるフィールドと同じ大きさである必要があります。<br /><br /><code>TOO_BIG</code><br />- emplaceしようとしているフィールドが大きすぎます<br /><br /><code>PARSE_ERROR</code><br />-指定されたSTObjectの形式が不正であるか、STObjectではありません。</td></tr></tbody></table>
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="169">型</th><th>説明</th></tr></thead><tbody><tr><td>ErrorCode | ByteArray</td><td>バイナリエンコードされたレジャーデータ形式の更新済みSTOオブジェクト。操作に失敗した場合はエラーコード。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

@@ -1,0 +1,116 @@
+---
+title: float_root
+description: XFLのn乗根を計算します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL数値の`nth`乗根を計算します
+* 新しいXFLを返します
+
+<Aside type="caution">
+速度上の制約により、`float_root`はn乗根を適用する前に、引数をIEEE 2進倍精度浮動小数点数に変換します。そのため、返される結果は期待より低い精度になることがよくあります。より高い精度が必要な場合は、XFLを高位と低位の積に分割し、それらの積の平方根を個別に取ってから、結果を乗算することを検討してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 浮動小数点数表現のn乗根を計算します。
+* エラーコード、または結果の根をbigintとして返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_root (
+    int64_t float1,
+    uint32_t n
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_root(f1: bigint, n: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t three =
+    float_root(nine, 2);
+```
+
+<Aside type="caution">
+負の数が渡された場合、根が偶数根であれば、この関数は`COMPLEX_NOT_SUPPORTED`を返します。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const three =
+  float_root(nine, 2)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前   | 型        | 説明                                                                                                     |
+| ------ | --------- | -------------------------------------------------------------------------------------------------------- |
+| float1 | int64_t  | 平方根を取る浮動小数点数を表すXFL浮動小数点格納数                                                       |
+| n      | uint32_t | 計算する根。例えば`2`は平方根です。                                                                      |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前 | 型     | 説明                                 |
+| ---- | ------ | ------------------------------------ |
+| f1   | bigint | 根を計算する浮動小数点数。           |
+| n    | number | 計算する根の次数。                   |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+
+
+| 型       | 説明                                                                                                                                                                                                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>計算されたn乗根<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターが有効なXFL格納数ではありません<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />-指定されたパラメーターが負の数で、複素根が生じます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                  | 説明                                                     |
+| ------------------- | -------------------------------------------------------- |
+| bigint or ErrorCode | エラーコード、または結果の根をbigintとして返します。     |
+</TabItem>
+</Tabs>

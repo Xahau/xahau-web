@@ -1,0 +1,82 @@
+---
+title: float_one
+description: XFL格納数で表現された数値1を返します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 1（`1`）をXFL int64_tとして返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 数値の浮動小数点数表現を取得します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_one();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_one(): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t one =
+    float_one();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const one = float_one()
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+この関数はパラメーターを取りません。
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                             |
+| -------- | -------------------------------- |
+| int64_t | XFL (xls17)格納数                |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                             |
+| ------------------- | -------------------------------- |
+| ErrorCode \| bigint | XFL (xls17)格納数                |
+</TabItem>
+</Tabs>

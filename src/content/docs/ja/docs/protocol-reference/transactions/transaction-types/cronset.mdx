@@ -1,0 +1,99 @@
+---
+title: CronSet
+description: >-
+  CronSetトランザクションを使うと、HooksはLinuxのcronjobのように、定期的な自己呼び出しをスケジュールできます。これにより、Hookフレームワーク内で複雑なガバナンス構造や自動化プロセスを実現しやすくなります。
+---
+[\[ソース\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/CronSet.cpp)
+
+_(CronSet amendmentにより追加。)_
+
+### 例
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "StartTime": 816348759,
+  "RepeatCount": 3,
+  "DelaySeconds": 120
+}
+```
+
+| フィールド          | JSON型 | \[Internal Type]\[] | 説明                                                                                                                                                                      |
+| -------------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`      | String    | AccountID           | cronを開始するHookアカウントです。cron実行時に呼び出されるアカウントでもあります。                                                                                         |
+| `StartTime`    | Number    | UInt32              | _(任意)_ 最初の実行を開始するRipple Epochのタイムスタンプ。即時実行には`0`を使用します。cronを削除する際に省略すると、そのcronを削除します。                       |
+| `RepeatCount`  | Number    | UInt32              | _(任意)_ cronを実行する回数（1トランザクションあたり最大256）。後続のCronSetトランザクションで延長できます。cronを削除する際は省略します。                              |
+| `DelaySeconds` | Number    | UInt32              | _(任意)_ 各実行の間隔を秒単位で指定します。cronを削除する際は省略します。                                                                                                  |
+
+### CronSetの仕組み
+
+CronSetトランザクションは、Xahauブロックチェーン上でHookを定期的に自動実行できるようにし、外部サービスや手動トリガーを不要にします。
+
+ワークフローは次の4つの主要なステップで構成されます。
+
+1. `hsfCOLLECT`フラグを有効にしたHookをインストールする
+2. アカウントでTransaction Signature Hook Collection`asfTshCollect`を有効にする（SetFlag: 11）
+3. スケジュールパラメーター付きのCronSetトランザクションを作成する
+4. 自動実行はXahauに任せる
+
+### 実行メカニズム
+
+cronの実行準備が整うと、Cronエンジンは`Cron`タイプのpseudo-transactionをレジャーに挿入し、元のHookアカウントを参照する`Owner`フィールドを含めます。Ownerはweak transactional stakeholderに当たるため、Hook開発者はcollect呼び出しを有効にする必要があります。
+
+スケジュールされたHookは、外部トリガーなしで指定された間隔ごとに自動的に呼び出されます。
+
+### 時刻形式
+
+XahauはUnix timeではなくRipple Epoch time（2000年1月1日からの秒数）を使います。JavaScriptのDateから変換するには、次のようにします。
+
+```javascript
+const rippleEpochTime = Math.floor(Date.now() / 1000) - 946684800;
+```
+
+### Cronの削除
+
+既存のCronを削除するには、`Flags: 1`（tfCronUnset）を設定しつつ、`StartTime`、`RepeatCount`、`DelaySeconds`を省略します。
+
+```json
+{
+  "TransactionType": "CronSet",
+  "Account": "rYourAccountAddress",
+  "Flags": 1
+}
+```
+
+### Repeat Countの延長
+
+最小しきい値に達すると、後続のCronSetトランザクションで更新した`RepeatCount`を指定して、新しいCronSetトランザクションを送信することで、repeat countを初期の256実行上限を超えて延長できます。
+
+### CronSetフラグ
+
+CronSetタイプのトランザクションは、`Flags`フィールドで次の追加値をサポートします。
+
+| フラグ名     | Hex値    | 10進値 | 説明                                                                      |
+| ------------- | ------------ | ------------- | -------------------------------------------------------------------------------- |
+| `tfCronUnset` | `0x00000001` | 1             | 既存のCronを削除します。これを設定した場合、すべてのscheduling fieldを省略する必要があります。 |
+
+### 制限と条件
+
+- CronSetは現在、他のアカウントに委任できません
+- HooksはCronSetトランザクションを自分で発行するか、共同管理の取り決めの下で動作する必要があります
+- `RepeatCount`: 0より大きく、1トランザクションあたり256を超えてはなりません（後続のトランザクションで延長可能）
+- `DelaySeconds`:最大31,536,000秒（365日）
+- `StartTime`:現在時刻以降でなければならず、365日先を超えてはなりません
+- `tfCronUnset`フラグは`DelaySeconds`、`RepeatCount`、`StartTime`フィールドと併用できません
+- cronを作成するときは、`DelaySeconds`と`RepeatCount`の両方が存在するか、両方とも存在しないかのどちらかでなければなりません
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、CronSetトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード         | 説明                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| `temDISABLED`      | Cron機能が有効でない場合に発生します。                                                            |
+| `temINVALID_FLAG`  | トランザクションに無効なフラグが設定されている場合に発生します。                                  |
+| `temMALFORMED`     | 無効なフィールドの組み合わせでトランザクションが不正な形式である場合に発生します。               |
+| `tecEXPIRED`       | `StartTime`が過去、または365日より先の場合に発生します。                                       |
+| `tefINTERNAL`      | アカウントのレジャーエントリが存在しない場合に発生します。                                        |
+| `tefBAD_LEDGER`    | Cronオブジェクトが存在しない、非cronエントリを指している、またはowner directoryの削除に失敗した場合に発生します。 |

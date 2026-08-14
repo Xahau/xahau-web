@@ -1,0 +1,65 @@
+---
+title: 状態管理
+description: Hooksはレジャー上の小さなデータを読み取り保存できます 🚀
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Hook状態とは？
+
+コンピューターサイエンスにおける[状態](https://en.wikipedia.org/wiki/State_\(computer_science\))は、実行と実行の間にシステムが保持する情報（入力や出力とは区別されます）を表します。たとえば、ブラウザはWebサイトを閉じて再度開いた後でもログイン状態を維持します。ログインCookieはブラウザの _状態_ に保持されています。
+
+**Hook状態**とは、Xahau上の各アカウントに論理的に存在するKey-Valueマッピングを指します。現在キーが存在するかどうかは問いません。キーは常に32バイト（符号なし256ビット整数）で、値は可変長です。最大サイズはバリデーター投票によって決定され、執筆時点では256バイトです。
+
+状態管理は次を使用して実現されます。
+
+* [state](/ja/docs/hooks/functions/state/state)
+* [state_set](/ja/docs/hooks/functions/state/state_set)
+* [state_foreign](/ja/docs/hooks/functions/state/state_foreign)
+
+### 保存と取得
+
+以下の例では、[state_set](/ja/docs/hooks/functions/state/state_set) Hook APIを使用して、値`0xC001CAFE`をHookアカウントのHook状態内のキー`0x0..000001`（uint256 = 1）に割り当てます。
+
+```c
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+uint8_t value[4] = { 0xC0U, 0x01U, 0xCAU, 0xFEU };
+if (state_set(value, 4, key, 32) == 4)
+{
+    // ... state successfully saved
+}
+```
+
+後続のHook実行では、同じキーを使用してこの値を取得できます。
+
+```c
+uint8_t value[4];
+uint8_t key[32] = {
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U,
+    0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U
+};
+if (state(value, 4, key, 32) < 0)
+{
+    // ... state fetch failed
+}
+```
+
+上記のコードが実行された後、`value`バッファにはそのキーで見つかった値が格納されます。
+
+<Aside type="tip">
+  <code>state()</code>が読み込むバッファ（<code>writeptr</code>）は、そのキーに現在保持されている値を格納するのに十分な大きさでなければなりません。そうでない場合、Hook APIは<code>TOO_SMALL</code>エラーを返します。
+</Aside>
+
+### 外部状態
+
+あるアカウント上で実行されているHookが、別のアカウント上で実行されている別のHookのHook状態を読み取れると有利な場合があります。[state_foreign](/ja/docs/hooks/functions/state/state_foreign) Hook APIはまさにこれを行います。レジャーは公開されているため、そもそもプライバシーに関する合理的な期待はありません。したがって、任意のHookは他の任意のHookのHook状態を _読み取る_ ことができます（ただし書き込むことはできません）。
+
+### 名前空間と問い合わせ
+
+[名前空間](/ja/docs/hooks/concepts/namespaces)を参照してください。

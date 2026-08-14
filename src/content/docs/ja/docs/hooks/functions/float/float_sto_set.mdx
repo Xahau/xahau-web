@@ -1,0 +1,109 @@
+---
+title: float_sto_set
+description: シリアライズ済み金額をXFLに読み込みます
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+<LinkButton href="/ja/docs/hooks/concepts/serialized-objects">シリアライズ済みオブジェクト</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* シリアライズ済み浮動小数点数を読み取ります。
+* シリアライズ済み浮動小数点数の後に追加のフィールド/データがある場合、それらを無視します。
+* それをXFL格納数として返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 浮動小数点数表現を保存するバッファを設定します。
+* ErrorCode、または結果を数値として返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_sto_set (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_sto_set(buf: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t vault_pusd = float_sto_set(vault, 8);
+if (vault_pusd < 0)
+  rollback("Failed to parse serialized float.", 33, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const vault_pusd = float_sto_set(vault)
+if (typeof vault_pusd === 'string')
+  rollback("Failed to parse serialized float.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前      | 型        | 説明                                                              |
+| --------- | --------- | ----------------------------------------------------------------- |
+| read_ptr | uint32_t | シリアライズ済みXFLを含むバッファへのポインター。_nullでもかまいません。_ |
+| read_len | uint32_t | バッファの長さ。                                                  |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前 | 型                     | 説明               |
+| ---- | ---------------------- | ------------------ |
+| buf  | ByteArray \| HexString | 設定するバッファ。 |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>出力バッファに書き込まれたバイト数。<br /><br />負の場合はエラー:<br /><code>NOT_AN_OBJECT</code><br />-指定されたバッファに有効なシリアライズ済み浮動小数点数が含まれていませんでした<br /><br /><code>OUT_OF_BOUNDS</code><br />-ポインター/長さがHookメモリ外を指定しています。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                                     |
+| ------------------- | ---------------------------------------- |
+| ErrorCode or number | エラーコード、または結果を数値として返します。 |
+</TabItem>
+</Tabs>

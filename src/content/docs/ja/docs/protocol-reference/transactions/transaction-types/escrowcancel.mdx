@@ -1,0 +1,42 @@
+---
+title: EscrowCancel
+description: escrow中のXAHまたはIOUを送信者に戻します。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(\[Escrow amendment]\[]により追加。)_
+
+### OfferSequenceを使ってキャンセル
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCancel",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "OfferSequence": 7,
+}
+```
+
+### EscrowIDを使ってキャンセル
+
+```json
+{
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "TransactionType": "EscrowCancel",
+    "Owner": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "EscrowID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+}
+```
+
+### フィールド
+
+| フィールド           | JSON型 | \[Internal Type]\[] | 説明                                                                                                                |
+| --------------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `Owner`         | String    | AccountID           | escrow支払いに資金を出した送信元アカウントのアドレス。                                                                   |
+| `OfferSequence` | Number    | UInt32              | _(任意)_ キャンセルするescrowを作成した \[EscrowCreate transaction]\[]のトランザクションシーケンス（またはTicket番号）。 |
+| `EscrowID`      | String    | Hash256             | _(任意)_ キャンセルするEscrowレジャーオブジェクトのID。64文字のhexadecimal文字列です。                          |
+
+どのアカウントでもEscrowCancelトランザクションを送信できます。
+
+* 対応する \[EscrowCreate transaction]\[]で`CancelAfter`時刻が指定されていなかった場合、EscrowCancelトランザクションは失敗します。
+* それ以外の場合、`CancelAfter`時刻が直近にクローズされたレジャーのclose timeより後であれば、EscrowCancelトランザクションは失敗します。

@@ -1,0 +1,123 @@
+---
+title: ledger_keylet
+description: 現在のレジャーで指定された範囲内のKeyletを検索します
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `lread_ptr`から34バイトのKeyletを読み取ります
+* `hread_ptr`から32バイトのKeyletを読み取ります
+* この範囲内で、このタイプの最初の（最小の）Keyletをレジャーから検索します。
+* 一致するKeyletが見つかった場合は、それを`write_ptr`に書き込みます。
+</TabItem>
+
+<TabItem label="JavaScript">
+* この関数は、指定された範囲内で、このタイプの最初の（`lowest`）Keyletをレジャーから検索します。
+* 成功した場合は書き込まれたバイト数（34バイト）を返し、エラーが発生した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_keylet (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t lread_ptr,
+    uint32_t lread_len,
+    uint32_t hread_ptr,
+    uint32_t hread_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_keylet(
+    low: ByteArray | HexString,
+    high: ByteArray | HexString
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+C
+
+<Tabs>
+<TabItem label="C">
+```c
+//TODO
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+ledger_keylet(low, high)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前       | 型        | 説明                                                                                                       |
+| ---------- | --------- | ---------------------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | 出力シリアライズ済みKeyletを保存するバッファへのポインター。                                               |
+| write_len | uint32_t | 出力バッファの長さ。34バイトである必要があります                                                          |
+| lread_ptr | uint32_t | 検索するKeylet範囲の下限を表す34バイトのシリアライズ済みKeyletへのポインター。                            |
+| lread_len | uint32_t | 常に34バイト                                                                                               |
+| hread_ptr | uint32_t | 検索するKeylet範囲の上限を表す34バイトのシリアライズ済みKeyletへのポインター。                            |
+| hread_len | uint32_t | 常に34バイト                                                                                               |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前 | 型                     | 説明                                                                                                       |
+| ---- | ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| low  | ByteArray \| HexString | 検索するKeylet範囲の下限を表す34バイトのシリアライズ済みKeyletへのポインター。                            |
+| high | ByteArray \| HexString | 検索するKeylet範囲の上限を表す34バイトのシリアライズ済みKeyletへのポインター。                            |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>成功時は書き込まれたバイト数（34バイト）。<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-ポインター/長さがHookメモリ外を指定しています。<br /><br /><code>TOO_SMALL</code> / <code>TOO_BIG</code><br />- <code>write_len</code>、<code>lread_len</code>、または<code>hread_len</code>が34バイトではありません<br /><br /><code>INVALID_ARGUMENT</code><br />-指定されたKeyletの1つ以上が有効なシリアライズ済みKeyletではありません<br /><br /><code>DOES_NOT_MATCH</code><br />-指定された2つのKeyletが同じKeyletタイプではありません。<br /><br /><code>DOESNT_EXIST</code><br />-指定された範囲内で一致するKeyletが見つかりませんでした。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                     | 説明                                                                                            |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | 成功時は書き込まれたバイト数（34バイト）を返し、エラーが発生した場合はエラーコードを返します。 |
+</TabItem>
+</Tabs>

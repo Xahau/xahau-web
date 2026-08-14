@@ -1,0 +1,91 @@
+---
+title: SetRemarks
+description: >-
+  SetRemarksトランザクションを使うと、対応するレジャーオブジェクトに任意のremark（key-value pair）を追加、更新、または削除できます。
+---
+[\[ソース\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetRemarks.cpp)
+
+_(\[Remarks amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+  "TransactionType": "SetRemarks",
+  "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+  "Flags": 0,
+  "ObjectID": "AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899",
+  "Remarks": [
+    {
+      "Remark": {
+        "RemarkName": "CAFE",
+        "RemarkValue": "DEADBEEF",
+        "Flags": 0
+      }
+    }
+  ]
+}
+
+```
+
+| フィールド      | JSON型 | 内部型 | 説明                                                                                    |
+| ---------- | --------- | ------------- | ---------------------------------------------------------------------------------------------- |
+| `Account`  | String    | AccountID     | トランザクションを送信するアカウントのアドレス（オブジェクトのowner / issuerでなければなりません） |
+| `ObjectID` | String    | Hash256       | remarkを付けるレジャーオブジェクトID（Supported Objectsを参照）                            |
+| `Remarks`  | Array     | Array         | 設定、更新、または削除するremarkオブジェクトの配列（Remarks Formatを参照）                 |
+
+### SetRemarksフラグ
+
+| フラグ名     | Hex値    | 10進値 | 説明                                             |
+| ------------- | ------------ | ------------- | ------------------------------------------------------- |
+| `tfImmutable` | `0x00000001` | 1             | remarkをimmutableにします（変更・削除不可）         |
+
+### Remarks形式
+
+`Remarks`配列の各要素は、単一の`Remark`フィールドを持つオブジェクトです。その`Remark`自体は、次のフィールドを持つオブジェクトです。
+
+| フィールド         | JSON型 | 内部型 | 必須 | 説明                                                              |
+| ------------- | --------- | ------------- | -------- | ------------------------------------------------------------------------ |
+| `RemarkName`  | String    | Blob          | Yes      | remarkの名前/ key（1-256 bytes、オブジェクトごとに一意である必要があります） |
+| `RemarkValue` | String    | Blob          | No       | remarkのvalue（1-256 bytes）。削除するには省略します。                 |
+| `Flags`       | Number    | UInt32        | No       | `1`（`tfImmutable`）にするとremarkがimmutableになります。既定値は`0`です。 |
+
+### 対応オブジェクトと権限
+
+remarkは次のレジャーオブジェクトタイプに付けられます。**各オブジェクトについて、指定された当事者（ownerまたはissuer）だけがremarkを作成・更新・削除できます。**
+
+| Ledger Object Type          | Who Can Set Remarks? | Notes                                                                                    |
+| --------------------------- | -------------------- | ---------------------------------------------------------------------------------------- |
+| **AccountRoot**             | Owner                | アカウント自身（オブジェクト内のアドレス）                                               |
+| **Offer**                   | Owner                | offerを作成したアカウント                                                               |
+| **Escrow**                  | Owner                | escrowを作成したアカウント                                                              |
+| **Ticket**                  | Owner                | ticketを作成したアカウント                                                              |
+| **PayChannel**              | Owner                | payment channelを作成したアカウント                                                     |
+| **Check**                   | Owner                | checkを作成したアカウント                                                               |
+| **DepositPreauth**          | Owner                | deposit preauthorizationを作成したアカウント                                           |
+| **URI Token**               | Issuer               | URI tokenを発行したアカウント（フィールド `sfIssuer`）                                   |
+| **Trustline (RippleState)** | Issuer               | trustlineのissuer側（IOUを発行したアカウント）だけがremarkを設定できます。         |
+
+### 制限
+
+* オブジェクトごとに **最大32個のremark**
+* 各 `RemarkName`と RemarkValue`は1-256 bytesでなければなりません
+* 各 `RemarkName`はオブジェクトごとに一意でなければなりません
+* remarkがimmutable（`Flags: 1`）にされた後は、変更も削除もできません
+
+### 特別なトランザクションコスト
+
+基本のトランザクションコストに、トランザクション内のすべての`RemarkName`と`RemarkValue`フィールドのbytes数に対して**1 drop / byte**が加算されます。
+
+### エラーケース
+
+| エラーコード            | 説明                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| `temDISABLED`         | Remarks amendmentが有効でない場合。                                                        |
+| `temINVALID_FLAG`     | トランザクションに無効なフラグが設定されている場合。                                       |
+| `temMALFORMED`        | トランザクションが不正な形式である場合（例: remarkが多すぎる、名前が重複している、フィールドサイズが無効）。 |
+| `terNO_ACCOUNT`       | 送信アカウントが存在しない場合。                                                            |
+| `tecNO_TARGET`        | 対象オブジェクトが存在しない場合。                                                          |
+| `tecNO_PERMISSION`    | 送信者がオブジェクトのowner / issuerでない場合。                                          |
+| `tecIMMUTABLE`        | immutableなremarkの変更または削除を試みた場合。                                           |
+| `tecTOO_MANY_REMARKS` | オブジェクト上のremark数が32の上限を超える場合。                                         |

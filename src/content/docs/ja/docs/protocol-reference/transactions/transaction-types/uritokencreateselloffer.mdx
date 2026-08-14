@@ -1,0 +1,46 @@
+---
+title: URITokenCreateSellOffer
+description: >-
+  URITokenCreateSellOfferトランザクションを使うと、ユーザーはXahauのdecentralized exchangeでURITokenのsell offerを作成できます。
+---
+[\[ソース\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)
+
+_(\[URIToken amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "TransactionType": "URITokenCreateSellOffer",
+    "Account": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "Amount": {
+      "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+      "currency": "USD",
+      "value": "100",
+    },
+}
+```
+
+### フィールド
+
+| フィールド         | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                                       |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------- |
+| `Account`     | String                                                                                                                             | AccountID           | sell offerを作成するアカウントのアドレス。                                      |
+| `URITokenID`  | String                                                                                                                             | Hash256             | 売却されるURITokenのID。                                                       |
+| `Destination` | String                                                                                                                             | AccountID           | _(任意)_ sell offerを受け取るアカウントのアドレス。                         |
+| `Amount`      | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | URITokenと引き換えに受け取りたい通貨の金額。                                      |
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、URITokenCreateSellOfferトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード               | 説明                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| `tecNO_TARGET`           | 対象アカウントが存在しない場合に発生します。                                   |
+| `tecNO_PERMISSION`       | アカウントにsell offerを作成する権限がない場合に発生します。                 |
+| `tecINSUF_RESERVE_LINE`  | アカウントにsell offerを作成するだけの十分なreserveがない場合に発生します。 |
+| `tecINSUF_RESERVE_OFFER` | アカウントにsell offerを作成するだけの十分なreserveがない場合に発生します。 |
+| `tecUNFUNDED_OFFER`      | アカウントにsell offerを作成するのに十分な残高がない場合に発生します。       |
+| `tecOFFER_INVALID`       | sell offerが無効な場合に発生します。                                           |

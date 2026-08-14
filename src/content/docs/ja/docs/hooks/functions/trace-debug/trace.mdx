@@ -1,0 +1,98 @@
+---
+title: trace
+description: バッファの内容をXahaudのトレースログに書き込む
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* Hook内部からバッファを、メッセージがあればそれと共にトレースログへ書き込む
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t trace (
+    uint32_t mread_ptr,
+    uint32_t mread_len,
+    uint32_t dread_ptr,
+    uint32_t dread_len,
+    uint32_t as_hex
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function trace(
+    message: string | null,
+    data: any,
+    hex: boolean | 0 | 1
+  ): ErrorCode
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SBUF(str) (uint32_t)(str), sizeof(str)
+trace(SBUF("Buffer conatained"), SBUF(some_buffer), 1);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+trace("Buffer conatained", some_buffer, 1);
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前      | 型        | 説明                                                                                         |
+| ---------- | --------- | --------------------------------------------------------------------------------------------------- |
+| mread_ptr | uint32_t | バッファの前に出力するメッセージへのポインター。_null可。_                                          |
+| mread_len | uint32_t | メッセージの長さ。_null可。_                                                                      |
+| dread_ptr | uint32_t | 出力するバッファへのポインター。                                                                     |
+| dread_len | uint32_t | 出力するバッファの長さ。                                                                           |
+| as_hex    | uint32_t | <p><code>1</code> の場合はバッファをhexとして出力する。<br /><code>0</code> の場合はバッファをutf-8として出力する。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前    | 型    | 説明                                                                       |
+| ------- | ----- | -------------------------------------------------------------------------- |
+| message | string | 「ログキー」。バッファの前に出力するメッセージ (null可)                  |
+| data    | any    | ログに出力するデータ                                                       |
+| hex     | boolean | <p>HEX形式でログするか。<br /><br />0 -いいえ<br />1 -はい</p>        |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型      | 説明                                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>成功時は <code>0</code><br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-指定したポインター/長さがHookメモリの外側にある。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型        | 説明                                                                                 |
+| --------- | ------------------------------------------------------------------------------------- |
+| ErrorCode | <p>int64_t。成功時の値は0。</p><p></p><p> 負の場合はエラー: OUT_OF_BOUNDS</p> |
+</TabItem>
+</Tabs>
