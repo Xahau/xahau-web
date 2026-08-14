@@ -10,11 +10,7 @@
     },
     "i18n": {
       "defaultLocale": "en",
-      "locales": [
-        "en",
-        "es",
-        "pt-BR"
-      ]
+      "locales": ["en", "es", "pt-BR"]
     }
   },
   "labels": {
@@ -264,7 +260,7 @@
       "lane": "tech",
       "status": "feature",
       "quarter": "2026-Q2",
-      "endQuarter": "2026-Q2",
+      "endQuarter": "2026-Q3",
       "phase": "feature",
       "note": "beta",
       "title": {

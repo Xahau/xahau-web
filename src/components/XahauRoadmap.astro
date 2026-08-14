@@ -66,7 +66,7 @@ const tagFor = (it: RoadmapItem): string => {
     if (here ?? base) return (here ?? base) as string
     throw new Error(
       `roadmap.json: item "${it.id}" uses ${kind === 'phases' ? 'phase' : 'note'} ` +
-        `"${key}", which is not defined in labels.${defaultLocale}.tags.${kind}.`
+        `"${key}", which is not defined in labels.${defaultLocale}.tags.${kind}.`,
     )
   }
 
