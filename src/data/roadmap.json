@@ -1,6 +1,5 @@
 {
-  "$comment": "Xahau roadmap source of truth. Edit this file to add/update/remove items. Committed JSON is rendered at build time by src/components/XahauRoadmap.astro — no runtime JS required.",
-
+  "$comment": "Xahau roadmap source of truth. Edit this file to add/update/remove items. Committed JSON is rendered at build time by src/components/XahauRoadmap.astro — no runtime JS required. Card tags come from `labels.<locale>.tags`: set `phase` (and optionally `note`) on an item instead of writing the tag text per locale.",
   "meta": {
     "updated": "2026-04-19",
     "window": {
@@ -11,10 +10,13 @@
     },
     "i18n": {
       "defaultLocale": "en",
-      "locales": ["en", "es", "pt-BR"]
+      "locales": [
+        "en",
+        "es",
+        "pt-BR"
+      ]
     }
   },
-
   "labels": {
     "en": {
       "title": "Xahau Roadmap",
@@ -53,6 +55,33 @@
         "pilot": "Pilot",
         "partnership": "Partnership",
         "launch": "Launch / public good"
+      },
+      "tags": {
+        "$comment": "Card tag vocabulary. Items reference these by key via `phase` / `note`; the card renders \"<phase> · <note>\". Edit a word here and it changes everywhere it is used. A `note` is written to agree with the `phase` it follows (gender/number), so check before reusing one under a new phase.",
+        "phases": {
+          "feature": "Feature",
+          "ongoing": "Ongoing",
+          "live": "Live",
+          "ga": "GA",
+          "pilot": "Pilot",
+          "launch": "Launch",
+          "partnerships": "Partnerships",
+          "enterprise": "Enterprise",
+          "event": "Event"
+        },
+        "notes": {
+          "activated": "Activated",
+          "ready-for-amendment": "ready for amendment",
+          "in-development": "in development",
+          "alpha": "in alpha development",
+          "beta": "in beta development",
+          "audits-optimisations": "audits + optimisations",
+          "remittance": "remittance",
+          "payments": "payments",
+          "public-good": "public good",
+          "quarterly": "quarterly",
+          "enterprise-devs": "enterprise + devs"
+        }
       },
       "foot": "Directional - subject to change - xahau.network"
     },
@@ -94,6 +123,33 @@
         "partnership": "Alianza",
         "launch": "Lanzamiento / bien público"
       },
+      "tags": {
+        "$comment": "Card tag vocabulary. Items reference these by key via `phase` / `note`; the card renders \"<phase> · <note>\". Edit a word here and it changes everywhere it is used. A `note` is written to agree with the `phase` it follows (gender/number), so check before reusing one under a new phase.",
+        "phases": {
+          "feature": "Función",
+          "ongoing": "Continuo",
+          "live": "En vivo",
+          "ga": "GA",
+          "pilot": "Piloto",
+          "launch": "Lanzamiento",
+          "partnerships": "Alianzas",
+          "enterprise": "Empresarial",
+          "event": "Evento"
+        },
+        "notes": {
+          "activated": "activada",
+          "ready-for-amendment": "lista para enmienda",
+          "in-development": "en desarrollo",
+          "alpha": "en desarrollo alfa",
+          "beta": "en desarrollo beta",
+          "audits-optimisations": "auditorías y optimizaciones",
+          "remittance": "remesas",
+          "payments": "pagos",
+          "public-good": "bien público",
+          "quarterly": "trimestral",
+          "enterprise-devs": "empresas y desarrolladores"
+        }
+      },
       "foot": "Orientativo - sujeto a cambios - xahau.network"
     },
     "pt-BR": {
@@ -134,10 +190,36 @@
         "partnership": "Parceria",
         "launch": "Lançamento / bem público"
       },
+      "tags": {
+        "$comment": "Card tag vocabulary. Items reference these by key via `phase` / `note`; the card renders \"<phase> · <note>\". Edit a word here and it changes everywhere it is used. A `note` is written to agree with the `phase` it follows (gender/number), so check before reusing one under a new phase.",
+        "phases": {
+          "feature": "Funcionalidade",
+          "ongoing": "Contínuo",
+          "live": "Ao vivo",
+          "ga": "GA",
+          "pilot": "Piloto",
+          "launch": "Lançamento",
+          "partnerships": "Parcerias",
+          "enterprise": "Empresarial",
+          "event": "Evento"
+        },
+        "notes": {
+          "activated": "ativada",
+          "ready-for-amendment": "pronta para emenda",
+          "in-development": "em desenvolvimento",
+          "alpha": "em desenvolvimento alfa",
+          "beta": "em desenvolvimento beta",
+          "audits-optimisations": "auditorias e otimizações",
+          "remittance": "remessas",
+          "payments": "pagamentos",
+          "public-good": "bem público",
+          "quarterly": "trimestral",
+          "enterprise-devs": "empresas e desenvolvedores"
+        }
+      },
       "foot": "Direcional - sujeito a alterações - xahau.network"
     }
   },
-
   "items": [
     {
       "id": "price-oracle",
@@ -145,11 +227,8 @@
       "status": "feature",
       "quarter": "2026-Q2",
       "span": 2,
-      "tag": {
-        "en": "Feature · Activated",
-        "es": "Función · lista para enmienda",
-        "pt-BR": "Funcionalidade · pronta para emenda"
-      },
+      "phase": "feature",
+      "note": "activated",
       "title": {
         "en": "PriceOracle",
         "es": "PriceOracle",
@@ -167,11 +246,8 @@
       "status": "feature",
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q3",
-      "tag": {
-        "en": "Feature · Activated",
-        "es": "Función · en desarrollo",
-        "pt-BR": "Funcionalidade · em desenvolvimento"
-      },
+      "phase": "feature",
+      "note": "activated",
       "title": {
         "en": "IOURewardClaim",
         "es": "IOURewardClaim",
@@ -189,11 +265,8 @@
       "status": "feature",
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q2",
-      "tag": {
-        "en": "Feature · in beta development",
-        "es": "Función · en desarrollo beta",
-        "pt-BR": "Funcionalidade · em desenvolvimento beta"
-      },
+      "phase": "feature",
+      "note": "beta",
       "title": {
         "en": "Random Number Generator",
         "es": "Generador de números aleatorios",
@@ -211,11 +284,8 @@
       "status": "feature",
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q3",
-      "tag": {
-        "en": "Feature · in development",
-        "es": "Función · en desarrollo",
-        "pt-BR": "Funcionalidade · em desenvolvimento"
-      },
+      "phase": "feature",
+      "note": "in-development",
       "title": {
         "en": "FeatureExport",
         "es": "FeatureExport",
@@ -233,12 +303,13 @@
       "status": "feature",
       "quarter": "2026-Q2",
       "span": 2,
-      "tag": {
-        "en": "Feature · ready for amendment",
-        "es": "Función · lista para enmienda",
-        "pt-BR": "Funcionalidade · pronta para emenda"
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "title": {
+        "en": "AMM",
+        "es": "AMM",
+        "pt-BR": "AMM"
       },
-      "title": { "en": "AMM", "es": "AMM", "pt-BR": "AMM" },
       "description": {
         "en": "Automated Market Maker primitive for deep native liquidity on the Xahau DEX. Merged into the xahaud dev branch, awaiting amendment vote.",
         "es": "Primitiva Automated Market Maker para liquidez nativa profunda en el DEX de Xahau. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
@@ -251,12 +322,13 @@
       "status": "feature",
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
-      "tag": {
-        "en": "Feature · ready for amendment",
-        "es": "Función · lista para enmienda",
-        "pt-BR": "Funcionalidade · pronta para emenda"
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "title": {
+        "en": "NamedHook",
+        "es": "NamedHook",
+        "pt-BR": "NamedHook"
       },
-      "title": { "en": "NamedHook", "es": "NamedHook", "pt-BR": "NamedHook" },
       "description": {
         "en": "Allows names to be set to identify Hooks, so different Hooks can be invoked even within the same transaction type.",
         "es": "Permite asignar nombres para identificar Hooks, de modo que se puedan invocar diferentes Hooks incluso dentro del mismo tipo de transacción.",
@@ -269,12 +341,13 @@
       "status": "feature",
       "quarter": "2026-Q2",
       "span": 3,
-      "tag": {
-        "en": "Feature · in alpha development",
-        "es": "Función · en desarrollo alfa",
-        "pt-BR": "Funcionalidade · em desenvolvimento alfa"
+      "phase": "feature",
+      "note": "alpha",
+      "title": {
+        "en": "JSHooks",
+        "es": "JSHooks",
+        "pt-BR": "JSHooks"
       },
-      "title": { "en": "JSHooks", "es": "JSHooks", "pt-BR": "JSHooks" },
       "description": {
         "en": "JavaScript runtime for Hooks — write Xahau smart-contract logic in JavaScript alongside the existing WebAssembly runtime, broadening the developer surface.",
         "es": "Entorno de ejecución JavaScript para Hooks — escribir la lógica de smart contracts en JavaScript junto al entorno WebAssembly existente, ampliando la superficie para desarrolladores.",
@@ -287,11 +360,8 @@
       "status": "feature",
       "quarter": "2026-Q2",
       "openEnded": true,
-      "tag": {
-        "en": "Ongoing · audits + optimisations",
-        "es": "Continuo · auditorías y optimizaciones",
-        "pt-BR": "Contínuo · auditorias e otimizações"
-      },
+      "phase": "ongoing",
+      "note": "audits-optimisations",
       "title": {
         "en": "Audit & optimisations",
         "es": "Auditorías y optimizaciones",
@@ -303,19 +373,15 @@
         "pt-BR": "Auditorias de segurança e melhorias de desempenho contínuas no protocolo, Hooks e ferramentas."
       }
     },
-
     {
       "id": "coopbank-eur",
       "lane": "rollout",
       "status": "live",
       "quarter": "2026-Q2",
-      "openEnded": false,
       "span": 2,
-      "tag": {
-        "en": "Live · remittance",
-        "es": "En vivo · remesas",
-        "pt-BR": "Ao vivo · remessas"
-      },
+      "openEnded": false,
+      "phase": "live",
+      "note": "remittance",
       "title": {
         "en": "COOP Bank EUR corridor scale-up to entire country.",
         "es": "Escalado del corredor EUR de COOP Bank a todo el país.",
@@ -333,7 +399,7 @@
       "status": "partnership",
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q3",
-      "tag": { "en": "Launch", "es": "Lanzamiento", "pt-BR": "Lançamento" },
+      "phase": "launch",
       "title": {
         "en": "USD stablecoin on Xahau",
         "es": "Stablecoin USD en Xahau",
@@ -351,7 +417,7 @@
       "status": "partnership",
       "quarter": "2026-Q4",
       "openEnded": true,
-      "tag": { "en": "Launch", "es": "Lanzamiento", "pt-BR": "Lançamento" },
+      "phase": "launch",
       "title": {
         "en": "Currencies from multiple countries on Xahau",
         "es": "Divisas de múltiples países en Xahau",
@@ -369,7 +435,7 @@
       "status": "partnership",
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
-      "tag": { "en": "Launch", "es": "Lanzamiento", "pt-BR": "Lançamento" },
+      "phase": "launch",
       "title": {
         "en": "GBP stablecoin on Xahau",
         "es": "Stablecoin GBP en Xahau",
@@ -387,7 +453,7 @@
       "status": "pilot",
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
-      "tag": { "en": "Pilot", "es": "Piloto", "pt-BR": "Piloto" },
+      "phase": "pilot",
       "title": {
         "en": "USD corridor pilot",
         "es": "Piloto del corredor USD",
@@ -405,7 +471,7 @@
       "status": "partnership",
       "quarter": "2026-Q4",
       "openEnded": true,
-      "tag": { "en": "Partnerships", "es": "Alianzas", "pt-BR": "Parcerias" },
+      "phase": "partnerships",
       "title": {
         "en": "Additional bank & remittance partners",
         "es": "Bancos y socios de remesas adicionales",
@@ -423,11 +489,8 @@
       "status": "live",
       "quarter": "2027-Q1",
       "span": 1,
-      "tag": {
-        "en": "GA · remittance",
-        "es": "GA · remesas",
-        "pt-BR": "GA · remessas"
-      },
+      "phase": "ga",
+      "note": "remittance",
       "title": {
         "en": "Corridor expansion · GA",
         "es": "Expansión de corredores · GA",
@@ -445,11 +508,8 @@
       "status": "pilot",
       "quarter": "2027-Q2",
       "endQuarter": "2027-Q3",
-      "tag": {
-        "en": "Pilot · payments",
-        "es": "Piloto · pagos",
-        "pt-BR": "Piloto · pagamentos"
-      },
+      "phase": "pilot",
+      "note": "payments",
       "title": {
         "en": "Merchant settlement pilot",
         "es": "Piloto de liquidación para comercios",
@@ -461,18 +521,13 @@
         "pt-BR": "Liquidação com stablecoins e conformidade baseada em Hooks para comerciantes."
       }
     },
-
     {
       "id": "enterprise-ga",
       "lane": "rollout",
       "status": "partnership",
       "quarter": "2027-Q3",
       "openEnded": true,
-      "tag": {
-        "en": "Enterprise",
-        "es": "Empresarial",
-        "pt-BR": "Empresarial"
-      },
+      "phase": "enterprise",
       "title": {
         "en": "Enterprise settlement GA",
         "es": "GA de liquidación empresarial",
@@ -484,18 +539,14 @@
         "pt-BR": "Oferta de produção para parceiros regulamentados, construída sobre componentes Hooks auditados."
       }
     },
-
     {
       "id": "ngo-donations",
       "lane": "rollout",
       "status": "launch",
       "quarter": "2026-Q4",
       "openEnded": true,
-      "tag": {
-        "en": "Launch · public good",
-        "es": "Lanzamiento · bien público",
-        "pt-BR": "Lançamento · bem público"
-      },
+      "phase": "launch",
+      "note": "public-good",
       "title": {
         "en": "NGO donation platform",
         "es": "Plataforma de donaciones para ONG",
@@ -535,11 +586,8 @@
       "status": "launch",
       "quarter": "2026-Q2",
       "openEnded": true,
-      "tag": {
-        "en": "Event · quarterly",
-        "es": "Evento · trimestral",
-        "pt-BR": "Evento · trimestral"
-      },
+      "phase": "event",
+      "note": "quarterly",
       "title": {
         "en": "Xahau Connect",
         "es": "Xahau Connect",
@@ -556,11 +604,8 @@
       "lane": "rollout",
       "status": "launch",
       "quarter": "2026-Q4",
-      "tag": {
-        "en": "Event · enterprise + devs",
-        "es": "Evento · empresas y desarrolladores",
-        "pt-BR": "Evento · empresas e desenvolvedores"
-      },
+      "phase": "event",
+      "note": "enterprise-devs",
       "title": {
         "en": "InFTF event",
         "es": "Evento InFTF",
