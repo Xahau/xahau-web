@@ -45,6 +45,35 @@ const tr = (v: unknown): string => {
   return ''
 }
 
+/**
+ * Card tag text.
+ *
+ * Items carry vocabulary *keys* (`phase`, `note`) rather than per-locale
+ * strings, so a wording change happens once in `labels.<locale>.tags` instead
+ * of once per item per language. Renders "<phase> · <note>"; `note` is
+ * optional. `tag` stays supported as a free-form escape hatch for one-offs.
+ *
+ * An unknown key is a build error, not a silently blank tag — the fallback
+ * locale is checked too, so a key missing only from a translation still
+ * renders (in the default locale) rather than breaking the page.
+ */
+const tagFor = (it: RoadmapItem): string => {
+  if (!it.phase) return it.tag ? tr(it.tag) : ''
+
+  const pick = (kind: 'phases' | 'notes', key: string): string => {
+    const here = data.labels[lang]?.tags?.[kind]?.[key]
+    const base = data.labels[defaultLocale]?.tags?.[kind]?.[key]
+    if (here ?? base) return (here ?? base) as string
+    throw new Error(
+      `roadmap.json: item "${it.id}" uses ${kind === 'phases' ? 'phase' : 'note'} ` +
+        `"${key}", which is not defined in labels.${defaultLocale}.tags.${kind}.`,
+    )
+  }
+
+  const phase = pick('phases', it.phase)
+  return it.note ? `${phase} · ${pick('notes', it.note)}` : phase
+}
+
 const qToIdx = (q: string) => {
   const [y, qx] = q.split('-Q')
   return Number(y) * 4 + (Number(qx) - 1)
@@ -209,7 +238,7 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
         return (
           <article class={classes} style={`grid-column:${p.col} / span ${p.span};`}>
             <span class="xr-q-badge" aria-hidden="true">{fmtItemPeriod(it)}</span>
-            {it.tag && <div class="k">{tr(it.tag)}</div>}
+            {tagFor(it) && <div class="k">{tagFor(it)}</div>}
             <div class="n">{tr(it.title)}</div>
             {it.description && <div class="d">{tr(it.description)}</div>}
             <span class="peg" aria-hidden="true"></span>
@@ -245,7 +274,7 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
           <article class={classes} style={`grid-column:${p.col} / span ${p.span};`}>
             <span class="peg" aria-hidden="true"></span>
             <span class="xr-q-badge" aria-hidden="true">{fmtItemPeriod(it)}</span>
-            {it.tag && <div class="k">{tr(it.tag)}</div>}
+            {tagFor(it) && <div class="k">{tagFor(it)}</div>}
             <div class="n">{tr(it.title)}</div>
             {it.description && <div class="d">{tr(it.description)}</div>}
           </article>
