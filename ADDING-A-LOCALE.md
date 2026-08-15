@@ -1,10 +1,8 @@
 # Adding a New Locale to the Xahau Website
 
-The Xahau website supports multiple languages through Astro's built-in i18n system. Content is driven by JSON data files and a small set of translation keys, making it straightforward to add a new language without touching component logic.
+The Xahau website supports multiple languages through Astro's directory-based i18n. Editorial pages are single components per page that pull their copy from per-page translation tables in `src/i18n/`, so adding a language is mostly a matter of adding new entries to those tables and creating a `src/pages/<locale>/` folder of thin route wrappers.
 
 The site currently ships with English (default), Spanish (`es`), and Japanese (`ja`).
-
-To add a new language, you need to update a handful of files — configuration, translation keys, data files, and page routes. The steps below walk through each one.
 
 For a worked example, see the [Brazilian Portuguese (pt-BR) guide](#example-brazilian-portuguese-pt-br) at the end of this document.
 
@@ -14,17 +12,21 @@ For a worked example, see the [Brazilian Portuguese (pt-BR) guide](#example-braz
 
 | File | What to do |
 |------|-----------|
-| `astro.config.mjs` | Register the new locale |
-| `src/i18n/indexTranslations.ts` | Add home page translation keys |
-| `src/i18n/fraudReportTranslations.ts` | Add fraud report page translations |
-| `src/data/about.json` | Translate about page content |
-| `src/data/ecosystem.json` | Translate ecosystem section labels |
-| `src/data/home.json` | Translate stats tile labels |
-| `src/data/features.json` | Translate features content |
-| `src/data/connect.json` | Translate connect/events labels |
+| `src/i18n/locales.ts` | Add the locale code to the `locales` array |
+| `astro.config.mjs` | Register the locale with Starlight (for the `/docs` section) |
+| `src/i18n/indexTranslations.ts` | Add a locale block (home page copy) |
+| `src/i18n/aboutTranslations.ts` | Add a locale block (About page copy) |
+| `src/i18n/featuresTranslations.ts` | Add a locale block (Features page copy) |
+| `src/i18n/contestTranslations.ts` | Add a locale block (Contest page copy) |
+| `src/i18n/fraudReportTranslations.ts` | Add a locale block (Fraud Report form) |
+| `src/data/home.json` | Translate stat tile labels |
+| `src/data/connect.json` | Translate event labels |
+| `src/data/roadmap.json` | Translate roadmap titles/descriptions |
+| `src/data/ecosystem.json` | Translate section labels, taglines, and the `trademark` disclaimer |
+| `src/CookieConsentConfig.ts` | Add a `translations` block for the cookie banner |
 | `src/pages/<locale>/` | Create page routes (copy from `es/`) |
-| `src/components/XahauAbout<Locale>.astro` | Create localised about component |
-| `src/components/XahauEcosystem.astro` | Add locale to TM disclaimer |
+
+There is **no per-locale component to create.** A single `XahauAbout.astro`, `XahauFeatures.astro`, etc. handles every locale by reading from the matching translation table.
 
 ---
 
@@ -34,9 +36,25 @@ The locale code to use throughout is `pt-BR`.
 
 ---
 
-### Step 1 — `astro.config.mjs`
+### Step 1 — `src/i18n/locales.ts`
 
-Find the `locales` block and add the new entry:
+Add the new locale to the `locales` tuple. Everything downstream (the `Locale` type, `nonDefaultLocales` array, and per-component lookups) updates automatically.
+
+```ts
+export const locales = ['en', 'es', 'ja', 'pt-BR'] as const
+export type Locale = (typeof locales)[number]
+
+export const defaultLocale = 'en'
+export const nonDefaultLocales = locales.filter(
+  (locale) => locale !== defaultLocale,
+)
+```
+
+---
+
+### Step 2 — `astro.config.mjs`
+
+This step is only needed if you want the `/docs` section translated as well. The Starlight `locales` block lives inside the `starlight({...})` integration:
 
 ```js
 locales: {
@@ -47,12 +65,13 @@ locales: {
 },
 ```
 
+The editorial pages do not need any Astro config change — they pick the new locale up automatically once `src/pages/pt-BR/` exists (Step 9).
+
 ---
 
-### Step 2 — `src/i18n/indexTranslations.ts`
+### Step 3 — `src/i18n/indexTranslations.ts`
 
-Add a `'pt-BR'` block before the closing `}` of the `indexTranslations` object.
-Copy the structure below and fill in the translations (English originals shown as comments):
+Add a `'pt-BR'` block before the closing `}` of the `indexTranslations` object. Copy the `en` block and translate every value (English originals shown as comments below for reference):
 
 ```ts
 'pt-BR': {
@@ -78,121 +97,39 @@ Copy the structure below and fill in the translations (English originals shown a
 },
 ```
 
-Also update the type at the bottom of the file:
-```ts
-export type IndexLocale = keyof typeof indexTranslations
-```
-This updates automatically — no change needed if you added the block above correctly.
+---
+
+### Step 4 — `src/i18n/aboutTranslations.ts`
+
+Add a `'pt-BR'` block to `aboutTranslations`. Mirror the structure of the existing `en` block — page header (`page_title`, `page_subtitle`, `chip1`–`chip4`) followed by the three thematic acts (Network, Protocol, Currency) with their `actN_*` keys.
+
+The English chips are: `Est. October 2023`, `200k+ Accounts`, `~4s Settlement`, `10k tx / ledger`.
 
 ---
 
-### Step 3 — `src/i18n/fraudReportTranslations.ts`
+### Step 5 — `src/i18n/featuresTranslations.ts`
 
-Update the type at the top:
-```ts
-export type FraudReportLocale = 'en' | 'es' | 'ja' | 'pt-BR'
-```
-
-Then add a `'pt-BR'` block to `fraudReportTranslations`. English originals are shown below — translate all values:
-
-```ts
-'pt-BR': {
-  frontmatter: {
-    title: '', // 'Report Fraud'
-    description: '', // 'Have you been scammed or hacked? Here is what to do!'
-  },
-  intro: {
-    body: '', // 'Xahau is a public blockchain, with no governing party that can freeze or retrieve funds, close accounts, or otherwise keep people from their assets.'
-    warning: '', // "We can't reverse or cancel transactions, no-one can."
-    lead: '', // 'We can flag accounts used for illicit activity, which will:'
-    bullets: [
-      '', // 'Be included in our API that exchanges and other entities are using for AML compliance to monitor deposits, and possibly withhold illicit funds.'
-      '', // 'Movement of funds will be auto-traced and we will receive notifications whenever they move, no matter how old the case is.'
-      '', // 'In case of a scam, warn other users through wallet software and exchanges using our API, not to send funds to a flagged account.'
-    ],
-    steps: [
-      {
-        title: '', // '1. Submit the address to Xahau Forensics'
-        body: '', // 'We maintain the largest fraudulent address registry on Xahau and it is used by several entities to combat illicit activity.'
-      },
-      {
-        title: '', // '2. Report your case to law enforcement'
-        body: '', // 'Report it to the local police and if your country has an online report form for cybercrime or financial crime, report it there as well.'
-      },
-      {
-        title: '', // '3. Follow up on your police report'
-        body: '', // 'We work with law enforcement. Let them know that we have the information. The odds are that we are also in contact with other victims and can help law enforcement combine cases across jurisdictions and provide actionable intelligence.'
-      },
-    ],
-    expectationTitle: '', // 'What can you expect?'
-    expectations: [
-      '', // "We can't reverse or cancel transactions, no-one can."
-      '', // 'We do our best to have funds seized when they leave Xahau, by working with exchanges and other off ramps through our fraudulent address registry API and by manually making contact.'
-      '', // 'When you report an account to us, you can expect us to treat your report with as much attention as any other report.'
-      '', // 'We get many reports every single day. If an account is added to our fraudulent address registry, we are taking the best care of it along with all other cases.'
-      '', // 'If money is seized we will contact you, if you have left us a way to contact you.'
-      '', // 'To reclaim funds you have to work with law enforcement for paperwork.'
-    ],
-    expectationWarning: '', // "We monitor hundreds of cases at the same time and can't hold hands on a case-by-case basis. We will only contact you if we have good news!"
-  },
-  form: {
-    successTitle: '', // 'Success!'
-    successBody: '', // 'Thank you for your report. It has been submitted successfully.'
-    reportIdLabel: '', // 'Report ID:'
-    reportIdFallback: '', // 'unknown'
-    errorTitle: '', // 'Error'
-    addressLabel: '', // 'Xahau Address'
-    addressPlaceholder: 'rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    addressHint: '', // 'Enter the Xahau address associated with the fraudulent activity'
-    descriptionLabel: '', // 'Description'
-    descriptionPlaceholder: '', // 'Describe the fraudulent activity'
-    descriptionHint: '', // 'Provide as much detail as possible to help us investigate'
-    urlLabel: 'URL',
-    urlPlaceholder: '', // 'Optional URL related to the fraud'
-    urlHint: '', // 'Provide a URL if relevant, for example a scam website or social media post'
-    categoryLabel: '', // 'Suggested Category'
-    categoryPlaceholder: '', // 'Select a category...'
-    categoryOptions: [
-      { value: 'giveaway', label: '' }, // 'Giveaway'
-      { value: 'theft', label: '' },    // 'Theft'
-      { value: 'other', label: '' },    // 'Other'
-    ],
-    categoryHint: '', // 'Help us categorize the type of fraud'
-    contactLabel: '', // 'Contact Information'
-    contactPlaceholder: '', // 'Optional contact information, for example e-mail, X handle or Telegram username'
-    contactHint: '', // "Provide contact info if you're willing to help with follow-up questions"
-    requiredFields: '', // 'Required fields'
-    submitLabel: '', // 'Submit Report'
-    submitAnotherLabel: '', // 'Submit Another Report'
-    optional: '', // 'Optional'
-  },
-  privacy: {
-    title: '', // 'Privacy & Security'
-    bullets: [
-      '', // "This form uses ALTCHA, a privacy-compliant CAPTCHA that doesn't track you"
-      '', // 'Your report is submitted securely to the Xahau Forensics network'
-      '', // 'Reports are reviewed and used to improve network security'
-      '', // 'No personal information is required to submit a report'
-    ],
-  },
-  attribution: {
-    prefix: '', // 'Xahau Forensics is run by '
-    label: 'INFTF',
-    suffix: '.', // '.'
-  },
-  messages: {
-    captchaIncomplete: '', // 'Please complete the CAPTCHA verification before submitting.'
-    captchaFailed: '', // 'CAPTCHA verification failed. Please complete the challenge and try again.'
-    submitting: '', // 'Submitting...'
-    submitFailed: '', // 'Failed to submit report. Please try again.'
-    networkError: '', // 'Network error: Unable to connect to the server. Please check your connection and try again.'
-  },
-},
-```
+Add a `'pt-BR'` block. The structure mirrors `en`: page header (`page_title`, `page_subtitle`, `chip1`–`chip4`), then the three acts — Protocol Layer, Finance, Governance — with `proto_*`, `dex_*`, `nft_*`, etc. keys for each feature inside.
 
 ---
 
-### Step 4 — `src/data/ecosystem.json`
+### Step 6 — `src/i18n/contestTranslations.ts`
+
+Add a `'pt-BR'` block mirroring the `en` block (page subtitle, chips, and the contest acts).
+
+---
+
+### Step 7 — `src/i18n/fraudReportTranslations.ts`
+
+`fraudReportTranslations` is typed as `Record<Locale, FraudReportTranslations>`, so once Step 1 adds `pt-BR` to `Locale`, TypeScript will refuse to compile until this file has a matching block.
+
+Add a `'pt-BR'` block mirroring the existing `en` block. It has six sub-sections — `frontmatter`, `intro`, `form`, `privacy`, `attribution`, `messages`. Every string needs translating; structural keys like `addressPlaceholder: 'rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'` and `urlLabel: 'URL'` can stay as-is.
+
+> **Note:** `aboutTranslations`, `featuresTranslations`, `contestTranslations`, and `indexTranslations` are not bound to `Record<Locale, …>` — TypeScript will not flag a missing locale block in those files. Use the [Checklist](#checklist) at the bottom of this guide to make sure none are missed.
+
+---
+
+### Step 8 — `src/data/ecosystem.json`
 
 Add `"pt-BR"` to every `label` and `tagline` object. English originals shown:
 
@@ -210,14 +147,22 @@ Add `"pt-BR"` to every `label` and `tagline` object. English originals shown:
 - Explorers: `"pt-BR": "Inspecione e interaja com o ledger"`
 - Projects: `"pt-BR": "Apps, ferramentas e experiências construídas no Xahau"`
 
-**CTA tile label** (in `home.json`):
-- `"pt-BR": "Quer rodar um nó?"`
+**Trademark disclaimer** (top-level `trademark` object — this is the new home of the disclaimer, no component change needed):
+
+```json
+"trademark": {
+  "en": "All trademarks and logos are the property of their respective owners.",
+  "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",
+  "ja": "すべての商標およびロゴは、各所有者に帰属します",
+  "pt-BR": "Todas as marcas e logotipos são propriedade de seus respectivos donos."
+}
+```
 
 ---
 
-### Step 5 — `src/data/home.json`
+### Step 9 — `src/data/home.json`
 
-Add `"pt-BR"` to every stat tile `label`. English originals:
+Add `"pt-BR"` to every stat tile `label`, including the CTA tile. English originals:
 
 ```json
 "pt-BR": "Ledgers fechados"        // Ledgers closed
@@ -231,32 +176,21 @@ Add `"pt-BR"` to every stat tile `label`. English originals:
 
 ---
 
-### Step 6 — `src/data/about.json`
+### Step 10 — `src/data/connect.json` and `src/data/roadmap.json`
 
-Add `"pt-BR"` chips arrays and body text for all three locale sections. The chips to translate:
+Each event in `connect.json` has `dateLabel`, `title`, `location`, and `registration.label` objects keyed by locale — add `"pt-BR"` entries to all of them.
 
-- `"Est. outubro de 2023"` (Est. October 2023)
-- `"200k+ Contas"` (200k+ Accounts)
-- `"~4s Liquidação"` (~4s Settlement)
-- `"10k tx / ledger"` (keep as-is, technical term)
-
-The body paragraphs and timeline entries are longer — use the English text in the file as source.
+Each item in `roadmap.json` has `title` and `description` objects keyed by locale — add `"pt-BR"` to every entry. Also add the locale to any `labels` block at the top of the file used by `XahauRoadmap.astro`.
 
 ---
 
-### Step 7 — `src/data/features.json`
+### Step 11 — `src/CookieConsentConfig.ts`
 
-Add `"pt-BR"` translations to all feature titles and descriptions. Use the English text as source.
-
----
-
-### Step 8 — `src/data/connect.json`
-
-Add `"pt-BR"` translations to all event label fields. Use the English text as source.
+Add a `'pt-BR'` block to the `language.translations` object, mirroring the existing `en` block (`consentModal` strings + `preferencesModal` strings). The cookie banner picks the active locale up automatically once this block exists.
 
 ---
 
-### Step 9 — `src/pages/pt-BR/`
+### Step 12 — `src/pages/pt-BR/`
 
 Create a new folder `src/pages/pt-BR/` and copy all files from `src/pages/es/`:
 
@@ -272,44 +206,26 @@ src/pages/pt-BR/privacy-policy.mdx
 src/pages/pt-BR/roadmap.astro
 ```
 
-In each `.astro` file, the only change needed is the component import — replace `XahauAboutEs` with `XahauAboutPtBR` in `about.astro`. All other pages use the shared locale-aware components and need no changes.
+In each `.astro` file, only the `_frontmatter` `title` and `description` need translating — the component imports stay unchanged because the editorial components are locale-agnostic.
 
 For `index.mdx` and `privacy-policy.mdx`, translate the MDX content directly.
 
 ---
 
-### Step 10 — `src/components/XahauAboutPtBR.astro`
-
-Copy `src/components/XahauAboutEs.astro` and rename it `XahauAboutPtBR.astro`. Translate all hardcoded text strings inside the file (headings, body paragraphs, chip labels).
-
----
-
-### Step 11 — `src/components/XahauEcosystem.astro`
-
-Find the TM disclaimer ternary and add the `pt-BR` case:
-
-```astro
-{locale === 'es'
-  ? 'Todas las marcas y logotipos son propiedad de sus respectivos dueños.'
-  : locale === 'ja'
-  ? 'すべての商標およびロゴは、各所有者に帰属します'
-  : locale === 'pt-BR'
-  ? 'Todas as marcas e logotipos são propriedade de seus respectivos donos.'
-  : 'All trademarks and logos are the property of their respective owners.'}
-```
-
----
-
 ## Checklist
 
-- [ ] `astro.config.mjs` — locale added
+- [ ] `src/i18n/locales.ts` — locale code added to `locales` tuple
+- [ ] `astro.config.mjs` — Starlight `locales` updated (only if `/docs` is being translated)
 - [ ] `src/i18n/indexTranslations.ts` — `pt-BR` block added
+- [ ] `src/i18n/aboutTranslations.ts` — `pt-BR` block added
+- [ ] `src/i18n/featuresTranslations.ts` — `pt-BR` block added
+- [ ] `src/i18n/contestTranslations.ts` — `pt-BR` block added
 - [ ] `src/i18n/fraudReportTranslations.ts` — type updated, `pt-BR` block added
-- [ ] `src/data/ecosystem.json` — all labels and taglines
+- [ ] `src/data/ecosystem.json` — labels, taglines, and `trademark` updated
 - [ ] `src/data/home.json` — all stat labels
-- [ ] `src/data/about.json` — chips and body text
-- [ ] `src/data/features.json` — all features
-- [ ] `src/data/connect.json` — all labels
-- [ ] `src/pages/pt-BR/` — folder created, all pages copied
-- [ ] `src/components/XahauAboutPtBR.astro` — created and translated
-- [ ] `src/components/XahauEcosystem.astro` — TM disclaimer updated
+- [ ] `src/data/connect.json` — event labels
+- [ ] `src/data/roadmap.json` — item titles, descriptions, header labels
+- [ ] `src/CookieConsentConfig.ts` — `translations.pt-BR` block added
+- [ ] `src/pages/pt-BR/` — folder created, all pages copied, frontmatter translated
+- [ ] `src/pages/pt-BR/index.mdx` and `privacy-policy.mdx` — content translated
+- [ ] `npm run check` passes
