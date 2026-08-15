@@ -1,0 +1,90 @@
+---
+title: Oracle
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/SetOracle.cpp)]
+
+_(Añadido por la [enmienda PriceOracle](/es/docs/features/amendments/#priceoracle).)_
+
+Un objeto `Oracle` del ledger representa un Price Oracle creado por una cuenta en el ledger de Xahau. Almacena uno o más puntos de datos de precio de activos y se identifica mediante la cuenta propietaria junto con un ID de documento. Los objetos Oracle se crean y actualizan mediante [transacciones OracleSet](/es/docs/protocol-reference/transactions/transaction-types/oracleset) y se eliminan mediante [transacciones OracleDelete](/es/docs/protocol-reference/transactions/transaction-types/oracledelete).
+
+### Ejemplo JSON
+
+```json
+{
+    "LedgerEntryType": "Oracle",
+    "Owner": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "OracleDocumentID": 1,
+    "Provider": "70726F7669646572",
+    "AssetClass": "63757272656E6379",
+    "LastUpdateTime": 816348759,
+    "PriceDataSeries": [
+        {
+            "PriceData": {
+                "BaseAsset": "XAH",
+                "QuoteAsset": "USD",
+                "AssetPrice": 74560,
+                "Scale": 4
+            }
+        },
+        {
+            "PriceData": {
+                "BaseAsset": "BTC",
+                "QuoteAsset": "USD",
+                "AssetPrice": 6800000,
+                "Scale": 2
+            }
+        }
+    ],
+    "URI": "697066733A2F2F",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+    "PreviousTxnLgrSeq": 6,
+    "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### Campos
+
+Un objeto `Oracle` tiene los siguientes campos:
+
+| Campo               | Tipo JSON | \[Internal Type]\[] | ¿Requerido? | Descripción                                                                                                                                          |
+| ------------------- | --------- | ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Owner`             | String    | AccountID           | Sí          | La cuenta que creó y posee este Oracle. Solo esta cuenta puede actualizarlo o eliminarlo.                                                            |
+| `OracleDocumentID`  | Number    | UInt32              | Sí          | El identificador único de este Oracle dentro de la cuenta propietaria.                                                                               |
+| `Provider`          | String    | Blob                | Sí          | Identificador del proveedor de datos codificado en hexadecimal (p. ej. el nombre del servicio oracle). Máximo 256 bytes.                             |
+| `AssetClass`        | String    | Blob                | Sí          | Cadena codificada en hexadecimal que describe la categoría de activos (p. ej. `63757272656E6379` = "currency"). Máximo 16 bytes.                     |
+| `LastUpdateTime`    | Number    | UInt32              | Sí          | Marca de tiempo epoch de Ripple (segundos desde el 1 de enero de 2000) de la última actualización de precio.                                         |
+| `PriceDataSeries`   | Array     | Array               | Sí          | Array de objetos `PriceData` (1–10 entradas). Las entradas se almacenan en orden canónico por par `BaseAsset`/`QuoteAsset`.                          |
+| `URI`               | String    | Blob                | No          | URI codificado en hexadecimal que apunta a datos complementarios fuera de la cadena (p. ej. un CID de IPFS). Máximo 256 bytes.                       |
+| `OwnerNode`         | String    | UInt64              | Sí          | Indicación de qué página del directorio del propietario enlaza con este objeto.                                                                      |
+| `PreviousTxnID`     | String    | Hash256             | Sí          | El hash identificador de la transacción que modificó este objeto más recientemente.                                                                  |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | Sí          | El índice del ledger que contiene la transacción que modificó este objeto más recientemente.                                                         |
+| `LedgerEntryType`   | String    | UInt16              | Sí          | El valor `0x0080`, mapeado a la cadena `Oracle`, indica que este es un objeto Oracle.                                                                |
+
+### Objeto PriceData
+
+Cada entrada en `PriceDataSeries` contiene un objeto `PriceData`:
+
+| Campo        | Tipo JSON | \[Internal Type]\[] | ¿Requerido? | Descripción                                                                                                                    |
+| ------------ | --------- | ------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `BaseAsset`  | String    | Currency            | Sí          | El activo cuyo precio se publica (p. ej. `"XAH"`, `"BTC"`).                                                                  |
+| `QuoteAsset` | String    | Currency            | Sí          | La moneda de denominación (p. ej. `"USD"`, `"EUR"`).                                                                          |
+| `AssetPrice` | Number    | UInt64              | No          | El precio como número entero escalado. El precio efectivo es `AssetPrice × 10^(-Scale)`.                                      |
+| `Scale`      | Number    | UInt8               | No          | Exponente decimal (0–10) usado para derivar el precio efectivo. Ejemplo: `AssetPrice = 74560`, `Scale = 4` → precio efectivo = 7,456. |
+
+### Reserva
+
+Un objeto Oracle consume reservas del propietario según el número de pares `PriceData` almacenados:
+
+| Pares | Reservas del propietario consumidas |
+| ----- | ----------------------------------- |
+| 1–5   | 1                                   |
+| 6–10  | 2                                   |
+
+### Formato del ID de Oracle
+
+El ID de un objeto `Oracle` es el \[SHA-512Half]\[] de los siguientes valores, concatenados en orden:
+
+* La clave de espacio Oracle (`0x0152`)
+* El AccountID del `Owner`
+* El `OracleDocumentID` como entero sin signo de 32 bits
