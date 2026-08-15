@@ -81,6 +81,30 @@ Enmienda principal que habilita la funcionalidad de contratos inteligentes Hook 
 
 Actualizaciones y mejoras al sistema de Hooks.
 
+##### HookAPISerializedType240
+
+Corrige el análisis incorrecto de los campos `STPathSet` (usados por `sfPaths` en transacciones Payment) dentro de todas las funciones de la API Hook `sto_` ([sto_subfield](/es/docs/hooks/functions/serialization/sto_subfield), [sto_subarray](/es/docs/hooks/functions/serialization/sto_subarray), [sto_emplace](/es/docs/hooks/functions/serialization/sto_emplace), [sto_erase](/es/docs/hooks/functions/serialization/sto_erase), [sto_validate](/es/docs/hooks/functions/serialization/sto_validate)). Antes de esta enmienda, los campos PathSet eran tratados incorrectamente como datos codificados en VL, lo que causaba que el analizador interno (`get_stobject_length`) leyera mal el límite del campo y corrompiera el análisis de todos los campos subsiguientes en el objeto. Los campos PathSet se auto-delimitan (usando bytes separadores de ruta `0xFF` y un byte de fin de conjunto `0x00`) y ahora se analizan correctamente. También eleva el tipo serializado máximo soportado de `STI_VECTOR256` (19) a `STI_CURRENCY` (26), añadiendo soporte correcto para `STI_ISSUE` (24), `STI_XCHAIN_BRIDGE` (25) y `STI_CURRENCY` (26) dentro de todas las funciones `sto_`. _(Introducida en 2026.6.21-release+3350)_
+
+##### NamedHooks
+
+Añade un campo opcional `HookName` (4–16 bytes, UTF-8) al slot Hook en una [transacción SetHook](/es/docs/protocol-reference/transactions/transaction-types/sethook). Cuando una instalación de hook incluye un `HookName`, ese hook **solo se ejecutará** si la transacción entrante también incluye un campo `HookName` de nivel superior coincidente. Las transacciones sin `HookName`, o con un valor diferente, omiten silenciosamente el hook nombrado. `HookName` también se añade como campo común opcional en todos los tipos de transacción para que los remitentes puedan apuntar a hooks nombrados específicos. Esto permite que múltiples hooks coexistan en una cuenta con diferentes puntos de entrada activados por diferentes llamantes. _(Introducida en 2026.6.21-release+3350)_
+
+##### HooksUpdate2
+
+Añade la función de la API Hook `prepare()`. `prepare(write_ptr, write_len, read_ptr, read_len)` acepta una transacción serializada parcial que contiene solo los campos específicos del tipo de transacción e inyecta automáticamente todos los campos requeridos para la emisión: `Account`, `Sequence`, `SigningPubKey`, `Fee`, `FirstLedgerSequence`, `LastLedgerSequence` y `EmitDetails`. La salida puede pasarse directamente a `emit()`, eliminando la necesidad de construir manualmente estos campos repetitivos en el código del hook. _(Introducida en 2026.6.21-release+3350)_
+
+##### HookOnV2
+
+Los Hooks pueden continuar especificando `HookOn` con el comportamiento existente, u opcionalmente reemplazarlo con dos campos separados: `HookOnIncoming` y `HookOnOutgoing`. Ambos usan la misma sintaxis de máscara de bits que `HookOn`, pero diferencian entre transacciones originadas desde la cuenta del Hook (`HookOnOutgoing`) y transacciones originadas desde otra cuenta (`HookOnIncoming`). _(Introducida en 2026.6.21-release+3350)_
+
+##### PriceOracle
+
+Un puerto del estándar XRPL PriceOracle (XLS-47d). Habilita feeds de precios on-chain permitiendo a las cuentas publicar datos de precios de activos como [objetos Oracle del ledger](/es/docs/protocol-reference/ledger-data/ledger-objects-types/oracle). Introduce dos nuevas transacciones: [OracleSet](/es/docs/protocol-reference/transactions/transaction-types/oracleset) (crear o actualizar un Oracle) y [OracleDelete](/es/docs/protocol-reference/transactions/transaction-types/oracledelete) (eliminar un Oracle). También añade el método RPC `get_aggregate_price` para consultar precios agregados de múltiples oracles. Cada objeto Oracle almacena entre 1 y 10 pares de precios activo/cotización (1–5 pares consumen 1 reserva de propietario; 6–10 consumen 2). El entero `AssetPrice`, junto con `Scale`, codifica el precio como `AssetPrice` × 10^(-`Scale`). _(Introducida en 2026.6.21-release+3350)_
+
+##### IOURewardClaim
+
+Amplía el tipo de transacción [ClaimReward](/es/docs/protocol-reference/transactions/transaction-types/claimreward) más allá de los ajustes de saldo génesis a otras monedas IOU. Los contadores de recompensa se mantienen dentro de la línea de confianza (objetos `LowReward`/`HighReward` en el objeto [RippleState](/es/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state)) y no afectan a los ajustes de saldo génesis. La transacción activa cualquier Hook instalado en la cuenta especificada por el campo `Issuer`, permitiendo que ese Hook procese y opcionalmente pague la recompensa. La cuenta que paga la recompensa no necesita ser el emisor de la moneda IOU. _(Introducida en 2026.6.21-release+3350)_
+
 ##### Remit
 
 Implementa [XLS-55](https://github.com/XRPLF/XRPL-Standards/discussions/156). Un nuevo tipo de transacción de pago push simple pero potente de lo-que-ves-es-lo-que-obtienes. Habilita [transacciones Remit](/es/docs/protocol-reference/transactions/transaction-types/remit) que permiten pagar múltiples monedas y URITokens en la misma transacción al mismo destino. La transacción paga automáticamente para crear líneas de confianza faltantes, paga automáticamente las reservas en tokens transferidos y paga automáticamente para crear la cuenta de destino si no existe. Puede acuñar un recibo o URIToken de bonificación inline dentro de la transacción. Opcionalmente, informar a un Hook de terceros sobre la transacción. Sin pagos parciales ni rutas.

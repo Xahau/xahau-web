@@ -2,6 +2,7 @@
 title: Objetos serializados
 description: ¡Manipula objetos serializados de xahaud directamente!
 ---
+import { Aside } from '@astrojs/starlight/components';
 
 ### ¿Qué son los objetos serializados?
 
@@ -44,6 +45,34 @@ for (int i = 0; GUARD(3), i < 3; ++i)
     // lo anterior ahora apunta al memo ... haz algo aquí
 }
 ````
+
+### Soporte de PathSet y Tipos Serializados Soportados
+
+<Aside type="caution" title="Error de análisis de PathSet (pre-HookAPISerializedType240)">
+Sin la [enmienda HookAPISerializedType240](/es/docs/features/amendments/#hookapiserializedtype240), todas las funciones `sto_` analizan incorrectamente los campos `sfPaths` (campos STPathSet, usados en transacciones Payment con enrutamiento entre monedas). El analizador interno lee mal el límite del PathSet, corrompiendo los resultados de cualquier campo que aparezca después de `sfPaths` en el objeto serializado. Los desarrolladores de Hooks que procesen transacciones Payment con rutas entre monedas deben asegurarse de que esta enmienda esté habilitada.
+</Aside>
+
+Con la [enmienda HookAPISerializedType240](/es/docs/features/amendments/#hookapiserializedtype240), los siguientes tipos serializados son manejados correctamente por todas las funciones `sto_`:
+
+| Tipo STI | Código | Ejemplos |
+|---|---|---|
+| `STI_UINT16` | 1 | `sfTransactionType` |
+| `STI_UINT32` | 2 | `sfFlags`, `sfSequence`, `sfOfferSequence` |
+| `STI_UINT64` | 3 | `sfHookOn` |
+| `STI_HASH128` | 4 | `sfEmailHash` |
+| `STI_HASH256` | 5 | `sfLedgerHash`, `sfTransactionHash` |
+| `STI_AMOUNT` | 6 | `sfAmount`, `sfFee` |
+| `STI_VL` | 7 | `sfPublicKey`, blobs |
+| `STI_ACCOUNT` | 8 | `sfAccount`, `sfDestination` |
+| `STI_OBJECT` | 14 | `sfTransaction`, objetos internos |
+| `STI_ARRAY` | 15 | `sfHooks`, `sfMemos`, `sfSigners` |
+| `STI_UINT8` | 16 | `sfCloseResolution` |
+| `STI_UINT160` | 17 | `sfTakerPaysCurrency` |
+| `STI_PATHSET` | 18 | `sfPaths` _(corregido por HookAPISerializedType240)_ |
+| `STI_VECTOR256` | 19 | `sfHookNamespaces` |
+| `STI_ISSUE` | 24 | _(añadido por HookAPISerializedType240)_ |
+| `STI_XCHAIN_BRIDGE` | 25 | _(añadido por HookAPISerializedType240)_ |
+| `STI_CURRENCY` | 26 | _(añadido por HookAPISerializedType240)_ |
 
 ### Solapamiento con slots
 

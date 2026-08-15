@@ -121,6 +121,17 @@
           ]
         },
         {
+          "id": "oracles",
+          "label": "Data Feeds",
+          "type": "finance",
+          "graphic": null,
+          "heading": "Price Oracles: Native On-Ledger Price Feeds",
+          "paragraphs": [
+            "Xahau provides a built-in Price Oracle system that brings real-world asset prices directly onto the ledger. Authorized data providers can publish and update price data for any asset pair, and multiple oracle entries can be aggregated on-chain to derive a single trusted reference price — all without relying on external smart contracts or off-chain middleware.",
+            "Applications such as DeFi protocols, automated market makers, or compliance tools can query the on-ledger aggregate price through a standardized interface. Because oracle data is validated and stored as first-class ledger objects, it inherits the same finality, auditability, and security guarantees as any other transaction on Xahau."
+          ]
+        },
+        {
           "id": "checks",
           "label": "Payments",
           "type": "finance",

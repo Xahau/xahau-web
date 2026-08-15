@@ -1,0 +1,125 @@
+---
+title: prepare
+description: Prepara una transacción para su emisión inyectando automáticamente todos los campos de emisión requeridos.
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Conceptos
+
+<LinkButton href="/es/docs/hooks/concepts/emitted-transactions">Transacciones Emitidas</LinkButton>
+
+### Comportamiento
+
+<Tabs>
+<TabItem label="C">
+
+_(Requiere la [enmienda HooksUpdate2](/es/docs/features/amendments/#hooksupdate2).)_
+
+* Lee una transacción serializada parcial de `read_ptr`/`read_len`. La entrada debe contener como mínimo el `TransactionType` y todos los campos requeridos por ese tipo de transacción, pero los campos específicos de emisión incluidos serán **sobreescritos**.
+* Inyecta automáticamente todos los campos requeridos para la emisión: `Account` (la cuenta Hook), `Sequence` (0), `SigningPubKey` (todo ceros), `Fee` (calculada), `FirstLedgerSequence` (ledger actual + 1), `LastLedgerSequence` (ledger actual + 5) y `EmitDetails`.
+* Escribe el blob de transacción completo y listo para emisión en `write_ptr`.
+* La salida puede pasarse directamente a [`emit()`](/es/docs/hooks/functions/emitted-transaction/emit).
+* Se debe llamar a `etxn_reserve()` antes de `prepare()`.
+</TabItem>
+
+<TabItem label="JavaScript">
+* Esta función toma un objeto JSON de transacción y lo prepara para su emisión.
+* La transacción debe estar completa excepto por los campos Account, Sequence, SigningPubKey, Fee, FirstLedgerSequence, LastLedgerSequence y EmitDetails.
+</TabItem>
+</Tabs>
+
+### Definición
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t prepare (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function prepare(
+    txJson: Record<string, any> | Transaction
+  ): ErrorCode | Record<string, any> | Transaction
+```
+</TabItem>
+</Tabs>
+
+### Ejemplo
+
+<Tabs>
+<TabItem label="C">
+```c
+etxn_reserve(1);
+
+// Construir una transacción de pago mínima (TransactionType + campos requeridos únicamente)
+uint8_t tx[256];
+// ... rellenar tx con TransactionType, Destination, Amount ...
+int64_t tx_len = /* tamaño de tx */;
+
+// prepare() rellena Account, Sequence, Fee, EmitDetails, etc.
+uint8_t prepared[512];
+int64_t prepared_len = prepare(prepared, sizeof(prepared), tx, tx_len);
+if (prepared_len < 0)
+    rollback("Prepare failed", 14, prepared_len);
+
+// emit() envía la transacción completamente formada
+uint8_t txid[32];
+if (emit(txid, 32, prepared, prepared_len) != 32)
+    rollback("Emit failed", 11, EMISSION_FAILURE);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const prepared_txn = prepare({
+                TransactionType: "Payment",
+                Destination: util_raddr(p1address_ns),
+                Amount: parseFloat(drops_sent)*2
+            })
+```
+</TabItem>
+</Tabs>
+
+### Parámetros
+
+<Tabs>
+<TabItem label="C">
+
+| Nombre      | Tipo      | Descripción                                                                                                                      |
+| ----------- | --------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `write_ptr` | uint32_t  | Puntero a un buffer para recibir el blob de transacción preparado completo.                                                      |
+| `write_len` | uint32_t  | Longitud del buffer de escritura. Debe ser suficientemente grande para contener la transacción preparada (tamaño de entrada + campos inyectados). |
+| `read_ptr`  | uint32_t  | Puntero a una transacción serializada parcial. Debe incluir `TransactionType` y todos los campos requeridos específicos del tipo. |
+| `read_len`  | uint32_t  | Longitud de la transacción de entrada.                                                                                           |
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+<table><thead><tr><th>Nombre</th><th width="124">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>txJson</td><td>Record&#x3C;string, any> | Transaction</td><td>El JSON de la transacción; debe ser una transacción completa excepto por Account (siempre la cuenta Hook).</td></tr></tbody></table>
+</TabItem>
+</Tabs>
+
+### Código de retorno
+
+<Tabs>
+<TabItem label="C">
+
+| Tipo     | Descripción                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | En caso de éxito, el número de bytes escritos en `write_ptr` (el tamaño del blob de transacción preparado). El valor devuelto es la longitud de la transacción preparada. Pasa el buffer original como `read_ptr` y la longitud devuelta como `read_len` al llamar a `emit()`.<br /><br />Si es negativo, un error:<br />`OUT_OF_BOUNDS` — los punteros/longitudes quedan fuera de la memoria del hook.<br />`PREREQUISITE_NOT_MET` — se debe llamar a `etxn_reserve()` antes de `prepare()`.<br />`INVALID_ARGUMENT` — el blob de entrada no es una transacción serializada válida, o la transacción no puede prepararse (p. ej. falló el cálculo de la comisión).<br />`INTERNAL_ERROR` — fallo al generar `EmitDetails` o al re-serializar la transacción. |
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+<table><thead><tr><th width="231">Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td>ErrorCode | Record&#x3C;string, any> | Transaction</td><td>Devuelve un ErrorCode si hay un error, o el JSON de la transacción preparada o el objeto Transaction.</td></tr></tbody></table>
+</TabItem>
+</Tabs>

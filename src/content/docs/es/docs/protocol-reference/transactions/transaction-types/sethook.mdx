@@ -92,11 +92,11 @@ Cada operación se especifica por la inclusión u omisión de ciertos campos del
 
 * El Hook Correspondiente no existe _o_ se especifica `FLAG_OVERRIDE`.
 * El campo `CreateCode` está especificado y no está en blanco y contiene el bytecode WebAssembly válido para un Hook válido.
-* No existe ninguna instancia del mismo bytecode WebAssembly en el XRPL. (Si existe y todos los demás requisitos se cumplen, se interpreta como una Operación Instalar.)
+* No existe ninguna instancia del mismo bytecode WebAssembly en Xahau. (Si existe y todos los demás requisitos se cumplen, se interpreta como una Operación Instalar.)
 
 **Comportamiento**:
 
-* Se crea un objeto `HookDefinition` con conteo de referencias en el XRPL.
+* Se crea un objeto `HookDefinition` con conteo de referencias en Xahau.
 * Se crea un array `Hooks` en la cuenta ejecutante, si no existe ya.
 * Se crea un objeto `Hook` en la posición del Hook Correspondiente si no existe ya.
 * El objeto `Hook` apunta a la `HookDefinition`.
@@ -156,7 +156,7 @@ Cada operación se especifica por la inclusión u omisión de ciertos campos del
 * El Hook Correspondiente existe.
 * `HookHash` está ausente.
 * `CreateCode` está ausente.
-* Uno o más de `HookNamespace`, `HookParameters` o `HookGrants` está presente.
+* Uno o más de `HookNamespace`, `HookParameters`, `HookGrants`, `HookOn`, `HookOnIncoming`, `HookOnOutgoing`, `HookCanEmit` o `HookName` está presente.
 
 **Ejemplo**:
 
@@ -235,17 +235,20 @@ Cada operación se especifica por la inclusión u omisión de ciertos campos del
 
 ### Campos del Hook
 
-| Campo            | Tipo JSON | Tipo Interno | Descripción                                       |
-| ---------------- | --------- | ------------ | ------------------------------------------------- |
-| `HookHash`       | String    | Hash256      | El hash del hook.                                 |
-| `CreateCode`     | String    | Blob         | El código WebAssembly del hook.                   |
-| `HookGrants`     | Array     | Array        | Las concesiones asociadas con el hook.            |
-| `HookNamespace`  | String    | Hash256      | El espacio de nombres del hook.                   |
-| `HookParameters` | Array     | Array        | Los parámetros del hook.                          |
-| `HookOn`         | String    | Hash256      | Las transacciones en las que se activa el hook.   |
-| `HookCanEmit`    | String    | Hash256      | Las transacciones que el hook puede emitir.       |
-| `HookApiVersion` | Number    | UInt16       | La versión de API del hook.                       |
-| `Flags`          | Number    | UInt32       | Indicadores adicionales para el hook.             |
+| Campo              | Tipo JSON | Tipo Interno | Descripción                                                                                                                                                              |
+| ------------------ | --------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `HookHash`         | String    | Hash256      | El hash del hook.                                                                                                                                                        |
+| `CreateCode`       | String    | Blob         | El código WebAssembly del hook.                                                                                                                                          |
+| `HookGrants`       | Array     | Array        | Las concesiones asociadas con el hook.                                                                                                                                   |
+| `HookNamespace`    | String    | Hash256      | El espacio de nombres del hook.                                                                                                                                          |
+| `HookParameters`   | Array     | Array        | Los parámetros del hook.                                                                                                                                                 |
+| `HookOn`           | String    | Hash256      | Las transacciones en las que se activa el hook. Mutuamente exclusivo con `HookOnIncoming`/`HookOnOutgoing`.                                                              |
+| `HookOnIncoming`   | String    | Hash256      | _(HookOnV2)_ Misma sintaxis que `HookOn`. Activa el hook en transacciones originadas desde otra cuenta. Mutuamente exclusivo con `HookOn`.                               |
+| `HookOnOutgoing`   | String    | Hash256      | _(HookOnV2)_ Misma sintaxis que `HookOn`. Activa el hook en transacciones originadas desde la propia cuenta del Hook. Mutuamente exclusivo con `HookOn`.                 |
+| `HookCanEmit`      | String    | Hash256      | Misma sintaxis que `HookOn`. Controla qué tipos de transacción puede emitir el hook. Si está ausente, el hook puede emitir cualquier tipo.                               |
+| `HookName`         | String    | Blob         | _(NamedHooks)_ Un nombre UTF-8 de 4–16 bytes para el hook. Cuando se establece, el hook solo se ejecutará si la transacción entrante incluye un campo `HookName` coincidente. |
+| `HookApiVersion`   | Number    | UInt16       | La versión de API del hook.                                                                                                                                              |
+| `Flags`            | Number    | UInt32       | Indicadores adicionales para el hook.                                                                                                                                    |
 
 ### Indicadores
 
