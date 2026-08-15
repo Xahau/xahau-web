@@ -82,3 +82,7 @@ Most editorial page content is stored in JSON files under `src/data/`. **Edit th
 - [DEVELOPMENT.md](DEVELOPMENT.md) — editorial component system, design tokens, JSON schemas, Biome config
 - [CONTRIBUTING.md](CONTRIBUTING.md) — code style and pull request guidelines
 - [ADDING-A-LOCALE.md](ADDING-A-LOCALE.md) — how to add a new language, with a worked pt-BR example
+
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=Xahau/xahau-web)](https://github.com/Xahau/xahau-web/graphs/contributors)

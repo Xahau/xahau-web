@@ -99,6 +99,14 @@ export const featuresTranslations = {
     checks_para2:
       "The ledger has dedicated transactions for creating a check, cashing it, or canceling it. Few other platforms have this kind of native deferred payment instrument; Xahau's check system provides an extra layer of payment control, all enforced by the network's rules without requiring custom smart contracts.",
 
+    // Price Oracles solo
+    oracle_label: 'Data Feeds',
+    oracle_h4: 'Price Oracles: Native On-Ledger Price Feeds',
+    oracle_para1:
+      'Xahau provides a built-in Price Oracle system that brings real-world asset prices directly onto the ledger. Data providers can publish and update price data for any asset pair, and multiple oracle entries can be aggregated on-chain to derive a single trusted reference price, all without relying on external smart contracts or off-chain middleware.',
+    oracle_para2:
+      'Applications such as DeFi protocols, automated market makers, or compliance tools can query the on-ledger aggregate price through a standardized interface. Because oracle data is validated and stored as first-class ledger objects, it inherits the same finality, auditability, and security guarantees as any other transaction on Xahau.',
+
     // Act III — Governance & Identity
     act3_label: 'Governance & Identity',
 
@@ -220,6 +228,14 @@ export const featuresTranslations = {
       'Un sistema de pago diferido — como escribir cheques digitales on-chain. Emite un Cheque que el destinatario cobra más tarde, o cancela si es necesario. Control de pago adicional, aplicado puramente por las reglas de la red.',
     checks_para2:
       'Pocas plataformas tienen un instrumento de pago diferido nativo. Sin contratos inteligentes personalizados. Solo una primitiva limpia y simple.',
+
+    // Price Oracles solo
+    oracle_label: 'Feeds de Datos',
+    oracle_h4: 'Price Oracles: Feeds de Precio Nativos en el Ledger',
+    oracle_para1:
+      'Xahau dispone de un sistema de Price Oracle integrado que lleva los precios de activos del mundo real directamente al ledger. Los proveedores de datos autorizados pueden publicar y actualizar precios para cualquier par de activos, y múltiples entradas de oracle pueden agregarse on-chain para derivar un precio de referencia único y fiable — sin depender de contratos inteligentes externos ni middleware fuera de la cadena.',
+    oracle_para2:
+      'Aplicaciones como protocolos DeFi, creadores de mercado automatizados o herramientas de cumplimiento pueden consultar el precio agregado on-ledger a través de una interfaz estandarizada. Dado que los datos del oracle se validan y almacenan como objetos de primera clase del ledger, heredan las mismas garantías de finalidad, auditabilidad y seguridad que cualquier otra transacción en Xahau.',
 
     // Act III — Governance & Identity
     act3_label: 'Gobernanza e Identidad',

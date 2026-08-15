@@ -18,3 +18,25 @@ Una transacción `ClaimReward` permite a una cuenta reclamar las recompensas que
 El tipo de transacción `GenesisMint` también está asociado con la característica de Recompensas de Balance. Esta es una transacción Emitida que se ejecuta a través del Hook de Recompensa cada vez que un usuario reclama sus recompensas de balance.
 
 <LinkCard title="GenesisMint - (Txn Emitida)" href="/es/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn" />
+
+### IOU Reward Claim
+
+_(Requiere la [enmienda IOURewardClaim](/es/docs/features/amendments/#iourewardclaim).)_
+
+La enmienda `IOURewardClaim` extiende el mecanismo de recompensas a las monedas IOU emitidas por cualquier cuenta. El mismo cálculo de área bajo la curva (tiempo de tenencia × cantidad tenida) que rige las recompensas génesis de XAH se aplica a los tenedores de tokens IOU, con el Hook del emisor controlando la lógica de pago.
+
+#### Cómo funciona
+
+1. **Opt-in**: El tenedor de tokens envía una transacción `ClaimReward` con el campo `ClaimCurrency` especificando el IOU. Esto inicializa contadores de seguimiento de recompensas (`LowReward` o `HighReward`) directamente en la línea de confianza (objeto de ledger [RippleState](/es/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state)).
+2. **Acumulación**: Después de cada transacción que modifica el saldo de la línea de confianza, el ledger actualiza automáticamente el campo `TrustLineRewardAccumulator`. Esto rastrea el producto acumulado de saldo × ledgers transcurridos desde el último reinicio.
+3. **Reclamación**: Cuando el tenedor envía otra `ClaimReward` con `ClaimCurrency`, el ledger reinicia los contadores y activa el Hook del emisor (que debe estar instalado y debe ejecutarse en la transacción `ClaimReward`). El Hook lee el valor acumulado y emite un pago de recompensa en la forma que elija el emisor.
+
+#### Diferencias clave respecto a las recompensas génesis de XAH
+
+| | Recompensas Génesis XAH | Recompensas IOU |
+|---|---|---|
+| Enmienda | `BalanceRewards` | `IOURewardClaim` |
+| Contadores almacenados en | AccountRoot | RippleState (línea de confianza) |
+| Tipo de acumulador | UInt64 (drops / 1.000.000) | Amount (en las unidades del token) |
+| Pago gestionado por | Hook de la cuenta génesis | Hook de la cuenta del emisor |
+| Restricción de emisor | Debe ser la cuenta génesis | Cualquier cuenta con un Hook en la transacción `ClaimReward`, excepto cuentas AMM |

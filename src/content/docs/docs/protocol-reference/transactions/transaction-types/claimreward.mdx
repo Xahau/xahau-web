@@ -3,13 +3,15 @@ title: ClaimReward
 description: >-
   A ClaimReward transaction allows an account to claim the rewards it has
   accumulated. The rewards can be claimed by the account owner or by a specified
-  issuer. The account can also opt-out of rewards.
+  issuer. The account can also opt-out of rewards. With the IOURewardClaim
+  amendment, this transaction also supports claiming rewards for IOU currencies
+  with a reward Hook installed.
 ---
 \[[Source](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/ClaimReward.cpp)]
 
 _(Added by the \[BalanceRewards amendment]\[].)_
 
-### Opt-in + Claim
+### Opt-in + Claim (XAH genesis rewards)
 
 ```json
 {
@@ -19,7 +21,7 @@ _(Added by the \[BalanceRewards amendment]\[].)_
 }
 ```
 
-### Opt-out
+### Opt-out (XAH genesis rewards)
 
 ```json
 {
@@ -29,34 +31,68 @@ _(Added by the \[BalanceRewards amendment]\[].)_
 }
 ```
 
+### IOU Reward Claim
+
+_(Requires the \[IOURewardClaim amendment]\[].)_
+
+```json
+{
+    "TransactionType": "ClaimReward",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Issuer": "rIssuerAccountXXXXXXXXXXXXXXXXXXX",
+    "ClaimCurrency": {
+        "currency": "USD",
+        "issuer": "rIssuerAccountXXXXXXXXXXXXXXXXXXX"
+    }
+}
+```
+
 ### Fields
 
-| Field     | JSON Type | \[Internal Type]\[] | Description                                             |
-| --------- | --------- | ------------------- | ------------------------------------------------------- |
-| `Account` | String    | AccountID           | The address of the account that is claiming the reward. |
-| `Flags`   | Number    | UInt32              | _(Optional)_ Can have flag 1 set to opt-out of rewards. |
-| `Issuer`  | String    | AccountID           | _(Optional)_ The genesis account.                       |
+| Field           | JSON Type | \[Internal Type]\[] | Description                                                                                                                                                                                                                                                                            |
+| --------------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`       | String    | AccountID           | The address of the account that is claiming the reward.                                                                                                                                                                                                                                |
+| `Flags`         | Number    | UInt32              | _(Optional)_ Can have flag 1 set to opt-out of rewards.                                                                                                                                                                                                                   |
+| `Issuer`        | String    | AccountID           | _(Optional)_ The genesis account (XAH rewards) or an IOU account (IOU rewards).                                                                                                                                                                                               |
+| `ClaimCurrency` | Object    | Issue               | _(Optional, IOURewardClaim)_ The IOU currency to claim rewards for, as `{"currency": "...", "issuer": "..."}`. Cannot be XAH. The issuer must not be the genesis account and must not equal `Account`. Requires a trustline to exist between `Account` and the issuer. |
 
 ### ClaimReward Flags
 
 Transactions of the ClaimReward type support additional values in the `Flags` field, as follows:
 
-| Flag Name  | Hex Value    | Decimal Value | Description                                                                                                                                                                                                           |
-| ---------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tfOptOut` | `0x00000001` | 1             | The `isOptOut` flag in the ClaimReward code is used to opt-out an account from rewards by removing reward-related fields from the account object in the ledger if the `sfFlags` field in the transaction is set to 1. |
+| Flag Name  | Hex Value    | Decimal Value | Description                                                                                                                                                       |
+| ---------- | ------------ | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfOptOut` | `0x00000001` | 1             | Opts the account out of rewards by removing reward-related fields from the account's ledger object. |
 
 ### Special Transaction Cost
 
 The ClaimReward transaction has a standard transaction cost, which is the minimum transaction cost required for all transactions.
 
+### IOU Reward Behaviour
+
+_(Requires the \[IOURewardClaim amendment]\[].)_
+
+When `ClaimCurrency` is specified, the transaction follows the IOU reward path:
+
+1. The `Issuer` account must have a Hook installed that fires on a `ClaimReward` transaction. The Hook is responsible for calculating and distributing the reward payout.
+2. On first claim, a `LowReward` or `HighReward` reward-tracking object is initialised on the trustline ([RippleState](/docs/protocol-reference/ledger-data/ledger-objects-types/ripple-state) ledger object) between `Account` and the issuer. Which side is used depends on the canonical high/low ordering of the two accounts.
+3. After every subsequent transaction that changes the trustline balance, the ledger automatically updates `TrustLineRewardAccumulator` inside the tracking object using the same area-under-the-curve formula as genesis XAH rewards.
+4. When a `ClaimReward` with `ClaimCurrency` is submitted, the ledger resets the reward counters on the trustline and fires the issuer's Hook, which reads the accumulated value and emits a reward payment.
+
+The IOU reward counters are entirely independent of the genesis XAH reward fields on the AccountRoot object.
+
 ### Error Cases
 
 Besides errors that can occur for all transactions, ClaimReward transactions can result in the following transaction result codes:
 
-| Error Code        | Description                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------- |
-| `temDISABLED`     | Occurs if the feature is not enabled.                                                                   |
-| `temINVALID_FLAG` | Occurs if the flag is set to a value other than 1.                                                      |
-| `temMALFORMED`    | Occurs if the issuer is the same as the source account or if the flag and issuer are not correctly set. |
-| `tecNO_ISSUER`    | Occurs if the issuer does not exist.                                                                    |
-| `terNO_ACCOUNT`   | Occurs if the sending account does not exist.                                                           |
+| Error Code         | Description                                                                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`      | Occurs if the required amendment (`BalanceRewards` or `IOURewardClaim`) is not enabled.                                                        |
+| `temINVALID_FLAG`  | Occurs if the flag is set to a value other than 1. _(Requires the \[fixRewardClaimFlags amendment]\[].)_                                       |
+| `temMALFORMED`     | Occurs if `ClaimCurrency` is a non-currency or XAH type, if the issuer equals `Account`, or if the transaction fields are otherwise incorrectly set.   |
+| `temBAD_ISSUER`    | Occurs if `ClaimCurrency` is set but the issuer is the genesis account, or if `Issuer` is the genesis account but `ClaimCurrency` is also set. |
+| `terNO_ACCOUNT`    | Occurs if the sending account does not exist.                                                                                                  |
+| `tecNO_ISSUER`     | Occurs if the `Issuer` account does not exist.                                                                                                 |
+| `tecNO_PERMISSION` | Occurs if the issuer account is an AMM account. AMM accounts cannot have reward Hooks.                                                         |
+| `tecNO_TARGET`     | Occurs if the issuer account has no Hooks, or none of its Hooks fires on a `ClaimReward` transaction.                                                     |
+| `tecNO_LINE`       | Occurs if no trustline exists between `Account` and the issuer for the specified `ClaimCurrency`.                                              |
