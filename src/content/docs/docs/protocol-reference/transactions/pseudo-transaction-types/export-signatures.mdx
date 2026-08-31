@@ -1,0 +1,106 @@
+---
+title: ExportSignatures
+description: >-
+  A later-ledger pseudo-transaction recording the exact release-stamped Export
+  payload and a quorum of post-validation validator signatures.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/Change.cpp)]
+
+_(Added by the \[Export amendment][].)_
+
+`ExportSignatures` is a pseudo-transaction derived from the agreed Export signature sidecar. It records a canonical quorum witness for an earlier validated Export intent.
+
+The witness is not part of the original Export transaction's metadata. It appears in the earliest later eligible ledger where the sidecar converges on a valid quorum, subject to the Export latch's publication deadline.
+
+### Example
+
+```json
+{
+  "TransactionType": "ExportSignatures",
+  "Account": "rrrrrrrrrrrrrrrrrrrrrhoLvTp",
+  "Fee": "0",
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "LedgerSequence": 12345682,
+  "TransactionHash": "[W]",
+  "ExportedTxn": {
+    "TransactionType": "Payment",
+    "Account": "rYourAccount...",
+    "Sequence": 0,
+    "TicketSequence": 2,
+    "SigningPubKey": "",
+    "Memos": ["[CALLER_MEMOS_THEN_FINAL_XAHAU_EXPORT_MEMO]"]
+  },
+  "ExportContributors": "01",
+  "ExportSigners": [
+    {
+      "ExportSigner": {
+        "SigningPubKey": "[VALIDATOR_SIGNING_PUBLIC_KEY]",
+        "TxnSignature": "[HEX_SIGNATURE]"
+      }
+    }
+  ]
+}
+```
+
+### Fields
+
+| Field | JSON Type | \[Internal Type]\[] | Description |
+| ----- | --------- | ------------------- | ----------- |
+| `LedgerSequence` | Number | UInt32 | Ledger index containing this witness. |
+| `TransactionHash` | String | Hash256 | W, the source Export transaction hash. |
+| `ExportedTxn` | Object | STObject | Exact unsigned release-stamped target transaction signed by the validators. It has an empty `SigningPubKey` and no `Signers` or `TxnSignature`. |
+| `ExportContributors` | String | Blob | Exact-width LSB-first bitmap over the immutable ExportCommittee's canonical roster, identifying the positions represented in `ExportSigners`. |
+| `ExportSigners` | Array | STArray | Validator signing public keys and multisignatures. Entries correspond in order to the set contributor positions from lowest to highest. |
+
+The contributor bitmap's population must equal the number of signer entries and satisfy `ceil(0.8 * committee size)`. Duplicate signing keys and duplicate signer AccountIDs are invalid, and every signature is verified against the stored release-stamped transaction.
+
+### Release Stamp
+
+The final `xahau/export` Memo commits to:
+
+- Version and flags.
+- Source and target network IDs.
+- W.
+- The validated source ledger sequence and hash.
+
+The Memo must be final. Caller-supplied Memos, if any, precede it unchanged. On replay, the witness and ExportLatch provide deterministic state; a node does not need mutable historical manifest state to re-decide the accepted witness.
+
+### Assembly
+
+To construct the target-chain transaction from a witness:
+
+1. Start with the witness `ExportedTxn` exactly as stored.
+2. Derive each `Signer.Account` from its `SigningPubKey`.
+3. Add the key and `TxnSignature` to that `Signer` entry.
+4. Sort the `Signers` array by AccountID.
+5. Leave the top-level `SigningPubKey` empty.
+
+<Aside type="caution">
+The witness proves Xahau accepted a quorum of post-validation shares for the declared committee. The target chain still applies its own SignerList, weights, Ticket, fee, and validity rules.
+</Aside>
+
+### Latch Effect
+
+If the matching latch exists and XPOP has not arrived, the witness hash is stored as `ExportSignatureHash` and the latch leaves the pending directory. If XPOP arrived first, witness application erases the latch and releases its reserve. A concurrently ordered explicit erase can leave the historical witness with no remaining latch state.
+
+### Common Fields
+
+As a pseudo-transaction, `ExportSignatures` uses the standard pseudo-transaction values:
+
+| Field | Value |
+| ----- | ----- |
+| `Account` | `rrrrrrrrrrrrrrrrrrrrrhoLvTp` (`ACCOUNT_ZERO`) |
+| `Fee` | `0` |
+| `Sequence` | `0` |
+| `SigningPubKey` | `""` |
+| `TxnSignature` | Absent or empty. |
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [Export transaction](/docs/protocol-reference/transactions/transaction-types/export)
+- [ExportCommittee ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee)
+- [ExportLatch ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch)

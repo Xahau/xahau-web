@@ -1,0 +1,209 @@
+---
+title: Export
+description: >-
+  Export manages validator committees and records target-chain transaction
+  intents for post-validation multisigning.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/Export.cpp)]
+
+_(Added by the \[Export amendment][].)_
+
+An Export transaction has four mutually exclusive forms:
+
+- **Committee setup:** create an immutable account-owned validator roster.
+- **Intent:** admit an unsigned target transaction using an existing committee, optionally creating the matching committee in the same transaction.
+- **Latch control:** stop publication for, or erase, an existing ExportLatch identified by W.
+- **Committee deletion:** erase an unused committee object.
+
+Committee members sign only after the ledger containing an intent is validated. A later `ExportSignatures` pseudo-transaction records the release-stamped target transaction and sufficient signatures.
+
+### Committee Setup Example
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "Fee": "1000000",
+  "ExportCommittee": "[CONCATENATED_33_BYTE_MASTER_KEYS_HEX]"
+}
+```
+
+Xahau canonicalizes the roster and derives its `ExportCommitteeHash`. The object can then be referenced by direct transactions and Hooks.
+
+### Intent Example
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "Fee": "1000000",
+  "LastLedgerSequence": 12345680,
+  "ExportCommitteeHash": "[COMMITTEE_DIGEST]",
+  "ExportedTxn": {
+    "TransactionType": "Payment",
+    "Account": "rYourAccount...",
+    "Destination": "rRecipient...",
+    "Amount": "1000000",
+    "Fee": "1000",
+    "Sequence": 0,
+    "TicketSequence": 2,
+    "Flags": 2147483648,
+    "SigningPubKey": "",
+    "LastLedgerSequence": 98765500
+  }
+}
+```
+
+To create and use a committee atomically, include the matching `ExportCommittee` roster as well as `ExportCommitteeHash` in the intent.
+
+### Latch Control Examples
+
+Stop further publication while retaining callback readiness:
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "TransactionHash": "[W]"
+}
+```
+
+Erase the latch and forfeit any later callback:
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "TransactionHash": "[W]",
+  "Flags": 65536
+}
+```
+
+`65536` is `tfExportEraseLatch` (`0x00010000`).
+
+### Committee Deletion Example
+
+```json
+{
+  "TransactionType": "Export",
+  "Account": "rYourAccount...",
+  "ExportCommitteeHash": "[COMMITTEE_DIGEST]",
+  "Flags": 131072
+}
+```
+
+`131072` is `tfExportEraseCommittee` (`0x00020000`). Committee deletion is rejected while the account owns any live Export latch.
+
+### Fields
+
+| Field | JSON Type | \[Internal Type]\[] | Used by | Description |
+| ----- | --------- | ------------------- | ------- | ----------- |
+| `ExportedTxn` | Object | STObject | Intent | The unsigned target-chain transaction. |
+| `TransactionHash` | String | Hash256 | Latch control | W, the source Export transaction hash identifying the latch. |
+| `ExportCommitteeHash` | String | Hash256 | Intent or committee deletion | Content digest identifying an account-owned ExportCommittee. Required by every intent. |
+| `ExportCommittee` | String | Blob | Committee setup or inline intent | One to 32 concatenated compressed validator master public keys. |
+| `LastLedgerSequence` | Number | UInt32 | Intent | Mandatory outer admission deadline, at most five Xahau ledgers beyond the ledger evaluating the transaction. It does not set the post-validation publication deadline. |
+| `Flags` | Number | UInt32 | Control forms | `tfExportEraseLatch` erases a latch; `tfExportEraseCommittee` erases a committee. Intent and setup accept no Export-specific flag. |
+
+The form is selected by its fields. Mixing unrelated forms is malformed.
+
+### Committee Objects and Eligibility
+
+`ExportCommittee` contains compressed validator **master** public keys. Xahau sorts the supplied keys lexicographically, rejects duplicates or invalid encodings, and stores the canonical bytes in an [ExportCommittee ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee). Its digest commits to the canonical member count and roster and is independent of network ID.
+
+A bare setup transaction checks only the roster's structure, so an account can stage a future committee. Every actual intent checks that every committee master appears in the admitting ledger's immediate-parent `UNLReport` before NegativeUNL subtraction. If the parent report is unavailable or any member is absent, the intent returns `tecEXPORT_COMMITTEE_UNAVAILABLE` and creates no latch.
+
+There is no protocol-default committee. An intent that omits an inline roster must reference an existing object owned by the same account. The source content threshold is fixed at `ceil(0.8 * committee size)` and cannot be lowered by the transaction.
+
+An account can own multiple immutable committees. Committee deletion requires that the account have no live Export latches, including latches that have already received a witness, because witness replay still resolves committee membership from ledger state.
+
+### Target Transaction Rules
+
+Xahau checks `ExportedTxn` as follows:
+
+| Field | Requirement |
+| ----- | ----------- |
+| `Account` | Must match the outer Export `Account`. |
+| `Sequence` | Must be `0`. |
+| `TicketSequence` | Required and nonzero. A second live Export from the same account cannot reuse the same target Ticket. |
+| `NetworkID` | If present, must not equal Xahau's local NetworkID. If absent, the local source NetworkID must be greater than 1024. |
+| `SigningPubKey` | Required and empty. `TxnSignature` and `Signers` must be absent. |
+| `Memos` | Ordinary Memos are preserved. The reserved MemoType `xahau/export` must be absent because the protocol appends it after validation. |
+| `LastLedgerSequence` | Optional to Xahau but recommended as a finite target-chain validity bound. |
+
+The target fee, Ticket availability, SignerList membership, signer weights, and target-chain validity remain the integrator's responsibility.
+
+### Admission and Publication
+
+A valid intent returns `tesSUCCESS` and creates an [ExportLatch](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch) keyed by `(Account, W)`, where W is the source Export transaction ID. Signature collection starts asynchronously after the admitting ledger validates.
+
+The outer `LastLedgerSequence` bounds only admission. On admission, Xahau writes a separate publication deadline to the latch. Selected validators release shares only after exact source-ledger validation. If publication ends before a witness forms, signing work stops but the latch, owner reserve, and Import callback readiness remain until completion or explicit erase.
+
+The admitted ledger can contain at most 8 Export intents. An account can own at most 8 live latches, and the global pending-signature directory can contain at most 64 latches.
+
+### Release-Stamped Target
+
+After source validation, validators append a canonical final `xahau/export` Memo to the base target transaction. The Memo commits to the source and target network IDs, W, and the exact validated source ledger sequence and hash. Existing Memos remain byte-identical and in their original order.
+
+Validators sign that stamped transaction. The later [ExportSignatures witness](/docs/protocol-reference/transactions/pseudo-transaction-types/export-signatures) stores the exact unsigned stamped transaction and the signature entries. The original Export metadata is not retroactively changed.
+
+### Target SignerList
+
+The target account must authorize accounts derived from the committee members' current validator signing public keys. Its weights and `SignerQuorum` should require the authority intended by the account operator. Xahau validates live signing-key-to-master-key manifest attribution but cannot inspect the target SignerList.
+
+<Aside type="caution">
+Validator manifest rotation can change a signing-key-derived target account. Integrators must update the target SignerList under their own handoff policy. A separately required operator signer can add a destination-specific approval gate, but it is optional and consumes one of the target chain's signer slots.
+</Aside>
+
+### Latch Control
+
+Control with no Export-specific flag removes the latch from pending publication and marks it stopped. It deliberately retains the latch, owner reserve, and callback readiness because already published shares may still execute on the target chain.
+
+Control with `tfExportEraseLatch` removes the latch and releases the reserve in any state. It also intentionally forfeits callback handling for any later XPOP.
+
+Neither control form revokes signatures already released. A nonexistent or wrong-account W returns `tecNO_ENTRY`.
+
+### Completing the Round Trip
+
+After target execution validates, submit an [Import transaction](/docs/protocol-reference/transactions/transaction-types/import) containing its XPOP. Import reads the canonical final Memo, uses `(Account, W)` to locate the latch, and verifies that the normalized target signing intent matches.
+
+Witness and XPOP arrival are symmetric:
+
+- Witness first stores its transaction hash on the latch.
+- XPOP first records that the proof has arrived.
+- The second fact erases the latch and releases its reserve.
+
+The witness is not a gate on Hook callback execution. A stream assembler may execute the target transaction before the witness appears on Xahau.
+
+### Error Cases
+
+| Error Code | Cause |
+| ---------- | ----- |
+| `temDISABLED` | The Export amendment is not enabled. |
+| `temMALFORMED` | The operation forms are mixed or absent; a defined Export flag is used on the wrong form; committee bytes or digest are invalid; target authorization, Ticket, network, or reserved Memo rules fail; or an intent lacks its required outer deadline. |
+| `temINVALID_FLAG` | `Flags` contains a bit outside `tfExportMask`. |
+| `tecNO_ENTRY` | An intent references no matching committee, or a control transaction references no matching object. |
+| `tecEXPORT_COMMITTEE_UNAVAILABLE` | The parent has no usable `UNLReport`, or at least one selected committee master is absent from its pre-NegativeUNL view. |
+| `tecHAS_OBLIGATIONS` | Committee deletion was requested while the account still owns a live Export latch. |
+| `tecDIR_FULL` | The per-ledger, per-account, global pending, or owner-directory limit is reached. |
+| `tecDUPLICATE` | A latch already exists for W, or another live latch for the account uses the same target Ticket. |
+| `tecINSUFFICIENT_RESERVE` | The account cannot fund a new committee or latch owner reserve. |
+| `tefMAX_LEDGER` | The intent is processed after its outer `LastLedgerSequence`. |
+
+### Hook API
+
+Hooks use `xport_reserve()` and `xport()` to emit the intent form. `xport()` receives the 32-byte digest of an existing account-owned committee and writes W to the supplied output buffer. It does not silently choose a committee.
+
+`xport_cancel()` accepts W plus flags: `0` stops publication and retains the latch; `tfExportEraseLatch` erases it.
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [ExportCommittee ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee)
+- [ExportSignatures witness](/docs/protocol-reference/transactions/pseudo-transaction-types/export-signatures)
+- [ExportLatch ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch)
+- [xport()](/docs/hooks/functions/utilities/xport)
+- [xport_reserve()](/docs/hooks/functions/utilities/xport_reserve)
+- [xport_cancel()](/docs/hooks/functions/utilities/xport_cancel)
