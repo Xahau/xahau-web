@@ -1,0 +1,205 @@
+{
+  "$comment": "Xahau Standards (XAS) index — source of truth for the /xas page. Rendered at build time by src/components/XahauStandards.astro; validated by src/schemas/xas.ts. Nothing is fetched from GitHub, so what you write here is exactly what the site shows. To add a proposal: copy an entry, set `discussion` to the number on github.com/Xahau/xahaud/discussions, and write `title`/`summary` yourself. When the GitHub title is wrong or inconsistent, keep the real one in `sourceTitle`, put the corrected one in `title`/`code`, and say why in `note`. Use `hidden: true` to pull an entry off the page without deleting it. Remember to bump `meta.updated`.",
+  "meta": {
+    "updated": "2026-09-12",
+    "source": "https://github.com/Xahau/xahaud/discussions/categories/feature-ideas-discussions",
+    "discussionBase": "https://github.com/Xahau/xahaud/discussions"
+  },
+  "pageMeta": {
+    "en": {
+      "title": "Xahau Standards (XAS)",
+      "description": "Standards and protocol features proposed and discussed openly by the Xahau community"
+    }
+  },
+  "labels": {
+    "title": "Xahau Standards",
+    "subtitle": "Proposals for protocol features and interface conventions, written and debated in the open",
+    "statement": "A Xahau Standard (XAS) starts as a public proposal on GitHub. Anyone can open one, anyone can argue with it, and nothing here is settled until the network says so. This page is an index of those proposals — the discussion itself lives on GitHub, where you can read every argument and add your own.",
+    "cta": "Browse all proposals on GitHub",
+    "ctaNote": "Proposals are opened in the Feature Ideas / Discussions category of the xahaud repository.",
+    "contribute": "Have an idea for a standard? Open a discussion and make the case for it.",
+    "updated": "Index last reviewed",
+    "statuses": {
+      "draft": {
+        "label": "Draft",
+        "blurb": "Written up as a numbered standard and open for comment"
+      },
+      "discussion": {
+        "label": "Open ideas",
+        "blurb": "Raised for discussion, not yet written up as a numbered standard"
+      },
+      "accepted": {
+        "label": "Accepted",
+        "blurb": "Agreed as a standard, awaiting implementation"
+      },
+      "implemented": {
+        "label": "Implemented",
+        "blurb": "Shipped in xahaud"
+      },
+      "rejected": {
+        "label": "Withdrawn",
+        "blurb": "Closed without adoption — kept here for the record"
+      }
+    },
+    "meta": {
+      "author": "Proposed by",
+      "comments": "comments",
+      "commentsOne": "comment",
+      "discuss": "Join the discussion"
+    }
+  },
+  "items": [
+    {
+      "id": "xas-010d",
+      "code": "XAS-010d",
+      "number": 10,
+      "title": "Hook Type Codes for Interface",
+      "sourceTitle": "XAS-010d: Hook Type Codes for Interface",
+      "summary": "Defines a single-byte type code registry for Hook interface standards. The lower half (0x00–0x7F) mirrors existing serialization codes, while the upper half (0x80–0xFF) is reserved for Hook-specific types such as XFL floating-point values.",
+      "author": "tequdev",
+      "discussion": 798,
+      "opened": "2026-09-02",
+      "comments": 0,
+      "status": "draft",
+      "tags": ["hooks", "interfaces"]
+    },
+    {
+      "id": "xas-009d",
+      "code": "XAS-009d",
+      "number": 9,
+      "title": "Hook State Interface",
+      "sourceTitle": "XLS-009d: Hook State Interface",
+      "note": "Opened on GitHub with an XLS- prefix; listed here in the XAS series it belongs to.",
+      "summary": "Sets a convention for Hooks to publish their state layout as machine-readable typed key/value interfaces through HookParameters, so clients can construct and decode Hook State entries without out-of-band knowledge of the Hook.",
+      "author": "tequdev",
+      "discussion": 796,
+      "opened": "2026-08-31",
+      "comments": 1,
+      "status": "draft",
+      "tags": ["hooks", "interfaces"]
+    },
+    {
+      "id": "xas-008d",
+      "code": "XAS-008d",
+      "number": 8,
+      "title": "Hook Parameter Signature Interface",
+      "sourceTitle": "XAS-008d: Hook Parameter Signature Interface",
+      "summary": "A naming convention that encodes type information and parameter indices into Hook parameter names, letting wallets and explorers render invocation forms automatically instead of relying on external documentation.",
+      "author": "tequdev",
+      "discussion": 792,
+      "opened": "2026-08-26",
+      "comments": 2,
+      "status": "draft",
+      "tags": ["hooks", "interfaces", "wallets"]
+    },
+    {
+      "id": "xas-007d",
+      "code": "XAS-007d",
+      "number": 7,
+      "title": "On-Ledger NFT Metadata via Remarks",
+      "sourceTitle": "XAS-007d: On-Ledger NFT Metadata via Remarks (`xahau-nft-remark/v1`)",
+      "summary": "Stores complete NFT metadata, images included, directly on the ledger using remarks instead of off-ledger servers. Covers fragment assembly, binary content with integrity verification, mutable metadata overlays and third-party endorsements.",
+      "author": "zgrguric",
+      "discussion": 791,
+      "opened": "2026-08-25",
+      "comments": 1,
+      "status": "draft",
+      "tags": ["uritoken", "nft", "metadata"]
+    },
+    {
+      "id": "xas-006d",
+      "code": "XAS-006d",
+      "number": 6,
+      "title": "URITokenBroker",
+      "sourceTitle": "XAS-006d: URITokenBroker",
+      "summary": "Adds an optional BrokerAccount field to URITokenBuy so broker-mediated sales settle atomically: the seller receives exactly the listed price and the broker receives the spread, without a trusted intermediary holding funds.",
+      "author": "tequdev",
+      "discussion": 790,
+      "opened": "2026-08-24",
+      "comments": 5,
+      "status": "draft",
+      "tags": ["uritoken", "marketplace"]
+    },
+    {
+      "id": "xas-005d",
+      "code": "XAS-005d",
+      "number": 5,
+      "title": "ClaimReward Hook Interface",
+      "sourceTitle": "XAS-005d: ClaimReward Hook Interface",
+      "summary": "A standard Hook interface for IOU and TrustLine reward programs, specifying the required parameters (CLAIM_ISS, CLAIM_CUR, PAID_ISS, PAID_CUR) and transaction rules so clients can discover and process claims consistently.",
+      "author": "tequdev",
+      "discussion": 788,
+      "opened": "2026-08-21",
+      "comments": 0,
+      "status": "draft",
+      "tags": ["hooks", "rewards", "iou"]
+    },
+    {
+      "id": "xas-004d",
+      "code": "XAS-004d",
+      "number": 4,
+      "title": "Withdraw Authorization",
+      "sourceTitle": "XAS-004d: Withdraw Authorization",
+      "summary": "Sender-side controls over outgoing payments: a WithdrawPreauth whitelist, a WithdrawNoauth blacklist and a WithdrawSetauth delegated provider list, mirroring the receiver-side DepositPreauth framework.",
+      "author": "Handy4ndy",
+      "discussion": 752,
+      "opened": "2026-05-20",
+      "comments": 0,
+      "status": "draft",
+      "tags": ["payments", "compliance"]
+    },
+    {
+      "id": "xas-003d",
+      "code": "XAS-003d",
+      "number": 3,
+      "title": "Deposit Authorization",
+      "sourceTitle": "XAS-003d-Deposit Authorization",
+      "summary": "Receiver-side controls over incoming payments: a DepositNoauth blacklist and DepositSetauth provider-list subscriptions, complementing the existing DepositPreauth whitelist with deny-list and inherited trust-list behaviour.",
+      "author": "Handy4ndy",
+      "discussion": 751,
+      "opened": "2026-05-20",
+      "comments": 0,
+      "status": "draft",
+      "tags": ["payments", "compliance"]
+    },
+    {
+      "id": "xas-002d",
+      "code": "XAS-002d",
+      "number": 2,
+      "title": "Native Treasury Amendment",
+      "sourceTitle": "XAS-2d: Native Treasury Amendment",
+      "note": "Numbered XAS-2d on GitHub; zero-padded here to match the rest of the series.",
+      "summary": "Lets an account lock XAH while continuing to earn balance adjustment rewards, with flexible distribution to multiple recipients — addressing limitations of the existing escrow mechanism.",
+      "author": "dazzlingxrpl",
+      "discussion": 576,
+      "opened": "2025-08-21",
+      "comments": 0,
+      "status": "draft",
+      "tags": ["treasury", "rewards"]
+    },
+    {
+      "id": "pwa-boot-blob",
+      "title": "PWA boot-blob — a layer-1, verifiable UI for Hooks",
+      "sourceTitle": "PWA boot-blob — a layer-1, verifiable UI for Hooks",
+      "summary": "A small on-chain bootloader that verifies and loads a larger UI application from off-chain sources before it runs, rooting the security of a Hook's interface in the ledger rather than in a web host.",
+      "author": "Hugegreencandle",
+      "discussion": 759,
+      "opened": "2026-06-17",
+      "comments": 2,
+      "status": "discussion",
+      "tags": ["hooks", "tooling"]
+    },
+    {
+      "id": "uritoken-transfer-fees",
+      "title": "Native Transfer Fees for URITokens",
+      "sourceTitle": "Native Transfer Fees for URITokens",
+      "summary": "Optional, immutable transfer-fee fields on URITokens, letting creators set a fee on secondary sales and nominate the wallet that receives it automatically.",
+      "author": "Cbot-XRPL",
+      "discussion": 720,
+      "opened": "2026-03-17",
+      "comments": 8,
+      "status": "discussion",
+      "tags": ["uritoken", "royalties"]
+    }
+  ]
+}

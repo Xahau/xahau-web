@@ -14,6 +14,7 @@ const translations = {
     features: 'Features',
     ecosystem: 'Ecosystem',
     roadmap: 'Roadmap',
+    standards: 'Standards',
     break: 'Break Xahau',
     fraud: 'Report Fraud',
     media: 'Media kit',
@@ -34,6 +35,7 @@ const translations = {
     features: 'Características',
     ecosystem: 'Ecosistema',
     roadmap: 'Hoja de ruta',
+    standards: 'Estándares',
     break: 'Break Xahau',
     fraud: 'Reportar Fraude',
     media: 'Kit de Prensa',
@@ -54,6 +56,7 @@ const translations = {
     features: '機能',
     ecosystem: 'エコシステム',
     roadmap: 'ロードマップ',
+    standards: '標準仕様',
     break: 'Break Xahau',
     fraud: '不正を報告',
     media: 'メディアキット',
@@ -74,6 +77,7 @@ const translations = {
     features: 'Recursos',
     ecosystem: 'Ecossistema',
     roadmap: 'Roadmap',
+    standards: 'Padrões',
     break: 'Quebre o Xahau',
     fraud: 'Denunciar fraude',
     media: 'Kit de mídia',
@@ -162,6 +166,9 @@ const t = translations[locale as Locale] || translations[defaultLocale]
           >
           <a href={getRelativeLocaleUrl(locale, '/roadmap')} class="footer-link"
             >{t.roadmap}</a
+          >
+          <a href={getRelativeLocaleUrl(locale, '/xas')} class="footer-link"
+            >{t.standards}</a
           >
           <a
             href={getRelativeLocaleUrl(locale, '/docs/compliance/responsible-disclosure')}

@@ -1,0 +1,617 @@
+---
+/**
+ * XahauStandards.astro — Xahau Standards (XAS) index
+ *
+ * Content comes entirely from src/data/xas.json, validated at build time by
+ * src/schemas/xas.ts. Nothing is fetched from GitHub: every card links out to
+ * its discussion, but the words on this page are ours, so a mistyped title
+ * upstream never lands on the website.
+ *
+ * To add/edit/remove a proposal: edit src/data/xas.json and commit.
+ *
+ * Usage:
+ *   <XahauStandards />
+ */
+
+import xasData from '../data/xas.json'
+import {
+  type XasItem,
+  type XasStatus,
+  xasSchema,
+  xasStatuses,
+} from '../schemas/xas'
+
+// === Parse & validate =======================================================
+const data = xasSchema.parse(xasData)
+const { labels, meta } = data
+
+const visible = data.items.filter((item) => !item.hidden)
+
+/**
+ * Newest first within a stage: numbered standards by their number, unnumbered
+ * ideas by the date they were opened. Keeping the two apart stops an old
+ * unnumbered idea from sorting above XAS-010d.
+ */
+const byRecency = (a: XasItem, b: XasItem) => {
+  if (a.number !== undefined && b.number !== undefined)
+    return b.number - a.number
+  if (a.number !== undefined) return -1
+  if (b.number !== undefined) return 1
+  return b.opened.localeCompare(a.opened)
+}
+
+/** Status → accent key. Anything unmapped falls back to the neutral accent. */
+const accentFor: Record<XasStatus, string> = {
+  draft: 'teal',
+  discussion: 'vlt',
+  accepted: 'grn',
+  implemented: 'grn',
+  rejected: 'mute',
+}
+
+// Groups render in the order declared by the schema, empty ones omitted.
+const groups = xasStatuses
+  .map((status) => ({
+    status,
+    accent: accentFor[status],
+    label: labels.statuses[status]?.label ?? status,
+    blurb: labels.statuses[status]?.blurb ?? '',
+    items: visible.filter((item) => item.status === status).sort(byRecency),
+  }))
+  .filter((group) => group.items.length > 0)
+
+const dateFmt = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+})
+const fmtDate = (iso: string) => dateFmt.format(new Date(`${iso}T00:00:00Z`))
+
+const updated = fmtDate(meta.updated)
+const discussionUrl = (n: number) => `${meta.discussionBase}/${n}`
+---
+
+<section class="xstd" aria-label="Xahau Standards">
+  <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
+  <header class="xs-head">
+    <div class="xs-head-title">
+      <h2>{labels.title}</h2>
+      <p class="xs-sub">{labels.subtitle}</p>
+    </div>
+    <div class="xs-head-aside">
+      <div class="xs-chips">
+        {groups.map(group => (
+          <span class="xs-chip">{group.items.length} {group.label.toLowerCase()}</span>
+        ))}
+      </div>
+      <!-- Same destination as the footer CTA, offered up here so nobody has to
+           scroll the whole index to reach GitHub. -->
+      <a
+        class="xs-cta-ghost"
+        href={meta.source}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {labels.cta}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </header>
+
+  <p class="xs-statement">{labels.statement}</p>
+
+  <!-- ══ STAGES ═══════════════════════════════════════════════════════════ -->
+  {groups.map(group => (
+    <div class={`xs-act act-${group.accent}`}>
+      <div class="xs-sect-head">
+        <p class="xs-act-label">
+          <span class={`act-pip pip-${group.accent}`}></span>
+          {group.label}
+        </p>
+        <p class="xs-sect-tag">{group.blurb}</p>
+      </div>
+
+      <ol class="xs-list">
+        {group.items.map(item => (
+          <li class="xs-item">
+            <a
+              href={discussionUrl(item.discussion)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class={`xs-row row-${group.accent}`}
+            >
+              <span class="xs-code-col">
+                {item.code
+                  ? <span class={`xs-code code-${group.accent}`}>{item.code}</span>
+                  : <span class="xs-code xs-code-none">#{item.discussion}</span>}
+              </span>
+
+              <span class="xs-body">
+                <span class={`xs-title title-${group.accent}`}>{item.title}</span>
+                <span class="xs-sum">{item.summary}</span>
+
+                {item.note && <span class="xs-note">{item.note}</span>}
+
+                <span class="xs-meta">
+                  <span class="xs-meta-bit">{labels.meta.author} {item.author}</span>
+                  <span class="xs-meta-sep" aria-hidden="true">·</span>
+                  <span class="xs-meta-bit">{fmtDate(item.opened)}</span>
+                  {item.comments !== undefined && (
+                    <>
+                      <span class="xs-meta-sep" aria-hidden="true">·</span>
+                      <span class="xs-meta-bit">{item.comments} {item.comments === 1 ? labels.meta.commentsOne : labels.meta.comments}</span>
+                    </>
+                  )}
+                  {item.code && (
+                    <>
+                      <span class="xs-meta-sep" aria-hidden="true">·</span>
+                      <span class="xs-meta-bit xs-meta-num">#{item.discussion}</span>
+                    </>
+                  )}
+                </span>
+
+                {item.tags.length > 0 && (
+                  <span class="xs-tags">
+                    {item.tags.map(tag => <span class="xs-tag">{tag}</span>)}
+                  </span>
+                )}
+
+                <span class="xs-discuss">{labels.meta.discuss} <span class="xs-discuss-arrow" aria-hidden="true">→</span></span>
+              </span>
+
+              <span class="xs-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  ))}
+
+  <!-- ══ FOOTER CTA ═══════════════════════════════════════════════════════ -->
+  <div class="xs-foot">
+    <p class="xs-foot-lead">{labels.contribute}</p>
+    <a
+      class="xs-cta"
+      href={meta.source}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {labels.cta}
+      <span aria-hidden="true">↗</span>
+    </a>
+    <p class="xs-foot-note">{labels.ctaNote}</p>
+    <p class="xs-updated">{labels.updated} {updated}</p>
+  </div>
+</section>
+
+<style>
+  /* ══ Design tokens ════════════════════════════════════════════════════════
+               Shared with XahauEcosystem.astro so the two pages read as one system. */
+  .xstd {
+    --ink: #0f2328;
+    --dim: #2d3e44;
+    --mute: #556068;
+    --grn2: #007a28;
+    --teal2: #006f87;
+    --vlt2: #4e18b8;
+    --rule: #e4edef;
+
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px 56px;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 20px 64px -24px rgba(15, 35, 40, 0.13);
+  }
+  .xstd * {
+    box-sizing: border-box;
+  }
+
+  /* ── Page header ─────────────────────────────────────────────────────── */
+  .xstd .xs-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .xstd h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+  .xstd .xs-sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: var(--mute);
+    max-width: 56ch;
+  }
+  /* Right-hand column of the header: counts, then the shortcut to GitHub. */
+  .xstd .xs-head-aside {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    padding-top: 4px;
+  }
+  .xstd .xs-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+
+  /* Secondary treatment: the solid button at the foot of the page stays the
+       primary call to action. */
+  .xstd .xs-cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 17px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dim);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .xstd .xs-cta-ghost:hover {
+    border-color: var(--teal2);
+    color: var(--teal2);
+    background: rgba(0, 111, 135, 0.05);
+  }
+  .xstd .xs-chip {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 5px 13px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    color: var(--mute);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  .xstd .xs-statement {
+    margin: 28px 0 0;
+    max-width: 74ch;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--dim);
+  }
+
+  /* ── Stage structure ─────────────────────────────────────────────────── */
+  .xstd .xs-act {
+    padding-top: 52px;
+  }
+  .xstd .xs-act-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 0 0 6px;
+  }
+  .xstd .act-pip {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .xstd .pip-grn {
+    background: var(--grn2);
+  }
+  .xstd .pip-teal {
+    background: var(--teal2);
+  }
+  .xstd .pip-vlt {
+    background: var(--vlt2);
+  }
+  .xstd .pip-mute {
+    background: var(--mute);
+  }
+
+  .xstd .xs-sect-head {
+    margin-bottom: 24px;
+  }
+  .xstd .xs-sect-tag {
+    margin: 0;
+    font-size: 14px;
+    color: var(--mute);
+  }
+
+  /* ── Proposal list ───────────────────────────────────────────────────── */
+  .xstd .xs-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .xstd .xs-item {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .xstd .xs-row {
+    display: grid;
+    grid-template-columns: 132px 1fr 24px;
+    gap: 0 24px;
+    align-items: start;
+    padding: 24px 8px 24px 0;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s ease;
+  }
+  .xstd .xs-row:hover {
+    background: #f8fafb;
+  }
+
+  /* ── Code badge ──────────────────────────────────────────────────────── */
+  .xstd .xs-code-col {
+    padding-top: 2px;
+  }
+  .xstd .xs-code {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .xstd .code-teal {
+    color: var(--teal2);
+    background: rgba(0, 111, 135, 0.08);
+  }
+  .xstd .code-vlt {
+    color: var(--vlt2);
+    background: rgba(78, 24, 184, 0.07);
+  }
+  .xstd .code-grn {
+    color: var(--grn2);
+    background: rgba(0, 122, 40, 0.08);
+  }
+  .xstd .code-mute {
+    color: var(--mute);
+    background: rgba(85, 96, 104, 0.08);
+  }
+  /* Unnumbered ideas: the discussion number, played down. */
+  .xstd .xs-code-none {
+    color: var(--mute);
+    background: transparent;
+    border: 1px dashed #cdd7dc;
+    font-weight: 500;
+  }
+
+  /* ── Body ────────────────────────────────────────────────────────────── */
+  .xstd .xs-body {
+    display: block;
+    min-width: 0;
+  }
+  .xstd .xs-title {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    color: var(--ink);
+    transition: color 0.15s ease;
+  }
+  .xstd .xs-row:hover .title-teal {
+    color: var(--teal2);
+  }
+  .xstd .xs-row:hover .title-vlt {
+    color: var(--vlt2);
+  }
+  .xstd .xs-row:hover .title-grn {
+    color: var(--grn2);
+  }
+  .xstd .xs-row:hover .title-mute {
+    color: var(--dim);
+  }
+
+  .xstd .xs-sum {
+    display: block;
+    margin-top: 7px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--dim);
+    max-width: 72ch;
+  }
+
+  /* Provenance note — small print, shown only when we overrode GitHub. */
+  .xstd .xs-note {
+    display: block;
+    margin-top: 8px;
+    padding-left: 10px;
+    border-left: 2px solid var(--rule);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--mute);
+    font-style: italic;
+    max-width: 68ch;
+  }
+
+  .xstd .xs-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--mute);
+  }
+  .xstd .xs-meta-sep {
+    opacity: 0.5;
+  }
+  .xstd .xs-meta-num {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+  }
+
+  .xstd .xs-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .xstd .xs-tag {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #f1f5f6;
+    color: var(--mute);
+  }
+
+  /* Explicit "this leaves the site" affordance, revealed on hover. */
+  .xstd .xs-discuss {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mute);
+    transition: color 0.15s ease;
+  }
+  .xstd .xs-discuss-arrow {
+    transition: transform 0.15s ease;
+  }
+  .xstd .xs-row:hover .xs-discuss {
+    color: var(--ink);
+  }
+  .xstd .xs-row:hover .xs-discuss-arrow {
+    transform: translateX(3px);
+  }
+
+  .xstd .xs-arrow {
+    font-size: 15px;
+    color: #9fb0b6;
+    padding-top: 4px;
+    justify-self: end;
+    transition:
+      transform 0.15s ease,
+      color 0.15s ease;
+  }
+  .xstd .xs-row:hover .xs-arrow {
+    transform: translate(2px, -2px);
+    color: var(--ink);
+  }
+
+  .xstd .xs-row:focus-visible {
+    outline: 2px solid var(--teal2);
+    outline-offset: -2px;
+    border-radius: 8px;
+  }
+
+  /* ── Footer CTA ──────────────────────────────────────────────────────── */
+  .xstd .xs-foot {
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid var(--rule);
+  }
+  .xstd .xs-foot-lead {
+    margin: 0 0 18px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    max-width: 50ch;
+  }
+  .xstd .xs-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease;
+  }
+  .xstd .xs-cta:hover {
+    background: var(--teal2);
+    transform: translateY(-1px);
+  }
+  .xstd .xs-foot-note {
+    margin: 16px 0 0;
+    font-size: 13px;
+    color: var(--mute);
+    max-width: 60ch;
+  }
+  .xstd .xs-updated {
+    margin: 28px 0 0;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    color: var(--mute);
+    opacity: 0.7;
+  }
+
+  /* ── Responsive ──────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .xstd .xs-row {
+      grid-template-columns: 110px 1fr 20px;
+      gap: 0 16px;
+    }
+  }
+  @media (max-width: 640px) {
+    .xstd {
+      padding: 32px 24px 40px;
+      border-radius: 16px;
+    }
+    .xstd h2 {
+      font-size: 28px;
+    }
+    .xstd .xs-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    /* Stacked header: counts and CTA read left-aligned with the title. */
+    .xstd .xs-head-aside {
+      align-items: flex-start;
+      padding-top: 0;
+    }
+    .xstd .xs-chips {
+      justify-content: flex-start;
+    }
+    .xstd .xs-cta-ghost {
+      white-space: normal;
+    }
+    /* Stack the badge above the title; the trailing arrow would only crowd it. */
+    .xstd .xs-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 22px 0;
+    }
+    .xstd .xs-code-col {
+      padding-top: 0;
+    }
+    .xstd .xs-arrow {
+      display: none;
+    }
+    .xstd .xs-title {
+      font-size: 17px;
+    }
+  }
+</style>
