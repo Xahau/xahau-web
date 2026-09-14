@@ -1,0 +1,104 @@
+{
+  "pageMeta": {
+    "en": {
+      "title": "Learn",
+      "description": "Courses and learning materials about Xahau created by the community"
+    },
+    "es": {
+      "title": "Aprender",
+      "description": "Cursos y materiales para aprender sobre Xahau creados por la comunidad"
+    },
+    "ja": {
+      "title": "学ぶ",
+      "description": "コミュニティが作成したXahauを学ぶためのコースと教材"
+    },
+    "pt-BR": {
+      "title": "Aprender",
+      "description": "Cursos e materiais para aprender sobre o Xahau criados pela comunidade"
+    }
+  },
+  "labels": {
+    "en": {
+      "by": "by",
+      "languages": "languages",
+      "free": "Free",
+      "openSource": "Open source",
+      "start": "Start",
+      "contributeTitle": "Built something to teach Xahau?",
+      "contributeText": "This list is maintained by the community. Add your course, guide or tutorial by opening a pull request that edits",
+      "contributeCta": "Suggest a resource"
+    },
+    "es": {
+      "by": "por",
+      "languages": "idiomas",
+      "free": "Gratis",
+      "openSource": "Código abierto",
+      "start": "Empezar",
+      "contributeTitle": "¿Has creado material para enseñar Xahau?",
+      "contributeText": "Esta lista la mantiene la comunidad. Añade tu curso, guía o tutorial abriendo un pull request que edite",
+      "contributeCta": "Proponer un recurso"
+    },
+    "ja": {
+      "by": "作成：",
+      "languages": "言語",
+      "free": "無料",
+      "openSource": "オープンソース",
+      "start": "始める",
+      "contributeTitle": "Xahauを学ぶための教材を作りましたか？",
+      "contributeText": "このリストはコミュニティによって管理されています。コース、ガイド、チュートリアルを追加するには、次のファイルを編集するプルリクエストを作成してください：",
+      "contributeCta": "リソースを提案する"
+    },
+    "pt-BR": {
+      "by": "por",
+      "languages": "idiomas",
+      "free": "Gratuito",
+      "openSource": "Código aberto",
+      "start": "Começar",
+      "contributeTitle": "Criou material para ensinar Xahau?",
+      "contributeText": "Esta lista é mantida pela comunidade. Adicione seu curso, guia ou tutorial abrindo um pull request que edite",
+      "contributeCta": "Sugerir um recurso"
+    }
+  },
+  "types": [
+    {
+      "id": "course",
+      "theme": "grn",
+      "label": {
+        "en": "Courses",
+        "es": "Cursos",
+        "ja": "コース",
+        "pt-BR": "Cursos"
+      },
+      "tagline": {
+        "en": "Structured learning paths, from the basics up",
+        "es": "Itinerarios de aprendizaje estructurados, desde lo básico",
+        "ja": "基礎から学べる体系的な学習コース",
+        "pt-BR": "Trilhas de aprendizado estruturadas, do básico em diante"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "id": "learnxahau",
+      "type": "course",
+      "name": "Xahau Learn",
+      "url": "https://learnxahau.inftf.org/",
+      "author": "INFTF",
+      "languages": 8,
+      "free": true,
+      "openSource": true,
+      "level": {
+        "en": "Beginner",
+        "es": "Básico",
+        "ja": "初級",
+        "pt-BR": "Básico"
+      },
+      "desc": {
+        "en": "A basic course on Xahau: accounts, transactions, tokens, NFTs and Hooks — from zero to your first smart contract.",
+        "es": "Un curso básico sobre Xahau: cuentas, transacciones, tokens, NFTs y Hooks — desde cero hasta tu primer smart contract.",
+        "ja": "Xahauの基礎コース：アカウント、トランザクション、トークン、NFT、Hooks — ゼロから初めてのスマートコントラクトまで。",
+        "pt-BR": "Um curso básico sobre o Xahau: contas, transações, tokens, NFTs e Hooks — do zero ao seu primeiro smart contract."
+      }
+    }
+  ]
+}
