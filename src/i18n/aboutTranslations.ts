@@ -85,7 +85,7 @@ export const aboutTranslations = {
     act3_para2:
       'XAH actúa como mecanismo anti-spam de la red, añadiendo un coste a cada transacción. Las transacciones estándar cuestan fracciones de un solo XAH; las operaciones potenciadas por Hooks tienen comisiones proporcionalmente más altas, reflejando su peso computacional en la cadena. XAH también se requiere como reserva bloqueada para mantener cuentas, poseer objetos y almacenar datos utilizados por contratos inteligentes.',
     act3_para3:
-      'XAH está disponible en exchanges principales como Bitrue, BitMart y CoinEx, y cuenta con soporte en carteras hardware Ledger — haciéndolo cada vez más accesible para usuarios de todo el mundo. Los proyectos que dependen de Hooks para lógica personalizada deben mantener un saldo de XAH suficiente para generar ajustes mensuales que cubran las comisiones continuas.',
+      'XAH está disponible en exchanges principales como Bitrue y cuenta con soporte en carteras hardware Ledger — haciéndolo cada vez más accesible para usuarios de todo el mundo. Los proyectos que dependen de Hooks para lógica personalizada deben mantener un saldo de XAH suficiente para generar ajustes mensuales que cubran las comisiones continuas.',
   },
   ja: {
     page_title: 'Xahauについて',
@@ -129,7 +129,7 @@ export const aboutTranslations = {
     act3_para2:
       'XAHはネットワークのアンチスパムメカニズムとして機能し、すべてのトランザクションでコストとして請求されます。標準的なトランザクションは1XAH未満程度の手数料ですが、Hooksを活用した操作はオンチェーンの計算負荷を反映してそれに比例した高い手数料が発生します。XAHはまた、アカウントの維持、オブジェクトの保有、スマートコントラクトが使用するデータの保存のために、ロックされた準備金としても必要です。',
     act3_para3:
-      'XAHはBitrue、BitMart、CoinExなどの主要取引所で利用可能で、ハードウェアウォレットであるLedgerもサポートしており、世界中のユーザーにとってますますアクセスしやすくなっています。カスタムロジックのためにHooksに依存するプロジェクトは、継続的な手数料をカバーするための月次残高報酬を生成するのに十分なXAH残高を維持することをお勧めします。',
+      'XAHはBitrueなどの主要取引所で利用可能で、ハードウェアウォレットであるLedgerもサポートしており、世界中のユーザーにとってますますアクセスしやすくなっています。カスタムロジックのためにHooksに依存するプロジェクトは、継続的な手数料をカバーするための月次残高報酬を生成するのに十分なXAH残高を維持することをお勧めします。',
   },
   'pt-BR': {
     page_title: 'Sobre Xahau',
@@ -173,6 +173,6 @@ export const aboutTranslations = {
     act3_para2:
       'XAH atua como um mecanismo anti-spam da rede, adicionando um custo a cada transação. Transações padrão custam frações de um único XAH; operações impulsionadas por Hooks têm taxas proporcionalmente mais altas, refletindo sua carga computacional na cadeia. XAH também é necessário como reserva bloqueada para manter contas, possuir objetos e armazenar dados usados por contratos inteligentes.',
     act3_para3:
-      'XAH está disponível em exchanges principais como Bitrue, BitMart e CoinEx, e conta com suporte em carteiras hardware Ledger — tornando-o cada vez mais acessível para usuários em todo o mundo. Projetos que dependem de Hooks para lógica personalizada devem manter um saldo de XAH suficiente para gerar ajustes mensais que cubram as taxas contínuas.',
+      'XAH está disponível em exchanges principais como Bitrue e conta com suporte em carteiras hardware Ledger — tornando-o cada vez mais acessível para usuários em todo o mundo. Projetos que dependem de Hooks para lógica personalizada devem manter um saldo de XAH suficiente para gerar ajustes mensais que cubram as taxas contínuas.',
   },
 }

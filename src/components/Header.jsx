@@ -43,6 +43,7 @@ const nav = {
     getstarted: 'Get started',
     protocol: 'Protocol Reference',
     infra: 'Infrastructure',
+    learn: 'Learn',
     discord: 'Community Discord',
   },
   es: {
@@ -57,6 +58,7 @@ const nav = {
     getstarted: 'Primeros pasos',
     protocol: 'Referencia de Protocolo',
     infra: 'Infraestructura',
+    learn: 'Aprender',
     discord: 'Discord de la Comunidad',
   },
   'pt-BR': {
@@ -71,6 +73,7 @@ const nav = {
     getstarted: 'Primeiros passos',
     protocol: 'Referência de Protocolo',
     infra: 'Infraestrutura',
+    learn: 'Aprender',
     discord: 'Discord da Comunidade',
   },
   ja: {
@@ -85,6 +88,7 @@ const nav = {
     getstarted: 'はじめる',
     protocol: 'プロトコルリファレンス',
     infra: 'インフラストラクチャ',
+    learn: '学ぶ',
     discord: 'コミュニティDiscord',
   },
 }
@@ -143,6 +147,7 @@ export default function Header(props) {
       name: 'Whitepaper',
       href: getRelativeLocaleUrl(currentLocale, '/docs/resources/whitepaper'),
     },
+    { name: t.learn, href: getRelativeLocaleUrl(currentLocale, '/learn') },
   ]
 
   const explorers = [

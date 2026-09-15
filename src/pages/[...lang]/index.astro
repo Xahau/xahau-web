@@ -1,0 +1,12 @@
+---
+import IndexLayout from '../../layouts/IndexLayout.astro'
+import generateStaticPaths from '../../utils/generateStaticPaths'
+
+export function getStaticPaths() {
+  return generateStaticPaths()
+}
+
+// TODO: Add frontmatter
+---
+
+<IndexLayout />
