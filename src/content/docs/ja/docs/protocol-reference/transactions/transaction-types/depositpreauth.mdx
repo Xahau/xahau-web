@@ -1,0 +1,44 @@
+---
+title: DepositPreauth
+description: >-
+  DepositPreauthトランザクションは、別のアカウントに対して、このトランザクションの送信者へ支払いを送る事前承認を与えます。
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+  Deposit Authorizationを有効にする前に、このトランザクションで特定のcounterpartyを事前承認できます。これにより、deposit authorizationを不要にしていた状態から必要にする状態への移行を円滑にできます。
+</Aside>
+
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(\[DepositPreauth amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+  "TransactionType" : "DepositPreauth",
+  "Account" : "rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
+  "Authorize" : "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Fee" : "10",
+  "Flags" : 2147483648,
+  "Sequence" : 2
+}
+```
+
+### フィールド
+
+| フィールド         | JSON型 | \[Internal Type]\[] | 説明                                                                      |
+| ------------- | --------- | ------------------- | -------------------------------------------------------------------------------- |
+| `Authorize`   | String    | AccountID           | _(任意)_ 事前承認する送信者のXahauアドレス。                              |
+| `Unauthorize` | String    | AccountID           | _(任意)_ 事前承認を取り消す送信者のXahauアドレス。                        |
+
+`Authorize`と`Unauthorize`は _どちらか一方だけ_ 指定しなければならず、両方は指定できません。
+
+### エラーケース
+
+* アカウントは自分自身のアドレスを事前承認（または事前承認解除）できません。試みると`temCANNOT_PREAUTH_SELF`で失敗します。
+* すでに事前承認されているアカウントを事前承認しようとすると、`tecDUPLICATE`で失敗します。
+* 事前承認されていないアカウントの事前承認を解除しようとすると、`tecNO_ENTRY`で失敗します。
+* レジャー内で資金供給されていないアドレスを事前承認しようとすると、`tecNO_TARGET`で失敗します。
+* 承認を追加すると、レジャーにDepositPreauthオブジェクトが追加され、owner reserve要件にカウントされます。トランザクション送信者が増加したreserveを支払うだけのXAHを持っていない場合、`tecINSUFFICIENT_RESERVE`で失敗します。アカウントの送信者がすでに所有可能なオブジェクト数の上限に達している場合、`tecDIR_FULL`で失敗します。

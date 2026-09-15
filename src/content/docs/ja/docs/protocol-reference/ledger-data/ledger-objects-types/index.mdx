@@ -1,0 +1,21 @@
+---
+title: レジャーオブジェクトの種類
+---
+import { Aside } from '@astrojs/starlight/components';
+
+## レジャーエントリ共通フィールド <a href="#ledger-entry-common-fields" id="ledger-entry-common-fields"></a>
+
+[\[出典\]](https://github.com/Xahau/xahaud/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp)
+
+レジャーの状態データ内の各エントリは、レジャーエントリの種類に応じた追加フィールドに加えて、同じ共通フィールドのセットを持ちます。フィールド名は大文字・小文字を区別します。すべてのレジャーエントリに共通するフィールドは次のとおりです。
+
+| フィールド | JSON型 | 内部型 | 必須? | 説明 |
+| --- | --- | --- | --- | --- |
+| `index`または`LedgerIndex` | String | Hash256 | いいえ | このレジャーエントリの一意のIDです。JSONでは、このフィールドは文脈やAPIメソッドに応じて異なる名前で表されます。（コード上では「省略可能」とされていますが、XRP Ledgerのごく初期のレガシーデータを除き、すべてのレジャーエントリがこれを持つべきです。） |
+| `LedgerEntryType` | String | UInt16 | はい | レジャーエントリの種類です。有効なレジャーエントリの種類には`AccountRoot`、`Offer`、`RippleState`などがあります。 |
+| `Flags` | Number | UInt32 | はい | このレジャーエントリに対するビットフラグのセットです。 |
+| `Remarks` | Array | STArray | いいえ | 設定、更新、または削除する注記オブジェクトの配列です（Remarks Formatを参照）。 |
+
+<Aside type="caution">
+注意: JSONでは、レジャーエントリIDは`index` または`LedgerIndex`フィールドにあります。これは`ledger_index`フィールドのレジャーインデックスとは同じではありません。
+</Aside>

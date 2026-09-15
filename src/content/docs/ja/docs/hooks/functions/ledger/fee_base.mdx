@@ -1,0 +1,72 @@
+---
+title: fee_base
+description: 現在のレジャーの手数料ベースを取得します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/hook-fees">Hook手数料</LinkButton>
+
+### 動作
+
+* 現在のレジャーから手数料ベースを返します
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee_base();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function fee_base(): number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t fee =
+    fee_base();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const fee = fee_base()
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+このAPIはパラメーターを取りません。
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                               |
+| -------- | ---------------------------------- |
+| int64_t | 現在のレジャーの手数料ベース       |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型     | 説明                               |
+| ------ | ---------------------------------- |
+| number | 現在のレジャーの手数料ベース       |
+</TabItem>
+</Tabs>

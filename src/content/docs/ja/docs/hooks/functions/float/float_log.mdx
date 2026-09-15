@@ -1,0 +1,111 @@
+---
+title: float_log
+description: XFLの常用対数を計算します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL数値の常用対数を計算します
+* 新しいXFLを返します
+
+<Aside type="caution">
+速度上の制約により、`float_log`は10進対数を適用する前に、引数をIEEE 2進倍精度浮動小数点数に変換します。そのため、返される結果は期待より低い精度になることがよくあります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* 浮動小数点数表現の対数を計算します。
+* エラーコード、または対数をbigintとして返します。
+</TabItem>
+</Tabs>
+
+
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_log (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_log(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t zero =
+    float_log(float_one());
+```
+
+<Aside type="caution">
+負の数が渡された場合、根が偶数根であれば、この関数は`COMPLEX_NOT_SUPPORTED`を返します。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const zero =
+    float_log(float_one())
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+
+
+| 名前   | 型       | 説明                                                                                                   |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------ |
+| float1 | int64_t | 対数を取る浮動小数点数を表すXFL浮動小数点格納数                                                       |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前 | 型     | 説明                                     |
+| ---- | ------ | ---------------------------------------- |
+| f1   | bigint | 対数を計算する浮動小数点数。             |
+</TabItem>
+</Tabs>
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>計算された対数<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターが有効なXFL格納数ではありません<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />-指定されたパラメーターが負の数で、複素数の戻り値が生じます。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                                                |
+| ------------------- | --------------------------------------------------- |
+| bigint or ErrorCode | エラーコード、または対数をbigintとして返します。    |
+</TabItem>
+</Tabs>

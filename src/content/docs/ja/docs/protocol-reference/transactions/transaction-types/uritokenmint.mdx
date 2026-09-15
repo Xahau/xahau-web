@@ -1,0 +1,59 @@
+---
+title: URITokenMint
+description: >-
+  URITokenMintトランザクションは、新しいURITokenをミントして、指定したアカウントに所有権を割り当てます。URITokenは、さまざまな用途で使える一意のデジタルアセットを表します。
+---
+[\[ソース\]](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)
+
+_(\[URIToken amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "TransactionType": "URITokenMint",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Flags": 1,
+    "URI": "697066733A2F2F4445414442454546",
+    "Digest": "697066733A2F2F4445414442454546697066733A2F2F44454144424545467878",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "Amount": {
+      "issuer": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+      "currency": "USD",
+      "value": "100",
+    },
+}
+```
+
+### フィールド
+
+| フィールド         | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
+| `Account`     | String                                                                                                                             | AccountID           | ミントされたURITokenを所有するアカウントのアドレス。                                        |
+| `URI`         | String                                                                                                                             | String              | ミントされたURITokenに関連付けられるURI。（最大256 byte）                                  |
+| `Digest`      | String                                                                                                                             | Hash256             | _(任意のhex値で、慣例的にはメモの内容を含みます。)_ URITokenのdigest。                                                               |
+| `Destination` | String                                                                                                                             | AccountID           | _(任意)_ ミントされたURITokenを購入できるアカウントのアドレス。                           |
+| `Amount`      | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | _(任意)_ URITokenと引き換えに受け取りたい通貨の金額。                                      |
+
+### URITokenMintフラグ
+
+URITokenMintタイプのトランザクションは、`Flags`フィールドで次の値をサポートします。
+
+| フラグ名    | Hex値    | 10進値 | 説明                                                                                                                             |
+| ------------ | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfBurnable` | `0x00000001` | 1             | issuer（またはissuerによって承認された主体）がミントされた`URIToken`を破棄できるようにします。（`URIToken`のownerは _常に_ 破棄できます。） |
+
+### 特別なトランザクションコスト
+
+URITokenMintトランザクションには標準のトランザクションコストが適用されます。これは、すべてのトランザクションに必要な最小トランザクションコストです。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、URITokenMintトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード        | 説明                                                                      |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `tecDUPLICATE`    | 同じissuerの同じURIを持つURITokenがすでに存在する場合に発生します。      |
+| `tecDIR_FULL`     | ownerのdirectoryがいっぱいで、新しいURITokenを追加できない場合に発生します。 |
+| `temINVALID_FLAG` | ユーザーが誤った`Flag`を指定した場合に発生します。                              |
+| `terNO_ACCOUNT`   | 送信アカウントが存在しない場合に発生します。                                    |

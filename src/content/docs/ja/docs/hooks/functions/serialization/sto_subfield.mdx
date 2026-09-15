@@ -1,0 +1,156 @@
+---
+title: sto_subfield
+description: >-
+  xahaudのシリアライズ済みオブジェクトにインデックス指定し、サブフィールドの位置と長さを返します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/serialized-objects">シリアライズ済みオブジェクト</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr`が指すSTObjectを解析します
+* `field_id`で指定されたフィールドを探します
+* フィールドが見つかった場合:
+*
+  1. それが配列の場合、リードイン/リードアウトバイトを含む配列の開始位置と長さを返します。または
+*
+  2. 配列**ではない**場合、フィールドのペイロードの開始位置と長さ（リードインバイトを除く）を返します。
+
+<Aside type="caution" title="フィールドIDのエンコード">
+`sto_` APIは、次の形式でエンコードされた`field_id`パラメーターを受け取ります: `(type << 16U) + field`
+したがって、typeが1、fieldが2の場合は`0x10002U`になります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+* STObjectを`sto`変数に解析します
+* `field_id`で指定されたフィールドを探します
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_subfield (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t field_id
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_subfield(
+    sto: ByteArray | HexString,
+    field_id: number
+  ): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+#define SUB_OFFSET(x) ((int32_t)(x >> 32))
+#define SUB_LENGTH(x) ((int32_t)(x & 0xFFFFFFFFULL))
+int64_t memos_lookup =
+    sto_subfield(txn_ptr, txn_len, sfMemos);
+if (memos_lookup < 0)
+{
+    // sfMemos was not found in the STObject pointed at by memo_ptr
+}
+else
+{
+    // sfMemos was found and its location is as follows:
+    uint8_t* memos_ptr = SUB_OFFSET(memos_lookup) + memos_ptr;
+    int64_t  memos_len = SUB_LENGTH(memos_lookup);
+}
+```
+
+<Aside type="tip">
+hookmacro.hには既に`SUB_OFFSET`マクロと`SUB_LENGTH`マクロが含まれています。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const SUB_OFFSET = (x) => Number(x >> 32n)
+const SUB_LENGTH = (x) => Number(x & 0xFFFFFFFFn)
+const memos_lookup = sto_subfield(txn, sfMemos);
+if (typeof memos_lookup === 'number')
+{
+    // sfMemos was not found in the STObject pointed at by memo_ptr
+}
+else
+{
+    // sfMemos was found and its location is as follows:
+    const memo_start = SUB_OFFSET(memos_lookup)
+    const memo_len = SUB_LENGTH(memos_lookup)
+    const memo = txn.slice(memo_start, memo_len)
+}
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前      | 型        | 説明                                                                                                                                                                                                                                                                                                                                                                                                       |
+| --------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| read_ptr | uint32_t | STObjectを含むバッファへのポインター                                                                                                                                                                                                                                                                                                                                                                      |
+| read_len | uint32_t | STObjectの長さ                                                                                                                                                                                                                                                                                                                                                                                             |
+| field_id | uint32_t | <p>検索するフィールドの<code>sf</code>コード。<br /><br />これを手動で計算するには、シリアライズ済み<code>type</code>を取得してuint32_tの上位16ビットにシフトし、次に<code>field</code>を取得して下位16ビットに配置します。<br /><br />例:<br /><code>sfEmitNonce</code>は<code>type</code> 5、<code>field</code> 11を持つため、その値は<code>0x050BU</code>です</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前      | 型                     | 説明                                                                            |
+| --------- | ---------------------- | ------------------------------------------------------------------------------- |
+| sto       | ByteArray or HexString | サブフィールドを抽出する対象のSTOオブジェクト（バイナリエンコードされたレジャーデータ）。 |
+| field_id | number                 | 抽出するフィールドのID。                                                        |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>指定されたバッファ内のフィールドの位置:<br />-上位32ビットはオフセット位置です。<br />-下位32ビットは長さです。<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-ポインター/長さがHookメモリ外を指定しています。<br /><br /><code>TOO_SMALL</code><br />-入力バッファが、有効なSTObjectを含める可能性があるサイズに達していません。<br /><br /><code>DOESNT_EXIST</code><br />-検索したフィールドが指定されたSTObjectに存在しません。<br /><br /><code>PARSE_ERROR</code><br />-指定されたSTObjectの形式が不正であるか、STObjectではありません。</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                 | 説明                                                                                                                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bigint / ErrorCode | <p>指定されたバッファ内のフィールドの位置:<br />-上位32ビットはオフセット位置です。<br />-下位32ビットは長さです。</p><p></p><p>または、抽出に失敗した場合はエラーコード。</p> |
+</TabItem>
+</Tabs>

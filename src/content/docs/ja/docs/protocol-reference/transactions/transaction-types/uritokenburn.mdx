@@ -1,0 +1,37 @@
+---
+title: URITokenBurn
+description: >-
+  URITokenBurnトランザクションは、XahauでURITokenをバーンするために使います。URITokenをバーンすると、そのtokenは永久に流通から取り除かれます。
+---
+[\[ソース\]](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/URIToken.cpp)
+
+_(\[URIToken amendment]\[]により追加。)_
+
+URITokenBurnトランザクションは、XahauでURITokenをバーンするために使います。URITokenをバーンすると、そのtokenは永久に流通から取り除かれます。
+
+### 例
+
+```json
+{
+    "TransactionType": "URITokenBurn",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "URITokenID": "C1AE6DDDEEC05CF2978C0BAD6FE27362498DGS691DC749DCDD3B95992978C0BA",
+}
+```
+
+| フィールド        | JSON型 | \[Internal Type]\[] | 説明                                                     |
+| ------------ | --------- | ------------------- | --------------------------------------------------------------- |
+| `Account`    | String    | AccountID           | バーンするURITokenを所有しているアカウントのアドレス。        |
+| `URITokenID` | String    | Hash256             | バーンするURITokenのID。                                       |
+
+### 特別なトランザクションコスト
+
+URITokenBurnトランザクションには、特別なトランザクションコスト要件はありません。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、URITokenBurnトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード         | 説明                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `tecNO_PERMISSION` | アカウントにtokenをバーンする権限がない場合に発生します。       |

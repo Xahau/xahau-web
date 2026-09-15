@@ -1,0 +1,123 @@
+---
+title: float_mulratio
+description: XFL浮動小数点数に非XFLの分子と分母を乗算します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFL (xls17)浮動小数点数と2つの整数の商の乗算を計算します
+* 新しいXFLをint64_tとして返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 分子と分母で定義される比率を浮動小数点数に乗算します。
+* エラーコード、または新しいXFLをbigintとして返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mulratio (
+    int64_t float1,
+    uint32_t round_up,
+    uint32_t numerator,
+    uint32_t denominator
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mulratio(
+    f1: bigint,
+    round_up: number,
+    numerator: number,
+    denominator: number
+  ): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t max_vault_pusd =
+    float_mulratio(max_vault_pusd, 0,
+        COLLATERALIZATION_NUMERATOR, COLLATERALIZATION_DENOMINATOR);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const max_vault_pusd =
+    float_mulratio(max_vault_pusd, 0,
+        COLLATERALIZATION_NUMERATOR, COLLATERALIZATION_DENOMINATOR);
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前        | 型        | 説明                                                                                        |
+| ----------- | --------- | ------------------------------------------------------------------------------------------- |
+| float1      | int64_t  | 乗算の第1オペランドを表すXFL浮動小数点格納数                                                |
+| round_up   | uint32_t | 非ゼロの場合、すべての計算が切り上げられます                                                |
+| numerator   | uint32_t | 浮動小数点数に乗算する商の分子                                                              |
+| denominator | uint32_t | 浮動小数点数に乗算する商の分母                                                              |
+
+<Aside type="caution">
+一部の乗算はオーバーフローする可能性があり、その場合は`INVALID_FLOAT`エラーを返します。ただし、**アンダーフロー**はXFL正規ゼロ（つまり、格納数 = 0）として返ります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前        | 型     | 説明                                                                                        |
+| ----------- | ------ | ------------------------------------------------------------------------------------------- |
+| f1          | bigint | 乗算の第1オペランドを表すXFL浮動小数点格納数                                                |
+| round_up   | number | 非ゼロの場合、すべての計算が切り上げられます                                                |
+| numerator   | number | 浮動小数点数に乗算する商の分子                                                              |
+| denominator | number | 浮動小数点数に乗算する商の分母                                                              |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17)格納数<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターの1つが有効なXFL格納数ではありません<br /><br /><code>OVERFLOW</code><br />-乗算結果が大きすぎてXFLに保存できませんでした。<br /><br /><code>DIVISION_BY_ZERO</code><br />-指定された分母がゼロでした。</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                  | 説明                                                        |
+| ------------------- | ----------------------------------------------------------- |
+| ErrorCode or bigint | エラーコード、またはXFL (xls17)格納数を返します。           |
+</TabItem>
+</Tabs>

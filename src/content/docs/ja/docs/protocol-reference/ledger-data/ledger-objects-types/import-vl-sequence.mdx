@@ -1,0 +1,36 @@
+---
+title: Import VLシーケンス
+---
+_(\[Import amendment]\[]によって追加されました。)_
+
+`ImportVLSequence`は、インポート処理中の操作順序を追跡および検証するのに役立ちます。正しいイベント順序が発生することを保証し、「burning」レジャー上のdUNLの差異や更新を処理するために使用されます。
+
+### JSON例
+
+```json
+{
+  "LedgerEntryType": "ImportVLSequence",
+  "Flags": 0,
+  "ImportSequence": 2023102101,
+  "PublicKey": "n9LigbVAi4pQc6pU2KJvQZV5wqJ8C3sVvZvBZUopchH8vqa6PEKy",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### フィールド
+
+`ImportVLSequence`オブジェクトには、次のフィールドがあります。
+
+| 項目              | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                           |
+| ----------------- | --------- | ------------- | ----- | ---------------------------------------------------------------------------------------------------------------- |
+| `LedgerEntryType` | String    | UInt16        | はい | `0x0049`の値が文字列`ImportVLSequence`に対応し、このオブジェクトがImportVLSequenceオブジェクトであることを示します。 |
+| `Flags`           | Number    | UInt32        | はい | ブールフラグのビットマップです。`ImportVLSequence` オブジェクトタイプに対して定義されたフラグはないため、この値は常に`0`です。 |
+| `ImportSequence`  | Number    | UInt32        | はい | 「burning」レジャー上のdUNLリストの現在のシーケンス番号です。                                                |
+| `PublicKey`       | String    | Blob          | はい | 「burning」レジャーのdUNLリストの`PublicKey`です。                                                           |
+
+#### Import VLシーケンスID形式
+
+`ImportVLSequence`オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
+
+* Import VL Sequenceスペースキー (`0x0049`)
+* Import Validator ListのPublic Key

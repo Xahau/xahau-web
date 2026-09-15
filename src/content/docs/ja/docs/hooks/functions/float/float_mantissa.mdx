@@ -1,0 +1,102 @@
+---
+title: float_mantissa
+description: XFL格納数の仮数部を取得します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFLの仮数部を符号なし整数として返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 浮動小数点数表現の仮数部を取得します。
+* エラーコード、または仮数部をbigintとして返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_mantissa (
+    int64_t float1
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_mantissa(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t mantissa =
+    float_mantissa(float_one());
+```
+
+<Aside type="tip">
+負のXFLの仮数部は常に正です。数値の符号を判定するには`float_sign`を使用してください。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const mantissa =
+    float_mantissa(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前 | 型     | 説明                                     |
+| ---- | ------ | ---------------------------------------- |
+| f1   | bigint | 仮数部を取得する浮動小数点数。           |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前   | 型       | 説明                                   |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | XFL浮動小数点格納数                    |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                        |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFLの仮数部<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターが有効なXFL格納数ではありません</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                                       |
+| ------------------- | ------------------------------------------ |
+| bigint or ErrorCode | エラーコード、または仮数部をbigintとして返します。 |
+</TabItem>
+</Tabs>

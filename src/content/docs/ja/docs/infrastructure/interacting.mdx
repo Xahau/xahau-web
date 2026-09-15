@@ -1,0 +1,55 @@
+---
+title: WebSocketとRPCでxahaudとやり取りする
+---
+xahaudソフトウェアは、トランザクション送信やレジャー履歴の照会など、さまざまな用途に合わせて構成できるWebSocketとRPCの両方のインターフェースを提供します。暗号化、負荷分散、その他の利点を得るために、xahaudの前段にプロキシソフトウェアを置くユーザーもいます。`ssl_key = [/path/to/key]` のようなパラメーターを使って、`xahaud.cfg`ファイルにTLS証明書をインストールできます。
+
+## WebSocketとRPCポートの設定
+待受ポートを有効にするには、`xahaud.cfg`ファイルを編集します。有効なポートは設定ファイルの`[server]`スタンザに一覧表示されます。`[server]` セクションに列挙した各ポートは、それぞれ独自のスタンザでさらに定義する必要があります。WebSocketやRPCポートの設定に加えて、管理者は着信ピア接続を待ち受けるポート (`port_peer`)も構成できます。validationを行うサーバーでは、着信接続を避けるために`port_peer`を設定ファイルから削除するのが理想です。ピアプロトコル、1つのWebSocketポート、1つのRPCポートを持つ設定ファイルは、次のようになります:<br></br><br></br>
+
+```
+[server]
+port_peer
+port_ws_public
+port_rpc_public
+
+[port_peer] # Name of the port.
+protocol = peer # Required field.
+port = 21337 # Required field.
+ip = :: # Address of interface to bind to.
+
+[port_ws_public]
+protocol = ws
+port = 16006
+ip = ::
+limit = 150 # Maximum number of clients allowed to connect to a given port. "0" is unlimited.
+admin = [ 10.10.10.5, 10.11.11.0/24 ] # IP addresses or subnets allowed to submit [admin](/ja/docs/features/http-websocket-apis/admin-api-methods) requests.
+secure_gateway = [ 10.10.10.20, 10.15.15.0/24 ] # Addresses allowed to send X-Forwarded-For and X-User headers.
+
+[port_rpc_public]
+protocol = http
+port = 16007
+ip = ::
+```
+<br></br>
+WebSocketとRPC接続の追加設定オプションは、[サンプル設定ファイル](https://github.com/Xahau/xahaud/blob/dev/cfg/rippled-example.cfg)で確認できます。
+
+## UDP RPC
+
+xahaudは、高性能で低レイテンシーな照会のためにUDPベースのRPCをサポートしています。UDP RPCは、多数の高速な照会を行い、時折のパケット損失を許容できるアプリケーションに有用です。
+
+UDP RPCを有効にするには、`xahaud.cfg`にUDPポート定義を追加します。
+
+```
+[server]
+port_udp_rpc
+
+[port_udp_rpc]
+protocol = http
+port = 16008
+ip = ::
+transport = udp
+```
+
+UDP RPCのリクエストはHTTP RPCと同じJSON-RPC形式を使いますが、UDPデータグラムとして送信されます。レスポンスもUDPで送信されます。UDPはコネクションレスなので、各リクエストには必要なコンテキストをすべて含める必要があり、クライアントは再試行ロジックを実装して、起こりうるパケット損失に対処すべきです。
+
+**注:** UDP RPCは読み取り専用操作に最適です。トランザクション送信には、信頼性のためWebSocketまたはHTTP RPCを使うべきです。

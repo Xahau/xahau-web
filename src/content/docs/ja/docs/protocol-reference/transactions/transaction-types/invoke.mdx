@@ -1,0 +1,39 @@
+---
+title: Invoke
+description: >-
+  Invokeトランザクションは、特定のレジャー操作に応じて実行されるコード片であるhookを呼び出すために使われます。
+---
+\[[ソース](https://github.com/ripple/rippled/blob/develop/src/ripple/app/tx/impl/Invoke.cpp)]
+
+_(\[Hooks amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "TransactionType": "Invoke",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Blob": "697066733A2F2F4445414442454546",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+}
+```
+
+| フィールド            | JSON型 | \[Internal Type]\[] | 必須? | 説明                                                                                        |
+| ---------------- | --------- | ------------------- | --------- | -------------------------------------------------------------------------------------------------- |
+| `Account`        | String    | AccountID           | Yes       | hookを呼び出すアカウントのアドレス。                                                              |
+| `Blob`           | String    | Blob                | No        | hookに渡されるdata blobです。（最大128k byte）                                                |
+| `Destination`   | String    | AccountID           | No        | hookの対象となるアカウントのアドレス。                                                             |
+
+### 特別なトランザクションコスト
+
+Invokeトランザクションには標準のトランザクションコストに加えて、Blobフィールドのサイズに基づく追加コストがあります。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、Invokeトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード      | 説明                                                              |
+| --------------- | ------------------------------------------------------------------------ |
+| `temDISABLED`   | Hooks amendmentが有効でない場合に発生します。                          |
+| `temMALFORMED`  | Blobフィールドが128k bytesを超える場合に発生します。                 |
+| `terNO_ACCOUNT` | 送信アカウントまたは宛先アカウントが存在しない場合に発生します。        |

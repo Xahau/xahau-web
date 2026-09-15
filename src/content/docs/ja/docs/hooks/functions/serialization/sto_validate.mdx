@@ -1,0 +1,116 @@
+---
+title: sto_validate
+description: STObjectを検証します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/serialized-objects">シリアライズ済みオブジェクト</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `read_ptr`が指すSTObjectを解析します
+* シリアライズが有効な場合は1を返し、それ以外の場合は0を返します。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 検証対象として`blob`（例:シリアライズ済みトランザクション）が渡されます。
+* STObjectが有効な場合は数値1、有効でない場合は0、検証に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t sto_validate (
+    uint32_t read_ptr,
+    uint32_t read_len
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function sto_validate(blob: ByteArray | HexString): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t result = 
+  sto_validate(tx_out, sizeof(tx_out));
+
+if (tx_len <= 0)
+    rollback("Invalid STO.", 12, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const result = sto_validate(tx_out)
+
+if (result <= 0)
+    rollback("Invalid STO.", 1)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前      | 型        | 説明                                        |
+| --------- | --------- | ------------------------------------------- |
+| read_ptr | uint32_t | ソースSTObjectを読み取るバッファ            |
+| read_len | uint32_t | ソースオブジェクトの長さ                    |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前 | 型                     | 説明                                                    |
+| ---- | ---------------------- | ------------------------------------------------------- |
+| blob | ByteArray \| HexString | 検証するBlob（例:シリアライズ済みトランザクション）。  |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                              |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p><code>read_ptr</code>が指すSTObjectが有効なSTObjectの場合は<code>1</code>。<br />そうでない場合は<code>0</code>。<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-ポインター/長さがHookメモリ外を指定しています。</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| ErrorCode \| number | STObjectが有効な場合は数値1、有効でない場合は0、検証に失敗した場合はエラーコードを返します。  |
+</TabItem>
+</Tabs>
