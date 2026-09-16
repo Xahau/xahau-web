@@ -1,0 +1,86 @@
+---
+title: ExportLatch
+description: >-
+  An account-owned latch that coordinates post-validation Export signatures
+  with the returned target-chain proof.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/ExportLedgerOps.h)]
+
+_(Added by the \[Export amendment][].)_
+
+An `ExportLatch` is created when an Export intent is admitted. It keeps callback state until both the signature witness and target-chain XPOP have arrived, or until its owner explicitly erases it. The owning account pays one owner reserve while the object exists.
+
+The latch is keyed by the owning account and W, the source Export transaction hash. `TicketSequence` remains part of the recorded target intent and prevents two live latches for the same account from using one target Ticket, but it is not the latch key.
+
+### Example JSON
+
+```json
+{
+  "LedgerEntryType": "ExportLatch",
+  "Account": "rYourAccount...",
+  "TicketSequence": 2,
+  "TransactionHash": "[W]",
+  "Digest": "[NORMALIZED_EXPORT_INTENT_HASH]",
+  "LedgerSequence": 12345679,
+  "ExportCommitteeHash": "[COMMITTEE_DIGEST]",
+  "LastLedgerSequence": 12345684,
+  "OwnerNode": "0000000000000000",
+  "ExportNode": "0000000000000000",
+  "Flags": 0,
+  "index": "[LEDGER_OBJECT_ID]"
+}
+```
+
+### Fields
+
+| Field | JSON Type | \[Internal Type]\[] | Description |
+| ----- | --------- | ------------------- | ----------- |
+| `Account` | String | AccountID | Account that owns the latch and pays its reserve. |
+| `TicketSequence` | Number | UInt32 | Target-chain Ticket used by the exported transaction. |
+| `TransactionHash` | String | Hash256 | W, the source Export transaction hash. |
+| `Digest` | String | Hash256 | Signing hash of the normalized identity-stamped target intent. It is independent of the final `Signers` subset. |
+| `LedgerSequence` | Number | UInt32 | Validated source ledger sequence containing the Export intent. |
+| `ExportCommitteeHash` | String | Hash256 | Digest of the immutable account-owned [ExportCommittee](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee) used by this intent. |
+| `ExportSignatureHash` | String | Hash256 | Present after the canonical `ExportSignatures` witness arrives first. |
+| `LastLedgerSequence` | Number | UInt32 | Final source ledger eligible for signature publication and witness materialization. This is separate from the outer Export transaction's admission deadline. |
+| `OwnerNode` | String | UInt64 | Page hint for the account owner directory. |
+| `ExportNode` | String | UInt64 | Present while the latch remains in the global pending-signature directory. |
+| `Flags` | Number | UInt32 | Lifecycle facts described below. |
+
+### Flags
+
+| Flag | Value | Meaning |
+| ---- | ----- | ------- |
+| `lsfExportXpopSeen` | `0x00000001` | The target-chain proof arrived before the signature witness. |
+| `lsfExportCanceled` | `0x00000002` | Publication was stopped while retaining callback readiness. |
+
+### Lifecycle
+
+- On intent admission, `ExportNode` is present and neither terminal fact is recorded.
+- When the witness arrives first, `ExportSignatureHash` is added and `ExportNode` is removed.
+- When XPOP arrives first, `lsfExportXpopSeen` is set. Publication can continue so the witness can still complete the pair.
+- When the second of witness and XPOP arrives, the latch is erased and the owner reserve is released.
+- Stop control removes `ExportNode` immediately and retains the latch. Publication expiry immediately makes the latch ineligible for further signing or witness work; its pending-directory link is removed lazily when later Export work prunes expired latches.
+- `tfExportEraseLatch` removes the latch immediately in any state.
+
+<Aside type="caution">
+An ExportLatch is not a permanent replay tombstone. Hooks that perform value-bearing work on Import callbacks must keep their own durable business-level replay record.
+</Aside>
+
+### ExportLatch ID Format
+
+The ID is the SHA-512Half of these values concatenated in order:
+
+- The ExportLatch namespace prefix.
+- The owning `Account` ID.
+- W, the source Export `TransactionHash`.
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [Export transaction](/docs/protocol-reference/transactions/transaction-types/export)
+- [ExportCommittee ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee)
+- [ExportSignatures witness](/docs/protocol-reference/transactions/pseudo-transaction-types/export-signatures)
+- [Import transaction](/docs/protocol-reference/transactions/transaction-types/import)

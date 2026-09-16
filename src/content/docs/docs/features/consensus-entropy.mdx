@@ -1,0 +1,134 @@
+---
+title: Consensus Entropy (RNG)
+description: >-
+  Consensus-derived randomness for hooks — deterministic, tiered, and
+  available every ledger via entropy_cr_dice() and entropy_cr_random() hook API functions.
+---
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+Consensus Entropy gives Xahau hooks access to per-ledger randomness derived from a validator commit/reveal scheme. It supports applications like lotteries, games, random selection, and shuffling with deterministic replay, tiered quality labels, and ledger-visible contributor accountability.
+
+_(Requires the [ConsensusEntropy amendment](/docs/features/amendments/#consensusentropy).)_
+
+The `entropy_cr_*` import family is permanently scoped to this commit/reveal contract. A future entropy mechanism will use distinct Hook imports rather than changing these calls.
+
+## User Guide
+
+### How It Works
+
+Each consensus round produces entropy through a three-phase pipeline:
+
+1. **Commit** — each proposing validator generates a secret and broadcasts a cryptographic commitment (`sha512Half(secret, pubKey, seq)`) on their first proposal
+2. **Reveal** — after the transaction set converges, validators broadcast their secret
+3. **Inject** — the agreed reveal set is mixed deterministically and written to the `ConsensusEntropy` ledger entry as a pseudo-transaction, along with tier, count, denominator, and contributor metadata
+
+<Aside type="note">
+Validators commit before the transaction set is finalized, then reveal after convergence. Hooks can use the resulting entropy during final ledger-close execution.
+</Aside>
+
+<Aside type="caution">
+Before activating ConsensusEntropy, every validator that participates in proposals must run compatible software. On networks using NegativeUNL, activate `NegativeUNLActiveViewCap` no later than ConsensusEntropy so producer-side disable voting and entropy selection use the same parent-ledger denominator.
+</Aside>
+
+### Entropy Tiers
+
+Not all entropy is equally strong. Every RNG-enabled ledger carries a tiered entropy object — hooks must explicitly state what quality they require:
+
+| Tier | Name | Source | Typical Use |
+|------|------|--------|-------------|
+| 4 | Validator Full | Reveals from **every** active validator (`EntropyCount == EntropyDenominator`) | Highest-assurance outcomes that must reject any selective withholding — fails closed if any active validator is absent |
+| 3 | Validator Quorum | Validator commit/reveal with 80% validator alignment | Outcomes that require validator-quorum entropy |
+| 2 | Participant Aligned | Participant-aligned commit/reveal below full validator quorum | Degraded-network outcomes that explicitly accept weaker entropy |
+| 1 | Consensus Fallback | Deterministic public-input fallback | Cosmetic shuffling, non-adversarial randomness |
+
+<Aside type="caution">
+Tier 1 (consensus fallback) entropy is derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, buildTxSetHash, seq)`, where `buildTxSetHash` is the sanitized pre-injection live-build transaction-set hash after supplied extension pseudo-transactions are removed. It is **grindable** by transaction submitters. Never use it for high-value outcomes.
+</Aside>
+
+RNG-enabled ledgers always receive either validator-derived entropy or a consensus-fallback digest. When neither the validator-quorum gate nor the participant-aligned gate succeeds, a labeled fallback is injected instead.
+
+Tier 2 is intentionally weaker than Tier 3. It can appear when the agreed entropy sidecar reaches the participant-aligned threshold but not the full validator-quorum threshold, and Hooks only accept it if they set `min_tier <= 2`.
+
+### Hook API
+
+#### entropy_cr_dice(sides, min_tier)
+
+Returns a random integer in `[0, sides)`:
+
+```c
+int64_t roll = entropy_cr_dice(6, 3);  // d6, require validator-quorum entropy
+if (roll < 0)
+    rollback(SBUF("Entropy unavailable"), 1);
+```
+
+#### entropy_cr_random(write_ptr, write_len, min_tier)
+
+Writes exactly `write_len` random bytes to a buffer (`1..512` bytes). Entropy is generated internally in 32-byte blocks:
+
+```c
+uint8_t buf[32];
+int64_t written = entropy_cr_random(SBUF(buf), 3);  // 32 bytes of validator-quorum random data
+if (written != sizeof(buf))
+    rollback(SBUF("Entropy unavailable"), 1);
+```
+
+Both functions return `TOO_LITTLE_ENTROPY` if the current ledger's entropy is below the stated tier. There is no default — hooks must explicitly choose their entropy quality at every call site.
+
+#### entropy_cr_status()
+
+Returns the current ledger's entropy metadata — tier, reveal count, and participation denominator — packed into a single non-negative value, so hooks can enforce any participation policy in their own code:
+
+```c
+int64_t status = entropy_cr_status();
+if (status < 0)
+    rollback(SBUF("Entropy unavailable"), 1);
+
+uint32_t tier = ENTROPY_TIER(status);
+uint32_t count = ENTROPY_COUNT(status);
+uint32_t denominator = ENTROPY_DENOMINATOR(status);
+
+// Classify the tier before any count/denominator arithmetic:
+// consensus fallback is tier 1 with count = denominator = 0.
+if (tier < 3)
+    rollback(SBUF("Validator entropy required"), 1);
+
+// Example policy: at least 4/5 of active validators contributed.
+if ((uint64_t)5 * count < (uint64_t)4 * denominator)
+    rollback(SBUF("Insufficient participation"), 1);
+
+int64_t roll = entropy_cr_dice(6, 3);
+```
+
+The `ENTROPY_TIER`, `ENTROPY_COUNT`, and `ENTROPY_DENOMINATOR` macros ship with the hook API headers. Common policies include tolerating a single absent validator (`denominator - count <= 1`), requiring a participation ratio (`5*count >= 4*denominator`, computed with widened arithmetic), or requiring an absolute reveal floor (`count >= 20`). `entropy_cr_status()` exposes metadata only — the entropy digest itself is never exposed to hooks; randomness is only drawn through `entropy_cr_dice()` and `entropy_cr_random()`.
+
+### Choosing Tier Requirements
+
+| Application | Suggested `min_tier` | Additional policy via `entropy_cr_status()` |
+|-------------|---------------------|------------------------------------------|
+| Highest-assurance (reject any withholding) | 4 | None needed — tier 4 already means every active validator contributed |
+| Lottery / raffle | 3 | e.g. tolerate one absentee: `denominator - count <= 1` |
+| Game with real stakes | 3 | e.g. participation ratio: `5*count >= 4*denominator` |
+| Degraded-network outcome that explicitly accepts weaker entropy | 2 | Application-specific |
+| Random selection (non-financial) | 1 | None |
+| Cosmetic shuffling | 1 | None |
+
+### Determinism
+
+Randomness is derived per-call from a combination of the entropy digest, ledger sequence, transaction ID, originating account, hook account, hook hash, chain position, strong/weak execution flag, callback/direct dispatch flag, and an incrementing call counter. This means:
+
+- Different hooks on the same transaction get different randomness
+- Multiple calls within one hook use different derivation inputs
+- Same inputs always produce the same outputs (deterministic replay)
+
+### Speculative Execution
+
+Open-ledger (speculative) hook execution uses the **previous** ledger's entropy. Final execution during ledger close uses the current ledger's entropy. This means `entropy_cr_dice()` / `entropy_cr_random()` results may differ between speculative and final execution — treat speculative results like provisional `tesSUCCESS`.
+
+Standalone single-node execution injects synthetic tier-4 (`validator_full`) entropy with count 20, denominator 20, and a contributor bitmap with the first 20 validators marked for development. That makes `min_tier=4` checks pass locally, but quiet network ledgers can still fall back to tier 1.
+
+## Reference
+
+<LinkCard title="ConsensusEntropy Ledger Object" href="/docs/protocol-reference/ledger-data/ledger-objects-types/consensus-entropy" />
+<LinkCard title="entropy_cr_dice() Reference" href="/docs/hooks/functions/utilities/entropy-cr-dice" />
+<LinkCard title="entropy_cr_random() Reference" href="/docs/hooks/functions/utilities/entropy-cr-random" />
+<LinkCard title="entropy_cr_status() Reference" href="/docs/hooks/functions/utilities/entropy-cr-status" />

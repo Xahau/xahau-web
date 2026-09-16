@@ -1,0 +1,83 @@
+---
+title: xport
+description: >-
+  Emit an Export intent from a Hook and receive its source transaction hash.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+- Wraps a serialized unsigned target transaction in an emitted `Export` transaction.
+- Writes the emitted wrapper transaction hash W to `write_ptr`. W is the lifecycle handle used by `xport_cancel()`, the ExportLatch, stream events, and the signature witness.
+- The wrapper creates an `ExportLatch` when it is admitted. Selected validators sign only after that ledger validates; witness materialization happens later.
+- `xport_reserve()` must be called before `xport()`.
+- The target transaction must satisfy the same rules as a user-submitted Export: matching `Account`, `Sequence: 0`, a nonzero `TicketSequence`, an empty `SigningPubKey`, no signatures, valid cross-chain `NetworkID` handling, and no reserved `xahau/export` Memo.
+- `committee_hash_ptr` identifies an existing immutable ExportCommittee owned by the Hook account. `xport()` does not create a committee or select a default.
+- Target-chain fee, Ticket, and SignerList configuration remain the Hook author's responsibility.
+
+<Aside type="tip">
+The `export_signatures` stream provides post-validation shares as they are admitted. A later `ExportSignatures` pseudo-transaction records the exact release-stamped target transaction and a quorum of signatures in validated history.
+</Aside>
+
+### Definition
+
+```c
+int64_t xport (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t committee_hash_ptr,
+    uint32_t committee_hash_len
+);
+```
+
+### Example
+
+```c
+if (xport_reserve(1) < 0)
+    rollback(SBUF("Export reserve failed"), 1);
+
+// ... build the unsigned target transaction blob ...
+
+uint8_t origin[32];
+uint8_t committee_hash[32] = { /* existing committee digest */ };
+int64_t result = xport(SBUF(origin), SBUF(tx_blob), SBUF(committee_hash));
+if (result != 32)
+    rollback(SBUF("Export failed"), 1);
+```
+
+### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `write_ptr` | uint32_t | Pointer to a buffer that receives W. |
+| `write_len` | uint32_t | Write buffer length; must be at least 32. |
+| `read_ptr` | uint32_t | Pointer to the serialized unsigned target transaction. |
+| `read_len` | uint32_t | Serialized transaction length. |
+| `committee_hash_ptr` | uint32_t | Pointer to the 32-byte digest of an existing ExportCommittee owned by the Hook account. |
+| `committee_hash_len` | uint32_t | Committee digest length; must be exactly 32. |
+
+### Return Code
+
+Returns `32` on success. Negative results include:
+
+| Error | Description |
+| ----- | ----------- |
+| `PREREQUISITE_NOT_MET` | `xport_reserve()` was not called. |
+| `TOO_MANY_EXPORTED_TXN` | The Hook exceeded its reserved Export count. |
+| `TOO_MANY_EMITTED_TXN` | The Hook exceeded its combined emitted-transaction reservation. |
+| `TOO_SMALL` | `write_len` is less than 32. |
+| `OUT_OF_BOUNDS` | A pointer or length is outside Hook memory. |
+| `INVALID_ARGUMENT` | `committee_hash_len` is not 32. |
+| `DOESNT_EXIST` | The Hook account does not own the identified ExportCommittee. |
+| `EXPORT_FAILURE` | The committee object is malformed, the target cannot be wrapped, the wrapper fails Export preflight, or the emission generation is too deep. |
+| `INTERNAL_ERROR` | A required export nonce cannot be allocated. |
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export)
+- [ExportCommittee ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-committee)
+- [xport_reserve()](/docs/hooks/functions/utilities/xport_reserve)
+- [xport_cancel()](/docs/hooks/functions/utilities/xport_cancel)
