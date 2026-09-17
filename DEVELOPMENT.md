@@ -19,6 +19,7 @@ Marketing pages (About, Features, Connect, Contest, Home, Roadmap) use a custom 
 | `/contest` | `XahauContest.astro` / `XahauContestEs.astro` / `XahauContestJa.astro` |
 | `/roadmap` | `XahauRoadmap.astro` |
 | `/ecosystem` | `XahauEcosystem.astro` |
+| `/learn` | `XahauLearn.astro` (data: `src/data/learn.json`) |
 | `/fraud-report` | `FraudReportPage.astro` |
 
 Each component lives in `src/components/` and is imported by a thin page wrapper in `src/pages/` (and `src/pages/es/`, `src/pages/ja/`).

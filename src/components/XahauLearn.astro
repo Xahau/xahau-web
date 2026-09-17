@@ -1,0 +1,359 @@
+---
+/**
+ * XahauLearn.astro — Community learning resources directory
+ *
+ * All content driven from src/data/learn.json.
+ * Add a resource to `resources[]` (and a new entry to `types[]` if needed);
+ * no markup changes required. Types with no resources are not rendered.
+ */
+
+import learnData from '../data/learn.json'
+import { defaultLocale, type Locale } from '../i18n/locales'
+
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale
+const meta = learnData.pageMeta[locale]
+const l = learnData.labels[locale]
+
+const sections = learnData.types
+  .map((type) => ({
+    ...type,
+    items: learnData.resources.filter((r) => r.type === type.id),
+  }))
+  .filter((section) => section.items.length > 0)
+
+const editUrl =
+  'https://github.com/Xahau/xahau-web/edit/main/src/data/learn.json'
+---
+
+<section class="xlearn" aria-label="Learn Xahau">
+  <!-- ══ PAGE HEADER ══════════════════════════════════════════════════════ -->
+  <header class="xl-head">
+    <div>
+      <h2>{meta.title}</h2>
+      <p class="xl-sub">{meta.description}</p>
+    </div>
+    <div class="xl-chips">
+      {sections.map(s => (
+        <span class="xl-chip">{s.items.length} {s.label[locale]}</span>
+      ))}
+    </div>
+  </header>
+
+  {sections.map(section => (
+    <div class="xl-act">
+      <div class="xl-sect-head">
+        <p class="xl-act-label">
+          <span class={`act-pip pip-${section.theme}`}></span>
+          {section.label[locale]}
+        </p>
+        <p class="xl-sect-tag">{section.tagline[locale]}</p>
+      </div>
+
+      <ul class="xl-list">
+        {section.items.map(item => (
+          <li class="xl-item">
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="xl-link"
+            >
+              <div class="xl-main">
+                <span class="xl-name">{item.name}</span>
+                <span class="xl-author">{l.by} {item.author}</span>
+                <p class="xl-desc">{item.desc[locale]}</p>
+                <div class="xl-tags">
+                  <span class="xl-tag">{item.level[locale]}</span>
+                  {item.languages > 1 && (
+                    <span class="xl-tag">{item.languages} {l.languages}</span>
+                  )}
+                  {item.free && <span class="xl-tag">{l.free}</span>}
+                  {item.openSource && <span class="xl-tag">{l.openSource}</span>}
+                </div>
+              </div>
+              <span class="xl-cta">{l.start} ↗</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+
+  <!-- ══ CONTRIBUTE ═══════════════════════════════════════════════════════ -->
+  <div class="xl-contribute">
+    <div>
+      <p class="xl-contribute-title">{l.contributeTitle}</p>
+      <p class="xl-contribute-text">
+        {l.contributeText} <code>src/data/learn.json</code>
+      </p>
+    </div>
+    <a
+      href={editUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="xl-contribute-cta"
+      >{l.contributeCta}
+      ↗</a
+    >
+  </div>
+</section>
+
+<style>
+  /* ══ Design tokens ════════════════════════════════════════════════════════ */
+  .xlearn {
+    --ink: #0f2328;
+    --dim: #2d3e44;
+    --mute: #556068;
+    --grn2: #007a28;
+    --teal2: #006f87;
+    --grn-hi: #00c940;
+    --border: #e4edef;
+    --hover-bg: #f4f6f7;
+
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 48px 56px 72px;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 20px 64px -24px rgba(15, 35, 40, 0.13);
+  }
+  .xlearn * {
+    box-sizing: border-box;
+  }
+
+  /* ── Page header ─────────────────────────────────────────────────────── */
+  .xl-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 40px;
+  }
+  .xlearn h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+  .xl-sub {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: var(--mute);
+  }
+  .xl-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+  }
+  .xl-chip {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 5px 13px;
+    border: 1px solid #cdd7dc;
+    border-radius: 999px;
+    color: var(--mute);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Act structure ───────────────────────────────────────────────────── */
+  .xl-act {
+    padding-top: 40px;
+  }
+  .xl-act-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin: 0 0 6px;
+  }
+  .act-pip {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pip-grn {
+    background: var(--grn2);
+  }
+  .pip-teal {
+    background: var(--teal2);
+  }
+  .xl-sect-head {
+    margin-bottom: 28px;
+  }
+  .xl-sect-tag {
+    margin: 0;
+    font-size: 14px;
+    color: var(--mute);
+  }
+
+  /* ══ RESOURCE LIST ════════════════════════════════════════════════════ */
+  .xl-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+  .xl-item {
+    border-bottom: 1px solid var(--border);
+  }
+  /* Prefixed with .xlearn to beat the global `.page-content a` underline rule */
+  .xlearn .xl-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 28px 16px;
+    margin: 0 -16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: background 0.15s;
+  }
+  .xl-link:hover {
+    background: var(--hover-bg);
+  }
+  .xl-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .xl-name {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    background: linear-gradient(140deg, var(--ink) 15%, var(--grn2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    width: fit-content;
+  }
+  .xl-author {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--mute);
+  }
+  .xl-desc {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--dim);
+    max-width: 62ch;
+  }
+  .xl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .xl-tag {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f4fbf6;
+    color: var(--grn2);
+  }
+  .xl-cta {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--grn2);
+    padding: 10px 20px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: transform 0.15s;
+  }
+  .xl-link:hover .xl-cta {
+    transform: translate(2px, -2px);
+  }
+
+  /* ══ CONTRIBUTE ═══════════════════════════════════════════════════════ */
+  .xl-contribute {
+    margin-top: 56px;
+    padding: 28px 32px;
+    border: 1px dashed #cdd7dc;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .xl-contribute-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .xl-contribute-text {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--mute);
+    max-width: 62ch;
+  }
+  .xl-contribute-text code {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    background: var(--hover-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--dim);
+  }
+  .xlearn .xl-contribute-cta {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--teal2);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .xlearn .xl-contribute-cta:hover {
+    color: var(--ink);
+  }
+
+  /* ── Responsive ─────────────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .xlearn {
+      padding: 32px 24px 48px;
+      border-radius: 16px;
+    }
+    .xlearn h2 {
+      font-size: 28px;
+    }
+    .xl-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .xlearn .xl-link {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .xl-name {
+      font-size: 20px;
+    }
+    .xl-contribute {
+      padding: 22px 20px;
+    }
+  }
+</style>

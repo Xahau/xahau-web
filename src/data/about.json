@@ -39,7 +39,7 @@
         "paragraphs": [
           "The native currency of Xahau is XAH — an inflationary asset designed to reward active participation. Every account can claim a monthly balance adjustment by interacting with a Hook on the genesis account, accruing 4% of their account balance each month.",
           "XAH serves as the network's anti-spam mechanism, attaching a cost to every transaction. Standard transactions cost fractions of a single XAH; Hook-augmented operations carry proportionally higher fees, reflecting their on-chain computational weight. XAH is also required as a locked reserve to maintain accounts, hold objects, and store data used by smart contracts.",
-          "XAH is available on major exchanges including Bitrue, BitMart, and CoinEx, and is supported by Ledger hardware wallets — making it increasingly accessible to users worldwide. Projects that rely on Hooks for custom logic are advised to maintain a XAH balance sufficient to generate monthly adjustments to cover ongoing fees."
+          "XAH is available on major exchanges including Bitrue and is supported by Ledger hardware wallets — making it increasingly accessible to users worldwide. Projects that rely on Hooks for custom logic are advised to maintain a XAH balance sufficient to generate monthly adjustments to cover ongoing fees."
         ]
       },
       "events": {
@@ -90,12 +90,6 @@
             "detail": "Xahau gains full Ledger hardware wallet compatibility, opening the network to mainstream institutional and retail custody workflows."
           },
           {
-            "date": "2025",
-            "type": "access",
-            "title": "Exchange expansion",
-            "detail": "XAH listed on CoinEx and BitMart. Roadmap targets further exchange and on/off-ramp access through 2025–2026."
-          },
-          {
             "date": "Q1 2026",
             "type": "security",
             "title": "JSHooks enters staged rollout",
@@ -143,7 +137,7 @@
         "paragraphs": [
           "La moneda nativa de Xahau es XAH — un activo inflacionario diseñado para recompensar la participación activa. Cada cuenta puede reclamar un ajuste de saldo mensual interactuando con un Hook en la cuenta génesis, acumulando un 4% del saldo de la cuenta cada mes.",
           "XAH actúa como mecanismo anti-spam de la red, añadiendo un coste a cada transacción. Las transacciones estándar cuestan fracciones de un solo XAH; las operaciones potenciadas por Hooks tienen comisiones proporcionalmente más altas, reflejando su peso computacional en la cadena. XAH también se requiere como reserva bloqueada para mantener cuentas, poseer objetos y almacenar datos utilizados por contratos inteligentes.",
-          "XAH está disponible en exchanges principales como Bitrue, BitMart y CoinEx, y cuenta con soporte en carteras hardware Ledger — haciéndolo cada vez más accesible para usuarios de todo el mundo. Los proyectos que dependen de Hooks para lógica personalizada deben mantener un saldo de XAH suficiente para generar ajustes mensuales que cubran las comisiones continuas."
+          "XAH está disponible en exchanges principales como Bitrue y cuenta con soporte en carteras hardware Ledger — haciéndolo cada vez más accesible para usuarios de todo el mundo. Los proyectos que dependen de Hooks para lógica personalizada deben mantener un saldo de XAH suficiente para generar ajustes mensuales que cubran las comisiones continuas."
         ]
       },
       "events": {
@@ -194,12 +188,6 @@
             "detail": "Xahau obtiene compatibilidad total con carteras hardware Ledger, abriendo la red a flujos de trabajo de custodia institucional y minorista convencional."
           },
           {
-            "date": "2025",
-            "type": "access",
-            "title": "Expansión de exchanges",
-            "detail": "XAH listado en CoinEx y BitMart. La hoja de ruta apunta a mayor acceso a exchanges y plataformas de entrada/salida durante 2025–2026."
-          },
-          {
             "date": "Q1 2026",
             "type": "security",
             "title": "JSHooks entra en despliegue gradual",
@@ -247,7 +235,7 @@
         "paragraphs": [
           "A moeda nativa do Xahau é o XAH — um ativo inflacionário projetado para recompensar a participação ativa. Cada conta pode reivindicar um ajuste de saldo mensal interagindo com um Hook na conta gênesis, acumulando 4% do saldo da conta a cada mês.",
           "O XAH serve como mecanismo anti-spam da rede, atribuindo um custo a cada transação. Transações padrão custam frações de um único XAH; operações com Hooks carregam taxas proporcionalmente maiores, refletindo seu peso computacional na cadeia. O XAH também é necessário como reserva bloqueada para manter contas, armazenar objetos e guardar dados usados por contratos inteligentes.",
-          "O XAH está disponível nas principais exchanges, incluindo Bitrue, BitMart e CoinEx, e é compatível com carteiras de hardware Ledger — tornando-o cada vez mais acessível a usuários em todo o mundo. Projetos que dependem de Hooks para lógica personalizada são aconselhados a manter um saldo de XAH suficiente para gerar ajustes mensais que cubram as taxas contínuas."
+          "O XAH está disponível nas principais exchanges, incluindo Bitrue e é compatível com carteiras de hardware Ledger — tornando-o cada vez mais acessível a usuários em todo o mundo. Projetos que dependem de Hooks para lógica personalizada são aconselhados a manter um saldo de XAH suficiente para gerar ajustes mensais que cubram as taxas contínuas."
         ]
       },
       "events": {
@@ -298,12 +286,6 @@
             "detail": "O Xahau obtém compatibilidade total com carteiras de hardware Ledger, abrindo a rede para fluxos de custódia institucional e de varejo convencionais."
           },
           {
-            "date": "2025",
-            "type": "access",
-            "title": "Expansão nas exchanges",
-            "detail": "XAH listado na CoinEx e BitMart. O roadmap prevê mais acesso a exchanges e on/off-ramps ao longo de 2025–2026."
-          },
-          {
             "date": "T1 2026",
             "type": "security",
             "title": "JSHooks inicia implantação gradual",
@@ -351,7 +333,7 @@
         "paragraphs": [
           "Xahauのネイティブ通貨はXAHです。積極的な参加を報酬として返すように設計されたインフレ資産です。すべてのアカウントは、ジェネシスアカウントのHookと対話することで月次残高調整を請求でき、毎月アカウント残高の4%を積み立てます。",
           "XAHはネットワークのアンチスパムメカニズムとして機能し、すべてのトランザクションにコストを付加します。標準的なトランザクションは1XAHの端数程度のコストですが、Hooksを活用した操作はオンチェーンの計算負荷を反映してそれに比例した高い手数料が発生します。XAHはまた、アカウントの維持、オブジェクトの保有、スマートコントラクトが使用するデータの保存のために、ロックされた準備金としても必要です。",
-          "XAHはBitrue、BitMart、CoinExなどの主要取引所で利用可能で、Ledgerハードウェアウォレットもサポートされており、世界中のユーザーにとってますますアクセスしやすくなっています。カスタムロジックのためにHooksに依存するプロジェクトは、継続的な手数料をカバーするための月次調整を生成するのに十分なXAH残高を維持することをお勧めします。"
+          "XAHはBitrueなどの主要取引所で利用可能で、Ledgerハードウェアウォレットもサポートされており、世界中のユーザーにとってますますアクセスしやすくなっています。カスタムロジックのためにHooksに依存するプロジェクトは、継続的な手数料をカバーするための月次調整を生成するのに十分なXAH残高を維持することをお勧めします。"
         ]
       },
       "events": {
@@ -400,12 +382,6 @@
             "type": "access",
             "title": "Ledgerハードウェアウォレット",
             "detail": "XahauがLedgerハードウェアウォレットに完全対応し、主流の機関投資家および個人の保管ワークフローにネットワークを開放しました。"
-          },
-          {
-            "date": "2025年",
-            "type": "access",
-            "title": "取引所拡大",
-            "detail": "XAHがCoinEx（2025年3月）およびBitMartに上場。ロードマップでは2025〜2026年を通じてさらなる取引所およびオン/オフランプアクセスを目指しています。"
           },
           {
             "date": "2026年Q1",

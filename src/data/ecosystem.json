@@ -134,18 +134,6 @@
           "url": "https://www.bitrue.com/",
           "logo": "bitrue",
           "desc": "Crypto exchange with XAH spot trading"
-        },
-        {
-          "name": "BitMart",
-          "url": "https://www.bitmart.com/",
-          "logo": "bitmart",
-          "desc": "Global exchange offering XAH pairs"
-        },
-        {
-          "name": "CoinEx",
-          "url": "https://www.coinex.com/",
-          "logo": "coinex",
-          "desc": "Exchange platform supporting XAH"
         }
       ]
     },
