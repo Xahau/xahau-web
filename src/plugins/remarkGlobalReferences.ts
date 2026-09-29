@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { visit } from 'unist-util-visit'
-import { defaultLocale, locales, nonDefaultLocales } from '../i18n/locales'
+import { nonDefaultLocales } from '../i18n/locales'
 
 const parseRules: {
   path: string
