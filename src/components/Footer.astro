@@ -22,6 +22,7 @@ const translations = {
     getstarted: 'Get started',
     protocol: 'Protocol Reference',
     infra: 'Infrastructure',
+    learn: 'Learn',
     connect: 'Connect',
     events: 'Events',
     discord: 'Community Discord',
@@ -42,6 +43,7 @@ const translations = {
     getstarted: 'Primeros pasos',
     protocol: 'Referencia de Protocolo',
     infra: 'Infraestructura',
+    learn: 'Aprender',
     connect: 'Conectar',
     events: 'Eventos',
     discord: 'Discord de la Comunidad',
@@ -62,6 +64,7 @@ const translations = {
     getstarted: 'はじめる',
     protocol: 'プロトコルリファレンス',
     infra: 'インフラストラクチャ',
+    learn: '学ぶ',
     connect: 'コネクト',
     events: 'イベント',
     discord: 'コミュニティDiscord',
@@ -82,6 +85,7 @@ const translations = {
     getstarted: 'Começar',
     protocol: 'Referência do Protocolo',
     infra: 'Infraestrutura',
+    learn: 'Aprender',
     connect: 'Conectar',
     events: 'Eventos',
     discord: 'Discord da Comunidade',
@@ -215,6 +219,9 @@ const t = translations[locale as Locale] || translations[defaultLocale]
             href={getRelativeLocaleUrl(locale, '/docs/resources/whitepaper')}
             class="footer-link"
             >Whitepaper</a
+          >
+          <a href={getRelativeLocaleUrl(locale, '/learn')} class="footer-link"
+            >{t.learn}</a
           >
         </div>
 

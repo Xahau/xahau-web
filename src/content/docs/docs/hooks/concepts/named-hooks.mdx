@@ -1,0 +1,105 @@
+---
+title: Named Hooks
+description: Selectively activate specific hooks on an account using a name-based execution gate.
+---
+
+_(Added by the [NamedHooks amendment](/docs/features/amendments/#namedhooks).)_
+
+### Overview
+
+By default, every installed hook on an account executes on every transaction type it has been configured for via `HookOn`. Named Hooks allow an installed hook to declare an **execution gate**: the hook only runs if the triggering transaction carries a matching `HookName` value.
+
+This enables multiple hooks to coexist on the same account, each serving a different use case, with callers selecting which hook to activate by including the appropriate `HookName` in their transaction.
+
+### How It Works
+
+**1. Name the hook at installation time**
+
+Set the `HookName` field inside the `Hook` slot of a [SetHook transaction](/docs/protocol-reference/transactions/transaction-types/sethook):
+
+```json
+{
+    "TransactionType": "SetHook",
+    "Account": "rHookOwner...",
+    "Hooks": [
+        {
+            "Hook": {
+                "HookHash": "A5663784D04ED1B4408C6B97193464D27C9C3334AAF8BBB4FA5EB8E557FC4A2C",
+                "HookOn": "0000000000000000",
+                "HookNamespace": "...",
+                "HookName": "6D795F68616E646C6572"
+            }
+        }
+    ]
+}
+```
+
+`HookName` is a hex-encoded UTF-8 string (e.g. `6D795F68616E646C6572` = `"my_handler"`). It is stored per-installation on the account's [Hook ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/hook) and is not shared with the [HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition).
+
+**2. Activate the hook by name in a transaction**
+
+Any transaction type can include the top-level `HookName` field to target the named hook:
+
+```json
+{
+    "TransactionType": "Payment",
+    "Account": "rSender...",
+    "Destination": "rHookOwner...",
+    "Amount": "1000000",
+    "HookName": "6D795F68616E646C6572"
+}
+```
+
+When the ledger processes this transaction and reaches the hook chain on `rHookOwner`:
+
+- Hooks **without** a `HookName` set → execute normally (unchanged behaviour).
+- Hooks **with** a `HookName` that matches the transaction's `HookName` → execute.
+- Hooks **with** a `HookName` that does **not** match → silently skipped (no error).
+
+Transactions that carry **no** `HookName` field will skip all named hooks on the account.
+
+### HookName Constraints
+
+| Constraint | Value |
+| ---------- | ----- |
+| Minimum length | 4 bytes (8 hex chars in JSON) |
+| Maximum length | 16 bytes (32 hex chars in JSON) |
+| Encoding | Valid UTF-8 |
+| Remove name | Set to empty blob (`""`) in an update operation |
+
+### Removing a Name
+
+To remove a previously assigned name from a hook slot, submit an Update Operation with `HookName` set to an empty blob:
+
+```json
+{
+    "TransactionType": "SetHook",
+    "Account": "rHookOwner...",
+    "Hooks": [
+        {
+            "Hook": {
+                "HookName": ""
+            }
+        }
+    ]
+}
+```
+
+After removal, the hook reverts to unconditional execution (governed only by its `HookOn` / `HookOnIncoming` / `HookOnOutgoing` settings).
+
+### Fee Calculation
+
+Hook fee calculation respects the same gating logic: named hooks that would be skipped by a transaction (name mismatch or absent) are **not** counted when computing the hook execution fee for that transaction.
+
+### Error Cases
+
+| Error Code     | Condition |
+| -------------- | --------- |
+| `temDISABLED`  | `HookName` is present in a Hook slot but the `NamedHooks` amendment is not enabled. |
+| `temMALFORMED` | `HookName` present as a top-level transaction field but `Hooks` or `NamedHooks` is not active; or the value fails UTF-8 / length validation. |
+
+### Use Cases
+
+- **Multi-purpose accounts**: install several specialised hooks (e.g. payment processor, governance handler, escrow manager), each gated by a different name.
+- **Selective invocation**: external contracts or users can selectively trigger only the hook relevant to their interaction without affecting others.
+- **Gradual migration**: deploy a new hook version under a different name and migrate callers incrementally without removing the old hook.

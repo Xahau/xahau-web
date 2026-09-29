@@ -1,0 +1,107 @@
+---
+title: OracleSet
+description: >-
+  Una transacción OracleSet crea o actualiza un objeto Price Oracle en el
+  ledger, publicando uno o más puntos de datos de precio de activos para una cuenta dada.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/SetOracle.cpp)]
+
+_(Añadido por la [enmienda PriceOracle](/es/docs/features/amendments/#priceoracle).)_
+
+### Crear
+
+```json
+{
+    "TransactionType": "OracleSet",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "OracleDocumentID": 1,
+    "Provider": "70726F7669646572",
+    "AssetClass": "63757272656E6379",
+    "LastUpdateTime": 1763033559,
+    "PriceDataSeries": [
+        {
+            "PriceData": {
+                "BaseAsset": "XAH",
+                "QuoteAsset": "USD",
+                "AssetPrice": 74560,
+                "Scale": 4
+            }
+        }
+    ]
+}
+```
+
+### Actualizar
+
+```json
+{
+    "TransactionType": "OracleSet",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "OracleDocumentID": 1,
+    "LastUpdateTime": 1763033700,
+    "PriceDataSeries": [
+        {
+            "PriceData": {
+                "BaseAsset": "XAH",
+                "QuoteAsset": "USD",
+                "AssetPrice": 74800,
+                "Scale": 4
+            }
+        }
+    ]
+}
+```
+
+### Campos
+
+| Campo              | Tipo JSON | \[Internal Type]\[] | Descripción                                                                                                                                      |
+| ------------------ | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Account`          | String    | AccountID           | La dirección de la cuenta que crea o actualiza el Oracle. Solo esta cuenta puede actualizarlo o eliminarlo posteriormente.                       |
+| `OracleDocumentID` | Number    | UInt32              | Un identificador único para este Oracle dentro de la cuenta propietaria. Pueden existir múltiples Oracles por cuenta usando diferentes IDs.      |
+| `Provider`         | String    | Blob                | _(Opcional en actualización; requerido en creación)_ Identificador codificado en hexadecimal del proveedor de Oracle (p. ej. Chainlink, Band). Máximo 256 bytes. |
+| `URI`              | String    | Blob                | _(Opcional)_ URI codificado en hexadecimal que hace referencia a datos complementarios fuera de la cadena para este Oracle (p. ej. CID de IPFS). Máximo 256 bytes. |
+| `AssetClass`       | String    | Blob                | _(Opcional en actualización; requerido en creación)_ Categoría codificada en hexadecimal que describe el tipo de activos (p. ej. `63757272656E6379` = "currency"). Máximo 16 bytes. |
+| `LastUpdateTime`   | Number    | UInt32              | Marca de tiempo Unix (segundos desde el 1 de enero de 1970) de la última actualización de precio. Debe estar dentro de ±300 segundos del tiempo de cierre del ledger y debe ser estrictamente mayor que el valor almacenado actualmente en actualizaciones. |
+| `PriceDataSeries`  | Array     | Array               | Array de objetos `PriceData`. Debe contener entre 1 y 10 entradas. En una actualización, los pares sin `AssetPrice` se eliminan del objeto.     |
+
+### Objeto PriceData
+
+Cada entrada en `PriceDataSeries` es un objeto `PriceData`:
+
+| Campo        | Tipo JSON | \[Internal Type]\[] | Descripción                                                                                                                                                            |
+| ------------ | --------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BaseAsset`  | String    | Currency            | El activo cuyo precio se publica (p. ej. `"XAH"`, `"BTC"`).                                                                                                          |
+| `QuoteAsset` | String    | Currency            | La moneda de denominación (p. ej. `"USD"`, `"EUR"`). Debe diferir de `BaseAsset`.                                                                                     |
+| `AssetPrice` | Number    | UInt64              | _(Opcional)_ El precio como número entero escalado. El precio efectivo es `AssetPrice × 10^(-Scale)`. Omitir este campo **elimina** un par existente durante una actualización. |
+| `Scale`      | Number    | UInt8               | _(Opcional)_ Exponente decimal usado para derivar el precio efectivo. Valores válidos: 0–10. Por defecto: 0. Ejemplo: `AssetPrice = 74560`, `Scale = 4` → precio efectivo = 7,456. |
+
+### Reserva
+
+Las transacciones OracleSet consumen reservas del propietario según el número de pares `PriceData` almacenados:
+
+| Pares | Reservas del propietario consumidas |
+| ----- | ----------------------------------- |
+| 1–5   | 1                                   |
+| 6–10  | 2                                   |
+
+Si una actualización cambia el número de pares por encima o por debajo del umbral de 5 pares, el recuento del propietario se ajusta automáticamente (±1).
+
+### Coste especial de transacción
+
+Las transacciones OracleSet tienen el coste de transacción estándar.
+
+### Casos de error
+
+| Código de error           | Descripción                                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`             | La enmienda PriceOracle no está habilitada.                                                                                                                         |
+| `temINVALID_FLAG`         | Se especificaron flags inválidos.                                                                                                                                   |
+| `temMALFORMED`            | `Provider`, `URI` o `AssetClass` está vacío o supera la longitud máxima; pares base/quote duplicados en la misma transacción; `BaseAsset` igual a `QuoteAsset`; `Scale` > 10; `Provider` o `AssetClass` no coinciden con los valores almacenados en una actualización; `Provider` o `AssetClass` ausentes en una creación. |
+| `temARRAY_EMPTY`          | `PriceDataSeries` está vacío.                                                                                                                                       |
+| `temARRAY_TOO_LARGE`      | `PriceDataSeries` contiene más de 10 entradas en la transacción.                                                                                                   |
+| `terNO_ACCOUNT`           | La cuenta emisora no existe.                                                                                                                                        |
+| `tecINVALID_UPDATE_TIME`  | `LastUpdateTime` está fuera de la ventana de ±300 segundos desde el tiempo de cierre del ledger, es anterior a la marca de tiempo UNIX (segundos desde el 1 de enero de 1970), o no es estrictamente mayor que el valor almacenado en una actualización. |
+| `tecTOKEN_PAIR_NOT_FOUND` | Un par especificado para eliminación (sin `AssetPrice`) no existe en el objeto Oracle actual.                                                                       |
+| `tecARRAY_EMPTY`          | El resultado tras aplicar todas las actualizaciones y eliminaciones dejaría `PriceDataSeries` vacío.                                                                |
+| `tecARRAY_TOO_LARGE`      | El resultado tras aplicar todas las actualizaciones y adiciones superaría las 10 entradas.                                                                          |
+| `tecINSUFFICIENT_RESERVE` | La cuenta no tiene suficiente XAH para cumplir el requisito de reserva para crear el objeto Oracle.                                                                 |

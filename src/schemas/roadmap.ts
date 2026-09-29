@@ -29,6 +29,14 @@ export const roadmapItem = z.object({
   // Ongoing activity with no firm end date. Stretches to the end of the visible
   // window and renders a "continues" indicator. Overrides `span`/`endQuarter`.
   openEnded: z.boolean().optional().default(false),
+  // Card tag, built from the shared vocabulary in `labels.<locale>.tags`.
+  // `phase` is the base word ('feature' -> "Feature"), `note` the optional
+  // qualifier ('activated' -> "Activated"); the card renders "phase · note".
+  // Both are keys, not text — translations live in `labels`, not on the item.
+  phase: z.string().min(1).optional(),
+  note: z.string().min(1).optional(),
+  // Escape hatch for one-off tags that aren't part of the vocabulary.
+  // Ignored when `phase` is set. Prefer `phase`/`note` for anything reusable.
   tag: localized.optional(),
   title: localized,
   description: localized.optional(),
@@ -58,6 +66,13 @@ export const roadmapLabels = z.object({
     pilot: z.string(),
     partnership: z.string(),
     launch: z.string(),
+  }),
+  // Tag vocabulary — see `phase`/`note` on roadmapItem. Open records so a new
+  // key only has to be added to the JSON, not here; XahauRoadmap.astro fails
+  // the build if an item points at a key that doesn't exist.
+  tags: z.object({
+    phases: z.record(z.string(), z.string()),
+    notes: z.record(z.string(), z.string()),
   }),
   foot: z.string(),
 })

@@ -42,3 +42,27 @@ Examples (assuming a 256-bit unsigned integer type):
 ### HookOn Calculator
 
 <LinkCard title="HookOn Calculator" href="https://richardah.github.io/xrpl-hookon-calculator/" />
+
+### HookCanEmit Field
+
+_(Added by the [HookCanEmit amendment](/docs/features/amendments/#hookcanemit).)_
+
+`HookCanEmit` uses the same 256-bit bitmask syntax as `HookOn` but controls which transaction types a Hook is allowed to **emit**, rather than which types trigger it.
+
+- Uses the same active-low semantics as `HookOn`, with bit 22 (`ttHOOK_SET`) being active high.
+- If `HookCanEmit` is absent, the Hook may emit any transaction type, including `SetHook`.
+
+### HookOnIncoming and HookOnOutgoing Fields
+
+_(Added by the [HookOnV2 amendment](/docs/features/amendments/#hookonv2).)_
+
+Instead of specifying a single `HookOn` field, Hooks may optionally replace it with two separate fields that differentiate the direction of the triggering transaction:
+
+- **`HookOnIncoming`** — triggers the Hook on transactions **originating from another account** (the Hook account is not the initiator).
+- **`HookOnOutgoing`** — triggers the Hook on transactions **originating from the Hook account itself**.
+
+Both fields use the same bit-field syntax as `HookOn`. `HookOnIncoming` and `HookOnOutgoing` are mutually exclusive with `HookOn` — you must use either `HookOn` alone or the `HookOnIncoming`/`HookOnOutgoing` pair, not both. If only one of the pair is specified, the Hook will not fire on the unspecified direction.
+
+_Note: The `HookOnIncoming` and `HookOnOutgoing` fields cannot be configured with exactly the same settings. If you need a Hook to respond to both directions using identical criteria, use the `HookOn` field instead, as it provides a simpler and more appropriate way to define shared trigger behavior._
+
+Using `HookOn` alone continues to work exactly as before.

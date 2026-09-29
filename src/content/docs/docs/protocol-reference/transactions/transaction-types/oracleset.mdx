@@ -1,0 +1,107 @@
+---
+title: OracleSet
+description: >-
+  An OracleSet transaction creates or updates a Price Oracle object on the
+  ledger, publishing one or more asset price data points for a given account.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/SetOracle.cpp)]
+
+_(Added by the [PriceOracle amendment](/docs/features/amendments/#priceoracle).)_
+
+### Create
+
+```json
+{
+    "TransactionType": "OracleSet",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "OracleDocumentID": 1,
+    "Provider": "70726F7669646572",
+    "AssetClass": "63757272656E6379",
+    "LastUpdateTime": 1763033559,
+    "PriceDataSeries": [
+        {
+            "PriceData": {
+                "BaseAsset": "XAH",
+                "QuoteAsset": "USD",
+                "AssetPrice": 74560,
+                "Scale": 4
+            }
+        }
+    ]
+}
+```
+
+### Update
+
+```json
+{
+    "TransactionType": "OracleSet",
+    "Account": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "OracleDocumentID": 1,
+    "LastUpdateTime": 1763033700,
+    "PriceDataSeries": [
+        {
+            "PriceData": {
+                "BaseAsset": "XAH",
+                "QuoteAsset": "USD",
+                "AssetPrice": 74800,
+                "Scale": 4
+            }
+        }
+    ]
+}
+```
+
+### Fields
+
+| Field              | JSON Type | \[Internal Type]\[] | Description                                                                                                                                      |
+| ------------------ | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Account`          | String    | AccountID           | The address of the account creating or updating the Oracle. Only this account can later update or delete the object.                            |
+| `OracleDocumentID` | Number    | UInt32              | A unique identifier for this Oracle within the owner account. Multiple Oracles can exist per account using different IDs.                        |
+| `Provider`         | String    | Blob                | _(Optional on update; required on create)_ Hex-encoded identifier of the Oracle provider (e.g. Chainlink, Band). Max 256 bytes.                  |
+| `URI`              | String    | Blob                | _(Optional)_ Hex-encoded URI referencing supplementary off-chain data for this Oracle (e.g. IPFS CID). Max 256 bytes.                            |
+| `AssetClass`       | String    | Blob                | _(Optional on update; required on create)_ Hex-encoded category describing the type of assets (e.g. `63757272656E6379` = "currency"). Max 16 bytes. |
+| `LastUpdateTime`   | Number    | UInt32              | Unix timestamp (seconds since January 1, 1970) of the last price update. Must be within ±300 seconds of the ledger close time and must be strictly greater than the current stored value on updates. |
+| `PriceDataSeries`  | Array     | Array               | Array of `PriceData` objects. Must contain between 1 and 10 entries. On update, pairs without `AssetPrice` are deleted from the object.         |
+
+### PriceData Object
+
+Each entry in `PriceDataSeries` is a `PriceData` object:
+
+| Field        | JSON Type | \[Internal Type]\[] | Description                                                                                                                                                            |
+| ------------ | --------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BaseAsset`  | String    | Currency            | The asset being priced (e.g. `"XAH"`, `"BTC"`).                                                                                                                      |
+| `QuoteAsset` | String    | Currency            | The denomination currency (e.g. `"USD"`, `"EUR"`). Must differ from `BaseAsset`.                                                                                      |
+| `AssetPrice` | Number    | UInt64              | _(Optional)_ The price as a scaled integer. The effective price is `AssetPrice × 10^(-Scale)`. Omit this field to **delete** an existing pair during an update.       |
+| `Scale`      | Number    | UInt8               | _(Optional)_ Decimal exponent used to derive the effective price. Valid values: 0–10. Default: 0. Example: `AssetPrice = 74560`, `Scale = 4` → effective price = 7.456. |
+
+### Reserve
+
+OracleSet transactions consume owner reserves depending on the number of `PriceData` pairs stored:
+
+| Pairs | Owner reserves consumed |
+| ----- | ----------------------- |
+| 1–5   | 1                       |
+| 6–10  | 2                       |
+
+If an update changes the number of pairs across the 5-pair threshold, the owner count is adjusted automatically (±1).
+
+### Special Transaction Cost
+
+OracleSet transactions have the standard transaction cost.
+
+### Error Cases
+
+| Error Code                | Description                                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`             | The PriceOracle amendment is not enabled.                                                                                                                           |
+| `temINVALID_FLAG`         | Invalid flags specified.                                                                                                                                            |
+| `temMALFORMED`            | `Provider`, `URI`, or `AssetClass` is empty or exceeds max length; duplicate base/quote pairs in the same transaction; `BaseAsset` equals `QuoteAsset`; `Scale` > 10; `Provider` or `AssetClass` do not match stored values on update; `Provider` or `AssetClass` missing on create. |
+| `temARRAY_EMPTY`          | `PriceDataSeries` is empty.                                                                                                                                         |
+| `temARRAY_TOO_LARGE`      | `PriceDataSeries` contains more than 10 entries in the transaction.                                                                                                 |
+| `terNO_ACCOUNT`           | The sending account does not exist.                                                                                                                                 |
+| `tecINVALID_UPDATE_TIME`  | `LastUpdateTime` is outside the ±300 second window from ledger close time, predates the UNIX timestamp (seconds since January 1, 1970), or is not strictly greater than the stored value on an update. |
+| `tecTOKEN_PAIR_NOT_FOUND` | A pair specified for deletion (no `AssetPrice`) does not exist in the current Oracle object.                                                                        |
+| `tecARRAY_EMPTY`          | The result after applying all updates and deletions would leave `PriceDataSeries` empty.                                                                            |
+| `tecARRAY_TOO_LARGE`      | The result after applying all updates and additions would exceed 10 entries.                                                                                        |
+| `tecINSUFFICIENT_RESERVE` | The account does not have enough XAH to meet the reserve requirement for creating the Oracle object.                                                                |

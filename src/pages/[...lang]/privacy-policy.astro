@@ -1,0 +1,21 @@
+---
+import { getEntry, render } from 'astro:content'
+import PageLayout from '../../layouts/PageLayout.astro'
+import generateStaticPaths from '../../utils/generateStaticPaths'
+
+export function getStaticPaths() {
+  return generateStaticPaths()
+}
+
+const { locale } = Astro.props
+const entry = await getEntry('privacy', locale)
+if (!entry) return Astro.redirect('/privacy-policy')
+
+const { Content } = await render(entry)
+const _frontmatter = {
+  title: entry.data.title,
+  description: entry.data.description,
+}
+---
+
+<PageLayout frontmatter={_frontmatter}> <Content /> </PageLayout>

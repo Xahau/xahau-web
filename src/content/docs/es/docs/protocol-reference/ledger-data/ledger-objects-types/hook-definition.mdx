@@ -13,11 +13,12 @@ Un objeto `HookDefinition` describe un hook, que es un fragmento de código que 
 {
   "HookHash": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
   "HookOn": "0000000000000000000000000000000000000000000000000000000000000000",
+  "HookCanEmit": "0000000000000000000000000000000000000000000000000000000000000000",
   "HookNamespace": "0000000000000000000000000000000000000000000000000000000000000000",
   "HookParameters": {
     "HookParameter": {
       "HookParameterName": "DEADBEEF",
-      "HookParameterValue": "DEADBEEF",
+      "HookParameterValue": "DEADBEEF"
     }
   },
   "HookApiVersion": 1,
@@ -37,10 +38,12 @@ Un objeto `HookDefinition` tiene los siguientes campos:
 
 | Campo             | Tipo JSON | \[Tipo Interno]\[] | ¿Requerido? | Descripción                                                                                                       |
 | ----------------- | --------- | ------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| `HookHash`        | String    | Hash256             | Sí          | El identificador único del hook.                                                                                  |
-| `HookOn`          | String    | Hash256             | Sí          | La/s transacción/es en las que se activa el hook.                                                                 |
-| `HookCanEmit`     | String    | Hash256             | No          | La/s transacción/es que el hook puede emitir.                                                                     |
-| `HookNamespace`   | String    | Hash256             | Sí          | El espacio de nombres del hook.                                                                                   |
+| `HookHash`          | String    | Hash256             | Sí          | El identificador único del hook.                                                                                                                                  |
+| `HookOn`            | String    | Hash256             | No          | La/s transacción/es en las que se activa el hook. Mutuamente exclusivo con `HookOnIncoming`/`HookOnOutgoing`.                                                    |
+| `HookOnIncoming`    | String    | Hash256             | No          | _(HookOnV2)_ Misma sintaxis que `HookOn`. Activa el hook en transacciones originadas desde otra cuenta. Mutuamente exclusivo con `HookOn`.                       |
+| `HookOnOutgoing`    | String    | Hash256             | No          | _(HookOnV2)_ Misma sintaxis que `HookOn`. Activa el hook en transacciones originadas desde la propia cuenta del Hook. Mutuamente exclusivo con `HookOn`.         |
+| `HookCanEmit`       | String    | Hash256             | No          | Misma sintaxis que `HookOn`. Controla qué tipos de transacción puede emitir el hook. Si está ausente, el hook puede emitir cualquier tipo de transacción.        |
+| `HookNamespace`     | String    | Hash256             | Sí          | El espacio de nombres del hook.                                                                                                                                   |
 | `HookParameters`  | String    | Vector              | Sí          | Los parámetros que acepta el hook.                                                                                |
 | `HookApiVersion`  | Number    | UInt16              | Sí          | La versión de la API del hook que usa el hook.                                                                    |
 | `CreateCode`      | String    | VL                  | Sí          | El código que se ejecuta cuando se crea el hook.                                                                  |

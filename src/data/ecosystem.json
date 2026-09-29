@@ -5,6 +5,12 @@
     "ja": "エコシステム",
     "pt-BR": "Ecossistema"
   },
+  "description": {
+    "en": "Xahau around the world",
+    "es": "Xahau alrededor del mundo",
+    "ja": "世界中のXahau",
+    "pt-BR": "Xahau around the world"
+  },
   "buildonxahau": {
     "en": "built on or around Xahau",
     "es": "creados en Xahau o en torno a ella",
@@ -128,18 +134,6 @@
           "url": "https://www.bitrue.com/",
           "logo": "bitrue",
           "desc": "Crypto exchange with XAH spot trading"
-        },
-        {
-          "name": "BitMart",
-          "url": "https://www.bitmart.com/",
-          "logo": "bitmart",
-          "desc": "Global exchange offering XAH pairs"
-        },
-        {
-          "name": "CoinEx",
-          "url": "https://www.coinex.com/",
-          "logo": "coinex",
-          "desc": "Exchange platform supporting XAH"
         }
       ]
     },
