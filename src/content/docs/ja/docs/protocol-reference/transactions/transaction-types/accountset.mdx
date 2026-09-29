@@ -1,0 +1,116 @@
+---
+title: AccountSet
+description: AccountSetトランザクションは、Xahauのアカウントのプロパティを変更します。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/SetAccount.cpp)]
+
+### 例
+
+```json
+{
+    "TransactionType": "AccountSet",
+    "Account" : "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "Sequence": 5,
+    "Domain": "6578616D706C652E636F6D",
+    "SetFlag": 5,
+    "MessageKey": "03AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB",
+    "HookStateScale": 10
+}
+```
+
+| フィールド      | JSON型 | \[内部型]\[] | 説明                                                                                                                                                                                                                                                                                   |
+| --------------- | ------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ClearFlag`     | Number | UInt32       | _(任意)_このアカウントで無効にするフラグの一意な識別子。                                                                                                                                                                                                                              |
+| `Domain`        | String | Blob         | _(任意)_このアカウントを所有するドメイン。小文字ドメインのASCIIを表すhex文字列として指定します。[長さは256バイトを超えられません。](https://github.com/Xahau/xahaud/blob/55dc7a252e08a0b02cd5aa39e9b4777af3eafe77/src/ripple/app/tx/impl/SetAccount.h#L34) |
+| `EmailHash`     | String | Hash128      | _(任意)_任意の128ビット値。慣例として、クライアントはこれを [Gravatar](http://en.gravatar.com/site/implement/hash/)画像表示に使うメールアドレスのmd5ハッシュとして扱います。                                                                                                     |
+| `MessageKey`    | String | Blob         | _(任意)_このアカウントへ暗号化メッセージを送るためのpublic key。鍵を設定するには、正確に33バイトで、最初のバイトが鍵タイプを示す必要があります。secp256k1鍵では`0x02`または`0x03`、Ed25519鍵では`0xED`です。鍵を削除するには空の値を使います。      |
+| `NFTokenMinter` | String | Blob         | _(任意)_あなたの代わりにNFTokensをミントできる別のアカウント。_(\[NonFungibleTokensV1_1 amendment]\[]により追加。)_                                                                                                                                                              |
+| `SetFlag`       | Number | UInt32       | _(任意)_このアカウントで有効にする整数フラグ。                                                                                                                                                                                                                                        |
+| `TransferRate`  | Number | UInt32       | _(任意)_ユーザーがこのアカウントのトークンを転送するときに課す手数料。単位の10億分率で表します。手数料なしを意味する特別な値`0`を除き、`2000000000`を超えたり`1000000000`未満にしたりすることはできません。                                                   |
+| `TickSize`      | Number | UInt8        | _(任意)_このアドレスが発行した通貨に関わるOfferで使うtick size。そのOfferの為替レートは、この桁数の有効数字に丸められます。有効値は`3`から`15`まで、または無効化する`0`です。_(\[TickSize amendment]\[]により追加。)_                                  |
+| `WalletLocator` | String | Hash256      | _(任意)_任意の256ビット値。指定すると、その値はアカウントの一部として保存されますが、固有の意味や要件はありません。                                                                                                                                                                |
+| `WalletSize`    | Number | UInt32       | _(任意)_使用されません。このフィールドはAccountSetトランザクションでは有効ですが、何もしません。                                                                                                                                                                                     |
+| `HookStateScale` | Number | UInt16      | _(任意)_ Hook stateエントリがstaleになるタイミングを決定するための倍率。有効値は`1`から`16`までです。_([ExtendedHookState amendment][]により追加。)_                                                                                                                           |
+
+これらのオプションが1つも指定されていない場合、AccountSetトランザクションは効果を持ちません (トランザクションコストの消費を除く)。詳しくは、Cancel or Skip a Transactionを参照してください。
+
+### Domain
+
+`Domain`フィールドは、ドメインを小文字ASCIIにしたhex文字列として表します。たとえば、ドメイン _example.com_ は`"6578616D706C652E636F6D"`と表されます。
+
+アカウントから`Domain`フィールドを削除するには、Domainに空文字列を設定したAccountSetを送信します。
+
+アカウントの`Domain`フィールドには任意のドメインを設定できます。アカウントとドメインが同じ個人または事業者に属することを証明するには、「双方向リンク」が必要です。
+
+* 自分が所有するアカウントには、自分が所有するドメインを`Domain`フィールドに設定します。
+* そのドメインで、所有するアカウントと、任意でXahauの利用方法に関する追加情報を列挙した [xahau.toml](/ja/docs/infrastructure/identity)ファイルを公開します。
+
+### AccountSetフラグ
+
+アカウントには、有効化または無効化できるオプションが複数あります。アカウントオプションは、状況に応じて異なる種類のフラグで表されます。
+
+* `AccountSet`トランザクションタイプには、`SetFlag`パラメーターで渡すとオプションを有効化し、`ClearFlag`パラメーターで渡すとオプションを無効化する、複数の「AccountSet Flags」(**`asf`** 頭辞)があります。新しいオプションはこの形式のフラグのみを持ちます。1つのトランザクションで有効化できる`asf`フラグは最大1つ、無効化できる`asf`フラグも最大1つです。
+* `AccountSet`トランザクションタイプには、`Flags`パラメーターで渡すと特定のアカウントオプションを有効化または無効化できる、複数のトランザクションフラグ (**`tf`**接頭辞)があります。複数の`tf`フラグを使うことで、1つのトランザクションで設定の組み合わせを有効化/無効化できますが、すべての設定に`tf`フラグがあるわけではありません。
+* `AccountRoot`レジャーオブジェクトタイプには、特定のレジャー内で特定のアカウントオプションの状態を表す、複数のledger-state-flags (**`lsf`**接頭辞)があります。これらの設定は、トランザクションで変更されるまで適用されます。
+
+Account Flagsを有効化または無効化するには、AccountSetトランザクションの`SetFlag`と`ClearFlag`パラメーターを使います。AccountSetフラグの名前は**`asf`**で始まります。
+
+すべてのフラグはデフォルトで無効です。
+
+利用可能なAccountSetフラグは次のとおりです。
+
+| フラグ名                          | 10進値 | 対応するレジャーフラグ          | 説明                                                                                                                                                                                                                                                                                                                       |
+| --------------------------------- | ------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `asfAccountTxnID`                 | 5      | (なし)                            | このアカウントの直近トランザクションのIDを追跡します。`AccountTxnID` 必要です。                                                                                                                                                                                                                                      |
+| `asfAllowTrustLineClawback`       | 17     | `lsfAllowTrustLineClawback`       | アカウントが発行したトークンをclawbackできるようにします。このフラグは、アカウントのowner directoryが空 (trust lines、offers、escrows、payment channels、checks、signer listsがない状態)の場合にのみ有効化できます。一度設定すると元に戻せません。                                                                 |
+| `asfAuthorizedNFTokenMinter`      | 10     | (なし)                            | 別のアカウントがこのアカウントの代わりにnon-fungible tokens (NFTokens)をミントできるようにします。承認済みアカウントはAccountRootオブジェクトの`NFTokenMinter`フィールドで指定します。承認済みminterを削除するには、このフラグを有効化し、`NFTokenMinter`フィールドを省略します。_(\[NonFungibleTokensV1_1 amendment]\[]により追加。)_ |
+| `asfDefaultRipple`                | 8      | `lsfDefaultRipple`                | このアカウントのtrust linesで、デフォルトでripplingを有効にします。                                                                                                                                                                                                                                                  |
+| `asfDepositAuth`                  | 9      | `lsfDepositAuth`                  | このアカウントでDeposit Authorizationを有効にします。_(\[DepositAuth amendment]\[]により追加。)_                                                                                                                                                                                                                       |
+| `asfDisableMaster`                | 4      | `lsfDisableMaster`                | master key pairの使用を禁止します。Regular KeyやSigner Listなど、トランザクションに署名する別の方法をアカウントが設定済みの場合にのみ有効化できます。                                                                                                                                                                |
+| `asfDisallowIncomingCheck`        | 13     | `lsfDisallowIncomingCheck`        | 着信Checksをブロックします。_\[DisallowIncoming amendment]\[]により追加。_                                                                                                                                                                                                                                             |
+| `asfDisallowIncomingNFTokenOffer` | 12     | `lsfDisallowIncomingNFTokenOffer` | 着信NFTokenOffersをブロックします。_\[DisallowIncoming amendment]\[]により追加。_                                                                                                                                                                                                                                      |
+| `asfDisallowIncomingPayChan`      | 14     | `lsfDisallowIncomingPayChan`      | 着信Payment Channelsをブロックします。_\[DisallowIncoming amendment]\[]により追加。_                                                                                                                                                                                                                                   |
+| `asfDisallowIncomingTrustline`    | 15     | `lsfDisallowIncomingTrustline`    | 着信trust linesをブロックします。_\[DisallowIncoming amendment]\[]により追加。_                                                                                                                                                                                                                                        |
+| `asfDisallowIncomingRemit`        | 16     | `lsfDisallowIncomingRemit`        | 着信Remit txnをブロックします。_\[Remit amendment]\[]により追加。_                                                                                                                                                                                                                                                     |
+| `asfDisallowXRP`                  | 3      | `lsfDisallowXRP`                  | XAHをこのアカウントへ送信すべきではないことを示します。(助言的な設定であり、Xahauプロトコルでは強制されません。)                                                                                                                                                                                                       |
+| `asfGlobalFreeze`                 | 7      | `lsfGlobalFreeze`                 | このアカウントが発行したすべてのアセットを凍結します。                                                                                                                                                                                                                                                                   |
+| `asfNoFreeze`                     | 6      | `lsfNoFreeze`                     | 個別のtrust linesを凍結する機能、またはGlobal Freezeを無効化する機能を永久に放棄します。このフラグは、有効化後に二度と無効化できません。                                                                                                                                                                             |
+| `asfRequireAuth`                  | 2      | `lsfRequireAuth`                  | ユーザーがこのアドレスによって発行された残高を保持するには承認を必要とします。このアドレスにtrust linesが接続されていない場合にのみ有効化できます。                                                                                                                                                                   |
+| `asfRequireDest`                  | 1      | `lsfRequireDestTag`               | このアカウントへトランザクションを送信する際にdestination tagを必須にします。                                                                                                                                                                                                                                          |
+| `asfTshCollect`                   | 11     | `lsfTshCollect`                   | TSHが自身のHook Chain実行費用を支払います。_\[Hooks amendment]\[]により追加。_                                                                                                                                                                                                                                       |
+
+`asfDisableMaster`または`asfNoFreeze`フラグを有効化するには、master key pairで署名してトランザクションを承認する必要があります。regular key pairやmulti-signatureは使えません。`asfDisableMaster` は、regular key pairまたはmulti-signatureを使って無効化 (つまりmaster key pairを再有効化)できます。
+
+以下のTransaction flags (`tf`フラグ)は、AccountSetトランザクションタイプに固有で、同じ目的を果たします。領域が限られているため、一部の設定には対応する`tf`フラグがなく、新しい`tf`フラグは`AccountSet`トランザクションタイプには追加されていません。`tf`と`asf`フラグを組み合わせることで、1つのトランザクションで複数の設定を有効化できます。
+
+<table><thead><tr><th>フラグ名</th><th>Hex値</th><th width="183">10進値</th><th>置き換え先のAccountSetフラグ</th></tr></thead><tbody><tr><td><code>tfRequireDestTag</code></td><td><code>0x00010000</code></td><td>65536</td><td><code>asfRequireDest</code> (<code>SetFlag</code>)</td></tr><tr><td><code>tfOptionalDestTag</code></td><td><code>0x00020000</code></td><td>131072</td><td><code>asfRequireDest</code> (<code>ClearFlag</code>)</td></tr><tr><td><code>tfRequireAuth</code></td><td><code>0x00040000</code></td><td>262144</td><td><code>asfRequireAuth</code> (<code>SetFlag</code>)</td></tr><tr><td><code>tfOptionalAuth</code></td><td><code>0x00080000</code></td><td>524288</td><td><code>asfRequireAuth</code> (<code>ClearFlag</code>)</td></tr><tr><td><code>tfDisallowXRP</code></td><td><code>0x00100000</code></td><td>1048576</td><td><code>asfDisallowXRP</code> (<code>SetFlag</code>)</td></tr><tr><td><code>tfAllowXRP</code></td><td><code>0x00200000</code></td><td>2097152</td><td><code>asfDisallowXRP</code> (<code>ClearFlag</code>)</td></tr></tbody></table>
+
+**注意:** トランザクション内の`tf`と`asf`フラグの数値は、レジャー内で「静止状態」のアカウントに設定される値とは一致しません。レジャー内のアカウントのフラグを読むには、`AccountRoot`フラグを参照してください。
+
+#### 着信トランザクションのブロック
+
+目的が不明確な着信トランザクションは、顧客のミスを認識し、そのミスに応じてアカウントへ返金したり残高を調整したりする必要がある金融機関にとって不便になる場合があります。`asfRequireDest`と`asfDisallowXRP`フラグは、資金が送られた理由が不明確な形でユーザーが誤って資金を送ってしまうことを防ぐ目的で用意されています。
+
+たとえば、destination tagは通常、金融機関がpaymentを受け取る際に、どのホスト型残高へ入金すべきかを識別するために使われます。destination tagが省略されていると、どのアカウントへ入金すべきかが不明確になり、返金などが必要になる場合があります。`asfRequireDest`タグを使うことで、すべての着信paymentにdestination tagを必須にし、他者が誤って曖昧なpaymentを送ってしまうことを防ぎやすくできます。
+
+非XAH通貨の不要な着信paymentは、その通貨のtrust linesを作成しないことで防げます。XAHはtrustを必要としないため、`asfDisallowXRP`フラグはユーザーがXAHをアカウントへ送ることを抑止するために使われます。ただし、このフラグはXahauプロトコルでは強制されません。XAHが尽きた場合にアカウントが使用不能になる可能性があるためです。代わりに、クライアントアプリケーションは`asfDisallowXRP`フラグが有効なアカウントへのXAH paymentを禁止または抑止すべきです。
+
+_すべての_ 着信paymentをブロックしたい場合は、Deposit Authorizationを有効化できます。これにより、アカウントがリザーブ要件を下回っている場合を除き、XAHであっても、どのトランザクションもあなたへ資金を送れなくなります。
+
+\[DisallowIncoming amendment]\[] :not_enabled:が有効な場合、すべての着信Checks、NFTokenOffers、Payment Channels、trust linesをブロックするオプションもあります。一般に、これらのオブジェクトの受信側になること自体は無害ですが、アカウント削除を妨げたり、自分が作成したオブジェクト一覧に予期しないオブジェクトが混ざって混乱を招いたりする場合があります。着信オブジェクトをブロックするには、次のアカウントフラグを1つ以上使います。
+
+* `asfDisallowIncomingCheck` - Checkオブジェクト用
+* `asfDisallowIncomingNFTOffer` - NFTokenOfferオブジェクト用
+* `asfDisallowIncomingPayChan` - PayChannelオブジェクト用
+* `asfDisallowIncomingTrustline` - RippleState (trust line)オブジェクト用
+
+トランザクションがこれらのレジャーエントリのいずれかを作成しようとしたとき、宛先アカウントで対応するフラグが有効になっている場合、そのトランザクションは結果コード`tecNO_PERMISSION`で失敗します。Deposit Authorizationとは異なり、これらの設定は一般的なpaymentの受信を妨げません。また、この設定を有効にしても、これらの種類のオブジェクトを自分で作成することは止められません (もちろん、あなたのトランザクションの宛先も同じ設定を使っている場合は別です)。
+
+### TransferRate
+
+`TransferRate`フィールドは、自分が発行する通貨を相手方が転送するたびに課す手数料を指定します。
+
+HTTP APIとWebSocket APIでは、転送手数料は整数として表されます。これは、10億単位を到着させるために送信しなければならない量です。たとえば、20%の転送手数料は`1200000000`という値で表されます。この値は1000000000未満にはできません。(それ未満だと、トランザクションを送ることで資金を与えることを意味し、悪用可能です。)手数料なしを意味する`1000000000`の短縮形として`0`を指定できます。
+
+詳しくはTransfer Feesを参照してください。

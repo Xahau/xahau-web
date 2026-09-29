@@ -1,0 +1,45 @@
+---
+title: Deposit Pre Auth
+---
+[出典](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L172-L178)
+
+`DepositPreauth`オブジェクトは、あるアカウントから別のアカウントへの事前承認を追跡します。\[DepositPreauthトランザクション][]がこれらのオブジェクトを作成します。
+
+これは、事前承認を与えたアカウントがDeposit Authorizationを必要としていない限り、トランザクションの処理には影響しません。その場合、事前承認を受けたアカウントは、事前承認を与えたアカウントへ直接Paymentやその他のトランザクションを送信できます。事前承認は一方向であり、逆方向のPaymentには影響しません。
+
+### JSONの例
+
+```json
+{
+  "LedgerEntryType": "DepositPreauth",
+  "Account": "rsUiUMpnrgxQp24dJYZDhmV4bE3aBtQyt8",
+  "Authorize": "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Flags": 0,
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "3E8964D5A86B3CD6B9ECB33310D4E073D64C865A5B866200AD2B7E29F8326702",
+  "PreviousTxnLgrSeq": 7,
+  "index": "4A255038CC3ADCC1A9C91509279B59908251728D0DAADB248FFE297D0F7E068C"
+}
+```
+
+### フィールド
+
+`DepositPreauth`オブジェクトには、次のフィールドがあります。
+
+| フィールド         | JSON型   | \[内部型]\[]        | 必須?    | 説明                                                                                                                                                                                                                                                                        |
+| ------------------- | --------- | ------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String    | Account             | はい       | 事前承認を与えたアカウント。（事前承認されたPaymentの宛先。）                                                                                                                                                                                    |
+| `Authorize`         | String    | Account             | はい       | 事前承認を受けたアカウント。（事前承認されたPaymentの送信元。）                                                                                                                                                                                        |
+| `Flags`             | Number    | UInt32              | はい       | このオブジェクトで有効な真偽値フラグのビットマップ。現在、プロトコルは`DepositPreauth`オブジェクト向けのフラグを定義していません。値は常に`0`です。                                                                                                                                |
+| `LedgerEntryType`   | String    | UInt16              | はい       | 文字列`DepositPreauth`に対応する値`0x0070`は、これがDepositPreauthオブジェクトであることを示します。                                                                                                                                                                         |
+| `OwnerNode`         | String    | UInt64              | はい       | ディレクトリが複数ページで構成される場合に、このオブジェクトへリンクする送信元のownerディレクトリのページを示すヒント。**注:** このオブジェクトには、それを含むownerディレクトリへの直接リンクはありません。値は`Account`から導出できるためです。 |
+| `PreviousTxnID`     | String    | Hash256             | はい       | このオブジェクトを最後に変更したトランザクションの識別ハッシュ。                                                                                                                                                                                                   |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | はい       | このオブジェクトを最後に変更したトランザクションを含む [レジャーのインデックス][Ledger Index]。                                                                                                                                                                   |
+
+### DepositPreauthのID形式
+
+`DepositPreauth`オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half][]です。
+
+* DepositPreauthスペースキー (`0x0070`)
+* このオブジェクトの所有者のAccountID（このオブジェクトを作成した \[DepositPreauthトランザクション][]の送信元。つまり、事前承認を与えた側）
+* 事前承認されたアカウントのAccountID（このオブジェクトを作成した \[DepositPreauthトランザクション][]の`Authorized`フィールド。つまり、事前承認を受けた側）

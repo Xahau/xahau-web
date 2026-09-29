@@ -1,0 +1,63 @@
+---
+title: リクエストフォーマットガイド
+---
+### パブリックサーバー
+
+* wss://xahau.networkまたはhttps://xahau.network (Mainnet)
+* wss://xahau-test.netまたはhttps://xahau-test.net (Testnet)
+
+### サンプルリクエスト
+
+APIへサンプルリクエストを送信するには、次のコマンドを使用します。
+
+### Websocket
+
+```json
+{
+  "id": 3,
+  "command": "account_info",
+  "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+  "strict": true,
+  "ledger_index": "validated",
+  "api_version": 1
+}
+```
+
+### WebSocketリクエスト構造
+
+`xahaud`サーバーへのWebSocket接続を確立すると、以下のフィールドを持つJSONオブジェクトとしてコマンドを送信できます。
+
+<table><thead><tr><th>フィールド</th><th width="220">タイプ</th><th>説明</th></tr></thead><tbody><tr><td>command</td><td>String</td><td>APIメソッドの名前</td></tr><tr><td>id</td><td>(Multiple)</td><td><em>(任意)</em> リクエストの一意識別子。 </td></tr><tr><td>api_version</td><td>Number</td><td><em>(任意)</em> APIバージョンを指定します。</td></tr></tbody></table>
+
+### JSON-RPC
+
+```
+POST https://xahau.network/
+Content-Type: application/json
+
+{
+    "method": "account_info",
+    "params": [
+        {
+            "account": "rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y",
+            "strict": true,
+            "ledger_index": "validated",
+            "api_version": 1
+        }
+    ]
+}
+```
+
+### JSON-RPCリクエスト構造
+
+<table><thead><tr><th>フィールド</th><th width="220">タイプ</th><th>説明</th></tr></thead><tbody><tr><td>method</td><td>String</td><td>APIメソッドの名前</td></tr><tr><td>params</td><td>Array</td><td><em>(任意)</em> メソッドのパラメーターを含むJSONオブジェクトを1つ格納した配列。</td></tr></tbody></table>
+
+### コマンドライン
+
+```sh
+xahaud account_info rhBDFMmr3jSjgsWMqBAYaATLy3PuXy395y validated strict
+```
+
+### コマンドラインリクエスト構造
+
+<table><thead><tr><th>フィールド</th><th width="220">説明</th></tr></thead><tbody><tr><td>xahaud</td><td>サービスxahaudの呼び出しを開始します</td></tr><tr><td>method</td><td>APIメソッドの名前</td></tr><tr><td>params</td><td>(任意)</td></tr></tbody></table>

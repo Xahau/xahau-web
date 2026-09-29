@@ -1,0 +1,78 @@
+---
+title: ledger_last_time
+description: 最後にクローズされたレジャーのタイムスタンプを取得します
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* 最後にクローズされたレジャーからXahauタイムスタンプを返します。
+
+<Aside type="tip">
+Xahauタイムスタンプは、`-946684800`だけオフセットされている点を除き、unixタイムスタンプと同一です。
+
+対応するunixタイムスタンプは、`ledger_last_time() + 946684800;`です。
+</Aside>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ledger_last_time();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function ledger_last_time(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t ts =
+    ledger_last_time();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const ts = ledger_last_time()
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+このAPIはパラメーターを取りません。
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                         |
+| -------- | -------------------------------------------- |
+| int64_t | 最後にクローズされたレジャーのXRPLタイムスタンプ |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型     | 説明                                                                                                 |
+| ------ | ---------------------------------------------------------------------------------------------------- |
+| number | エラーが発生した場合はエラーコードを返し、それ以外の場合は最後のレジャーのタイムスタンプを表す数値を返します。 |
+</TabItem>
+</Tabs>

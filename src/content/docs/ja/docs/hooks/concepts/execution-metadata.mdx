@@ -1,0 +1,20 @@
+---
+title: 実行メタデータ
+description: Hookが実行されるときに何が起こるか。
+---
+
+Hooksが実行されると、その実行の状態に関する情報を残します。これは発信トランザクションのメタデータ内に`sfHookExecutions`ブロックとして現れます。このブロックには次のフィールドが含まれます。
+
+
+
+| フィールド                  | 説明                                                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| sfHookResult           | <p>Hooksは3つの方法で終了できます: <code>accept</code>、<code>rollback</code>、<code>error</code>。<br />これはsfHookReturnCodeと同じでは<em>ありません</em>!</p> |
+| sfHookHash             | Hookが実行された時点のHookのSHA512Hです。                                                                                                         |
+| sfHookAccount          | Hookが実行されたアカウントです。                                                                                                                                 |
+| sfHookReturnCode       | `accept`または`rollback`の3番目のパラメーターとして返された整数です。                                                                                       |
+| sfHookReturnString     | 存在する場合、`accept`または`rollback`の最初の2つのパラメーターで返された文字列です。                                                                           |
+| sfHookInstructionCount | Hook実行時に実行されたWebAssembly命令の総数です。                                                                           |
+| sfHookEmitCount        | Hookによって生成された[発行トランザクション](/ja/docs/hooks/concepts/emitted-transactions)の総数です。                                                                    |
+| sfHookExecutionIndex   | Hookが実行された順序です（同じ発信トランザクション上の他のHook実行とは区別されます）。                                       |
+| sfHookStateChangeCount | Hookが実行中に行った[Hook状態](/ja/docs/hooks/concepts/state-management)変更の数です。                                                                      |

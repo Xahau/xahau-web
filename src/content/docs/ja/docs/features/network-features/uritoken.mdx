@@ -1,0 +1,32 @@
+---
+title: URIToken
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+URITokenは、XahauネットワークにネイティブなNon-Fungible Token (NFT)実装です。URITokenは第一級のオンレジャーオブジェクトとして存在し、発行者のハッシュとUniform Resource Identifier (URI)によって一意に識別されます。URITokenは任意のデジタルコンテンツを指すことができ、レジャー上にはアカウントごと、URIごとに1つのオブジェクトだけが存在します。
+
+発行者は、将来そのオブジェクトのバーンを可能にするフラグを設定できます。また、URITokenを所有すると各所有者のリザーブもロックされます。
+
+### トランザクションタイプ
+
+#### URITokenMint
+
+URITokenMintトランザクションは新しいURITokenをミントし、指定されたアカウントに所有権を割り当てます。ミントされたURITokenは、さまざまなアプリケーションで使用できる一意のデジタルアセットを表します。発行者は、ミントされたURITokenを将来破棄できるようにするかどうかを選択できます。
+
+<LinkCard title="URITokenMint" href="/ja/docs/protocol-reference/transactions/transaction-types/uritokenmint" />
+
+#### URITokenBurn
+
+URITokenBurnトランザクションは、XahauでURITokenをバーンするために使用されます。URITokenをバーンすると、流通から恒久的に削除されます。このトランザクションに特別なトランザクションコスト要件はありません。このトランザクションには、バーン対象のURITokenを所有するアカウントが必要です。
+
+<LinkCard title="URITokenBurn" href="/ja/docs/protocol-reference/transactions/transaction-types/uritokenburn" />
+
+#### URITokenBuy
+
+URITokenBuyトランザクションでは、ユーザーが発行者からURITokenを購入できます。このトランザクションは、URITokenの所有権を発行者から購入者へ移転するために使用されます。このトランザクションには、購入者のアカウント、購入するURITokenの一意識別子、およびURITokenの支払いに使用する通貨金額が必要です。
+
+<LinkCard title="URITokenBuy" href="/ja/docs/protocol-reference/transactions/transaction-types/uritokenbuy" />
+
+<LinkCard title="URITokenCreateSellOffer" href="/ja/docs/protocol-reference/transactions/transaction-types/uritokencreateselloffer" />
+
+<LinkCard title="URITokenCancelSellOffer" href="/ja/docs/protocol-reference/transactions/transaction-types/uritokencancelselloffer" />

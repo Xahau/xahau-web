@@ -1,0 +1,44 @@
+---
+title: Ticket
+---
+[\[出典\]](https://github.com/ripple/rippled/blob/76a6956138c4ecd156c5c408f136ed3d6ab7d0c1/src/ripple/protocol/impl/LedgerFormats.cpp#L155-L164)
+
+_（[TicketBatch Amendment][]により追加。）_
+
+`Ticket`オブジェクト型はTicketを表し、将来の使用のために取り置かれたアカウントの \[シーケンス番号]\[Sequence Number]を追跡します。`TicketCreate`トランザクションを使って新しいTicketを作成できます。\[rippled 1.7.0で追加]\[]
+
+### JSON例
+
+```json
+{
+  "Account": "rEhxGqkqPPSxQ3P25J66ft5TwpzV14k2de",
+  "Flags": 0,
+  "LedgerEntryType": "Ticket",
+  "OwnerNode": "0000000000000000",
+  "PreviousTxnID": "F19AD4577212D3BEACA0F75FE1BA1644F2E854D46E8D62E9C95D18E9708CBFB1",
+  "PreviousTxnLgrSeq": 4,
+  "TicketSequence": 3
+}
+```
+
+### フィールド
+
+`Ticket`オブジェクトには次のフィールドがあります。
+
+| 名前 | JSON型 | 内部型 | 必須? | 説明 |
+| --- | --- | --- | --- | --- |
+| `Account` | String | AccountID | はい | このTicketの所有アカウントです。 |
+| `Flags` | Number | UInt32 | はい | このオブジェクトで有効なブールフラグのビットマップです。現在、プロトコルは`Ticket`オブジェクト向けのフラグを定義していません。値は常に `0`です。 |
+| `LedgerEntryType` | String | UInt16 | はい | `0x0054`の値は、文字列`Ticket`に対応し、このオブジェクトがTicketオブジェクトであることを示します。 |
+| `OwnerNode` | String | UInt64 | はい | ディレクトリが複数ページに分かれている場合に、このオブジェクトへリンクする所有者ディレクトリのどのページかを示すヒントです。**注:** このオブジェクトには、それを含む所有者ディレクトリへの直接リンクは含まれません。値は`Account`から導出できるためです。 |
+| `PreviousTxnID` | String | Hash256 | はい | このオブジェクトを最後に変更したトランザクションの識別ハッシュです。 |
+| `PreviousTxnLgrSeq` | Number | UInt32 | はい | このオブジェクトを最後に変更したトランザクションを含む \[レジャーのインデックス]\[Ledger Index]です。 |
+| `TicketSequence` | Number | UInt32 | はい | このTicketが取り置く \[シーケンス番号]\[]です。 |
+
+### Ticket ID形式
+
+TicketオブジェクトのIDは、次の値を順番に連結したもののSHA-512Halfです。
+
+* Ticketのスペースキー（`0x0054`）
+* Ticketの所有者のAccountID
+* Ticketの`TicketSequence`番号

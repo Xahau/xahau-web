@@ -1,0 +1,119 @@
+---
+title: float_set
+description: 指数部と仮数部から浮動小数点数を作成します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定された指数部と仮数部からXFL (xls17)浮動小数点数を計算します
+* そのXFLをint64_tとして返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 浮動小数点数表現の指数部と仮数部を設定します。
+* エラーコード、または新しいXFLをbigintとして返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_set (
+    int32_t exponent,
+    int64_t mantissa
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_set(exponent: number, mantissa: number): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t small_amount =
+  float_set(-81, 1);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const small_amount = float_set(-81, 1);
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前     | 型       | 説明                                                            |
+| -------- | -------- | --------------------------------------------------------------- |
+| exponent | int32_t | `-96`から`80`の範囲の指数部                                     |
+| mantissa | int64_t | 仮数部。負の場合、浮動小数点数の符号は負になります。            |
+
+<Aside type="caution">
+16桁より多い、または少ない仮数部を設定する場合、仮数部が正確に16桁になるように指数部が調整されます。この調整により、状況によっては`INVALID_FLOAT`になる場合があります。
+</Aside>
+
+<Aside type="tip" title="特殊ケース">
+XFL正規0は格納数でも0です。そのため、`float_set(0,0);`を呼び出す必要はありません。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前     | 型     | 説明                                                            |
+| -------- | ------ | --------------------------------------------------------------- |
+| exponent | bigint | `-96`から`80`の範囲の指数部                                     |
+| mantissa | bigint | 仮数部。負の場合、浮動小数点数の符号は負になります。            |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17)格納数<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-仮数部を16桁に調整した結果、アンダーフローまたはオーバーフローが発生しました。</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                  | 説明                                               |
+| ------------------- | -------------------------------------------------- |
+| ErrorCode \| bigint | エラーコード、またはXFL (xls17)格納数。            |
+</TabItem>
+</Tabs>

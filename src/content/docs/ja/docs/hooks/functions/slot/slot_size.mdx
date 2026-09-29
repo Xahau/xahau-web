@@ -1,0 +1,89 @@
+---
+title: slot_size
+description: Slot内のオブジェクトのシリアライズ済みサイズを計算する
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定されたSlot内のオブジェクトをシリアライズしたときに占めるバイト数を返す
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定されたSlotのサイズを取得する。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t slot_size (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function slot_size(slotno: number): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t bytes_needed = slot_size(1); // get size of slot 1
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const bytes_needed = slot_size(1); // get size of slot 1
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前     | 型      | 説明     |
+| -------- | --------- | --------------- |
+| slot_no | uint32_t | Slot番号 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前   | 型   | 説明                           |
+| ------ | ------ | ------------------------------------- |
+| slotno | number | サイズを確認するSlot番号。 |
+</TabItem>
+</Tabs>
+
+
+
+### 戻りコード
+
+<Tabs>
+<TabItem label="C">
+| 型     | 説明                                                                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| int64_t | <p>シリアライズ時にオブジェクトが占めるバイト数<br /><br />負の値ならエラー:<br /><code>DOESNT_EXIST</code><br />-指定されたSlotにオブジェクトが存在しないか、無効なSlotである</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                | 説明                                    |
+| ------------------- | ---------------------------------------------- |
+| ErrorCode \| number | エラーコードまたはSlotのサイズを返す。 |
+</TabItem>
+</Tabs>

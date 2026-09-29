@@ -1,0 +1,41 @@
+---
+title: 名前空間
+description: 正しい名前空間を使用して状態の衝突を防ぐ
+---
+### 名前空間
+
+同じアカウントにインストールされた2つ以上のHooksが、意図せず互いの[Hook状態](/ja/docs/hooks/concepts/state-management)を上書きしてしまうことを避けるため、各Hookを作成またはインストールするときに32バイトの名前空間を指定する必要があります。
+
+名前空間は、開発者が選ぶ任意の32バイト値にできます。名前空間がHookチェーン内で一意であれば、状態の衝突は発生しません。
+
+Hookの開発時の名称に対して`SHA256`を使用することを強く推奨します。SHA256はXahauアドレス（アカウントのマスターキーから）の導出で使用される2つのハッシュアルゴリズムの1つであり、そのため開発者が容易に利用できるはずです。
+
+`HookNamespace`フィールドは、[SetHookトランザクションを実行する](/ja/docs/hooks/concepts/sethook-transaction)ときに、`Hooks`配列内の各`Hook`オブジェクト内で32バイトの _hex_ Blobとして提供されます。
+
+Hookが動作するよう構成された名前空間は、その[状態](/ja/docs/hooks/concepts/state-management)が保存される[Keylets](/ja/docs/hooks/concepts/slots-and-keylets)を変更します。そのため、同じXahauアカウントにインストールされた2つの異なる名前空間のHooksは、同じ状態キーを使用しても異なる状態オブジェクトを参照できます。逆に、同じXahauアカウント上で同じ名前空間を使用する2つの異なるHooksは、同じ状態キーを使用して互いの状態オブジェクトにアクセスし、変更できます。
+
+### 例
+
+javascriptでは、`ripple-address-codec`をインポートするとSHA256にアクセスできます。\
+（ブラウザでは`crypto.subtle`、nodeでは`crypto.createHash`を使用してこのハッシュアルゴリズムにアクセスすることもできます。）
+
+```js
+HookNamespace: addr.codec.sha256('carbon').toString('hex')
+```
+
+### デフォルト名前空間
+
+[新しいHookを設定](/ja/docs/hooks/concepts/sethook-transaction)した最初のユーザーは、そのHookの _デフォルト名前空間_ となる`HookNamespace`を定義します。これは、後続のユーザーが[同じ _HookDefinition_ を参照](/ja/docs/hooks/concepts/reference-counted-hook-definitions)する場合、デフォルトで最初に設定された名前空間を受け取ることを意味します。
+
+後続のユーザーは独自の名前空間を指定でき、そのインストールについてのみデフォルト名前空間を上書きできます。
+
+### 影響を受けるHook API
+
+HookNamespaceの選択は、次のHook APIの挙動に影響します。
+
+* [state](/ja/docs/hooks/functions/state/state)
+* [state_set](/ja/docs/hooks/functions/state/state_set)
+
+### 名前空間APIヘルパー
+
+名前空間に関してレジャーに問い合わせる方法については、[account_info](/ja/docs/hooks/functions/websocket-apis/account_info)と[account_namespace](/ja/docs/hooks/functions/websocket-apis/account_namespace)を参照してください。

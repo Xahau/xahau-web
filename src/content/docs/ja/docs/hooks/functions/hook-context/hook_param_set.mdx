@@ -1,0 +1,120 @@
+---
+title: hook_param_set
+description: >-
+  同一アカウント上の、実行チェーンのさらに後ろにあるHookに対して
+  パラメーターを設定または削除する
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* Hookアカウント上のHookチェーンから、`hread_ptr`で示される32バイトのハッシュを検索する
+* 見つかった場合:パラメーターを設定する
+* パラメーター名は`kread_ptr`で示され、
+* パラメーター値は`read_ptr`で示される
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定した値とキーを持つパラメーターをHookに設定し、ハッシュに関連付ける。
+* 操作結果を示すステータスコードを返す。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_param_set (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t kread_ptr,
+    uint32_t kread_len,
+    uint32_t hread_ptr,
+    uint32_t hread_len  
+);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_param_set(
+    val: ByteArray | HexString,
+    key: ByteArray | HexString,
+    hash: ByteArray | HexString
+  ): number
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t pvalue[] = "some parameter value";
+uint8_t pname[] = "paramname";
+uint8_t phash[] = { 0x19U, 0xFEU, 0x69U, 0xF1U, 0x53U, 0x66U, 0x4EU, 0x8CU, 
+                    0x97U, 0xF4U, 0x4CU, 0x5CU, 0x3CU, 0x65U, 0x63U, 0x79U, 
+                    0xC2U, 0xD0U, 0x26U, 0xE7U, 0x90U, 0xEFU, 0x38U, 0xF7U, 
+                    0xEDU, 0x73U, 0xE9U, 0xCEU, 0x9CU, 0x9DU, 0xBFU, 0x03U };
+int64_t result = 
+  	hook_param_set(pvalue, sizeof(pvalue),
+                   pname, sizeof(pname),
+                   phash, sizeof(phash));
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const pvalue = "some parameter value"
+const pname = "paramname"
+const phash = [ 0x19, 0xFE, 0x69, 0xF1, 0x53, 0x66, 0x4E, 0x8C, 
+                0x97, 0xF4, 0x4C, 0x5C, 0x3C, 0x65, 0x63, 0x79, 
+                0xC2, 0xD0, 0x26, 0xE7, 0x90, 0xEF, 0x38, 0xF7, 
+                0xED, 0x73, 0xE9, 0xCE, 0x9C, 0x9D, 0xBF, 0x03 ]
+const result = hook_param_set(str2hex(pvalue), str2hex(pname), phash)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前       | 型        | 説明                       |
+| ---------- | --------- | -------------------------- |
+| read_ptr  | uint32_t | パラメーター値へのポインター  |
+| read_len  | uint32_t | パラメーター値の長さ        |
+| kread_ptr | uint32_t | パラメーター名へのポインター  |
+| kread_len | uint32_t | パラメーター名の長さ        |
+| hread_ptr | uint32_t | Hookハッシュへのポインター |
+| hread_len | uint32_t | Hookハッシュの長さ (常に32) |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前 | 型                   | 説明                          |
+| ---- | ---------------------- | ----------------------------- |
+| val  | ByteArray or HexString | パラメーターに設定する値。     |
+| key  | ByteArray or HexString | パラメーターに関連付けるキー。 |
+| hash | ByteArray or HexString | パラメーターに関連付けるハッシュ。 |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+
+
+<table><thead><tr><th width="148">型</th><th>説明</th></tr></thead><tbody><tr><td>int64_t</td><td>正常に設定されたパラメーター値の長さ<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-指定されたポインター/長さがHookメモリの範囲外です。<br /><br /><code>TOO_SMALL</code><br />-パラメーター名をnullにできません。<br /><br /><code>TOO_BIG</code><br />-パラメーター名が32バイトを超えています。</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+<table><thead><tr><th width="148">型</th><th>説明</th></tr></thead><tbody><tr><td>number</td><td>操作結果を示すステータスコードを返す。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

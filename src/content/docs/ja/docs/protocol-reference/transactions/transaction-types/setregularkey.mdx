@@ -1,0 +1,32 @@
+---
+title: SetRegularKey
+description: >-
+  SetRegularKeyトランザクションは、アカウントに関連付けられたregular key pairを割り当て、変更し、または削除します。
+---
+[\[ソース\]](https://github.com/ripple/rippled/blob/4239880acb5e559446d2067f00dabb31cf102a23/src/ripple/app/transactors/SetRegularKey.cpp)
+
+regular key pairをアカウントに割り当て、可能な限りmaster key pairの代わりにそれを使ってトランザクションに署名することで、アカウントを保護できます。regular key pairが侵害されてもmaster key pairが侵害されていなければ、`SetRegularKey`トランザクションを使ってアカウントの制御を取り戻せます。
+
+### SetRegularKeyの例
+
+```json
+{
+    "Flags": 0,
+    "TransactionType": "SetRegularKey",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Fee": "12",
+    "RegularKey": "rAR8rR8sUkBoCZFawhkWzY4Y5YoyuznwD"
+}
+```
+
+| フィールド        | JSON型 | \[Internal Type]\[] | 説明                                                                                                                                                                                                                             |
+| ------------ | --------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RegularKey` | String    | AccountID           | _(任意)_ アカウントに割り当てるregular key pairを示すbase-58-encoded \[Address]\[]。省略すると、アカウントから既存のregular key pairを削除します。アドレスのmaster key pairと一致していてはなりません。 |
+
+### 関連項目
+
+regular key pairとmaster key pairの詳細はCryptographic Keysを参照してください。
+
+アカウントにregular key pairを割り当てる手順については、Working with a Regular Key Pairを参照してください。
+
+さらに高いセキュリティが必要ならmulti-signingも使えますが、multi-signingには \[transaction cost]\[]とreserveのための追加のXAHが必要です。
