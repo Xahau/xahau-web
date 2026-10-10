@@ -128,7 +128,7 @@ if (typeof tx_out === 'number')
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The number of bytes written to <code>write_ptr</code><br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Output buffer must be at least as large as the source object + the injected field, even if the field is only being overriden.<br /><br /><code>TOO_BIG</code><br />- Field you are attempting to emplace is too large<br /><br /><code>PARSE_ERROR</code><br />- The supplied STObject is malformed or not an STObject.</td></tr></tbody></table>
+<table><thead><tr><th width="169">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The number of bytes written to <code>write_ptr</code><br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- Output buffer must be at least as large as the source object + the injected field, even if the field is only being overriden.<br /><br /><code>TOO_BIG</code><br />- the source object is larger than 16 KiB, or the field you are attempting to emplace is larger than 4096 bytes<br /><br /><code>PARSE_ERROR</code><br />- The supplied STObject is malformed or not an STObject.<br /><br /><code>MEM_OVERLAP</code><br />- two of the output, source and field buffers overlap.</td></tr></tbody></table>
 
 
 </TabItem>

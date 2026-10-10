@@ -92,7 +92,7 @@ const txn = slot(1) // assumes a transaction is slotted into slot=1
 <TabItem label="C">
 | Type     | Description                                                                                                                                                                                                                                                |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- output buffer was not large enough to hold the serialized object</p> |
+| int64_t | <p>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- output buffer was not large enough to hold the serialized object<br /><br /><code>DOESNT_EXIST</code><br />- the specified slot does not contain an object.</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
