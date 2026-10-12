@@ -81,8 +81,8 @@
     {
       "id": "learnxahau",
       "type": "course",
-      "name": "Xahau Learn",
-      "url": "https://learnxahau.inftf.org/",
+      "name": "Basic Xahau Course",
+      "url": "https://learn.xahau.network/xahau-course/",
       "author": "INFTF",
       "languages": 8,
       "free": true,
@@ -94,10 +94,32 @@
         "pt-BR": "Básico"
       },
       "desc": {
-        "en": "A basic course on Xahau: accounts, transactions, tokens, NFTs and Hooks — from zero to your first smart contract.",
-        "es": "Un curso básico sobre Xahau: cuentas, transacciones, tokens, NFTs y Hooks — desde cero hasta tu primer smart contract.",
-        "ja": "Xahauの基礎コース：アカウント、トランザクション、トークン、NFT、Hooks — ゼロから初めてのスマートコントラクトまで。",
-        "pt-BR": "Um curso básico sobre o Xahau: contas, transações, tokens, NFTs e Hooks — do zero ao seu primeiro smart contract."
+        "en": "A basic course on Xahau: accounts, transactions, tokens, NFTs and Hooks, from zero to your first smart contract.",
+        "es": "Un curso básico sobre Xahau: cuentas, transacciones, tokens, NFTs y Hooks, desde cero hasta tu primer smart contract.",
+        "ja": "Xahauの基礎コース：アカウント、トランザクション、トークン、NFT、Hooksをゼロから学び、初めてのスマートコントラクトまで進みます。",
+        "pt-BR": "Um curso básico sobre o Xahau: contas, transações, tokens, NFTs e Hooks, do zero ao seu primeiro smart contract."
+      }
+    },
+    {
+      "id": "rwa-course",
+      "type": "course",
+      "name": "RWA Course",
+      "url": "https://learn.xahau.network/rwa-course/",
+      "author": "INFTF",
+      "languages": 1,
+      "free": true,
+      "openSource": true,
+      "level": {
+        "en": "Beginner to advanced",
+        "es": "De básico a avanzado",
+        "ja": "初級から上級",
+        "pt-BR": "Do básico ao avançado"
+      },
+      "desc": {
+        "en": "A hands-on course on tokenizing real-world assets on Xahau, from issued tokens and KYC controls to DEX sales, asset servicing and compliance Hooks.",
+        "es": "Un curso práctico sobre la tokenización de activos del mundo real en Xahau, desde tokens emitidos y controles KYC hasta ventas en el DEX, gestión de activos y Hooks de cumplimiento.",
+        "ja": "Xahau上で実世界資産をトークン化する実践コース。発行トークンとKYC制御から、DEXでの販売、資産管理、コンプライアンスHooksまで学びます。",
+        "pt-BR": "Um curso prático sobre tokenização de ativos do mundo real no Xahau, desde tokens emitidos e controles de KYC até vendas na DEX, gestão de ativos e Hooks de conformidade."
       }
     }
   ]
