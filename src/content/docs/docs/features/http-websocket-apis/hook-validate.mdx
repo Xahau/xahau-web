@@ -1,0 +1,77 @@
+---
+title: hook_validate
+description: >-
+  Runs the Hook guard checker and WebAssembly VM validation against
+  caller-supplied Hook code.
+---
+_(Introduced in 2026.10-release+TBD.)_
+
+The `hook_validate` method runs the Hook guard checker and the WebAssembly VM validation against Hook code supplied by the caller, without installing it. It uses the rules of the current open ledger, so the result reflects which Hook APIs are currently enabled on the network.
+
+### Availability
+
+* The method is controlled by the [`[hook_validate_rpc]`](/docs/infrastructure/advanced-configuration#hook-validation-rpc-hook_validate_rpc) configuration section. It is **disabled by default on networked nodes** and **enabled by default in standalone mode**. When disabled, it returns `notSupported`.
+* When enabled, it is available to non-admin (user) clients. It is charged as a heavy-burden request.
+
+### Request Format
+
+```json
+{
+    "command": "hook_validate",
+    "code": "0061736D01000000..."
+}
+```
+
+### Request Parameters
+
+| Field  | JSON Type | Required? | Description                                                                                       |
+| ------ | --------- | --------- | ------------------------------------------------------------------------------------------------- |
+| `code` | String    | Yes       | The Hook's WebAssembly binary as an even-length hex string, no larger than the maximum Hook size. |
+
+### Response Format
+
+A valid Hook:
+
+```json
+{
+    "result": {
+        "valid": true,
+        "instruction_count_cbak": "0",
+        "instruction_count_hook": "1091",
+        "log": [
+            "HookSet(50)[]: GuardCheck Total worse-case execution count: 1091"
+        ],
+        "status": "success"
+    }
+}
+```
+
+An invalid Hook:
+
+```json
+{
+    "result": {
+        "valid": false,
+        "log": [
+            "HookSet(80)[]: Malformed transaction: Hook was not valid webassembly binary. Too small."
+        ],
+        "status": "success"
+    }
+}
+```
+
+### Response Fields
+
+| Field                    | JSON Type | Description                                                                                                                   |
+| ------------------------ | --------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `valid`                  | Boolean   | `true` if the code passes both the guard checker and VM validation.                                                           |
+| `instruction_count_hook` | String    | _(Valid Hooks only)_ The worst-case instruction count of the `hook` function, computed by the guard checker.                  |
+| `instruction_count_cbak` | String    | _(Valid Hooks only)_ The worst-case instruction count of the `cbak` function, computed by the guard checker.                  |
+| `log`                    | Array     | The guard checker's messages, one string per line. Also present for valid Hooks (for example, the worst-case execution count). |
+| `vm_error`               | String    | _(Invalid Hooks only)_ Present only if guard checking passed but the WebAssembly VM rejected the module.                      |
+
+### Possible Errors
+
+* Any of the [universal error types](/docs/features/http-websocket-apis/response-formatting-guide).
+* `notSupported`: the method is disabled on this server.
+* `invalidParams`: `code` is missing, not a string, of odd length, too large, or not decodable as hex.

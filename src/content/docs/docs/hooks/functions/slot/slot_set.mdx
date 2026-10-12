@@ -103,3 +103,7 @@ const slot_no = slot_set(keylet, 0)
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* **Keylets only.** With the [fix20261005 amendment](/docs/features/amendments/#fix20261005), `slot_set` accepts a 34-byte keylet only. Passing a 32-byte transaction hash returns `INVALID_ARGUMENT`. The hash lookup read the node's local transaction store, which can differ between nodes.
+* With the [RNG amendment](/docs/features/amendments/#rng), `slot_set` refuses the [Random](/docs/protocol-reference/ledger-data/ledger-objects-types/random) ledger object (returning `DOESNT_EXIST`) and [Entropy](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy) pseudo-transactions.

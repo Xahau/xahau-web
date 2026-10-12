@@ -1,0 +1,72 @@
+---
+title: pwa_info
+description: >-
+  Admin method that reports counters for the server's pwa ports and can flush
+  the custom-domain DNS cache.
+---
+_(Introduced in 2026.10-release+TBD.)_
+
+The `pwa_info` method reports request counters for the server's [`pwa` ports](/docs/infrastructure/serving-pwa-apps), which serve on-ledger [AppLoader](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader) documents over HTTP. This is an **admin** method.
+
+### Request Format
+
+```json
+{
+    "command": "pwa_info",
+    "reset": false,
+    "flush_dns": false
+}
+```
+
+Command line:
+
+```
+xahaud pwa_info [reset] [flush_dns]
+```
+
+### Request Parameters
+
+| Field       | JSON Type | Required? | Description                                                                         |
+| ----------- | --------- | --------- | ----------------------------------------------------------------------------------- |
+| `reset`     | Boolean   | No        | If `true`, zero the counters after reading them.                                    |
+| `flush_dns` | Boolean   | No        | If `true`, drop every cached custom-domain DNS answer.                              |
+
+### Response Format
+
+```json
+{
+    "result": {
+        "outcomes": {
+            "served": "1520",
+            "not_modified": "310",
+            "redirected": "42",
+            "not_found": "7",
+            "...": "0"
+        },
+        "requests": "1879",
+        "bytes_served": "3112960",
+        "ports": [
+            {
+                "name": "port_pwa",
+                "ip": "127.0.0.1",
+                "port": 8088,
+                "domains": ["pwapp.example"],
+                "custom_domains": false
+            }
+        ],
+        "status": "success"
+    }
+}
+```
+
+### Response Fields
+
+| Field          | JSON Type | Description                                                                                                                                        |
+| -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `outcomes`     | Object    | Each request outcome mapped to a count. The outcome names are listed in [Serving PWA Apps](/docs/infrastructure/serving-pwa-apps#status-codes). |
+| `requests`     | String    | The total number of requests.                                                                                                                      |
+| `bytes_served` | String    | The total number of document bytes served.                                                                                                         |
+| `ports`        | Array     | One entry per `pwa` port, with its `name`, `ip`, `port`, `domains` and `custom_domains`.                                                           |
+| `dns_flushed`  | String    | _(Only with `flush_dns: true`)_ The number of cached custom-domain answers that were dropped.                                                       |
+
+All counters are 64-bit numbers encoded as strings.

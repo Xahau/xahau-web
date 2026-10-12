@@ -156,3 +156,6 @@ else
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* With the [fix20260929 amendment](/docs/features/amendments/#fix20260929), the input is validated as an STObject first. Arrays must be properly terminated and a field's encoded length must match its actual size. Malformed input returns `PARSE_ERROR` or `TOO_SMALL` instead of being partially parsed. Truncated or unterminated Path data is rejected instead of being read past.

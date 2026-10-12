@@ -113,3 +113,7 @@ if(typeof emitResult === 'number')
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* With the [fix20260929 amendment](/docs/features/amendments/#fix20260929), the minimum fee check is computed against the ledger view being applied, not the node-local open ledger. This removes a source of nondeterminism between nodes.
+* With the [fix20261005 amendment](/docs/features/amendments/#fix20261005), the emitted transaction ledger entry is stored correctly, so a Hook slotting it later in the same ledger sees all its fields. The serialized bytes are unchanged.

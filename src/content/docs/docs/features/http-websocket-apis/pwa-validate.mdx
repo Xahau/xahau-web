@@ -1,0 +1,65 @@
+---
+title: pwa_validate
+description: >-
+  Checks whether a Progressive Web App loader document is an account's current
+  one, as of the validated ledger.
+---
+_(Added by the [PWALoader amendment](/docs/features/amendments/#pwaloader).)_
+
+The `pwa_validate` method checks whether a document a client was served is the account's current [AppLoader](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader) document, as of the validated ledger. It is intended for clients such as browser extensions that want to vet a document served by one node against a second node.
+
+### Request Format
+
+```json
+{
+    "command": "pwa_validate",
+    "account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "hash": "<hex SHA-512Half of the document bytes served>",
+    "domain": "app.example.org"
+}
+```
+
+Command line:
+
+```
+xahaud pwa_validate <account> <hash> [<domain>]
+```
+
+### Request Parameters
+
+| Field     | JSON Type | Required? | Description                                                                                                                       |
+| --------- | --------- | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `account` | String    | Yes       | The address of the account that published the document.                                                                          |
+| `hash`    | String    | Yes       | The SHA-512Half of the document bytes that were served, as hex.                                                                   |
+| `domain`  | String    | No        | The host the document was served from. If given, the account's `Domain` must equal it or be a parent of it (case-insensitive). For example, an account with `Domain` `example.org` endorses `example.org` and `app.example.org`. |
+
+### Response Format
+
+```json
+{
+    "result": {
+        "ledger_index": 12345678,
+        "app_loader_sequence": 4,
+        "valid": true,
+        "status": "success"
+    }
+}
+```
+
+### Response Fields
+
+| Field                 | JSON Type | Description                                                                                                                         |
+| --------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `ledger_index`        | Number    | The validated ledger the check was made against.                                                                                    |
+| `app_loader_sequence` | Number    | The `AppLoaderSequence` of the account's current document.                                                                          |
+| `valid`               | Boolean   | `true` if the hash matches the current document (and the domain, if given, is endorsed by the account).                             |
+| `reason`              | String    | _(Only when `valid` is `false`)_ One of `"no loader"`, `"hash mismatch"` or `"domain not endorsed by account"`.                      |
+
+If the client was served from an older ledger (the `X-LedgerSeq` response header) than the returned `ledger_index` and gets `"hash mismatch"`, it should simply reload the document.
+
+### Possible Errors
+
+* Any of the [universal error types](/docs/features/http-websocket-apis/response-formatting-guide).
+* `actMalformed`: the `account` is not a valid address.
+* `invalidParams`: the `hash` is not a valid 32-byte hex value.
+* `notSynced`: the server is not synced to the network.

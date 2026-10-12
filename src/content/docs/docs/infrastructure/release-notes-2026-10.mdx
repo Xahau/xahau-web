@@ -1,0 +1,129 @@
+---
+title: Release Notes 2026.10
+description: >-
+  Summary of the changes in the upcoming 2026.10 xahaud release: new
+  amendments, RPC methods, configuration and operator-facing behaviour.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="note">
+This release has not been published yet. Its final tag is to be determined and is referred to as **2026.10-release+TBD** throughout the documentation. It covers every user-facing change since `2026.6.21-release+3350`.
+</Aside>
+
+## Amendments
+
+New amendments. See [Amendments](/docs/features/amendments) for full descriptions.
+
+| Amendment | Type | Default Vote | ID |
+| --------- | ---- | ------------ | -- |
+| [RNG](/docs/features/amendments/#rng) | Feature | No | `A482912CE1E7026F8BC5F63F5A2394768455B71CD8117104F4BFE3A7EAE1AA45` |
+| [PWALoader](/docs/features/amendments/#pwaloader) | Feature | No | `B2A89FF11F11AC4DBBA803492F47BBBAA5144CF3270FA030E0489814BB1AC86B` |
+| [OnChainManifests](/docs/features/amendments/#onchainmanifests) | Feature | No | `68348F3451254D4AB206603B962241ADCFC1B22E945B59B5474F5DFBE3A5DE7C` |
+| [EscrowDestinationCancel](/docs/features/amendments/#escrowdestinationcancel) | Feature | No | `B8DE07B4A417D9AE2F6DD903B9F8ED785C8C63A7311E8B7504DD6158E7336377` |
+| [HookOnV2_1](/docs/features/amendments/#hookonv2_1) | Feature | No | `D8FF47221FD426458D7EAE70FA439F4D5E59ECAB7292FC14931FBD8C34904602` |
+| [fix20261005](/docs/features/amendments/#fix20261005) | Fix | **Yes** | `2339E37C9DCD516CABC37FE91C4BBBFBA3EA152FD45331C3C18F183129AEF65F` |
+| [fix20260929](/docs/features/amendments/#fix20260929) | Fix | **Yes** | `6902B1DEAFD9C05D0E897EBEF5A5F7C563D1F9681EA957C4C6B0874C8E009E1A` |
+
+Changes to existing amendments:
+
+| Amendment | Change |
+| --------- | ------ |
+| `HookOnV2` | No longer supported. Replaced by `HookOnV2_1`. Validators that voted for it lose that vote and should vote for `HookOnV2_1` instead. |
+| `AMMClawback` | No longer supported (AMM itself was already unsupported). |
+| `fixXahauV1`, `fixXahauV2` | Retired. Their pre-amendment code paths are removed, and they are removed from `xahaud-standalone.cfg`. |
+
+## New Transaction Types
+
+| Name | Type Code | Amendment | Notes |
+| ---- | --------- | --------- | ----- |
+| [Entropy](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy) | 89 | RNG | Pseudo-transaction. Validators only. |
+| [SetManifest](/docs/protocol-reference/transactions/transaction-types/setmanifest) | 91 | OnChainManifests | Unsigned, canonical envelope. Submit with `submit` and `manifest`. |
+
+Changed: [AccountSet](/docs/protocol-reference/transactions/transaction-types/accountset#apploader) gains the optional `AppLoader` field (PWALoader). [EscrowCancel](/docs/protocol-reference/transactions/transaction-types/escrowcancel) can be submitted by the destination at any time (EscrowDestinationCancel). [SetHook](/docs/protocol-reference/transactions/transaction-types/sethook) validates `HookOnIncoming`/`HookOnOutgoing` more strictly (HookOnV2_1).
+
+## New Ledger Entry Types
+
+| Name | Type Code | Amendment | `ledger_entry` Selector |
+| ---- | --------- | --------- | ----------------------- |
+| [AppLoader](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader) | `0x004C` | PWALoader | `app_loader` (r-address) |
+| [Manifest](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest) | `0x004D` | OnChainManifests | by index |
+| [Random](/docs/protocol-reference/ledger-data/ledger-objects-types/random) | `0x526E` | RNG | `random: true` |
+
+Changed: [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) gains the optional fields `AppLoaderSequence` and `ManifestID`.
+
+## New Fields
+
+| Field | Type | Code | Hook `sf` Constant | Notes |
+| ----- | ---- | ---- | ------------------ | ----- |
+| `EntropyCount` | UInt16 | 99 | `(1<<16)+99` | |
+| `EntropyDenominator` | UInt16 | 100 | `(1<<16)+100` | |
+| `AppLoaderSequence` | UInt32 | 101 | `(2<<16)+101` | |
+| `NextRandomDigest` | Hash256 | 89 | `(5<<16)+89` | |
+| `RandomData` | Hash256 | 90 | `(5<<16)+90` | Never written to ledger-object metadata. It does appear in transaction metadata of transactions whose Hooks drew random numbers. |
+| `ManifestID` | Hash256 | 91 | `(5<<16)+91` | |
+| `AppLoader` | Blob | 96 | `(7<<16)+96` | |
+| `RandomDigestEntry` | STObject | 88 | `(14<<16)+88` | Inner object: `PublicKey`, `NextRandomDigest`, `LedgerSequence`. |
+| `Manifest` | STObject | 90 | `(14<<16)+90` | |
+| `RandomDigests` | STArray | 91 | `(15<<16)+91` | Never written to metadata. |
+
+## New Transaction Result Codes
+
+| Code | Description |
+| ---- | ----------- |
+| [`tefPAST_MANIFEST_SEQ`](/docs/protocol-reference/transactions/transaction-results/tef-codes) | The submitted manifest's sequence is not newer than the current one. |
+| [`tefREVOKED_MANIFEST`](/docs/protocol-reference/transactions/transaction-results/tef-codes) | The submitted manifest is for a revoked master key. |
+| [`tefMANIFEST_KEY_IN_USE`](/docs/protocol-reference/transactions/transaction-results/tef-codes) | A key the submitted manifest names is already in use by another manifest. |
+| [`telMANIFEST_FEE_MISMATCH`](/docs/protocol-reference/transactions/transaction-results/tel-codes) | The unsigned SetManifest fee is not, or cannot be confirmed as, canonical for this server's ledger fee settings. |
+
+## Hook API
+
+| Item | Value | Amendment |
+| ---- | ----- | --------- |
+| [`int64_t dice(uint32_t sides)`](/docs/hooks/functions/utilities/dice) | function | RNG |
+| [`int64_t util_random(uint32_t write_ptr, uint32_t write_len)`](/docs/hooks/functions/utilities/util_random) | function | RNG |
+| [`TOO_LITTLE_ENTROPY`](/docs/hooks/functions/overview/return-codes) | return code -46 | RNG |
+| [`KEYLET_MANIFEST`](/docs/hooks/functions/utilities/util_keylet) | keylet type 37 | OnChainManifests |
+| `ttENTROPY` | 89 (`tts.h`) | RNG |
+| `ttMANIFEST_SET` | 91 (`tts.h`) | OnChainManifests |
+
+Hook behaviour changes from the fix amendments are listed under [fix20261005](/docs/features/amendments/#fix20261005) and [fix20260929](/docs/features/amendments/#fix20260929), and noted on each affected function page. The Hook SDK headers (`hook/extern.h`) are now generated directly from `hook_api.macro`, which carries named parameters for every function.
+
+## RPC Methods and Parameters
+
+| Method | Role | New or Changed |
+| ------ | ---- | -------------- |
+| [hook_validate](/docs/features/http-websocket-apis/hook-validate) | user (if enabled) | New |
+| [pwa_validate](/docs/features/http-websocket-apis/pwa-validate) | user | New |
+| [pwa_info](/docs/features/http-websocket-apis/pwa-info) | admin | New |
+| [account_info](/docs/features/http-websocket-apis/account-info) | user | New `hooks` parameter |
+| [server_definitions](/docs/features/http-websocket-apis/server-definitions) | user | New `HOOK` section; `ledger_enabled` per feature |
+| `submit` | user | New `manifest` parameter (see [SetManifest](/docs/protocol-reference/transactions/transaction-types/setmanifest#submitting-a-manifest)) |
+| `ledger_entry` | user | New `random` and `app_loader` selectors |
+
+Fixes with possible client impact:
+
+* **Subscriptions:** webhook (`url`) subscription delivery no longer stalls after HTTP errors from the receiving endpoint.
+* **JSON-RPC:** idle HTTP keep-alive connections are no longer dropped prematurely.
+* **Base58:** decoding now handles high-bit characters correctly (they are read as unsigned).
+
+## Configuration
+
+| Section or Key | Default | Documentation |
+| -------------- | ------- | ------------- |
+| `[udp_highway]` | `0` | [UDP Superhighway](/docs/infrastructure/advanced-configuration#udp-superhighway-udp_highway) |
+| `[early_manifest_sync]` | `1` | [Early Manifest Sync](/docs/infrastructure/advanced-configuration#early-manifest-sync-early_manifest_sync) |
+| `[hook_validate_rpc]` | `0` (`1` in standalone) | [Hook Validation RPC](/docs/infrastructure/advanced-configuration#hook-validation-rpc-hook_validate_rpc) |
+| port `protocol = pwa`, with keys `domain`, `custom_domains`, `resolver` | — | [Serving PWA Apps](/docs/infrastructure/serving-pwa-apps) |
+| `[pwa_allowlist]`, `[pwa_blocklist]` | empty | [Serving PWA Apps](/docs/infrastructure/serving-pwa-apps#allow-and-block-lists) |
+| `[node_db] type=rwdb` rules | changed | [Running Databases in Memory](/docs/infrastructure/advanced-configuration#running-databases-in-memory) |
+
+The example configuration's comments now document the real defaults of `[transaction_queue] target_txn_in_ledger` (**1000**) and `[max_transactions]` (**1000**).
+
+## Node Operator Behaviour
+
+* **Amendment-blocked servers stop** instead of running degraded, and write a `README_AMENDMENT_BLOCKED` receipt to the config directory. See [Updating xahaud](/docs/infrastructure/updating-xahaud#amendment-blocked-servers-stop).
+* **UNLReport reliability:** UNLReport generation is no longer blocked by the Negative UNL local reliability gate. See [Enabling Validation](/docs/infrastructure/enabling-validation#unlreport-reliability).
+* Boost is updated to 1.91, and Beast/asio timeout bugs are fixed.
+* Fixed a `ReportFeeChange` data race, queuing when there were no subscribers, and a LoadManager loop.
+* Build fixes for clang-16 and for ARM (embedded tests hanging).
+* `AMMCreate` fee calculation now includes Hook and multisign fees.

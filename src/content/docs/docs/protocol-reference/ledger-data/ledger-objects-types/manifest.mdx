@@ -1,0 +1,110 @@
+---
+title: Manifest
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/include/xrpl/protocol/detail/ledger_entries.macro)]
+
+_(Added by the [OnChainManifests amendment](/docs/features/amendments/#onchainmanifests).)_
+
+A `Manifest` ledger object is an on-ledger copy of a validator manifest: the signed statement that binds a validator's long-lived **master** public key to its current **ephemeral signing** key, and that records key rotations and revocations. `Manifest` objects are created and replaced by [SetManifest transactions](/docs/protocol-reference/transactions/transaction-types/setmanifest). Each object is a lossless mirror of the manifest, including its signatures, so any node can verify it independently and learn a validator's current keys directly from ledger state.
+
+### Example JSON
+
+The master-key copy created by a `SetManifest` transaction on the Release Candidate devnet:
+
+```json
+{
+  "Account": "rDUFb7vderpzRwMBosyUd23yxWtapQ9tPe",
+  "Domain": "6578616D706C652E636F6D",
+  "Flags": 0,
+  "LedgerEntryType": "Manifest",
+  "ManifestID": "AE96FD27FD82C285BB4BD1D411D64969B977CFD39E01C0828A54ED469CC53363",
+  "MasterSignature": "B20EA21A3527588DDB12C0193AAA5B9C9162EE5F20D758A563DA73A95724A54319AA6D562DC59AF1DF658330DB33BC0F1CB990F75B448210A2577B15B8B60E08",
+  "OwnerNode": "0",
+  "PreviousTxnID": "DDA623F458441F2C3C1518913FCA212F9B1937F2722BCF758C86C12AC438832C",
+  "PreviousTxnLgrSeq": 9546,
+  "PublicKey": "ED672613F42B09D4514C43564EF2A71A54780B85BB4502BDFE6C6ABDD518B85227",
+  "Sequence": 1,
+  "Signature": "3044022012E023B1357C35F09DE64F1C4D8611E72DB953F634245F68AC78335C96108062022008EBB44302A5775DF4210A96C29E721F4E07E55BD826EAD9EFD28A4E4CF0FE20",
+  "SigningPubKey": "038A5260B00DEFC7F7007536DF3810DCB7FBF93728B3D99456331D96CC43005B08",
+  "index": "169EAC6C04B089CCC88047AF3482989C9407037952BB9521F6F199C0C441B714"
+}
+```
+
+The same object after the master key was revoked (`Sequence` 4294967295). `SigningPubKey`, `Signature` and `ManifestID` are gone, and the ephemeral-key copy has been deleted:
+
+```json
+{
+  "Account": "rDUFb7vderpzRwMBosyUd23yxWtapQ9tPe",
+  "Flags": 0,
+  "LedgerEntryType": "Manifest",
+  "MasterSignature": "CCF70F2F265A546997EF7674B7B6C1CA28EB0A79BDD327D33AD61A663342F3505349F02B745A883B981FB9E7F3FF73BCD08A9FA6F5E1E29EF9FFBA107AA68906",
+  "OwnerNode": "0",
+  "PreviousTxnID": "5880394B5CD2A3360677FA14F480FB01A28B10C924D926CA42F947D1E08D5E53",
+  "PreviousTxnLgrSeq": 9561,
+  "PublicKey": "ED672613F42B09D4514C43564EF2A71A54780B85BB4502BDFE6C6ABDD518B85227",
+  "Sequence": 4294967295,
+  "index": "169EAC6C04B089CCC88047AF3482989C9407037952BB9521F6F199C0C441B714"
+}
+```
+
+### Fields
+
+A `Manifest` object has the following fields:
+
+| Field               | JSON Type | \[Internal Type]\[] | Required? | Description                                                                                                                                                                                                                       |
+| ------------------- | --------- | ------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LedgerEntryType`   | String    | UInt16              | Yes       | The value `0x004D`, mapped to the string `Manifest`, indicates that this object is a Manifest object.                                                                                                                             |
+| `Account`           | String    | AccountID           | Yes       | The account derived from the manifest's master public key. This account pays the fee of the SetManifest transaction.                                                                                                              |
+| `PublicKey`         | String    | Blob                | Yes       | The validator's master public key.                                                                                                                                                                                                |
+| `SigningPubKey`     | String    | Blob                | No        | The validator's current ephemeral signing public key. Absent if the master key has been revoked.                                                                                                                                  |
+| `Sequence`          | Number    | UInt32              | Yes       | The manifest's sequence number. Each new manifest for the same master key must have a higher sequence. A revocation uses the maximum value (`4294967295`).                                                                        |
+| `Version`           | Number    | UInt16              | No        | The manifest version. Omitted when `0` (the default), so that the object's bytes match the signed manifest exactly.                                                                                                               |
+| `Domain`            | String    | Blob                | No        | The domain the validator claims, as hexadecimal ASCII, if the manifest includes one.                                                                                                                                              |
+| `MasterSignature`   | String    | Blob                | Yes       | The signature of the manifest by the master key.                                                                                                                                                                                  |
+| `Signature`         | String    | Blob                | No        | The signature of the manifest by the ephemeral signing key. Absent if the master key has been revoked.                                                                                                                            |
+| `ManifestID`        | String    | Hash256             | No        | The ID of the other copy of this manifest (see [Master and Ephemeral Copies](#master-and-ephemeral-copies)).                                                                                                                      |
+| `OwnerNode`         | String    | UInt64              | No        | Present on the master-key copy only. A hint indicating which page of the [manifest directory](#manifest-directory) links to this object.                                                                                          |
+| `PreviousTxnID`     | String    | Hash256             | Yes       | The identifying hash of the transaction that most recently modified this object.                                                                                                                                                  |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | Yes       | The \[index of the ledger]\[Ledger Index] that contains the transaction that most recently modified this object.                                                                                                                  |
+
+### Master and Ephemeral Copies
+
+Every published manifest is written to the ledger twice:
+
+* one copy at the **master key's** ID, which is listed in the manifest directory and carries `OwnerNode`;
+* one copy at the **ephemeral signing key's** ID. This copy is absent after a revocation, since a revoked manifest has no signing key.
+
+Each copy's `ManifestID` points at the other. When a newer manifest is published for the same master key (for example after a key rotation or a revocation), the objects are replaced in place.
+
+The [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) of the account derived from the master key gains a `ManifestID` field pointing at the master-key copy. An account with a published manifest cannot be deleted: an [AccountDelete transaction](/docs/protocol-reference/transactions/transaction-types/accountdelete) fails with `tecHAS_OBLIGATIONS`. `Manifest` objects do not count toward the owner reserve (the account's `OwnerCount` is unchanged).
+
+### Manifest Directory
+
+A global [DirectoryNode](/docs/protocol-reference/ledger-data/ledger-objects-types/directory-node) lists every master key's `Manifest` object. An entry is created when a key's first manifest is published and is kept permanently. The ID of the root page of the manifest directory is the \[SHA-512Half]\[] of the manifest directory space key (`0x014D`) only, which is always:
+
+```
+6B18374C4AAEA9B81DA163DF57AE1FE0F5E27FBEAB1BD15DA30AACF50952692C
+```
+
+### Manifest ID Format
+
+The ID of a `Manifest` object is the \[SHA-512Half]\[] of the following values, concatenated in order:
+
+* The Manifest space key (`0x004D`, the character `M`)
+* The public key (the master key for the master copy, the ephemeral signing key for the ephemeral copy)
+
+Hooks can compute this ID with `util_keylet` and the `KEYLET_MANIFEST` (37) keylet type, passing a pointer to the public key and its length as `a` and `b` (the remaining arguments must be `0`).
+
+### Verification and Trust
+
+An on-ledger manifest goes through exactly the same checks as a gossiped one: signatures, staleness, revocation and key-reuse rules. Publishing on ledger adds a distribution channel only and does not change trust. Which validators a node trusts is still decided by its UNL configuration.
+
+When a trusted validator has already published a manifest on ledger and a node later receives a newer manifest for it (for example, by gossip after a key rotation), the node automatically submits the newer one. Validators that have never published on ledger are left alone, since submitting spends the master key account's balance. In effect, publishing once opts a validator in.
+
+By default, a syncing node fetches on-ledger manifests ahead of the rest of the ledger state (`[early_manifest_sync]`, enabled by default), so it can resolve validators' current keys within seconds.
+
+### Related Documentation
+
+* [SetManifest transaction](/docs/protocol-reference/transactions/transaction-types/setmanifest): Publishes a manifest on ledger
+* [AccountRoot ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot): Holds the `ManifestID` pointer
+* [OnChainManifests amendment](/docs/features/amendments/#onchainmanifests)

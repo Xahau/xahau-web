@@ -91,12 +91,17 @@ After removal, the hook reverts to unconditional execution (governed only by its
 
 Hook fee calculation respects the same gating logic: named hooks that would be skipped by a transaction (name mismatch or absent) are **not** counted when computing the hook execution fee for that transaction.
 
+### ClaimReward
+
+With the [fix20260929 amendment](/docs/features/amendments/#fix20260929), when a [ClaimReward](/docs/protocol-reference/transactions/transaction-types/claimreward) transaction checks whether an account has a Hook that handles `ClaimReward`, the Hook's `HookName` is taken into account: a named Hook only counts if the ClaimReward transaction carries a matching `HookName`.
+
 ### Error Cases
 
 | Error Code     | Condition |
 | -------------- | --------- |
 | `temDISABLED`  | `HookName` is present in a Hook slot but the `NamedHooks` amendment is not enabled. |
 | `temMALFORMED` | `HookName` present as a top-level transaction field but `Hooks` or `NamedHooks` is not active; or the value fails UTF-8 / length validation. |
+| `temMALFORMED` | `HookName` present as a top-level transaction field with an **empty** value. _(Added by the [fix20260929 amendment](/docs/features/amendments/#fix20260929).)_ |
 
 ### Use Cases
 
