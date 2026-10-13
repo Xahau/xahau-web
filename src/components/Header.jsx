@@ -153,7 +153,7 @@ export default function Header(props) {
   const explorers = [
     { name: 'XAHSCAN', href: 'https://xahscan.com/' },
     { name: 'Bithomp Xahau Explorer', href: 'https://xahauexplorer.com/en' },
-    { name: 'XRPLWin Xahau Explorer', href: 'https://xahau.xrplwin.com/' },
+    { name: 'XahauWin', href: 'https://xahauwin.com/' },
     { name: 'Technical Explorer', href: 'https://explorer.xahau.network/' },
   ]
 
