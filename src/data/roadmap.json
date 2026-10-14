@@ -97,6 +97,15 @@
           "enterprise-devs": "enterprise + devs"
         }
       },
+      "progress": {
+        "title": "Progress",
+        "subtitle": "Everything on the roadmap, grouped by where it stands today.",
+        "done": "Done",
+        "inProgress": "In progress",
+        "planned": "Planned",
+        "laneTech": "Protocol feature",
+        "laneRollout": "Rollout"
+      },
       "foot": "Directional - subject to change - xahau.network"
     },
     "es": {
@@ -163,6 +172,15 @@
           "quarterly": "trimestral",
           "enterprise-devs": "empresas y desarrolladores"
         }
+      },
+      "progress": {
+        "title": "Progreso",
+        "subtitle": "Todo lo que hay en el roadmap, agrupado según su estado actual.",
+        "done": "Hecho",
+        "inProgress": "En progreso",
+        "planned": "Planificado",
+        "laneTech": "Funcionalidad del protocolo",
+        "laneRollout": "Despliegue"
       },
       "foot": "Orientativo - sujeto a cambios - xahau.network"
     },
@@ -231,6 +249,15 @@
           "enterprise-devs": "empresas e desenvolvedores"
         }
       },
+      "progress": {
+        "title": "Progresso",
+        "subtitle": "Tudo o que está no roadmap, agrupado pelo estado atual.",
+        "done": "Concluído",
+        "inProgress": "Em andamento",
+        "planned": "Planejado",
+        "laneTech": "Funcionalidade do protocolo",
+        "laneRollout": "Implantação"
+      },
       "foot": "Direcional - sujeito a alterações - xahau.network"
     }
   },
@@ -243,6 +270,7 @@
       "span": 2,
       "phase": "feature",
       "note": "activated",
+      "progress": "done",
       "title": {
         "en": "PriceOracle",
         "es": "PriceOracle",
@@ -262,6 +290,7 @@
       "endQuarter": "2026-Q3",
       "phase": "feature",
       "note": "activated",
+      "progress": "done",
       "title": {
         "en": "IOURewardClaim",
         "es": "IOURewardClaim",
@@ -281,6 +310,7 @@
       "endQuarter": "2026-Q3",
       "phase": "feature",
       "note": "beta",
+      "progress": "in-progress",
       "title": {
         "en": "Random Number Generator",
         "es": "Generador de números aleatorios",
@@ -300,6 +330,7 @@
       "endQuarter": "2026-Q3",
       "phase": "feature",
       "note": "in-development",
+      "progress": "in-progress",
       "title": {
         "en": "FeatureExport",
         "es": "FeatureExport",
@@ -319,6 +350,7 @@
       "span": 2,
       "phase": "feature",
       "note": "ready-for-amendment",
+      "progress": "in-progress",
       "title": {
         "en": "AMM",
         "es": "AMM",
@@ -338,6 +370,7 @@
       "endQuarter": "2026-Q4",
       "phase": "feature",
       "note": "ready-for-amendment",
+      "progress": "in-progress",
       "title": {
         "en": "NamedHook",
         "es": "NamedHook",
@@ -357,6 +390,7 @@
       "span": 3,
       "phase": "feature",
       "note": "alpha",
+      "progress": "in-progress",
       "title": {
         "en": "JSHooks",
         "es": "JSHooks",
@@ -376,6 +410,7 @@
       "openEnded": true,
       "phase": "ongoing",
       "note": "audits-optimisations",
+      "progress": "in-progress",
       "title": {
         "en": "Audit & optimisations",
         "es": "Auditorías y optimizaciones",
@@ -396,6 +431,7 @@
       "openEnded": false,
       "phase": "live",
       "note": "remittance",
+      "progress": "done",
       "title": {
         "en": "COOP Bank EUR corridor scale-up to entire country.",
         "es": "Escalado del corredor EUR de COOP Bank a todo el país.",
@@ -414,6 +450,7 @@
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q3",
       "phase": "launch",
+      "progress": "done",
       "title": {
         "en": "USD stablecoin on Xahau",
         "es": "Stablecoin USD en Xahau",
@@ -432,6 +469,7 @@
       "quarter": "2026-Q4",
       "openEnded": true,
       "phase": "launch",
+      "progress": "in-progress",
       "title": {
         "en": "Currencies from multiple countries on Xahau",
         "es": "Divisas de múltiples países en Xahau",
@@ -450,6 +488,7 @@
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
       "phase": "launch",
+      "progress": "in-progress",
       "title": {
         "en": "GBP stablecoin on Xahau",
         "es": "Stablecoin GBP en Xahau",
@@ -468,6 +507,7 @@
       "quarter": "2026-Q3",
       "endQuarter": "2026-Q4",
       "phase": "pilot",
+      "progress": "in-progress",
       "title": {
         "en": "USD corridor pilot",
         "es": "Piloto del corredor USD",
@@ -486,6 +526,7 @@
       "quarter": "2026-Q4",
       "openEnded": true,
       "phase": "partnerships",
+      "progress": "in-progress",
       "title": {
         "en": "Additional bank & remittance partners",
         "es": "Bancos y socios de remesas adicionales",
@@ -505,6 +546,7 @@
       "span": 1,
       "phase": "ga",
       "note": "remittance",
+      "progress": "planned",
       "title": {
         "en": "Corridor expansion · GA",
         "es": "Expansión de corredores · GA",
@@ -524,6 +566,7 @@
       "endQuarter": "2027-Q3",
       "phase": "pilot",
       "note": "payments",
+      "progress": "planned",
       "title": {
         "en": "Merchant settlement pilot",
         "es": "Piloto de liquidación para comercios",
@@ -542,6 +585,7 @@
       "quarter": "2027-Q3",
       "openEnded": true,
       "phase": "enterprise",
+      "progress": "planned",
       "title": {
         "en": "Enterprise settlement GA",
         "es": "GA de liquidación empresarial",
@@ -561,6 +605,7 @@
       "openEnded": true,
       "phase": "launch",
       "note": "public-good",
+      "progress": "in-progress",
       "title": {
         "en": "NGO donation platform",
         "es": "Plataforma de donaciones para ONG",
@@ -583,6 +628,7 @@
         "es": "Rampas on/off y listados de XAH",
         "pt-BR": "Rampas on/off e listagens de XAH"
       },
+      "progress": "in-progress",
       "title": {
         "en": "On and off ramps and token listing",
         "es": "Rampas de entrada y salida y listado del token",
@@ -602,6 +648,7 @@
       "openEnded": true,
       "phase": "event",
       "note": "quarterly",
+      "progress": "in-progress",
       "title": {
         "en": "Xahau Connect",
         "es": "Xahau Connect",
@@ -620,6 +667,7 @@
       "quarter": "2026-Q4",
       "phase": "event",
       "note": "enterprise-devs",
+      "progress": "planned",
       "title": {
         "en": "InFTF event",
         "es": "Evento InFTF",

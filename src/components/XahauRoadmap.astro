@@ -167,6 +167,24 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
   if (start.y === end.y) return `${start.q}–${end.q} ${start.y}`
   return `${start.q} ${start.y} → ${end.q} ${end.y}`
 }
+
+// Progress list — every item, not just the visible window, so work that has
+// scrolled out of the chart stays on the page. Sorted by start quarter.
+const progressGroups = (
+  [
+    ['done', labels.progress.done],
+    ['in-progress', labels.progress.inProgress],
+    ['planned', labels.progress.planned],
+  ] as const
+)
+  .map(([key, label]) => ({
+    key,
+    label,
+    items: data.items
+      .filter((i) => i.progress === key)
+      .sort((a, b) => qToIdx(a.quarter) - qToIdx(b.quarter)),
+  }))
+  .filter((g) => g.items.length > 0)
 ---
 
 <section
@@ -314,6 +332,43 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
       {labels.legend.launch}</span
     >
   </div>
+
+  <section class="xr-progress" aria-label={labels.progress.title}>
+    <header class="xr-progress-head">
+      <h3>{labels.progress.title}</h3>
+      <p>{labels.progress.subtitle}</p>
+    </header>
+    <div class="xr-progress-groups">
+      {progressGroups.map((g) => (
+        <div class={`xr-pgroup is-${g.key}`}>
+          <h4>
+            <i aria-hidden="true"></i>
+            {g.label}
+            <span class="count">{g.items.length}</span>
+          </h4>
+          <ul>
+            {g.items.map((it) => (
+              <li>
+                <div class="meta">
+                  <span>{fmtItemPeriod(it)}</span>
+                  <span>
+                    {it.lane === "tech"
+                      ? labels.progress.laneTech
+                      : labels.progress.laneRollout}
+                  </span>
+                </div>
+                <div class="n">
+                  {it.link ? <a href={it.link}>{tr(it.title)}</a> : tr(it.title)}
+                </div>
+                {tagFor(it) && <div class="k">{tagFor(it)}</div>}
+                {it.description && <div class="d">{tr(it.description)}</div>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
 
   <footer class="xr-foot"><span>{labels.foot}</span></footer>
 </section>
@@ -1014,6 +1069,112 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
   }
   .xr-legend .sw.launch i {
     background: var(--teal);
+  }
+
+  .xr-progress {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .xr-progress-head h3 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--ink);
+  }
+  .xr-progress-head p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--ink-dim);
+  }
+  .xr-progress-groups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+    margin-top: 16px;
+  }
+  .xr-pgroup {
+    --pc: var(--accent-2);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--pc);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .xr-pgroup.is-done {
+    --pc: var(--accent);
+  }
+  .xr-pgroup.is-in-progress {
+    --pc: var(--teal);
+  }
+  .xr-pgroup.is-planned {
+    --pc: var(--violet);
+  }
+  .xr-pgroup h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .xr-pgroup h4 i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--pc);
+  }
+  .xr-pgroup h4 .count {
+    margin-left: auto;
+    color: var(--ink-mute);
+  }
+  .xr-pgroup ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .xr-pgroup li {
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .xr-pgroup li:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .xr-pgroup .meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    color: var(--ink-mute);
+  }
+  .xr-pgroup .n {
+    margin-top: 3px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .xr-pgroup .n a {
+    color: inherit;
+  }
+  .xr-pgroup .k {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--ink-dim);
+  }
+  .xr-pgroup .d {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--ink-dim);
+  }
+  @media (max-width: 900px) {
+    .xr-progress-groups {
+      grid-template-columns: 1fr;
+    }
   }
 
   .xr-foot {
