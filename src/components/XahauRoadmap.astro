@@ -169,7 +169,9 @@ const fmtItemPeriod = (item: RoadmapItem): string => {
 }
 
 // Progress list — every item, not just the visible window, so work that has
-// scrolled out of the chart stays on the page. Sorted by start quarter.
+// scrolled out of the chart stays on the page. Rollouts come before protocol
+// features (same priority as the chart lanes), then by start quarter.
+const laneOrder = { rollout: 0, tech: 1 }
 const progressGroups = (
   [
     ['done', labels.progress.done],
@@ -182,7 +184,11 @@ const progressGroups = (
     label,
     items: data.items
       .filter((i) => i.progress === key)
-      .sort((a, b) => qToIdx(a.quarter) - qToIdx(b.quarter)),
+      .sort(
+        (a, b) =>
+          laneOrder[a.lane] - laneOrder[b.lane] ||
+          qToIdx(a.quarter) - qToIdx(b.quarter),
+      ),
   }))
   .filter((g) => g.items.length > 0)
 ---
