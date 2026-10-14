@@ -104,6 +104,12 @@
           "url": "https://www.ledger.com/",
           "logo": null,
           "desc": "Industry-leading hardware security wallet"
+        },
+        {
+          "name": "Xyra",
+          "url": "https://www.xyra.now/",
+          "logo": null,
+          "desc": "Web wallet for XRPL and Xahau, no installation required"
         }
       ]
     },
@@ -333,7 +339,7 @@
           "name": "XahauTipBot",
           "url": "https://x.com/XahauTipbot",
           "logo": null,
-          "desc": "Send XAH tips directly on X"
+          "desc": "Send tips directly on X"
         }
       ]
     }
