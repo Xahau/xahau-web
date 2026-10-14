@@ -26,7 +26,7 @@ The `account_info` method retrieves information about an account, its activity, 
 | `ledger_index` | String or Number | No        | The ledger index of the ledger to use, or a shortcut string (`"validated"`, `"closed"` or `"current"`).                                                             |
 | `queue`        | Boolean          | No        | If `true`, also return information about queued transactions sent by this account. Only valid with the current (open) ledger.                                       |
 | `signer_lists` | Boolean          | No        | If `true`, also return any [SignerList](/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list) objects associated with this account.               |
-| `hooks`        | Boolean          | No        | If `true`, also return the account's **effective** Hook configuration for each Hook slot (see [Hooks Output](#hooks-output)). _(Introduced in 2026.10-release+TBD.)_ |
+| `hooks`        | Boolean          | No        | If `true`, also return the account's **effective** Hook configuration for each Hook slot (see [Hooks Output](#hooks-output)). _(Introduced in 2026.10.13-release+4119.)_ |
 
 A non-boolean `hooks` value returns `invalidParams`.
 
@@ -86,7 +86,7 @@ A non-boolean `hooks` value returns `invalidParams`.
 
 ### Hooks Output
 
-_(Introduced in 2026.10-release+TBD.)_
+_(Introduced in 2026.10.13-release+4119.)_
 
 With `hooks: true`, the response includes a top-level `hooks` array with the account's **effective** Hook configuration for each Hook slot. "Effective" means that the per-account installation (the [Hook](/docs/protocol-reference/ledger-data/ledger-objects-types/hook) object) is merged with the defaults of the [HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition):
 

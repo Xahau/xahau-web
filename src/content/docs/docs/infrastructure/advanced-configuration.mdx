@@ -23,7 +23,7 @@ online_delete=256 # This value should be low on machines using memory databases.
 advisory_delete=0 # Do not require human intervention to delete history. This is necessary for preventing out of memory errors.
 ```
 
-Starting with 2026.10-release+TBD, `rwdb` is a pure in-memory, "tree-only" node store. Ledger trees are kept alive only through the node's retained ledger window; there is no rotation, copying or object cache. The configuration rules changed as follows:
+Starting with 2026.10.13-release+4119, `rwdb` is a pure in-memory, "tree-only" node store. Ledger trees are kept alive only through the node's retained ledger window; there is no rotation, copying or object cache. The configuration rules changed as follows:
 
 | Rule | Before | Now |
 | ---- | ------ | --- |
@@ -35,7 +35,7 @@ The example configuration above continues to work.
 
 ## UDP Superhighway (`[udp_highway]`)
 
-_(Experimental. Introduced in 2026.10-release+TBD.)_
+_(Experimental. Introduced in 2026.10.13-release+4119.)_
 
 The Xahau UDP Superhighway (XUSH) is a best-effort UDP transport for transactions that runs **alongside** the peer protocol and never replaces it. It is disabled by default.
 
@@ -72,7 +72,7 @@ Anything sent over the highway is also relayed normally.
 
 ## Early Manifest Sync (`[early_manifest_sync]`)
 
-_(Introduced in 2026.10-release+TBD.)_
+_(Introduced in 2026.10.13-release+4119.)_
 
 Controls whether a syncing node fetches [on-ledger validator manifests](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest) before the rest of the ledger state, which resolves validators' current keys within seconds.
 
@@ -94,7 +94,7 @@ Controls whether a syncing node fetches [on-ledger validator manifests](/docs/pr
 
 ## Hook Validation RPC (`[hook_validate_rpc]`)
 
-_(Introduced in 2026.10-release+TBD.)_
+_(Introduced in 2026.10.13-release+4119.)_
 
 Controls the [hook_validate](/docs/features/http-websocket-apis/hook-validate) RPC method.
 

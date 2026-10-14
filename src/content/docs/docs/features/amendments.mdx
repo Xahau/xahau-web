@@ -49,7 +49,7 @@ The voting configuration of a `xahaud` server has no impact on it becoming amend
 
 You can unblock amendment blocked servers by upgrading to the newest version of `xahaud`.
 
-Starting with 2026.10-release+TBD, an amendment blocked server **stops** instead of running in a degraded state:
+Starting with 2026.10.13-release+4119, an amendment blocked server **stops** instead of running in a degraded state:
 
 * **Before activation:** once an amendment that the build does not support has reached majority, the server checks on every validated ledger. When activation is less than 5 minutes away (or the expected time has passed and it is only waiting for the flag ledger), the server shuts down.
 * **After activation:** a server that is already past the activation (for example, an old build being started) also stops.
@@ -71,23 +71,23 @@ The following amendments have been implemented or are in the process of being en
 
 ##### RNG
 
-Gives Hooks access to unpredictable, consensus-agreed random numbers. Validators on the UNLReport supply entropy through a commit-reveal scheme: each proposing validator places one [Entropy pseudo-transaction](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy) in its initial consensus position, committing to a new secret and revealing the one it committed to previously. The revealed values are mixed into a per-ledger seed stored in the singleton [Random ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/random), so no single validator or Hook can predict or steer the result. Adds two Hook API functions: `dice(sides)`, which returns a uniformly distributed integer in `[0, sides)`, and `util_random(write_ptr, write_len)`, which writes 1–512 random bytes. A draw only succeeds if at least 80% of the UNLReport contributed to the ledger's seed; otherwise it returns the new `TOO_LITTLE_ENTROPY` (-46) return code. Draws are never undone: if a transaction fails after its Hook drew random numbers, the RNG state still advances. The validated metadata of any transaction whose Hooks drew random numbers contains a `RandomData` field that allows the values to be audited. _(Introduced in 2026.10-release+TBD)_
+Gives Hooks access to unpredictable, consensus-agreed random numbers. Validators on the UNLReport supply entropy through a commit-reveal scheme: each proposing validator places one [Entropy pseudo-transaction](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy) in its initial consensus position, committing to a new secret and revealing the one it committed to previously. The revealed values are mixed into a per-ledger seed stored in the singleton [Random ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/random), so no single validator or Hook can predict or steer the result. Adds two Hook API functions: `dice(sides)`, which returns a uniformly distributed integer in `[0, sides)`, and `util_random(write_ptr, write_len)`, which writes 1–512 random bytes. A draw only succeeds if at least 80% of the UNLReport contributed to the ledger's seed; otherwise it returns the new `TOO_LITTLE_ENTROPY` (-46) return code. Draws are never undone: if a transaction fails after its Hook drew random numbers, the RNG state still advances. The validated metadata of any transaction whose Hooks drew random numbers contains a `RandomData` field that allows the values to be audited. _(Introduced in 2026.10.13-release+4119)_
 
 ##### PWALoader
 
-Allows an account to publish a small HTML bootstrap page for a Progressive Web App (an "AppLoader") on ledger, by sending an [AccountSet transaction](/docs/protocol-reference/transactions/transaction-types/accountset) with the new `AppLoader` field. The document is stored in an [AppLoader ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader) (at most one per account, up to 4096 bytes), costs the base fee plus 1 drop per byte, and takes no owner reserve. Sending an empty `AppLoader` removes it. Adds the `AppLoaderSequence` field to [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) objects. Node operators can optionally serve published documents over HTTP through a new `pwa` port type (not amendment-gated), and clients can check a served document with the new `pwa_validate` RPC method. _(Introduced in 2026.10-release+TBD)_
+Allows an account to publish a small HTML bootstrap page for a Progressive Web App (an "AppLoader") on ledger, by sending an [AccountSet transaction](/docs/protocol-reference/transactions/transaction-types/accountset) with the new `AppLoader` field. The document is stored in an [AppLoader ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader) (at most one per account, up to 4096 bytes), costs the base fee plus 1 drop per byte, and takes no owner reserve. Sending an empty `AppLoader` removes it. Adds the `AppLoaderSequence` field to [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) objects. Node operators can optionally serve published documents over HTTP through a new `pwa` port type (not amendment-gated), and clients can check a served document with the new `pwa_validate` RPC method. _(Introduced in 2026.10.13-release+4119)_
 
 ##### OnChainManifests
 
-Allows validator manifests (which bind a validator's master key to its current ephemeral signing key and record key rotations and revocations) to be published on ledger, in addition to peer gossip and validator lists. Introduces the [SetManifest transaction](/docs/protocol-reference/transactions/transaction-types/setmanifest), which carries no account signature (its authority comes from the manifest's own signatures) and is paid for by the account derived from the master public key, and the [Manifest ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest). Adds the `ManifestID` field to [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) objects, the `manifest` parameter to the `submit` RPC method, and the `KEYLET_MANIFEST` (37) keylet type to `util_keylet`. Publishing on ledger adds a distribution channel only; which validators a node trusts is still decided by its UNL configuration. _(Introduced in 2026.10-release+TBD)_
+Allows validator manifests (which bind a validator's master key to its current ephemeral signing key and record key rotations and revocations) to be published on ledger, in addition to peer gossip and validator lists. Introduces the [SetManifest transaction](/docs/protocol-reference/transactions/transaction-types/setmanifest), which carries no account signature (its authority comes from the manifest's own signatures) and is paid for by the account derived from the master public key, and the [Manifest ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest). Adds the `ManifestID` field to [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) objects, the `manifest` parameter to the `submit` RPC method, and the `KEYLET_MANIFEST` (37) keylet type to `util_keylet`. Publishing on ledger adds a distribution channel only; which validators a node trusts is still decided by its UNL configuration. _(Introduced in 2026.10.13-release+4119)_
 
 ##### EscrowDestinationCancel
 
-Allows the **destination** of an escrow to cancel it with an [EscrowCancel transaction](/docs/protocol-reference/transactions/transaction-types/escrowcancel) at any time, returning the funds to the owner, regardless of `CancelAfter` (and also for escrows without a `CancelAfter`). Self-escrows (owner and destination are the same account) are excluded, so a timelock on your own funds stays binding. When the destination cancels, the escrow owner is only a weak transactional stakeholder, so the owner's Hooks cannot roll back the cancel. _(Introduced in 2026.10-release+TBD)_
+Allows the **destination** of an escrow to cancel it with an [EscrowCancel transaction](/docs/protocol-reference/transactions/transaction-types/escrowcancel) at any time, returning the funds to the owner, regardless of `CancelAfter` (and also for escrows without a `CancelAfter`). Self-escrows (owner and destination are the same account) are excluded, so a timelock on your own funds stays binding. When the destination cancels, the escrow owner is only a weak transactional stakeholder, so the owner's Hooks cannot roll back the cancel. _(Introduced in 2026.10.13-release+4119)_
 
 ##### HookOnV2_1
 
-Replaces [HookOnV2](#hookonv2), which is no longer supported. Enables the `HookOnIncoming` and `HookOnOutgoing` fields in a [SetHook transaction](/docs/protocol-reference/transactions/transaction-types/sethook) with stricter validation: `HookOn` and `HookOnIncoming`/`HookOnOutgoing` are mutually exclusive in a Hook entry, `HookOnIncoming` and `HookOnOutgoing` must be supplied together, and their values must differ (if they would be equal, use `HookOn` instead). These rules are enforced on both install and update operations. Validators that voted for `HookOnV2` must vote for `HookOnV2_1` instead. _(Introduced in 2026.10-release+TBD)_
+Replaces [HookOnV2](#hookonv2), which is no longer supported. Enables the `HookOnIncoming` and `HookOnOutgoing` fields in a [SetHook transaction](/docs/protocol-reference/transactions/transaction-types/sethook) with stricter validation: `HookOn` and `HookOnIncoming`/`HookOnOutgoing` are mutually exclusive in a Hook entry, `HookOnIncoming` and `HookOnOutgoing` must be supplied together, and their values must differ (if they would be equal, use `HookOn` instead). These rules are enforced on both install and update operations. Validators that voted for `HookOnV2` must vote for `HookOnV2_1` instead. _(Introduced in 2026.10.13-release+4119)_
 
 ##### XahauGenesis
 
@@ -125,7 +125,7 @@ Adds the `prepare()` Hook API function. `prepare(write_ptr, write_len, read_ptr,
 
 Hooks may continue to specify `HookOn` with the existing behaviour, or optionally replace it with two separate fields: `HookOnIncoming` and `HookOnOutgoing`. Both use the same bitmask syntax as `HookOn` but differentiate between transactions originating from the Hook account (`HookOnOutgoing`) and transactions originating from another account (`HookOnIncoming`). _(Introduced in 2026.6.21-release+3350)_
 
-**Superseded:** As of 2026.10-release+TBD, `HookOnV2` is no longer supported and is replaced by [HookOnV2_1](#hookonv2_1). Votes cast for `HookOnV2` are lost.
+**Superseded:** As of 2026.10.13-release+4119, `HookOnV2` is no longer supported and is replaced by [HookOnV2_1](#hookonv2_1). Votes cast for `HookOnV2` are lost.
 
 ##### PriceOracle
 
@@ -179,17 +179,20 @@ Extends Hook state management capabilities, including the `HookStateScale` field
 
 ##### fix20261005
 
-Hook-related behaviour fixes. This amendment is set to default: _yes_ voting. If validators wish to vote against this amendment they must manually change their vote to no. _(Introduced in 2026.10-release+TBD)_
+Hook-related behaviour fixes. This amendment is set to default: _yes_ voting. If validators wish to vote against this amendment they must manually change their vote to no. _(Introduced in 2026.10.13-release+4119)_
 
 * **Foreign Hook State touch:** every account whose Hook State is written (including by another account's Hook via [state_foreign_set](/docs/hooks/functions/state/state_foreign_set)) is now touched (see [Touch](#touch)) and appears in the transaction metadata. Each account is touched at most once per transaction.
 * **`slot_set`:** accepts keylets only. Passing a 32-byte transaction hash now returns `INVALID_ARGUMENT`, because the hash lookup read the node's local transaction store, which can differ between nodes.
 * **`sto_validate`:** returns `0` (invalid) for buffers under 2 bytes, as documented, instead of `TOO_SMALL`.
 * **XFL exponent range:** creating an XFL whose normalised exponent is above 80 (for example with `float_set`) now returns `EXPONENT_OVERSIZED` (-28), and below -96 returns `EXPONENT_UNDERSIZED` (-29), instead of `INVALID_FLOAT` for both. (Arithmetic such as `float_multiply` that overflows returns `OVERFLOW` (-30), and results that underflow become `0`.)
 * **Emitted transaction objects:** fixes a duplicate template slot that caused a Hook slotting the emitted transaction entry later in the same ledger to see the field as absent. The serialized bytes are unchanged.
+* **Emit failure callbacks:** in a callback for a failed emitted transaction (`ttEMIT_FAILURE`), `otxn_field` reads from the original emitted transaction, which is now captured before the pseudo-transaction removes it from the ledger. If the emitted transaction is no longer in the ledger, the callback is skipped.
+* **Hook State reads:** reading Hook State of an account that the Hook has not yet touched in this execution (for example with `state_foreign`) no longer counts as a state modification or consumes reserve or namespace capacity. Only writes are charged.
+* **Balance adjustment accounting:** the reward accumulator's last-ledger marker (`RewardLgrLast`) now advances for accounts whose balance is below 1 XAH and when the overflow guard skips accumulation, so a stale ledger span cannot later be counted towards rewards.
 
 ##### fix20260929
 
-Omnibus Hook fix. It merges the previously separate `fixHookAPISType`, `fixHookExitOutOfBounds` and `fixHookNameValidation` work, plus fee fixes for `emit` and `etxn_fee_base`. This amendment is set to default: _yes_ voting. If validators wish to vote against this amendment they must manually change their vote to no. _(Introduced in 2026.10-release+TBD)_
+Omnibus Hook fix. It merges the previously separate `fixHookAPISType`, `fixHookExitOutOfBounds` and `fixHookNameValidation` work, plus fee fixes for `emit` and `etxn_fee_base`. This amendment is set to default: _yes_ voting. If validators wish to vote against this amendment they must manually change their vote to no. _(Introduced in 2026.10.13-release+4119)_
 
 * **`sto_subfield`, `sto_subarray`, `sto_emplace`:** inputs are validated as STObjects first. Arrays must be properly terminated and a field's encoded length must match its actual size. Malformed input returns `PARSE_ERROR` or `TOO_SMALL` instead of being partially parsed.
 * **STO Path parsing:** truncated or unterminated Path data is rejected instead of being read past.
@@ -200,11 +203,11 @@ Omnibus Hook fix. It merges the previously separate `fixHookAPISType`, `fixHookE
 
 ##### fixXahauV1
 
-Enforces a namespaces per account limit of 256. Various bug fixes with URIToken logic. Ensures that default (0) STAmounts are recorded in metadata. Ensures that OfferID can be used instead of OfferSequence when cancelling an offer. Fixes a bug where certain hooks cannot be deleted. Fixes a bug where the quorum required for a `ttIMPORT` is accidentally too high. Allows accounts to appear more than once in a GenesisMint transaction. Changes the Issuer of a URIToken from strong to weak TSH when a URIToken is being burned. Ensures TSHes on escrows created by emitted transactions are correctly triggered. Adds hook parameters size fee to all txns (1 drop per byte). _(Introduced in 2024.9.11-release+985)_ **Retired** in 2026.10-release+TBD: the pre-amendment code paths have been removed.
+Enforces a namespaces per account limit of 256. Various bug fixes with URIToken logic. Ensures that default (0) STAmounts are recorded in metadata. Ensures that OfferID can be used instead of OfferSequence when cancelling an offer. Fixes a bug where certain hooks cannot be deleted. Fixes a bug where the quorum required for a `ttIMPORT` is accidentally too high. Allows accounts to appear more than once in a GenesisMint transaction. Changes the Issuer of a URIToken from strong to weak TSH when a URIToken is being burned. Ensures TSHes on escrows created by emitted transactions are correctly triggered. Adds hook parameters size fee to all txns (1 drop per byte). _(Introduced in 2024.9.11-release+985)_ **Retired** in 2026.10.13-release+4119: the pre-amendment code paths have been removed.
 
 ##### fixXahauV2
 
-Cleans up TSH logic and removes old redundant table. Adds informational flags to each member of `sfHookExecutions`, describing weak, strong etc. execution. Adds `sfEmitNonce` to each member of `sfHookEmissions`, so as to better disambiguate emitted txns. Additional sanity checks on emitted txns to ensure they are placed into the correct ledger. **Retired** in 2026.10-release+TBD: the pre-amendment code paths have been removed.
+Cleans up TSH logic and removes old redundant table. Adds informational flags to each member of `sfHookExecutions`, describing weak, strong etc. execution. Adds `sfEmitNonce` to each member of `sfHookEmissions`, so as to better disambiguate emitted txns. Additional sanity checks on emitted txns to ensure they are placed into the correct ledger. **Retired** in 2026.10.13-release+4119: the pre-amendment code paths have been removed.
 
 ##### fixXahauV3
 
@@ -224,7 +227,7 @@ Fixes issues related to page capacity limits.
 
 ##### fix240911
 
-Bug fix amendment from September 11, 2024.
+Bug fix amendment from September 11, 2024. **Retired** in 2026.10.13-release+4119: the pre-amendment code paths have been removed.
 
 ##### fixFloatDivide
 

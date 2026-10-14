@@ -1,13 +1,13 @@
 ---
 title: Release Notes 2026.10
 description: >-
-  Summary of the changes in the upcoming 2026.10 xahaud release: new
+  Summary of the changes in the 2026.10.13-release+4119 xahaud release: new
   amendments, RPC methods, configuration and operator-facing behaviour.
 ---
 import { Aside } from '@astrojs/starlight/components';
 
 <Aside type="note">
-This release has not been published yet. Its final tag is to be determined and is referred to as **2026.10-release+TBD** throughout the documentation. It covers every user-facing change since `2026.6.21-release+3350`.
+Release tag: [**2026.10.13-release+4119**](https://github.com/Xahau/xahaud/releases/tag/2026.10.13-release%2B4119). It covers every user-facing change since `2026.6.21-release+3350`.
 </Aside>
 
 ## Amendments
@@ -30,7 +30,7 @@ Changes to existing amendments:
 | --------- | ------ |
 | `HookOnV2` | No longer supported. Replaced by `HookOnV2_1`. Validators that voted for it lose that vote and should vote for `HookOnV2_1` instead. |
 | `AMMClawback` | No longer supported (AMM itself was already unsupported). |
-| `fixXahauV1`, `fixXahauV2` | Retired. Their pre-amendment code paths are removed, and they are removed from `xahaud-standalone.cfg`. |
+| `fixXahauV1`, `fixXahauV2`, `fix240911` | Retired. Their pre-amendment code paths are removed, and they are removed from `xahaud-standalone.cfg`. |
 
 ## New Transaction Types
 
@@ -126,4 +126,6 @@ The example configuration's comments now document the real defaults of `[transac
 * Boost is updated to 1.91, and Beast/asio timeout bugs are fixed.
 * Fixed a `ReportFeeChange` data race, queuing when there were no subscribers, and a LoadManager loop.
 * Build fixes for clang-16 and for ARM (embedded tests hanging).
+* Fixed a crash on the next transaction of an account after a SetHook update removed a Hook's `HookName`.
+* Peer protocol messages are now parsed strictly within their declared frame size, so coalesced frames are no longer rejected or merged.
 * `AMMCreate` fee calculation now includes Hook and multisign fees.

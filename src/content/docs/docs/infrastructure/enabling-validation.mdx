@@ -63,6 +63,6 @@ A validator's manifest binds its master key to its current ephemeral signing key
 
 ## UNLReport Reliability
 
-Starting with 2026.10-release+TBD, generation of the [UNLReport](/docs/protocol-reference/ledger-data/ledger-objects-types/unl-report) is no longer blocked by the Negative UNL "local reliability" gate (at least 90% of the node's own validations on-chain). Previously, whenever fewer than about half of the UNL cleared that bar, flag ledgers could carry no UNLReport at all. Validators also keep enough validation history for the next flag ledger even when they are not proposing. Negative UNL voting itself is unchanged. This is not an amendment-gated change.
+Starting with 2026.10.13-release+4119, generation of the [UNLReport](/docs/protocol-reference/ledger-data/ledger-objects-types/unl-report) is no longer blocked by the Negative UNL "local reliability" gate (at least 90% of the node's own validations on-chain). Previously, whenever fewer than about half of the UNL cleared that bar, flag ledgers could carry no UNLReport at all. Validators also keep enough validation history for the next flag ledger even when they are not proposing. Negative UNL voting itself is unchanged. This is not an amendment-gated change.
 
 The UNLReport also determines which validators contribute entropy to the consensus random number generator (see the [RNG amendment](/docs/features/amendments/#rng)). Contribution is automatic and needs no configuration.

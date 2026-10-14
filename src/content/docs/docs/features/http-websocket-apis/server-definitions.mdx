@@ -4,7 +4,7 @@ description: >-
   Returns the protocol definitions known to the server, including fields,
   types, transaction and ledger entry types, amendments and the Hook API.
 ---
-The `server_definitions` method returns the protocol definitions that the server knows about: serialized types, fields, ledger entry types, transaction types, result codes, flags, amendments and, from 2026.10-release+TBD, the Hook API. Client libraries and tooling use it to encode and decode Xahau binary data without hard-coding definitions.
+The `server_definitions` method returns the protocol definitions that the server knows about: serialized types, fields, ledger entry types, transaction types, result codes, flags, amendments and, from 2026.10.13-release+4119, the Hook API. Client libraries and tooling use it to encode and decode Xahau binary data without hard-coding definitions.
 
 ### Request Format
 
@@ -28,7 +28,7 @@ The response includes a `hash` of the definitions. Clients that cache the defini
 | `TRANSACTION_FLAGS`         | Object    | Transaction flags, by transaction type.                                                                                     |
 | `TRANSACTION_FLAGS_INDICES` | Object    | Flag indices for `AccountSet` (`asf*`) flags.                                                                               |
 | `features`                  | Object    | Amendment IDs mapped to their `name`, `supported`, `enabled` and `ledger_enabled` status (see [Features](#features)).       |
-| `HOOK`                      | Object    | The Hook API: functions, keylet types and return codes (see [Hook Definitions](#hook-definitions)). _(Introduced in 2026.10-release+TBD.)_ |
+| `HOOK`                      | Object    | The Hook API: functions, keylet types and return codes (see [Hook Definitions](#hook-definitions)). _(Introduced in 2026.10.13-release+4119.)_ |
 | `native_currency_code`      | String    | The native currency code (`XAH`).                                                                                           |
 | `hash`                      | String    | A hash of the definitions.                                                                                                  |
 
@@ -40,14 +40,14 @@ Each entry in `features` is keyed by amendment ID and contains:
 | ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`           | String    | The amendment name.                                                                                                                                                                      |
 | `supported`      | Boolean   | Whether this server's build supports the amendment.                                                                                                                                      |
-| `ledger_enabled` | Boolean   | Whether the amendment is active **on the ledger**. _(Introduced in 2026.10-release+TBD.)_                                                                                                 |
+| `ledger_enabled` | Boolean   | Whether the amendment is active **on the ledger**. _(Introduced in 2026.10.13-release+4119.)_                                                                                                 |
 | `enabled`        | Boolean   | Whether the amendment is active **on this server**. This includes amendments forced on by the `[features]` configuration section (used in standalone and test setups).                    |
 
 **Caution:** Clients that previously read `enabled` as "active on ledger" should switch to `ledger_enabled`. Config-forced amendments that the amendment table does not know about are also listed, by name where possible.
 
 ### Hook Definitions
 
-_(Introduced in 2026.10-release+TBD.)_
+_(Introduced in 2026.10.13-release+4119.)_
 
 The `HOOK` section lets tooling and SDKs discover the Hook API from the node:
 

@@ -50,7 +50,7 @@ Updating the xahaud binary files is essentially the same as the original install
 
 ## Amendment-Blocked Servers Stop
 
-Starting with 2026.10-release+TBD, a server that does not support an amendment the network is about to activate (or has activated) **shuts down** instead of running in a degraded "amendment blocked" state:
+Starting with 2026.10.13-release+4119, a server that does not support an amendment the network is about to activate (or has activated) **shuts down** instead of running in a degraded "amendment blocked" state:
 
 * **Before activation:** once an unsupported amendment has reached majority and is expected to activate, the server checks on every validated ledger. When activation is less than **5 minutes** away (or the expected time has passed and it is only waiting for the flag ledger), it stops, while it can still read the ledgers it is given.
 * **After activation:** a server that is already past the activation (for example, an old build being started) also stops.
