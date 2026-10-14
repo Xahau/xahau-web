@@ -1135,13 +1135,19 @@ const progressGroups = (
     margin: 0;
     padding: 0;
   }
-  .xr-pgroup li {
-    padding: 10px 0;
-    border-top: 1px solid var(--line);
+  .xr-pgroup ul {
+    display: grid;
+    gap: 8px;
   }
-  .xr-pgroup li:first-child {
-    border-top: 0;
-    padding-top: 0;
+  .xr-pgroup li {
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .xroadmap.theme-light .xr-pgroup li {
+    background: #ffffff;
+    box-shadow: 0 6px 18px -14px rgba(15, 35, 40, 0.25);
   }
   .xr-pgroup .meta {
     display: flex;

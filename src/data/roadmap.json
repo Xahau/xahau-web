@@ -309,8 +309,8 @@
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q3",
       "phase": "feature",
-      "note": "beta",
-      "progress": "in-progress",
+      "note": "ready-for-amendment",
+      "progress": "done",
       "title": {
         "en": "Random Number Generator",
         "es": "Generador de números aleatorios",
@@ -350,7 +350,7 @@
       "span": 2,
       "phase": "feature",
       "note": "ready-for-amendment",
-      "progress": "in-progress",
+      "progress": "done",
       "title": {
         "en": "AMM",
         "es": "AMM",
@@ -370,7 +370,7 @@
       "endQuarter": "2026-Q4",
       "phase": "feature",
       "note": "ready-for-amendment",
-      "progress": "in-progress",
+      "progress": "done",
       "title": {
         "en": "NamedHook",
         "es": "NamedHook",
@@ -380,6 +380,63 @@
         "en": "Allows names to be set to identify Hooks, so different Hooks can be invoked even within the same transaction type.",
         "es": "Permite asignar nombres para identificar Hooks, de modo que se puedan invocar diferentes Hooks incluso dentro del mismo tipo de transacción.",
         "pt-BR": "Permite definir nomes para identificar Hooks, de modo que diferentes Hooks possam ser invocados mesmo dentro do mesmo tipo de transação."
+      }
+    },
+    {
+      "id": "pwa-loader",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q4",
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "progress": "done",
+      "title": {
+        "en": "PWALoader",
+        "es": "PWALoader",
+        "pt-BR": "PWALoader"
+      },
+      "description": {
+        "en": "Lets an account publish a small HTML bootloader for a Progressive Web App on ledger, which opted-in nodes can serve over HTTP.",
+        "es": "Permite que una cuenta publique en el ledger un pequeño cargador HTML para una Progressive Web App, que los nodos que lo activen pueden servir por HTTP.",
+        "pt-BR": "Permite que uma conta publique no ledger um pequeno carregador HTML para um Progressive Web App, que os nós que optarem por isso podem servir via HTTP."
+      }
+    },
+    {
+      "id": "onchain-manifests",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q4",
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "progress": "done",
+      "title": {
+        "en": "OnChainManifests",
+        "es": "OnChainManifests",
+        "pt-BR": "OnChainManifests"
+      },
+      "description": {
+        "en": "Validator manifests published on ledger, so every node can learn validators’ current keys, rotations and revocations directly from ledger state.",
+        "es": "Manifiestos de validadores publicados en el ledger, para que cualquier nodo conozca las claves actuales, rotaciones y revocaciones de los validadores directamente desde el estado del ledger.",
+        "pt-BR": "Manifestos de validadores publicados no ledger, para que qualquer nó conheça as chaves atuais, rotações e revogações dos validadores diretamente a partir do estado do ledger."
+      }
+    },
+    {
+      "id": "hookon-v2",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q4",
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "progress": "done",
+      "title": {
+        "en": "HookOn (HookOnV2_1)",
+        "es": "HookOn (HookOnV2_1)",
+        "pt-BR": "HookOn (HookOnV2_1)"
+      },
+      "description": {
+        "en": "Separate HookOnIncoming / HookOnOutgoing triggers on SetHook, so a Hook can fire on different transaction types for incoming and outgoing transactions.",
+        "es": "Disparadores HookOnIncoming / HookOnOutgoing separados en SetHook, para que un Hook se active con distintos tipos de transacción según sean entrantes o salientes.",
+        "pt-BR": "Gatilhos HookOnIncoming / HookOnOutgoing separados no SetHook, para que um Hook seja acionado por tipos de transação diferentes para transações recebidas e enviadas."
       }
     },
     {
