@@ -29,6 +29,9 @@ export const roadmapItem = z.object({
   // Ongoing activity with no firm end date. Stretches to the end of the visible
   // window and renders a "continues" indicator. Overrides `span`/`endQuarter`.
   openEnded: z.boolean().optional().default(false),
+  // Where the item stands today. Drives the progress list under the chart,
+  // which shows every item regardless of the visible window.
+  progress: z.enum(['done', 'in-progress', 'planned']),
   // Card tag, built from the shared vocabulary in `labels.<locale>.tags`.
   // `phase` is the base word ('feature' -> "Feature"), `note` the optional
   // qualifier ('activated' -> "Activated"); the card renders "phase · note".
@@ -73,6 +76,15 @@ export const roadmapLabels = z.object({
   tags: z.object({
     phases: z.record(z.string(), z.string()),
     notes: z.record(z.string(), z.string()),
+  }),
+  progress: z.object({
+    title: z.string(),
+    subtitle: z.string(),
+    done: z.string(),
+    inProgress: z.string(),
+    planned: z.string(),
+    laneTech: z.string(),
+    laneRollout: z.string(),
   }),
   foot: z.string(),
 })

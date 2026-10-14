@@ -167,9 +167,10 @@
           "desc": "Explorer with account and NFT tools"
         },
         {
-          "name": "XRPLWin",
-          "url": "https://xahau.xrplwin.com/",
-          "logo": "xrplwin",
+          "name": "XahauWin",
+          "url": "https://xahauwin.com/",
+          "logo": "xahauwin",
+          "logo_bg": "#000000",
           "desc": "Multi-network explorer with Xahau support"
         },
         {
