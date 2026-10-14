@@ -304,6 +304,36 @@
           "url": "https://github.com/Handy4ndy/HandyHooks",
           "logo": null,
           "desc": "Ready-to-use Hook templates and tools"
+        },
+        {
+          "name": "One Xahau",
+          "url": "https://onexah.io/",
+          "logo": null,
+          "desc": "Ecosystem hub for DeFi culture on Xahau"
+        },
+        {
+          "name": "Xahau Vault",
+          "url": "https://xahauvault.com/",
+          "logo": null,
+          "desc": "NFT marketplace powered by Hook contracts"
+        },
+        {
+          "name": "XahauCards",
+          "url": "https://xahaucards.com/",
+          "logo": null,
+          "desc": "Collectible card packs minted as URITokens"
+        },
+        {
+          "name": "Xahmoeba",
+          "url": "https://xahmoeba.com/",
+          "logo": null,
+          "desc": "Digital species grown from on-chain genomes"
+        },
+        {
+          "name": "XahauTipBot",
+          "url": "https://x.com/XahauTipbot",
+          "logo": null,
+          "desc": "Send XAH tips directly on X"
         }
       ]
     }
