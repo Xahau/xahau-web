@@ -446,6 +446,7 @@ export default defineConfig({
             'docs/infrastructure/identity',
             'docs/infrastructure/interacting',
             'docs/infrastructure/advanced-configuration',
+            'docs/infrastructure/catalogues-and-pinned-history',
             {
               label: 'Build xahaud (Advanced)',
               translations: {

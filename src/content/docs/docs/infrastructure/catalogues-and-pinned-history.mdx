@@ -1,0 +1,291 @@
+---
+title: Catalogues & Pinned History
+description: >-
+  Preserve chosen historical ledger ranges permanently while online_delete keeps
+  recent data trimmed — using catalogue files and a persistent pinned backend.
+---
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+Most xahaud servers run `online_delete` to keep disk usage bounded: old ledgers are pruned and only a recent window is kept. That is the right default, but it leaves a gap — there is no built-in way to keep a *specific* historical range online forever without turning deletion off entirely.
+
+**Catalogues** and **pinned history** close that gap:
+
+- A **catalogue** (`.catl`) is a single, optionally compressed archive file holding a contiguous range of ledgers.
+- **Pinning** keeps loaded ranges in a separate persistent backend that `online_delete` never touches.
+
+Together they let you run an archival or historical-query node: rotate the hot data as usual, but keep chosen historical ranges queryable indefinitely.
+
+<Aside type="note">
+All catalogue commands are **admin** methods — run them on an admin port or from the command line on the server itself. They are not available on public endpoints.
+</Aside>
+
+## When to use this
+
+**Use pinned history when** you are loading historical ledgers from a catalogue file, or running a historical-query / explorer service that needs specific ranges to stay online permanently.
+
+**You don't need it** for a standard validator or tracking node — `online_delete` alone is enough, and pinning only adds disk overhead.
+
+## Quick start (archival node)
+
+The common path is to **load** a catalogue produced elsewhere. Creating one is only for a node that already holds the range (see [Obtaining a catalogue](#obtaining-a-catalogue)).
+
+1. Configure the persistent backend (`pinned_type` + `pinned_path`) alongside your rotating `node_db` — see [Configuration](#configuration).
+2. Obtain or create a `.catl` file for the range you want.
+3. Start the node normally.
+4. Load it: `catalogue_load <input_file>`.
+5. Watch progress with `catalogue_status` — loads can take hours.
+6. Verify with `server_info` → `complete_ledgers_pinned`.
+
+## How it fits together
+
+```
+                 ┌─────────────────────────────┐
+                 │        [node_db]            │
+                 │                             │
+  hot / recent → │  type        (rotating)  ───┼──► rotating backend
+                 │  online_delete=N            │     (pruned every N ledgers)
+                 │                             │
+ pinned history→ │  pinned_type (persistent)───┼──► persistent backend
+                 │  pinned_path=/data/pinned   │     (never rotated)
+                 └─────────────────────────────┘
+                                │
+                                ▼
+                  state.db ▸ PinnedLedgers table
+```
+
+Pinned data lives in the persistent backend; the set of pinned ranges is recorded in `state.db` so it survives restarts. On startup the node reloads that range set, so `complete_ledgers_pinned` is accurate right away. (In network mode the ranges only fold into the overall `complete_ledgers` once the node syncs — see [Verifying pinned history](#verifying-pinned-history).)
+
+## Configuration
+
+Add `pinned_type` and `pinned_path` to the `[node_db]` stanza, alongside a rotating `type` and `online_delete`:
+
+```ini
+[node_db]
+type=nudb                    # rotating backend (hot data)
+path=/data/rotating
+online_delete=2000           # rotation interval (see floor below)
+pinned_type=nudb             # persistent backend — must be durable
+pinned_path=/data/pinned     # where pinned data is kept; grows over time
+```
+
+All four are required together. Setting `pinned_type` turns on extra startup validation; if a rule is broken, the node refuses to start with the message shown:
+
+| Rule | Error if broken |
+| --- | --- |
+| A rotating `type` must be set | `type must be specified when using pinned_type` |
+| `pinned_path` must be set (for on-disk backends) | `pinned_path is required when pinned_type is set` |
+| `online_delete` must be non-zero | `pinned_type requires online_delete ...` |
+| `pinned_type` must be durable: `nudb` or `rocksdb` | `pinned_type must be a durable backend (NuDB or RocksDB) ...` |
+
+`online_delete` also carries its own floor, independent of pinning: when set it must be at least **256** (8 in standalone) and not below `ledger_history`. See [Advanced Configuration](/docs/infrastructure/advanced-configuration) for tuning it.
+
+<Aside type="caution">
+Offline `--import` is **not** supported when `pinned_type` is configured. Migrate the NodeStore first, then enable pinning.
+</Aside>
+
+## Obtaining a catalogue
+
+{/* TODO(distribution): no public/community .catl archive exists as of writing — operators self-create and self-distribute. If an official archive or signed-hash list appears, link it here and revisit the trust paragraph below. */}
+There is currently **no public catalogue archive**. Operators create their own catalogues (`catalogue_create`, on a node that already holds the range) and distribute them — for example by scp or HTTP. The producer and consumer needn't be the same operator, but a catalogue is network-specific and is rejected on load if its network ID doesn't match.
+
+A catalogue carries a SHA-512 that `catalogue_load` verifies automatically, and the same hash is reported when the file is created. The format has **no built-in signature**, so *trusting* a file you didn't make is out of band: rely on the producer publishing (and ideally signing) the catalogue's SHA-512, and confirm your copy matches before loading.
+
+### Creating a catalogue
+
+```bash
+# catalogue_create <min_ledger> <max_ledger> <output_file> [compression_level]
+xahaud --conf /etc/xahaud.cfg catalogue_create 1000000 2000000 /data/catl/1m-2m.catl 6
+```
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `min_ledger` | yes | First ledger sequence (must be in the node's `complete_ledgers`). |
+| `max_ledger` | yes | Last ledger sequence, inclusive. Must be `>= min_ledger`. |
+| `output_file` | yes | Absolute path. Must not already exist as a non-empty file. |
+| `compression_level` | no | `0`–`9` zlib level (default `0` = none; higher = smaller file, slower). Over JSON-RPC a boolean is also accepted (`true` → `6`, `false` → `0`). |
+
+Use compression for files you'll store or share; `0` is fastest for a local one-off. The file carries a SHA-512 hash that `catalogue_load` verifies on the way in.
+
+**Success response:**
+
+```json
+{
+  "result": {
+    "min_ledger": 1000000,
+    "max_ledger": 2000000,
+    "output_file": "/data/catl/1m-2m.catl",
+    "file_size_human": "2.50 GiB",
+    "ledgers_written": 1000001,
+    "hash": "A1B2C3...",
+    "status": "success"
+  }
+}
+```
+
+<Aside type="caution">
+`catalogue_create` doesn't pre-check the whole range. If a ledger in `[min_ledger, max_ledger]` isn't held, it aborts midway with `error: "ledgerMissing"` and leaves a **partial file** at `output_file`. Delete that file (or use a new path) before retrying.
+</Aside>
+
+## Loading a catalogue
+
+`catalogue_load` reads a catalogue back into the node, reconstructs and verifies each ledger, **pins** it, and records the pinned range in `state.db`.
+
+<Aside type="danger">
+`catalogue_load` requires `pinned_type` to be configured. Without it the command fails immediately — otherwise the loaded history would land in the rotating backend and be discarded at the next `online_delete`.
+</Aside>
+
+```bash
+# catalogue_load <input_file> [ignore_hash]
+xahaud --conf /etc/xahaud.cfg catalogue_load /data/catl/1m-2m.catl
+```
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `input_file` | yes | Absolute path to the catalogue file. |
+| `ignore_hash` | no | Pass the literal word `ignore_hash` (CLI) or `true` (JSON-RPC) to skip the whole-file hash check. |
+
+On load, the node checks the file's magic bytes, version, network ID, size, and — unless `ignore_hash` is set — the whole-file hash. Each ledger's hash is then recomputed and checked as it's rebuilt; that per-ledger check runs even with `ignore_hash`, so `ignore_hash` weakens but doesn't remove integrity protection.
+
+You can load several catalogues over time; their pinned ranges accumulate (gaps are fine, as the disjoint ranges in `complete_ledgers` show).
+
+**Success response** (field names differ from `catalogue_create`):
+
+```json
+{
+  "result": {
+    "ledger_min": 1000000,
+    "ledger_max": 2000000,
+    "ledger_count": 1000001,
+    "ledgers_loaded": 1000001,
+    "file_size_human": "2.50 GiB",
+    "hash": "A1B2C3...",
+    "ignore_hash": false,
+    "status": "success"
+  }
+}
+```
+
+<Aside type="note">
+Loading is intentionally slow: each ledger is saved through the job queue so the node keeps serving RPC and participating in consensus throughout, and memory stays flat. A large catalogue can take hours.
+</Aside>
+
+<Aside type="note">
+The load is incremental, not atomic. Each ledger is pinned and recorded as it loads, so if the load fails partway (corrupt or truncated file, shutdown) the ledgers loaded so far stay pinned — there's no rollback. Re-run with the same file to continue.
+</Aside>
+
+If the catalogue's `max_ledger` is newer than the node's current ledger, the load also advances the node's last-closed ledger to it. For typical archival loads of *old* history this doesn't happen.
+
+## Monitoring progress
+
+Poll `catalogue_status` to watch a running job:
+
+```bash
+xahaud --conf /etc/xahaud.cfg catalogue_status
+```
+
+```json
+{
+  "result": {
+    "job_status": "job_in_progress",
+    "job_type": "catalogue_load",
+    "min_ledger": 1000000,
+    "max_ledger": 2000000,
+    "current_ledger": 1015234,
+    "percent_complete": 1,
+    "elapsed_seconds": 480,
+    "estimated_time_remaining": "8 hours 37 minutes",
+    "file": "/data/catl/1m-2m.catl",
+    "file_size_human": "2.50 GiB"
+  }
+}
+```
+
+If `current_ledger` keeps advancing, the load is healthy; if it's stuck, check the node's log. When nothing is running, `job_status` is `"no_job_running"`.
+
+<Aside type="note">
+Only one catalogue job runs at a time. Starting a second while one is in progress returns the running job's status as an error (`error: "busy"`) instead of starting.
+</Aside>
+
+## Verifying pinned history
+
+`server_info` reports the overall range and the pinned subset:
+
+```bash
+xahaud --conf /etc/xahaud.cfg server_info
+```
+
+```json
+{
+  "result": {
+    "info": {
+      "complete_ledgers": "1000000-2000000,95000000-95001500",
+      "complete_ledgers_pinned": "1000000-2000000",
+      "server_state": "full"
+    }
+  }
+}
+```
+
+- `complete_ledgers` — everything the node can serve (pinned history plus the rotating window).
+- `complete_ledgers_pinned` — just the permanently retained ranges.
+
+<Aside type="note">
+In **network mode**, pinned history only becomes queryable once the node has synced (`server_state: "full"`) — until then RPC is gated and may return `notSynced` / `noNetwork`. In **standalone** mode (a single-node, no-network mode) there is no such gate.
+</Aside>
+
+To inspect the persisted ranges directly (the node's SQLite/`database_path` directory holds `state.db`):
+
+```bash
+sqlite3 /data/state.db "SELECT RangeSet FROM PinnedLedgers WHERE Key = 1;"
+```
+
+## Reclaiming space
+
+The persistent backend is never rotated, so it grows as you add pinned history — monitor its disk usage. Note the on-disk size is **not** the catalogue file size: the file holds compressed deltas, while the backend stores reconstructed node data, so budget for more than the `.catl` size.
+
+{/* TODO(sizing): add a concrete on-disk figure — rough bytes/ledger or an expansion factor of the pinned NuDB vs the compressed .catl — once we have real numbers. Hard to pin down currently: per-ledger tx volume has been low/uneven lately. Until then this stays a qualitative "budget for more". */}
+
+There is no command to un-pin a range. To reclaim the space you must stop the node and remove the pinned store manually.
+
+<Aside type="caution">
+Keep `pinned_type` / `pinned_path` pointed at the **same** store across restarts. On startup the node checks each persisted pinned range against the configured store; if the data is gone (e.g. `pinned_path` was moved or emptied) the node **refuses to start** (`Persisted pinned interval ... is not present in the currently configured pinned store`). To intentionally drop pinned history: stop the node, delete the `pinned_path` contents, and clear the range in `state.db` (`UPDATE PinnedLedgers SET RangeSet = '' WHERE Key = 1;` — back up first). Removing `pinned_type` from the config instead leaves the data but makes the node ignore those ranges.
+</Aside>
+
+## How pinning interacts with online_delete
+
+`online_delete` rotates the NodeStore every `online_delete` ledgers. Pinning changes that in two ways:
+
+1. **Pinned data sits outside rotation.** It's written to the persistent backend and never rotated or copied, so pinned ranges always survive.
+2. **SQL pruning skips pinned ranges.** When trimming the relational tables, sequences inside pinned ranges are kept. Because pinned ranges can sit mid-window, pruning may loop over several disjoint intervals.
+
+## Troubleshooting
+
+| Symptom | Cause / Fix |
+| --- | --- |
+| Won't start: `type must be specified when using pinned_type` | Add a rotating `type=` to `[node_db]`. |
+| Won't start: `pinned_path is required when pinned_type is set` | Add `pinned_path=/path`. |
+| Won't start: `pinned_type requires online_delete ...` | Set `online_delete` (non-zero, and see its floor below). |
+| Won't start: `pinned_type must be a durable backend ...` | Use `nudb` or `rocksdb` for `pinned_type`. |
+| Won't start: `online_delete must be at least 256` | Raise `online_delete` to ≥ 256 (8 in standalone). |
+| Won't start: `online_delete must not be less than ledger_history` | Raise `online_delete` to ≥ `ledger_history`, or lower `ledger_history`. |
+| Won't start: `Persisted pinned interval ... is not present ...` | `pinned_path`/`pinned_type` no longer points at the store with that data. Restore it, or clear the range in `state.db` (see [Reclaiming space](#reclaiming-space)). |
+| `catalogue_load` fails immediately about `pinned_type` | Configure `pinned_type` before loading. |
+| `error: "busy"` | Another catalogue job is running. Poll `catalogue_status` and retry when idle. |
+| `output_file already exists and is non-empty` | Use a fresh path; create won't overwrite. |
+| `error: "ledgerMissing"` (partial file left) | A ledger in the range wasn't held. Delete the partial file and create from a range the node fully holds. |
+| `catalogue hash verification failed` / `network ID mismatch` / `file size mismatch` | File is corrupt or built for another network. Get a fresh copy. |
+| `Catalogue file contains a corrupted ledger.` / `Unexpected ledger out of sequence ...` / `Unexpected end of catalogue file.` | File is damaged or truncated. Get a fresh copy; ledgers loaded before the failure stay pinned, so re-run to continue. |
+| Loaded history not queryable yet | In network mode, wait for `server_state: "full"`. |
+
+## Related
+
+<LinkCard
+  title="Advanced xahaud Configuration"
+  href="/docs/infrastructure/advanced-configuration"
+  description="node_db, online_delete, clustering and other operator configuration options."
+/>
+<LinkCard
+  title="Admin API Methods"
+  href="/docs/features/http-websocket-apis/admin-api-methods"
+  description="Full list of admin-only RPC methods, including the catalogue commands."
+/>
