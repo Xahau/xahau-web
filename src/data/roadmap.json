@@ -505,9 +505,9 @@
       "lane": "rollout",
       "status": "partnership",
       "quarter": "2026-Q2",
-      "endQuarter": "2026-Q3",
+      "endQuarter": "2027-Q1",
       "phase": "launch",
-      "progress": "done",
+      "progress": "in-progress",
       "title": {
         "en": "USD stablecoin on Xahau",
         "es": "Stablecoin USD en Xahau",
