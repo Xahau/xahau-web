@@ -442,11 +442,13 @@ export default defineConfig({
             'docs/infrastructure/system-requirements',
             'docs/infrastructure/installing-xahaud',
             'docs/infrastructure/updating-xahaud',
+            'docs/infrastructure/release-notes-2026-10',
             'docs/infrastructure/enabling-validation',
             'docs/infrastructure/identity',
             'docs/infrastructure/interacting',
             'docs/infrastructure/advanced-configuration',
             'docs/infrastructure/catalogues-and-pinned-history',
+            'docs/infrastructure/serving-pwa-apps',
             {
               label: 'Build xahaud (Advanced)',
               translations: {

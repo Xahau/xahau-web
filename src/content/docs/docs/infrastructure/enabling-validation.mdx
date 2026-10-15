@@ -49,3 +49,20 @@ Consider using an offline machine to generate validation keys and a validation t
 6. Open xahaud.cfg and paste in the `[validation_token]`, then restart the xahaud service.
 7. Paste the `attestation=""` into your [TOML](/docs/infrastructure/identity) file to prove the identity of your validator.
 8. Ensure private validation keys are stored securely, ideally separate from the validator.
+
+## On-Ledger Manifests
+
+_(Requires the [OnChainManifests amendment](/docs/features/amendments/#onchainmanifests).)_
+
+A validator's manifest binds its master key to its current ephemeral signing key. In addition to peer gossip and validator lists, a manifest can be published on ledger with a [SetManifest transaction](/docs/protocol-reference/transactions/transaction-types/setmanifest), so every node can learn the validator's current keys, rotations and revocations directly from ledger state.
+
+* Submit the manifest as **hex** with the `submit` method's `manifest` parameter. The node builds the canonical transaction and fee. (Manifests are commonly distributed in base64, for example inside a validator token.)
+* The fee is paid by the account derived from the manifest's master public key, so that account must exist and be funded. Once a manifest is published, that account can no longer be deleted.
+* After a validator has published once, nodes automatically re-publish newer manifests they receive for it (for example, after a key rotation). Validators that never published are left alone.
+* Publishing on ledger does not change trust: which validators a node trusts is still decided by its UNL configuration.
+
+## UNLReport Reliability
+
+Starting with 2026.10.13-release+4119, generation of the [UNLReport](/docs/protocol-reference/ledger-data/ledger-objects-types/unl-report) is no longer blocked by the Negative UNL "local reliability" gate (at least 90% of the node's own validations on-chain). Previously, whenever fewer than about half of the UNL cleared that bar, flag ledgers could carry no UNLReport at all. Validators also keep enough validation history for the next flag ledger even when they are not proposing. Negative UNL voting itself is unchanged. This is not an amendment-gated change.
+
+The UNLReport also determines which validators contribute entropy to the consensus random number generator (see the [RNG amendment](/docs/features/amendments/#rng)). Contribution is automatic and needs no configuration.

@@ -1,0 +1,84 @@
+---
+title: server_definitions
+description: >-
+  Returns the protocol definitions known to the server, including fields,
+  types, transaction and ledger entry types, amendments and the Hook API.
+---
+The `server_definitions` method returns the protocol definitions that the server knows about: serialized types, fields, ledger entry types, transaction types, result codes, flags, amendments and, from 2026.10.13-release+4119, the Hook API. Client libraries and tooling use it to encode and decode Xahau binary data without hard-coding definitions.
+
+### Request Format
+
+```json
+{
+    "command": "server_definitions"
+}
+```
+
+The response includes a `hash` of the definitions. Clients that cache the definitions can compare the hash and refetch when it changes.
+
+### Response Fields
+
+| Field                       | JSON Type | Description                                                                                                                 |
+| --------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `TYPES`                     | Object    | Serialized type names mapped to their type codes.                                                                           |
+| `FIELDS`                    | Array     | Every field the server knows, with its type, code and serialization properties.                                             |
+| `LEDGER_ENTRY_TYPES`        | Object    | Ledger entry type names mapped to their type codes.                                                                         |
+| `TRANSACTION_TYPES`         | Object    | Transaction type names mapped to their type codes.                                                                          |
+| `TRANSACTION_RESULTS`       | Object    | Transaction result codes mapped to their numeric values.                                                                    |
+| `TRANSACTION_FLAGS`         | Object    | Transaction flags, by transaction type.                                                                                     |
+| `TRANSACTION_FLAGS_INDICES` | Object    | Flag indices for `AccountSet` (`asf*`) flags.                                                                               |
+| `features`                  | Object    | Amendment IDs mapped to their `name`, `supported`, `enabled` and `ledger_enabled` status (see [Features](#features)).       |
+| `HOOK`                      | Object    | The Hook API: functions, keylet types and return codes (see [Hook Definitions](#hook-definitions)). _(Introduced in 2026.10.13-release+4119.)_ |
+| `native_currency_code`      | String    | The native currency code (`XAH`).                                                                                           |
+| `hash`                      | String    | A hash of the definitions.                                                                                                  |
+
+### Features
+
+Each entry in `features` is keyed by amendment ID and contains:
+
+| Field            | JSON Type | Description                                                                                                                                                                              |
+| ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`           | String    | The amendment name.                                                                                                                                                                      |
+| `supported`      | Boolean   | Whether this server's build supports the amendment.                                                                                                                                      |
+| `ledger_enabled` | Boolean   | Whether the amendment is active **on the ledger**. _(Introduced in 2026.10.13-release+4119.)_                                                                                                 |
+| `enabled`        | Boolean   | Whether the amendment is active **on this server**. This includes amendments forced on by the `[features]` configuration section (used in standalone and test setups).                    |
+
+**Caution:** Clients that previously read `enabled` as "active on ledger" should switch to `ledger_enabled`. Config-forced amendments that the amendment table does not know about are also listed, by name where possible.
+
+### Hook Definitions
+
+_(Introduced in 2026.10.13-release+4119.)_
+
+The `HOOK` section lets tooling and SDKs discover the Hook API from the node:
+
+```json
+"HOOK": {
+    "API": {
+        "dice": {
+            "return": "int64_t",
+            "params": [ { "type": "uint32_t", "name": "sides" } ],
+            "amendment": "RNG"
+        },
+        "accept": {
+            "return": "int64_t",
+            "params": [
+                { "type": "uint32_t", "name": "read_ptr" },
+                { "type": "uint32_t", "name": "read_len" },
+                { "type": "int64_t", "name": "error_code" }
+            ]
+        }
+    },
+    "KEYLET_TYPES": { "HOOK": 1, "...": 0, "MANIFEST": 37 },
+    "RETURN_CODES": { "SUCCESS": 0, "OUT_OF_BOUNDS": -1, "...": 0, "TOO_LITTLE_ENTROPY": -46 }
+}
+```
+
+| Field          | JSON Type | Description                                                                                                                                                 |
+| -------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API`          | Object    | Every Hook API function this build knows, with its `return` type and named `params`. `amendment` is present only for functions gated by an amendment.       |
+| `KEYLET_TYPES` | Object    | The `util_keylet` keylet type names mapped to their values.                                                                                                 |
+| `RETURN_CODES` | Object    | The Hook API return codes mapped to their values.                                                                                                           |
+
+**Note:** `API` lists *all* functions this build knows, not only those currently enabled. To check whether a function is usable, compare its `amendment` against the `features` list.
+
+Because `HOOK` is part of the definitions, the definitions `hash` changed in this release. Clients that cache by hash will simply refetch.

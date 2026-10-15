@@ -1,0 +1,134 @@
+---
+title: Random
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/include/xrpl/protocol/detail/ledger_entries.macro)]
+
+_(Added by the [RNG amendment](/docs/features/amendments/#rng).)_
+
+The `Random` ledger object is a singleton that holds the consensus random seed for a ledger, together with the validators' outstanding commitments for future ledgers. It is written when the ledger is built, by applying the [Entropy pseudo-transactions](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy) that validators include in their consensus positions. Hooks draw random numbers derived from this seed with the `dice` and `util_random` Hook API functions.
+
+### Example JSON
+
+The `Random` object on the Release Candidate devnet at ledger 9224, where all 5 validators on the UNLReport contributed:
+
+```json
+{
+  "EntropyCount": 5,
+  "EntropyDenominator": 5,
+  "Flags": 0,
+  "LedgerEntryType": "Random",
+  "LedgerSequence": 9224,
+  "PreviousTxnID": "E4348BFE35489BAE5859C53ED33852C096A8AA85257AAD255CAC1BB1D4779339",
+  "PreviousTxnLgrSeq": 9224,
+  "RandomData": "82113FC5D6FFE61BD07775031DE166ECBA3D3FC0BA343892B666210CD31C508E",
+  "RandomDigests": [
+    {
+      "RandomDigestEntry": {
+        "LedgerSequence": 9224,
+        "NextRandomDigest": "624678B11E6565C3D4FD229039D5A8E0F592446794DEDA7EB32522B249207424",
+        "PublicKey": "ED21AFD3E309C9605BBAEADEC8D622117E6911A270F05E641CE1CC4E6D8616FCAE"
+      }
+    },
+    {
+      "RandomDigestEntry": {
+        "LedgerSequence": 9224,
+        "NextRandomDigest": "478A2C62384A97961E852D0401F8C3971FC8F5BBB667BEF50505633772675601",
+        "PublicKey": "ED54AF10761CF330D0B212A51FA29C094EB213651A74B8E1EF4D128C2CE6141CAF"
+      }
+    },
+    {
+      "RandomDigestEntry": {
+        "LedgerSequence": 9224,
+        "NextRandomDigest": "D5BE872C5DBA4E189E17E781F4E95C8DD786131877C61713749D3514E253982E",
+        "PublicKey": "EDA28D7F899E8CEBCE9A4DFE6815843BBE4C338649C03E9B7671F23356B41F41B3"
+      }
+    },
+    {
+      "RandomDigestEntry": {
+        "LedgerSequence": 9224,
+        "NextRandomDigest": "754C777405ACA07DAFD7D6EA855202E543D4F10F71DCBDF6AA04CF4BB4253094",
+        "PublicKey": "EDB92F505485DE1B273FB67D6FB1F101AA01BFA0C5F65D67496FE85E912ECB4487"
+      }
+    },
+    {
+      "RandomDigestEntry": {
+        "LedgerSequence": 9224,
+        "NextRandomDigest": "FA7999A7BF6B6D4F5EA52695039D94DDF3DD7D63CAD399F54EFD266B0674642B",
+        "PublicKey": "EDE2D7027ABF9ED6C781F32DD8301785A47D356DF15FE839B756E281899149DECE"
+      }
+    }
+  ],
+  "index": "125C53F238F6CA65C41A3287F760CCF04F2D0407A8FE016B59F460FE14F0C677"
+}
+```
+
+### Fields
+
+A `Random` object has the following fields:
+
+| Field                | JSON Type | \[Internal Type]\[] | Required? | Description                                                                                                                                                                                                  |
+| -------------------- | --------- | ------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `LedgerEntryType`    | String    | UInt16              | Yes       | The value `0x526E`, mapped to the string `Random`, indicates that this object is a Random object.                                                                                                             |
+| `LedgerSequence`     | Number    | UInt32              | Yes       | The \[ledger index]\[] that the seed in `RandomData` is for.                                                                                                                                                  |
+| `RandomData`         | String    | Hash256             | Yes       | The random seed for this ledger, produced by mixing the valid reveals of the contributing validators. This field is never written to ledger-object metadata.                                                  |
+| `EntropyCount`       | Number    | UInt16              | Yes       | How many validators contributed a valid reveal to this ledger's seed.                                                                                                                                         |
+| `EntropyDenominator` | Number    | UInt16              | Yes       | How many validators were eligible to contribute (the size of the UNLReport, when one exists).                                                                                                                 |
+| `RandomDigests`      | Array     | Array               | Yes       | An array of `RandomDigestEntry` objects: the outstanding commitments that validators will reveal in a later ledger. See [RandomDigestEntry Fields](#randomdigestentry-fields). This field is never written to metadata. |
+| `PreviousTxnID`      | String    | Hash256             | Yes       | The identifying hash of the transaction that most recently modified this object.                                                                                                                              |
+| `PreviousTxnLgrSeq`  | Number    | UInt32              | Yes       | The \[index of the ledger]\[Ledger Index] that contains the transaction that most recently modified this object.                                                                                              |
+
+### RandomDigestEntry Fields
+
+Each member of the `RandomDigests` array is a `RandomDigestEntry` inner object with the following fields:
+
+| Field              | JSON Type | \[Internal Type]\[] | Required? | Description                                                                                         |
+| ------------------ | --------- | ------------------- | --------- | --------------------------------------------------------------------------------------------------- |
+| `PublicKey`        | String    | Blob                | Yes       | The master public key of the validator that made the commitment.                                    |
+| `NextRandomDigest` | String    | Hash256             | Yes       | The validator's commitment (digest) to the secret it will reveal in a later `Entropy` transaction.  |
+| `LedgerSequence`   | Number    | UInt32              | Yes       | The \[ledger index]\[] in which the commitment was registered.                                       |
+
+### How the Seed Is Produced
+
+1. **Commit.** Each proposing validator on the UNLReport puts exactly one [Entropy pseudo-transaction](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy) into its own initial consensus position when it closes a ledger. The transaction never enters the open ledger, so its contents only become public once that validator's transaction set is locked. It contains a commitment (`NextRandomDigest`) to a new secret and the reveal (`RandomData`) of the secret it committed to last time.
+2. **Reveal and mix.** When the ledger is built, all `Entropy` transactions are applied before any other transaction. A reveal that matches the validator's stored commitment in `RandomDigests` is mixed into the seed and counted in `EntropyCount`. A missing, lost or mismatched reveal just re-registers a new commitment, which has the same effect as the validator withholding.
+3. **Expiry.** A commitment that is not refreshed within 8 ledgers is dropped from `RandomDigests`.
+
+Only validators on the UNLReport may contribute, when a UNLReport exists. Validators need no configuration: contribution is automatic once the RNG amendment is enabled.
+
+### Use by Hooks
+
+Hooks never read this object directly. The `dice` and `util_random` Hook API functions derive their output from the seed, mixing in the transaction ID, Hook account, Hook hash, chain position, strong/weak execution, callback flag and the WebAssembly parameter, so two executions never receive the same output.
+
+* A draw only succeeds if at least **80%** of the UNLReport contributed to this ledger's seed (`EntropyCount` / `EntropyDenominator`). If there is no UNLReport (new networks, standalone mode), at least one validator must have contributed. Otherwise the draw fails with `TOO_LITTLE_ENTROPY` (-46).
+* The `Random` object is invisible to Hooks: `slot_set` and `ledger_keylet` refuse it with `DOESNT_EXIST`, and it is excluded from provisional metadata.
+* The validated metadata of any transaction whose Hooks drew random numbers contains a `RandomData` field holding the RNG state that the transaction's first draw saw. This includes transactions that fail with `tecHOOK_REJECTED`; failed draws (for example `dice(0)`) do not add it. Every value its Hooks received is derived from it, so results can be audited.
+* While a transaction is applied to the open ledger, draws may use the previous ledger's seed. The authoritative result is decided when the ledger closes, so a Hook's outcome in the open ledger may differ from its validated outcome.
+
+### Random ID Format
+
+The `Random` object ID is the \[SHA-512Half]\[] of the `Random` space key (`0x526E`) only. This means that the ID of the `Random` object in a ledger is always:
+
+```
+125C53F238F6CA65C41A3287F760CCF04F2D0407A8FE016B59F460FE14F0C677
+```
+
+### Retrieving the Object
+
+Use the `ledger_entry` method with the `random` selector:
+
+```json
+{
+  "command": "ledger_entry",
+  "random": true,
+  "ledger_index": "validated"
+}
+```
+
+`random` also accepts the object ID as a string. Any other value returns `malformedRequest`.
+
+**Note:** The pre-existing `random` RPC method, which returns a local random number from the node, is unrelated to this object.
+
+### Related Documentation
+
+* [Entropy pseudo-transaction](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy): How validators commit and reveal entropy
+* [RNG amendment](/docs/features/amendments/#rng)

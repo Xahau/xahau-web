@@ -1,0 +1,126 @@
+---
+title: SetManifest
+description: >-
+  A SetManifest transaction publishes a validator manifest on ledger, creating
+  or replacing its Manifest ledger objects.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/SetManifest.cpp)]
+
+_(Added by the [OnChainManifests amendment](/docs/features/amendments/#onchainmanifests).)_
+
+A `SetManifest` transaction publishes a validator manifest on ledger. The manifest is stored in [Manifest ledger objects](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest), so every node can learn the validator's current signing key, key rotations and revocations directly from ledger state.
+
+This transaction is unusual: it carries **no account signature**. Its authority comes entirely from the manifest's own master and ephemeral signatures. In practice you should not build it by hand: submit the raw manifest with the `submit` method's `manifest` parameter and let the node build the canonical transaction (see [Submitting a Manifest](#submitting-a-manifest)).
+
+### Example
+
+A `SetManifest` transaction on the Release Candidate devnet (network ID `21339`, reference fee 10 drops). The manifest is 227 bytes, so the canonical fee is `10 × (100 + 10 × 227)` = `23700` drops:
+
+```json
+{
+  "Account": "rDUFb7vderpzRwMBosyUd23yxWtapQ9tPe",
+  "Fee": "23700",
+  "Manifest": {
+    "Domain": "6578616D706C652E636F6D",
+    "MasterSignature": "B20EA21A3527588DDB12C0193AAA5B9C9162EE5F20D758A563DA73A95724A54319AA6D562DC59AF1DF658330DB33BC0F1CB990F75B448210A2577B15B8B60E08",
+    "PublicKey": "ED672613F42B09D4514C43564EF2A71A54780B85BB4502BDFE6C6ABDD518B85227",
+    "Sequence": 1,
+    "Signature": "3044022012E023B1357C35F09DE64F1C4D8611E72DB953F634245F68AC78335C96108062022008EBB44302A5775DF4210A96C29E721F4E07E55BD826EAD9EFD28A4E4CF0FE20",
+    "SigningPubKey": "038A5260B00DEFC7F7007536DF3810DCB7FBF93728B3D99456331D96CC43005B08"
+  },
+  "NetworkID": 21339,
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "TransactionType": "SetManifest",
+  "TxnSignature": "",
+  "hash": "DDA623F458441F2C3C1518913FCA212F9B1937F2722BCF758C86C12AC438832C"
+}
+```
+
+It was submitted with `{"command": "submit", "manifest": "<manifest as hex>"}`. Its metadata created both `Manifest` objects and the manifest directory, and modified the master key's AccountRoot (setting `ManifestID` and deducting the fee).
+
+### Fields
+
+| Field      | JSON Type | \[Internal Type]\[] | Description                                                                                                                                        |
+| ---------- | --------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Manifest` | Object    | STObject            | The validator manifest: `PublicKey` (master key), `SigningPubKey` (ephemeral key), `Sequence`, `MasterSignature`, `Signature`, and optionally `Version` and `Domain`. |
+
+### Canonical Envelope
+
+Only one exact transaction is valid for each manifest. Any other variant is rejected with `temMALFORMED`, which prevents relayers from minting many transaction IDs for the same manifest:
+
+| Field           | Value                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| `Account`       | The address derived from the manifest's master public key.                                             |
+| `Sequence`      | Always `0`.                                                                                            |
+| `Fee`           | The canonical fee (see [Special Transaction Cost](#special-transaction-cost)).                         |
+| `SigningPubKey` | `""` (empty string).                                                                                   |
+| `TxnSignature`  | `""` (empty string).                                                                                   |
+| `NetworkID`     | Included only on networks with a network ID above 1024 (for example, `21337` on Xahau Mainnet).        |
+
+The account derived from the master public key must exist and be funded, because it pays the fee. Otherwise the transaction fails with `terNO_ACCOUNT`.
+
+### Special Transaction Cost
+
+The canonical fee, in drops, is:
+
+```
+reference_fee × (100 + 10 × manifest_size_in_bytes)
+```
+
+where `reference_fee` is the network's voted base fee. A transaction carrying any other fee is refused locally with `telMANIFEST_FEE_MISMATCH`.
+
+`SetManifest` transactions bypass the transaction queue and are exempt from fee escalation.
+
+### Submitting a Manifest
+
+The `submit` method accepts a `manifest` parameter as an alternative to `tx_blob`. The node builds the canonical `SetManifest` envelope and fee, then processes it as a normal submission:
+
+```json
+{
+  "command": "submit",
+  "manifest": "<manifest as hex>"
+}
+```
+
+* Exactly one of `tx_blob` or `manifest` must be given (`invalidParams` otherwise).
+* If the manifest is malformed or its signatures do not verify, the response is the `invalidManifest` error.
+* A manifest that is not hex (for example, base64) returns `invalidParams`.
+* Before the OnChainManifests amendment is enabled, the response is a `notEnabled` error.
+
+**Note:** Manifests are commonly distributed in base64 (for example, inside a validator token). The `submit` method expects **hex**.
+
+### Submitting a Prebuilt Transaction
+
+You can also submit a `SetManifest` transaction you built yourself as a `tx_blob`. The server checks the envelope before applying it, and a non-canonical envelope is refused with the `invalidTransaction` error:
+
+| Problem | `error_exception` |
+| ------- | ----------------- |
+| `Fee` differs from the canonical fee | `fails local checks: Fee is not the canonical SetManifest fee for this server's open ledger` |
+| `Sequence` not `0`, `NetworkID` missing, `Account` not derived from the master key, or other non-canonical fields | `fails local checks: Manifest-authorized envelope is not canonical` |
+
+### Effects
+
+* Creates or replaces two [Manifest](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest) objects: one at the master key's ID (listed in the manifest directory) and one at the ephemeral signing key's ID (not present after a revocation).
+* Sets the `ManifestID` field on the [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) of the account derived from the master key. That account can no longer be deleted.
+* Does not change the account's `OwnerCount`: published manifests take no owner reserve.
+* A rotation (higher `Sequence`, new ephemeral key) replaces the master-key copy and moves the ephemeral copy to the new key. A revocation (`Sequence` 4294967295, no signing key) leaves only the master-key copy, and any later manifest for that key fails with `tefREVOKED_MANIFEST`.
+
+An on-ledger manifest goes through exactly the same checks as a gossiped one: signatures, staleness, revocation and key-reuse rules. All ledger-state refusals are `tef` codes, so a replayed or stale manifest is never included in a ledger and never charges a fee.
+
+### Error Cases
+
+| Error Code                 | Description                                                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `temDISABLED`              | The OnChainManifests amendment is not enabled.                                                                                 |
+| `temMALFORMED`             | Not a canonical envelope, invalid signatures, or the master key does not match `Account`.                                      |
+| `terNO_ACCOUNT`            | The account derived from the master key does not exist.                                                                        |
+| `tefPAST_MANIFEST_SEQ`     | The manifest's sequence is not newer than the one already on ledger.                                                          |
+| `tefREVOKED_MANIFEST`      | The master key has already been revoked on ledger.                                                                             |
+| `tefMANIFEST_KEY_IN_USE`   | A key named by the manifest is already used by another manifest, or the ephemeral key was not changed.                         |
+| `telMANIFEST_FEE_MISMATCH` | The fee is not (or cannot yet be confirmed as) canonical for this node's view of the reference fee. This is local and not final. |
+
+### Related Documentation
+
+* [Manifest ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest)
+* [OnChainManifests amendment](/docs/features/amendments/#onchainmanifests)

@@ -1,0 +1,71 @@
+---
+title: Entropy
+description: >-
+  The Entropy pseudo-transaction carries a validator's commitment and reveal
+  for the consensus random number generator.
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/include/xrpl/protocol/detail/transactions.macro)]
+
+_(Added by the [RNG amendment](/docs/features/amendments/#rng).)_
+
+An `Entropy` pseudo-transaction carries one validator's contribution to the consensus random seed stored in the [Random ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/random). It is never submitted by users.
+
+Each proposing validator on the UNLReport puts exactly one `Entropy` pseudo-transaction into its **own initial consensus position** when it closes a ledger. The transaction never enters the open ledger, so its contents only become public after that validator's transaction set is locked. This commit-reveal scheme means no single validator (or Hook) can predict or steer the result.
+
+### Example
+
+An `Entropy` pseudo-transaction from the Release Candidate devnet:
+
+```json
+{
+  "TransactionType": "Entropy",
+  "Account": "",
+  "Fee": "0",
+  "Sequence": 0,
+  "SigningPubKey": "",
+  "LedgerSequence": 9224,
+  "PublicKey": "EDB92F505485DE1B273FB67D6FB1F101AA01BFA0C5F65D67496FE85E912ECB4487",
+  "NextRandomDigest": "754C777405ACA07DAFD7D6EA855202E543D4F10F71DCBDF6AA04CF4BB4253094",
+  "RandomData": "5565EE66052941AD7048A8FF8B81ACFA9D8ACC28CC9F3AF3266C72DA9D73B4A9",
+  "hash": "E4348BFE35489BAE5859C53ED33852C096A8AA85257AAD255CAC1BB1D4779339"
+}
+```
+
+### Fields
+
+| Field              | JSON Type | \[Internal Type]\[] | Description                                                                                                                                                         |
+| ------------------ | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LedgerSequence`   | Number    | UInt32              | The \[ledger index]\[] where this pseudo-transaction appears.                                                                                                       |
+| `PublicKey`        | String    | Blob                | The master public key of the validator contributing the entropy (as listed in the [UNLReport](/docs/protocol-reference/ledger-data/ledger-objects-types/unl-report)). |
+| `NextRandomDigest` | String    | Hash256             | The validator's commitment to a new secret, which it will reveal in a later ledger.                                                                                 |
+| `RandomData`       | String    | Hash256             | _(Optional)_ The reveal of the secret the validator committed to previously. Omitted if the ledger no longer holds that validator's previous commitment.            |
+
+### Common Fields
+
+`Entropy` uses the following values for the common fields:
+
+| Field           | Value                                                                  |
+| --------------- | ---------------------------------------------------------------------- |
+| `Account`       | `""` (empty, `ACCOUNT_ZERO`)                                           |
+| `Fee`           | `0`                                                                    |
+| `Sequence`      | `0`                                                                    |
+| `SigningPubKey` | `""` (empty string)                                                    |
+| `TxnSignature`  | Omitted.                                                               |
+
+### Processing
+
+When the ledger is built, all `Entropy` pseudo-transactions are applied **before any other transaction**:
+
+* Its metadata modifies only the [Random object](/docs/protocol-reference/ledger-data/ledger-objects-types/random) (for example, incrementing `EntropyCount`). `RandomData` and `RandomDigests` never appear in that metadata.
+* A `RandomData` reveal that matches the validator's stored commitment is mixed into the ledger's seed and counted in the `EntropyCount` field of the [Random object](/docs/protocol-reference/ledger-data/ledger-objects-types/random).
+* A missing, lost or mismatched reveal just re-registers the new commitment (`NextRandomDigest`). This has the same effect as the validator withholding.
+* A commitment that is not refreshed within 8 ledgers is dropped.
+
+Only validators on the UNLReport may contribute, when a UNLReport exists. Validators need no configuration: contribution is automatic once the RNG amendment is enabled.
+
+Hooks cannot inspect `Entropy` transactions: `slot_set` refuses them. The transaction type code is `89` (`ttENTROPY` in the Hook headers).
+
+### Related Documentation
+
+* [Random ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/random)
+* [RNG amendment](/docs/features/amendments/#rng)
