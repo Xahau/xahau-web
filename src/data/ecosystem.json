@@ -104,6 +104,12 @@
           "url": "https://www.ledger.com/",
           "logo": null,
           "desc": "Industry-leading hardware security wallet"
+        },
+        {
+          "name": "Xyra",
+          "url": "https://www.xyra.now/",
+          "logo": null,
+          "desc": "Web wallet for XRPL and Xahau, no installation required"
         }
       ]
     },
@@ -167,9 +173,10 @@
           "desc": "Explorer with account and NFT tools"
         },
         {
-          "name": "XRPLWin",
-          "url": "https://xahau.xrplwin.com/",
-          "logo": "xrplwin",
+          "name": "XahauWin",
+          "url": "https://xahauwin.com/",
+          "logo": "xahauwin",
+          "logo_bg": "#000000",
           "desc": "Multi-network explorer with Xahau support"
         },
         {
@@ -303,6 +310,36 @@
           "url": "https://github.com/Handy4ndy/HandyHooks",
           "logo": null,
           "desc": "Ready-to-use Hook templates and tools"
+        },
+        {
+          "name": "One Xahau",
+          "url": "https://onexah.io/",
+          "logo": null,
+          "desc": "Ecosystem hub for DeFi culture on Xahau"
+        },
+        {
+          "name": "Xahau Vault",
+          "url": "https://xahauvault.com/",
+          "logo": null,
+          "desc": "NFT marketplace powered by Hook contracts"
+        },
+        {
+          "name": "XahauCards",
+          "url": "https://xahaucards.com/",
+          "logo": null,
+          "desc": "Collectible card packs minted as URITokens"
+        },
+        {
+          "name": "Xahmoeba",
+          "url": "https://xahmoeba.com/",
+          "logo": null,
+          "desc": "Digital species grown from on-chain genomes"
+        },
+        {
+          "name": "XahauTipBot",
+          "url": "https://x.com/XahauTipbot",
+          "logo": null,
+          "desc": "Send tips directly on X"
         }
       ]
     }
