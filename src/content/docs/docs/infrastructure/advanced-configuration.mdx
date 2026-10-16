@@ -6,19 +6,120 @@ There are numerous configuration options available to xahaud operators. This sec
 For complete documentation on configuration options, please see the example configuration files in the [xahaud GitHub repository](https://github.com/Xahau/xahaud/tree/dev/cfg).
 
 ## Running Databases in Memory
-Users seeking to maximize xahaud performance may choose to run databases in memory, rather than on dedicated storage media. Memory databases are not suited for machines storing history, as the databases are not persistent across xahaud restarts. Likewise, the amount of history stored is contingent on available system memory. Thus, `online_delete` and `advisory_delete` are required in the `xahaud.cfg` to prevent out of memory errors. When using a memory database, it is advisable to disable SWAP, as SWAP writes the contents of memory to disk, thereby potentially defeating the benefits obtained by storing the database in memory.
+Users seeking to maximize xahaud performance may choose to run databases in memory, rather than on dedicated storage media. Memory databases are not suited for machines storing history, as the databases are not persistent across xahaud restarts. Likewise, the amount of history stored is contingent on available system memory. When using a memory database, it is advisable to disable SWAP, as SWAP writes the contents of memory to disk, thereby potentially defeating the benefits obtained by storing the database in memory.
 
 To enable the memory database, edit the `xahaud.cfg` file:
 
 ```
+[ledger_history]
+256
+
 [relational_db]
-type=RWDB
+backend=rwdb
 
 [node_db]
-type=RWDB # RWDB is the memory database
+type=rwdb # RWDB is the memory database
 online_delete=256 # This value should be low on machines using memory databases. '256' is the minimum value.
 advisory_delete=0 # Do not require human intervention to delete history. This is necessary for preventing out of memory errors.
 ```
+
+Starting with 2026.10.13-release+4119, `rwdb` is a pure in-memory, "tree-only" node store. Ledger trees are kept alive only through the node's retained ledger window; there is no rotation, copying or object cache. The configuration rules changed as follows:
+
+| Rule | Before | Now |
+| ---- | ------ | --- |
+| `online_delete` | Required on networked nodes (startup error if absent or `0`). | No longer required. If absent, it defaults to `ledger_history`, raised to the minimum deletion interval if needed. An explicit `online_delete=0` disables cleanup. |
+| `[ledger_history]` | Any value. | Must be a finite number greater than `0`. `0` and `full` are startup errors with `rwdb`, because memory would either keep nothing or grow without bound. |
+| `pinned_type` (used for [catalogues and pinned history](/docs/infrastructure/catalogues-and-pinned-history)) | Accepted. | A startup error with `rwdb`, because pinned data would be silently dropped. |
+
+The example configuration above continues to work.
+
+## UDP Superhighway (`[udp_highway]`)
+
+_(Experimental. Introduced in 2026.10.13-release+4119.)_
+
+The Xahau UDP Superhighway (XUSH) is a best-effort UDP transport for transactions that runs **alongside** the peer protocol and never replaces it. It is disabled by default.
+
+```
+[udp_highway]
+1
+```
+
+| Value | Meaning |
+| ----- | ------- |
+| `0` | Disabled (default). |
+| `1` | Enabled. |
+
+When enabled, the node:
+
+* listens for UDP datagrams on its **peer port number** (TCP and UDP port numbers are independent, so no socket is shared);
+* also sends every transaction it relays to its peers over UDP, to up to **16** randomly chosen highway-enabled nodes;
+* learns highway endpoints from other nodes, and advertises up to 50 known endpoints to 4 nodes per second.
+
+Anything sent over the highway is also relayed normally.
+
+**Operator requirements:** inbound **UDP** must be allowed to the peer port, in addition to inbound TCP.
+
+**Private nodes:** a node that keeps its address private (`peer_private = 1`, or any node configured as a validator) only exchanges highway traffic with the peers in `[ips_fixed]` (and is idle if there are none), and never advertises highway endpoints. Fixed peers are never advertised to other servers.
+
+**Limits and safety:**
+
+* Datagrams are at most 1232 bytes. Larger transactions are fragmented, up to 2 MB per transaction.
+* Partial transactions time out after 30 seconds, and reassembly buffers are bounded.
+* Datagrams are unauthenticated, so they are charged against the sender's IP in the resource manager, exactly like an inbound peer connection. Misbehaving senders are ignored.
+* Every transaction received gets the full signature and validity checks. Pseudo-transactions and emitted transactions are never accepted or relayed over the highway.
+* Nothing is processed until the node has been in sync at least once.
+* If the send socket would block, the remaining datagrams are dropped. The peer protocol still delivers them.
+
+## Early Manifest Sync (`[early_manifest_sync]`)
+
+_(Introduced in 2026.10.13-release+4119.)_
+
+Controls whether a syncing node fetches [on-ledger validator manifests](/docs/protocol-reference/ledger-data/ledger-objects-types/manifest) before the rest of the ledger state, which resolves validators' current keys within seconds.
+
+```
+[early_manifest_sync]
+1
+```
+
+| Value | Meaning |
+| ----- | ------- |
+| `1` | (Default.) While acquiring its first ledger, fetch and read on-ledger validator manifests ahead of the rest of the state. If needed, also read them from peers' reported ledgers. |
+| `0` | Fetch state in the usual order, and read manifests once the ledger is complete. |
+
+* The manifests read are those for the master keys on the node's own validator lists (fetched by key), plus as many more from the on-ledger manifest directory as the manifest cache keeps.
+* The cost is about a dozen request/response rounds with peers. With more than one peer these overlap with the state fetch; with only one peer they come first.
+* **Bootstrap aid:** a node that starts with nothing but its validators' master keys and a few peers can find its way. Until it has validated a ledger, and while it holds manifests for too few validators to form a quorum, it reads them every 15 seconds from up to three ledgers its peers report (the most widely reported first).
+* **Safety:** every manifest read is checked against its master key's signature. A ledger reported by a peer that is not on the network can leave manifests out, but cannot add any.
+* On a ledger without on-ledger manifests the cost is negligible.
+
+## Hook Validation RPC (`[hook_validate_rpc]`)
+
+_(Introduced in 2026.10.13-release+4119.)_
+
+Controls the [hook_validate](/docs/features/http-websocket-apis/hook-validate) RPC method.
+
+```
+[hook_validate_rpc]
+1
+```
+
+| Value | Meaning |
+| ----- | ------- |
+| `0` | `hook_validate` is disabled and returns `notSupported`. This is the default on networked nodes. |
+| `1` | `hook_validate` is enabled for user-role clients. This is the default in standalone mode (`-a`). |
+
+Running the guard checker and VM validation is CPU-intensive. Consider the cost before enabling it on a public-facing node.
+
+## Serving PWA Apps (`pwa` ports)
+
+Ports with `protocol = pwa`, and the `[pwa_allowlist]` and `[pwa_blocklist]` sections, are covered in [Serving PWA Apps](/docs/infrastructure/serving-pwa-apps).
+
+## Example Configuration Defaults
+
+The comments in `xahaud-example.cfg` were corrected to match the code (no behaviour changed):
+
+* `[transaction_queue] target_txn_in_ledger` defaults to **1000** (previously documented as 50).
+* `[max_transactions]` defaults to **1000** (previously documented as 250).
 
 ## Clustering
 Clustering allows xahaud operators to configure multiple xahaud servers so that the servers trust one another, thereby reducing workload. Properly clustered servers can share information about malicious or problematic websocket, rpc, and peer connections, while also automatically propagating submitted transactions throughout the cluster. Thus, if a transaction is submitted on a sever with a higher load than the transaction's fee allows for, the transaction will still propagate to other servers in the cluster, thereby increasing the probability that the transaction is included in an upcoming ledger.

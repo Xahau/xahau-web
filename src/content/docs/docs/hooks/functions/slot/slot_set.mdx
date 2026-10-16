@@ -103,3 +103,6 @@ const slot_no = slot_set(keylet, 0)
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* With the [RNG amendment](/docs/features/amendments/#rng), `slot_set` refuses the [Random](/docs/protocol-reference/ledger-data/ledger-objects-types/random) ledger object (returning `DOESNT_EXIST`) and [Entropy](/docs/protocol-reference/transactions/pseudo-transaction-types/entropy) pseudo-transactions.

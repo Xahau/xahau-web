@@ -40,3 +40,22 @@ Any account may submit an EscrowCancel transaction.
 
 * If the corresponding \[EscrowCreate transaction]\[] did not specify a `CancelAfter` time, the EscrowCancel transaction fails.
 * Otherwise the EscrowCancel transaction fails if the `CancelAfter` time is after the close time of the most recently-closed ledger.
+
+#### Cancellation by the Destination
+
+_(Added by the [EscrowDestinationCancel amendment](/docs/features/amendments/#escrowdestinationcancel).)_
+
+The **destination** of an escrow may cancel it at any time, returning the funds to the owner. This applies regardless of `CancelAfter`, and also to escrows that have no `CancelAfter`.
+
+```json
+{
+    "TransactionType": "EscrowCancel",
+    "Account": "rDestination...",
+    "Owner": "rEscrowOwner...",
+    "OfferSequence": 7
+}
+```
+
+* **Self-escrows are excluded.** If the owner and the destination are the same account, the normal `CancelAfter` rules still apply, so a timelock on your own funds stays binding.
+* Cancellations submitted by any account other than the destination follow the rules above, and fail with `tecNO_PERMISSION` before `CancelAfter` (or always, if there is no `CancelAfter`).
+* **Hooks.** When the destination cancels, the escrow owner is only a _weak_ transactional stakeholder, so the owner's Hooks cannot roll back the cancellation. In all other cases the owner remains a strong transactional stakeholder. See [Weak and Strong](/docs/hooks/concepts/weak-and-strong).

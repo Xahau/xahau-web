@@ -1,0 +1,183 @@
+---
+title: Serving PWA Apps
+description: >-
+  Configure xahaud pwa ports to serve on-ledger AppLoader documents over HTTP
+  behind a reverse proxy.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+_(Introduced in 2026.10.13-release+4119.)_
+
+With the [PWALoader amendment](/docs/features/amendments/#pwaloader), any account can publish a small HTML bootstrap page for a Progressive Web App on ledger, stored in an [AppLoader ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader). A node operator can opt in to serving these documents over HTTP by configuring a `pwa` port. Serving is a node feature: it is configured locally and is **not** amendment-gated.
+
+<Aside type="caution" title="You become a web host for third-party content">
+Enabling a `pwa` port makes your node a web host for content published by others. Anyone can publish a loader for about one drop per byte, and nothing in the protocol takes one down. Hosting, and any obligations that apply to a hosting provider, are **your** responsibility as the operator. Use the [allow and block lists](#allow-and-block-lists) to control what you serve.
+</Aside>
+
+## URL Scheme
+
+Each account gets its own host on a DNS zone that is used for nothing else:
+
+| URL | Behaviour |
+| --- | --------- |
+| `https://pwa<AccountIndex>.<domain>/<r-address>` | Serves the document. |
+| `https://<domain>/<r-address>` | Returns `301` to the URL above. The bare zone never serves a document, because every page would then share one origin. |
+| `https://<custom host>/` | Serves the document if `custom_domains = 1` (see [Custom Domains](#custom-domains)). |
+
+* `<AccountIndex>` is the account's `AccountIndex` (see [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot)) written in **decimal**. `AccountIndex` is a UInt64, so JSON shows it in hexadecimal: an account with `"AccountIndex": "10"` is served at `pwa16.<domain>`. Accounts created before `AccountIndex` existed have no host.
+* The path must be that account's exact r-address. One trailing slash and a query string are ignored; anything else is `404`.
+* Never set cookies at or above the zone, and never serve your own site from it. A wildcard DNS record and a wildcard certificate cover the zone.
+
+## Port Configuration
+
+```
+[server]
+port_rpc_admin_local
+port_peer
+port_pwa
+
+[port_pwa]
+port = 8088
+ip = 127.0.0.1
+protocol = pwa
+secure_gateway = 127.0.0.1
+domain = pwapp.example
+# optional:
+# custom_domains = 1
+# resolver = 127.0.0.1:53
+```
+
+| Key | Required | Meaning |
+| --- | -------- | ------- |
+| `protocol = pwa` | Yes | Must be the port's **only** protocol. |
+| `domain` | Yes | The zone or zones, comma-separated. Must be valid DNS names. They are normalised to lower case with no trailing dot. |
+| `secure_gateway` | Yes | The reverse proxy address. It may not cover every address. Every request must come from it and carry `X-Forwarded-For`; the **rightmost** entry is taken as the client. The `Forwarded` header is ignored. |
+| `custom_domains` | No | `0` (default) or `1`. See [Custom Domains](#custom-domains). |
+| `resolver` | No | An IPv4 `address[:port]` (default port 53) used for custom-domain TXT lookups. Defaults to the system resolver. xahaud does not validate DNSSEC, so a validating resolver on the same host is recommended. |
+| `admin`, `user`/`password`, `ssl_*` | Forbidden | TLS must be terminated at the proxy. |
+
+The server refuses to start if:
+
+* `pwa` is combined with any other protocol;
+* `admin`, `user`, `password` or `ssl_*` is set on a `pwa` port;
+* `domain` or `secure_gateway` is missing;
+* `secure_gateway` covers every address;
+* `domain` or `resolver` is invalid;
+* `custom_domains` is not `0` or `1`;
+* an account appears on both the allowlist and the blocklist.
+
+## Reverse Proxy
+
+A reverse proxy in front of the port terminates TLS and must forward the `Host` header unchanged. Example with nginx:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name pwapp.example ~^pwa[0-9]+\.pwapp\.example$;
+    ssl_certificate     /etc/ssl/wildcard.pwapp.example.pem;
+    ssl_certificate_key /etc/ssl/wildcard.pwapp.example.key;
+    location / {
+        proxy_pass http://127.0.0.1:8088;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+    }
+}
+```
+
+Lookups run on at most two job-queue threads, below client RPC priority, and beyond a bounded backlog they are refused with `503`. Put a cache in front of the port.
+
+## Allow and Block Lists
+
+These sections are global, apply to every `pwa` port, and take one r-address per line:
+
+```
+[pwa_allowlist]
+rAllowedAccount1...
+
+[pwa_blocklist]
+rBlockedAccount1...
+```
+
+* If the allowlist is non-empty, only accounts on it are served.
+* Blocklisted accounts are never served (`403`), regardless of the allowlist.
+* An account on both lists is a startup error.
+
+## Custom Domains
+
+With `custom_domains = 1`, a domain owner can point their own name at your proxy:
+
+```
+app.example.org.             CNAME  pwa-proxy.your.example.
+_xahau-pwa.app.example.org.  TXT    "rAbC..."
+```
+
+* The TXT record lives on the `_xahau-pwa` label beneath the host.
+* Exactly one address must be present there. Other TXT strings are ignored, and two addresses count as none.
+* **Consent:** the named account's `Domain` field must equal the host or a parent of it (case-insensitive). Otherwise the response is `503`.
+* Only the root path serves the document.
+* Caching: no usable record → `404`, cached 15 minutes. Resolver failure → `503`, cached 60 seconds. A valid record is cached for its TTL, clamped to 60–3600 seconds.
+* On a cache miss the response is `429` with `Retry-After` and a refreshing page, rather than waiting. Lookups run at most four at a time and one per host.
+* The proxy must accept, and hold certificates for, the hosts being served (for example, Caddy on-demand TLS).
+
+## Request Handling
+
+* Only `GET` and `HEAD` are accepted (other methods → `405`). Every response closes the connection.
+* Only validated ledger state is served.
+* Clients are metered per IPv4 address or per IPv6 /64. A miss costs the same as a hit, and over-use returns `503` until it decays.
+
+Headers on a served document:
+
+```
+Content-Type: text/html; charset=utf-8
+Content-Security-Policy: sandbox allow-scripts allow-forms allow-popups
+X-Frame-Options: DENY
+Cross-Origin-Resource-Policy: same-origin
+Cross-Origin-Opener-Policy: same-origin
+Cache-Control: no-cache
+ETag: "<PreviousTxnID of the AppLoader object>"
+X-NetworkID: <network id>
+X-LedgerSeq: <validated ledger seq>
+X-LedgerHash: <validated ledger hash>
+X-PWASeq: <AppLoaderSequence>
+```
+
+`If-None-Match` with the ETag (or `*`) returns `304`. Some proxies and CDNs strip the `ETag` header from responses; conditional requests with the `PreviousTxnID` still work.
+
+<Aside type="caution" title="Keep admin ports behind credentials">
+The sandboxed Content-Security-Policy gives the document an opaque origin. It cannot read anything from the node, but it can still send requests anywhere, including to the visitor's own machine. Keep admin ports behind credentials.
+</Aside>
+
+## Status Codes
+
+These are also the outcome names reported by the [pwa_info](/docs/features/http-websocket-apis/pwa-info) admin method.
+
+| Outcome | HTTP | Meaning |
+| ------- | ---- | ------- |
+| `served` | 200 | Document returned. |
+| `not_modified` | 304 | ETag matched. |
+| `redirected` | 301 | Bare-zone request redirected to the per-account host. |
+| `not_found` | 404 | No such loader. |
+| `bad_target` | 404 | Host and path do not name a document. |
+| `unknown_domain` | 404 | No usable `_xahau-pwa` record. |
+| `bad_host` | 400 | Invalid `Host` header. |
+| `no_forwarded_for` | 400 | Missing `X-Forwarded-For`. |
+| `direct_connection` | 403 | Not from a `secure_gateway` address. |
+| `blocked` | 403 | Allowlist or blocklist. |
+| `upgrade_refused` | 403 | WebSocket or other upgrade attempted. |
+| `bad_method` | 405 | Not `GET` or `HEAD`. |
+| `dns_pending` | 429 | Custom-domain lookup in flight. Retry. |
+| `domain_mismatch` | 503 | The account's `Domain` does not endorse the host. |
+| `dns_failed` | 503 | Resolver failure. |
+| `throttled` | 503 | Resource manager limit. |
+| `busy` | 503 | Too many requests in flight. |
+| `unavailable` | 503 | Internal lookup failure. |
+
+## Verifying Served Documents
+
+Clients (for example, browser extensions) can confirm that a served document is the account's current one, as of the validated ledger, by calling [pwa_validate](/docs/features/http-websocket-apis/pwa-validate) on a second node.
+
+## Related
+
+* [AppLoader ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader)
+* [AccountSet transaction](/docs/protocol-reference/transactions/transaction-types/accountset#apploader)
+* [pwa_info](/docs/features/http-websocket-apis/pwa-info) and [pwa_validate](/docs/features/http-websocket-apis/pwa-validate)

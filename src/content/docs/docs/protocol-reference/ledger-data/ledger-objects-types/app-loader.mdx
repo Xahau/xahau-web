@@ -1,0 +1,109 @@
+---
+title: AppLoader
+---
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/include/xrpl/protocol/detail/ledger_entries.macro)]
+
+_(Added by the [PWALoader amendment](/docs/features/amendments/#pwaloader).)_
+
+An `AppLoader` ledger object stores a small HTML document published by an account: the bootstrap page ("AppLoader") of a Progressive Web App. Each account can have at most one `AppLoader` object. It is created, overwritten and removed with the `AppLoader` field of an [AccountSet transaction](/docs/protocol-reference/transactions/transaction-types/accountset). Nodes that opt in can serve the document over HTTP through a `pwa` port.
+
+### Example JSON
+
+An `AppLoader` object on the Release Candidate devnet. The `AppLoader` value is truncated here; the full document is 1504 bytes.
+
+```json
+{
+  "AppLoader": "3C21646F63747970652068746D6C3E3C68746D6C3E3C686561643E3C7469...",
+  "AppLoaderSequence": 1,
+  "Flags": 0,
+  "LedgerEntryType": "AppLoader",
+  "Owner": "rMVD3KAZpQGgixTcXKGnfk1kswsxeCvqs2",
+  "PreviousTxnID": "AEDC3F94748D9F35BC7DACF3D7E1851B0BB8CEFA095C1065A9B6223CFCDFD924",
+  "PreviousTxnLgrSeq": 2983,
+  "index": "A8278289BAD8C56E7264CF4A95BB73A8BFF650AF9D5D15DA5F32C9F7DF27A098"
+}
+```
+
+### Fields
+
+An `AppLoader` object has the following fields:
+
+| Field               | JSON Type | \[Internal Type]\[] | Required? | Description                                                                                                                                                         |
+| ------------------- | --------- | ------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LedgerEntryType`   | String    | UInt16              | Yes       | The value `0x004C`, mapped to the string `AppLoader`, indicates that this object is an AppLoader object.                                                            |
+| `Owner`             | String    | AccountID           | Yes       | The account that published the document.                                                                                                                            |
+| `AppLoader`         | String    | Blob                | Yes       | The HTML document, as hexadecimal. At most 4096 bytes. See [Document Validation](#document-validation).                                                              |
+| `AppLoaderSequence` | Number    | UInt32              | Yes       | The value of the owner's `AppLoaderSequence` (on its [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot)) when this document was written. |
+| `PreviousTxnID`     | String    | Hash256             | Yes       | The identifying hash of the transaction that most recently modified this object. Nodes serving the document use it as the HTTP `ETag`.                              |
+| `PreviousTxnLgrSeq` | Number    | UInt32              | Yes       | The \[index of the ledger]\[Ledger Index] that contains the transaction that most recently modified this object.                                                    |
+
+### Publishing, Updating and Removing
+
+* **Publish or overwrite:** send an `AccountSet` transaction with a non-empty `AppLoader` field containing the hex-encoded document.
+* **Remove:** send an `AccountSet` transaction with an empty `AppLoader` field (`""`), the same way `Domain` and `MessageKey` are cleared.
+* **Sequence:** every `AccountSet` that carries the `AppLoader` field (including a removal) increments `AppLoaderSequence` on the owner's AccountRoot. The stored document records the sequence it was written at.
+* **Account deletion:** an [AccountDelete transaction](/docs/protocol-reference/transactions/transaction-types/accountdelete) removes the `AppLoader` object automatically.
+
+### Document Validation
+
+The ledger does not run an HTML parser. It applies a shallow sanity check, and a document that fails it is rejected with `temMALFORMED`. The document must:
+
+* be non-empty and at most 4096 bytes;
+* be well-formed UTF-8;
+* contain no C0 control characters except TAB, LF, FF and CR, and no DEL;
+* begin (after an optional BOM and whitespace) with an HTML doctype or an `<html` start tag;
+* contain an `<html` start tag followed later by a `</html>` end tag;
+* have nothing but whitespace after the last `</html>`.
+
+Comments, scripts and attributes are not parsed, and content is not policed. Sending `AppLoader` before the PWALoader amendment is enabled returns `temDISABLED`.
+
+### Fees and Reserves
+
+* **Fee:** the normal base fee **plus 1 drop per byte** of the document. For example, with a 10-drop base fee, the minimum fee for a 1504-byte document is 1514 drops (the `fee` method returns it when given the transaction blob). This is charged on every `AccountSet` that carries a non-empty `AppLoader`, including overwrites. Removal costs nothing extra. A transaction that pays less than this is refused with `telINSUF_FEE_P`.
+* **No reserve:** the `AppLoader` object is not linked into the owner directory and does not count toward the owner reserve, so an account sitting at its reserve floor can still publish a document.
+
+### AppLoader ID Format
+
+The ID of an `AppLoader` object is the \[SHA-512Half]\[] of the following values, concatenated in order:
+
+* The AppLoader space key (`0x0057`, the character `W`)
+* The AccountID of the `Owner`
+
+Because the ID depends only on the owner, there is at most one `AppLoader` object per account. `AppLoader` is also included in the list of direct account keylets.
+
+### Retrieving the Object
+
+Use the `ledger_entry` method with the `app_loader` selector and the owner's address:
+
+```json
+{
+  "command": "ledger_entry",
+  "app_loader": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "ledger_index": "validated"
+}
+```
+
+An invalid or zero address returns `malformedAddress`.
+
+### Serving and Verifying Documents
+
+Serving the document over HTTP is a node feature, not part of the protocol, and is not amendment-gated. A node operator enables it by configuring a port with `protocol = pwa`. Each account is then served at `https://pwa<AccountIndex>.<domain>/<r-address>`, where `<AccountIndex>` is the account's `AccountIndex` written in decimal. (`AccountIndex` is a UInt64, so JSON shows it in hexadecimal: an account with `"AccountIndex": "10"` is served at `pwa16`.) Only validated ledger state is served, with a sandboxed `Content-Security-Policy` and the response headers `X-LedgerSeq`, `X-LedgerHash` and `X-PWASeq` (the `AppLoaderSequence`).
+
+Clients can check that a served document is the account's current one, as of the validated ledger, with the `pwa_validate` RPC method:
+
+```json
+{
+  "command": "pwa_validate",
+  "account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+  "hash": "<hex SHA-512Half of the document bytes served>",
+  "domain": "app.example.org"
+}
+```
+
+The response contains `ledger_index`, `app_loader_sequence` and `valid`. When `valid` is `false`, `reason` is one of `"no loader"`, `"hash mismatch"` or `"domain not endorsed by account"`.
+
+### Related Documentation
+
+* [AccountSet transaction](/docs/protocol-reference/transactions/transaction-types/accountset): Publishes, overwrites or removes the document
+* [AccountRoot ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot): Holds the `AppLoaderSequence` counter
+* [PWALoader amendment](/docs/features/amendments/#pwaloader)

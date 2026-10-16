@@ -1,0 +1,106 @@
+---
+title: account_info
+description: >-
+  Retrieves information about an account, its activity and its XAH balance,
+  optionally including its effective Hook configuration.
+---
+The `account_info` method retrieves information about an account, its activity, and its XAH balance. All information retrieved is relative to a particular version of the ledger.
+
+### Request Format
+
+```json
+{
+    "command": "account_info",
+    "account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "ledger_index": "validated",
+    "hooks": true
+}
+```
+
+### Request Parameters
+
+| Field          | JSON Type        | Required? | Description                                                                                                                                                         |
+| -------------- | ---------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `account`      | String           | Yes       | The account to look up.                                                                                                                                             |
+| `ledger_hash`  | String           | No        | A 32-byte hex string for the ledger version to use.                                                                                                                 |
+| `ledger_index` | String or Number | No        | The ledger index of the ledger to use, or a shortcut string (`"validated"`, `"closed"` or `"current"`).                                                             |
+| `queue`        | Boolean          | No        | If `true`, also return information about queued transactions sent by this account. Only valid with the current (open) ledger.                                       |
+| `signer_lists` | Boolean          | No        | If `true`, also return any [SignerList](/docs/protocol-reference/ledger-data/ledger-objects-types/signers-list) objects associated with this account.               |
+| `hooks`        | Boolean          | No        | If `true`, also return the account's **effective** Hook configuration for each Hook slot (see [Hooks Output](#hooks-output)). _(Introduced in 2026.10.13-release+4119.)_ |
+
+A non-boolean `hooks` value returns `invalidParams`.
+
+### Response Format
+
+```json
+{
+    "result": {
+        "account_data": {
+            "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+            "Balance": "148446663",
+            "Flags": 0,
+            "LedgerEntryType": "AccountRoot",
+            "OwnerCount": 3,
+            "Sequence": 336,
+            "index": "13F1A95D7AAB7108D5CE7EEAF504B2894B8C674E6D68499076441C4837282BF8"
+        },
+        "hooks": [
+            {
+                "Hook": {
+                    "HookHash": "...",
+                    "HookNamespace": "...",
+                    "HookApiVersion": 0,
+                    "HookCanEmit": "...",
+                    "Flags": 1,
+                    "HookOnIncoming": "...",
+                    "HookOnOutgoing": "...",
+                    "HookParameters": [
+                        {
+                            "HookParameter": {
+                                "HookParameterName": "...",
+                                "HookParameterValue": "..."
+                            }
+                        }
+                    ]
+                }
+            },
+            { "Hook": {} }
+        ],
+        "ledger_index": 12345678,
+        "validated": true,
+        "status": "success"
+    }
+}
+```
+
+### Response Fields
+
+| Field          | JSON Type | Description                                                                                                                         |
+| -------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `account_data` | Object    | The [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot) ledger object with this account's information, as stored in the ledger. |
+| `hooks`        | Array     | _(Only with `hooks: true`)_ One `Hook` object per entry in the account's Hooks array, with the effective configuration described below. |
+| `signer_lists` | Array     | _(Only with `signer_lists: true`)_ The account's SignerList objects.                                                                 |
+| `queue_data`   | Object    | _(Only with `queue: true`)_ Information about queued transactions sent by this account.                                              |
+| `ledger_index` | Number    | The ledger index of the ledger used (or `ledger_current_index` for the current open ledger).                                         |
+| `validated`    | Boolean   | `true` if this data is from a validated ledger version.                                                                              |
+
+### Hooks Output
+
+_(Introduced in 2026.10.13-release+4119.)_
+
+With `hooks: true`, the response includes a top-level `hooks` array with the account's **effective** Hook configuration for each Hook slot. "Effective" means that the per-account installation (the [Hook](/docs/protocol-reference/ledger-data/ledger-objects-types/hook) object) is merged with the defaults of the [HookDefinition](/docs/protocol-reference/ledger-data/ledger-objects-types/hook-definition):
+
+* `HookNamespace`, `HookCanEmit` and `Flags`: the installation value if present, otherwise the definition value. `HookCanEmit` defaults to "may emit anything".
+* `HookApiVersion`: taken from the definition.
+* `HookParameters`: the definition parameters overlaid by the installation parameters. Absent values are shown explicitly as empty.
+* HookOn: shown as `HookOn` if the incoming and outgoing triggers are the same, otherwise as `HookOnIncoming` and `HookOnOutgoing`.
+* `HookHash`, `HookGrants` and `HookName`: copied from the installation.
+* An empty slot is returned as an empty `Hook` object.
+* `CreateCode` and HookDefinition bookkeeping fields are **not** included.
+
+### Possible Errors
+
+* Any of the [universal error types](/docs/features/http-websocket-apis/response-formatting-guide).
+* `invalidParams`: one or more fields are specified incorrectly (for example, a non-boolean `hooks`), or one or more required fields are missing.
+* `actNotFound`: the address is valid but does not correspond to a funded account in the ledger.
+* `lgrNotFound`: the ledger specified by `ledger_hash` or `ledger_index` does not exist.
