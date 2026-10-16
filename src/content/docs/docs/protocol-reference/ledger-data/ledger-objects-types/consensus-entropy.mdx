@@ -1,0 +1,72 @@
+---
+title: ConsensusEntropy
+description: >-
+  The ConsensusEntropy ledger entry stores per-ledger randomness derived from
+  validator commit/reveal, used by hooks via the entropy_cr_dice() and entropy_cr_random() APIs.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[Source](https://github.com/Xahau/xahaud/blob/dev/src/xrpld/app/tx/detail/Change.cpp)]
+
+_(Added by the \[ConsensusEntropy amendment]\[].)_
+
+The `ConsensusEntropy` object is a singleton ledger entry that stores the per-ledger entropy digest and participation metadata produced by the validator commit/reveal scheme. It is updated each ledger by a `ttCONSENSUS_ENTROPY` pseudo-transaction injected deterministically at ledger build time.
+
+Hooks consume this entropy through the `entropy_cr_dice()` and `entropy_cr_random()` hook API functions, and read the participation metadata (tier, reveal count, denominator) through `entropy_cr_status()`.
+
+### Fields
+
+| Field             | JSON Type | \[Internal Type]\[] | Description                                                                      |
+| ----------------- | --------- | ------------------- | -------------------------------------------------------------------------------- |
+| `Digest`          | String    | Hash256             | The entropy digest for this ledger.                                               |
+| `EntropyCount`    | Number    | UInt16              | Number of validator reveals used to derive the digest. `0` for consensus fallback. |
+| `EntropyDenominator` | Number | UInt16              | Number of active validators in the parent-ledger view (after Negative UNL) that the reveals were drawn from — the denominator for the `EntropyCount` participation fraction (`EntropyCount` / `EntropyDenominator`). `0` for consensus fallback. |
+| `EntropyContributors` | String | VL                  | Byte bitmask of active validators whose reveals contributed to the digest. Bits are ordered by the canonical parent-ledger active validator view after Negative UNL. Empty for consensus fallback. |
+| `EntropyTier`     | Number    | UInt8               | The entropy tier (see below).                                                     |
+| `LedgerSequence`  | Number    | UInt32              | Ledger sequence this entropy was produced for.                                     |
+| `PreviousTxnID`   | String    | Hash256             | Transaction ID of the transaction that last modified this object.                  |
+| `PreviousTxnLgrSeq` | Number  | UInt32              | Ledger sequence of the transaction that last modified this object.                 |
+
+### Entropy Tiers
+
+Every RNG-enabled ledger carries a tiered entropy object. The tier indicates the strength of the randomness source:
+
+| Tier | Value | Description                                                                                      |
+| ---- | ----- | ------------------------------------------------------------------------------------------------ |
+| `validator_full`      | 4 | Reveals from **every** active validator in the ledger-anchored view (`EntropyCount == EntropyDenominator`). Any missing active validator downgrades the tier, so requiring it fails closed on selective withholding — at the cost of availability (a single offline validator prevents it). |
+| `validator_quorum`    | 3 | Validator-quorum commit/reveal entropy with 80% UNL alignment.       |
+| `participant_aligned` | 2 | Participant-aligned commit/reveal entropy below full validator quorum. |
+| `consensus_fallback`  | 1 | Deterministic public-input fallback derived from `sha512Half(HashPrefix::entropyFallback, parentLedgerHash, buildTxSetHash, seq)`, where `buildTxSetHash` is the sanitized pre-injection live-build set hash. Grindable. |
+
+<Aside type="caution">
+Tier 1 (`consensus_fallback`) entropy is deterministic and derivable from public inputs. It is grindable by transaction submitters, especially on quiet ledgers. Hooks handling high-value outcomes (lotteries, games) should require at least `min_tier=3` (validator quorum) in their `entropy_cr_dice()` / `entropy_cr_random()` calls — or `min_tier=4` (`validator_full`) to additionally reject any round in which an active validator withheld its reveal.
+</Aside>
+
+### How Entropy is Produced
+
+Each consensus round follows a three-phase pipeline:
+
+1. **Commit**: proposing validators generate a secret and broadcast `sha512Half(secret, pubKey, seq)` as a commitment on their first proposal
+2. **Reveal**: after the transaction set converges, validators broadcast their secret
+3. **Inject**: pairs are sorted by signing-key bytes and then reveal digest. Each signing key is encoded in canonical variable-length form (including its length prefix), followed by the 256-bit reveal; `sha512Half` of the concatenated pairs becomes the `Digest`. `EntropyTier`, `EntropyCount`, `EntropyDenominator`, and `EntropyContributors` label the accepted result.
+
+If neither the validator-quorum threshold nor the participant-aligned threshold is reached, a `consensus_fallback` digest is injected instead. RNG-enabled ledgers always receive either validator-derived entropy or a consensus-fallback digest.
+
+`EntropyContributors` is accountability metadata. It records who contributed to the accepted result, but `entropy_cr_dice()` and `entropy_cr_random()` derive per-call randomness from the digest and their own domain-separated call inputs.
+
+### Standalone Mode
+
+In standalone mode (single-node testing), synthetic deterministic entropy is injected:
+```
+sha512Half("standalone-entropy", seq)
+```
+This allows hooks using `entropy_cr_dice()` / `entropy_cr_random()` to function during development without a validator network.
+
+Standalone mode labels this synthetic entropy as tier 4 (`validator_full`) with count 20, denominator 20, and a contributor bitmap with the first 20 validators marked. This lets `min_tier=4` hooks pass locally. Use it for local development only; real network ledgers can fall back to tier 1 when validator entropy is unavailable.
+
+### Related
+
+- [Consensus Entropy overview](/docs/features/consensus-entropy)
+- [entropy_cr_dice()](/docs/hooks/functions/utilities/entropy-cr-dice)
+- [entropy_cr_random()](/docs/hooks/functions/utilities/entropy-cr-random)
+- [entropy_cr_status()](/docs/hooks/functions/utilities/entropy-cr-status)

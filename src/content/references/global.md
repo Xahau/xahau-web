@@ -19,6 +19,8 @@
 [Remarks amendment]: /docs/features/amendments/#remarks
 [Touch amendment]: /docs/features/amendments/#touch
 [HookCanEmit amendment]: /docs/features/amendments/#hookcanemit
+[Export amendment]: /docs/features/amendments/#export
+[ConsensusEntropy amendment]: /docs/features/amendments/#consensusentropy
 [Clawback amendment]: /docs/features/amendments/#clawback
 [DeepFreeze amendment]: /docs/features/amendments/#deepfreeze
 [IOUIssuerWeakTSH amendment]: /docs/features/amendments/#iouissuerweaktsh

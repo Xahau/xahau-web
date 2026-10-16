@@ -1,0 +1,73 @@
+---
+title: xport_cancel
+description: >-
+  Stop signature publication for an Export latch, or explicitly erase it.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+### Behaviour
+
+`xport_cancel()` controls the ExportLatch owned by the current Hook account and identified by the 32-byte source Export transaction hash W.
+
+- With `flags == 0`, it stops further signature publication but retains the latch, owner reserve, and Import callback readiness.
+- With `flags == tfExportEraseLatch` (`0x00010000`), it erases the latch, releases its reserve, and intentionally forfeits any later callback.
+- Neither mode revokes signatures already released.
+- A Hook cannot control the latch being created or consumed by the same currently executing Export or Import transaction.
+
+<Aside type="caution">
+Use erase only when losing callback readiness is acceptable. A target transaction assembled from previously published shares can still execute after either lifecycle operation.
+</Aside>
+
+### Definition
+
+```c
+int64_t xport_cancel (
+    uint32_t read_ptr,
+    uint32_t read_len,
+    uint32_t flags
+);
+```
+
+### Examples
+
+Stop publication and retain the latch:
+
+```c
+int64_t result = xport_cancel(SBUF(origin), 0);
+if (result != 1)
+    rollback(SBUF("Stop Export failed"), 1);
+```
+
+Erase the latch and release reserve:
+
+```c
+int64_t result = xport_cancel(SBUF(origin), 0x00010000U);
+if (result != 1)
+    rollback(SBUF("Erase Export failed"), 1);
+```
+
+### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `read_ptr` | uint32_t | Pointer to the 32-byte W value returned by `xport()`. |
+| `read_len` | uint32_t | Must be exactly 32. |
+| `flags` | uint32_t | `0` to stop publication and retain the latch, or `tfExportEraseLatch` to erase it. |
+
+### Return Code
+
+Returns `1` on success. Negative results include:
+
+| Error | Description |
+| ----- | ----------- |
+| `OUT_OF_BOUNDS` | The input pointer or length is outside Hook memory. |
+| `INVALID_ARGUMENT` | W is zero, `read_len` is not 32, or the flags are unsupported. |
+| `PREREQUISITE_NOT_MET` | The current Export or Import execution is creating or consuming this same latch. |
+| `DOESNT_EXIST` | No matching ExportLatch exists for W and the current Hook account. |
+
+### Related
+
+- [Cross-Chain Export overview](/docs/features/export)
+- [Export transaction reference](/docs/protocol-reference/transactions/transaction-types/export)
+- [ExportLatch ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/export-latch)
+- [xport()](/docs/hooks/functions/utilities/xport)
