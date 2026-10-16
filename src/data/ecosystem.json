@@ -109,7 +109,7 @@
           "name": "Xyra",
           "url": "https://www.xyra.now/",
           "logo": null,
-          "desc": "Web wallet for XRPL and Xahau, no installation required"
+          "desc": "Web wallet for Xahau"
         }
       ]
     },
@@ -176,8 +176,8 @@
           "name": "XahauWin",
           "url": "https://xahauwin.com/",
           "logo": "xahauwin",
-          "logo_bg": "#000000",
-          "desc": "Multi-network explorer with Xahau support"
+          "logo_bg": "#FFFFFF",
+          "desc": "XahauWin is a blockexplorer and analytics platform for the Xahau blockchain."
         },
         {
           "name": "Xahau Services",
@@ -203,6 +203,18 @@
         "pt-BR": "Apps, ferramentas e experiências construídas no Xahau"
       },
       "items": [
+        {
+          "name": "Awesome Xahau",
+          "url": "https://github.com/Xahau/Awesome-Xahau",
+          "logo": null,
+          "desc": "Curated list of resources, tools, projects, wallets and docs for Xahau"
+        },
+        {
+          "name": "XahauIndex",
+          "url": "https://xahauindex.dev/",
+          "logo": null,
+          "desc": "Self-hostable REST + WebSocket data API for tokens, URITokens, DEX and Hooks"
+        },
         {
           "name": "Evernode",
           "url": "https://www.evernode.org/",

@@ -21,7 +21,7 @@ import logoGatehub from '../assets/ecosystem-logos/gatehub.png'
 import logoQuantoz from '../assets/ecosystem-logos/quantoz.svg'
 import logoTerrapay from '../assets/ecosystem-logos/terrapay.svg'
 import logoXahauServices from '../assets/ecosystem-logos/xahau-services.png'
-import logoXahauwin from '../assets/ecosystem-logos/xahauwin.svg'
+import logoXahauwin from '../assets/ecosystem-logos/xahauwin.png'
 import logoXahscan from '../assets/ecosystem-logos/xahscan.png'
 // ── Logo import map (static imports required by Astro)
 import logoXaman from '../assets/ecosystem-logos/xaman.png'
@@ -43,17 +43,30 @@ const logoMap: Record<string, ImageMetadata> = {
   terrapay: logoTerrapay,
 }
 
+// Optional fields vary per item, so the JSON-inferred union lacks them on some members.
+type EcosystemItem = {
+  name: string
+  url?: string
+  logo: string | null
+  logo_ext?: string
+  logo_bg?: string
+  coming_soon?: boolean
+  desc: string
+}
+
 const locale = (Astro.currentLocale ?? defaultLocale) as Locale
 
 // Projects sorted alphabetically at build time; others keep editorial order.
-const sections = ecosystemData.sections.map((section) =>
-  section.id === 'projects'
-    ? {
-        ...section,
-        items: [...section.items].sort((a, b) => a.name.localeCompare(b.name)),
-      }
-    : section,
-)
+const sections = ecosystemData.sections.map((section) => {
+  const items = section.items as EcosystemItem[]
+  return {
+    ...section,
+    items:
+      section.id === 'projects'
+        ? [...items].sort((a, b) => a.name.localeCompare(b.name))
+        : items,
+  }
+})
 ---
 
 <section class="xeco" aria-label="Xahau Ecosystem">
