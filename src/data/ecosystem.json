@@ -356,6 +356,27 @@
       ]
     }
   ],
+  "propose": {
+    "url": "https://github.com/Xahau/xahau-web/discussions/148",
+    "title": {
+      "en": "Building on Xahau?",
+      "es": "¿Estás construyendo en Xahau?",
+      "ja": "Xahauで開発していますか？",
+      "pt-BR": "Está construindo na Xahau?"
+    },
+    "text": {
+      "en": "Propose your project for this list by sharing it in our GitHub discussion.",
+      "es": "Propón tu proyecto para esta lista compartiéndolo en nuestra discusión de GitHub.",
+      "ja": "GitHubのディスカッションで共有して、このリストにあなたのプロジェクトを提案してください。",
+      "pt-BR": "Proponha seu projeto para esta lista compartilhando-o em nossa discussão no GitHub."
+    },
+    "cta": {
+      "en": "Propose a project",
+      "es": "Proponer un proyecto",
+      "ja": "プロジェクトを提案する",
+      "pt-BR": "Propor um projeto"
+    }
+  },
   "trademark": {
     "en": "All trademarks and logos are the property of their respective owners.",
     "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",

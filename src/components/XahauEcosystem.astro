@@ -103,6 +103,7 @@ const sections = ecosystemData.sections.map((section) => {
         {isProjects ? (
 
           /* ── Projects: two-column editorial list, no boxes ── */
+          <>
           <ul class="xe-project-list">
             {section.items.map(item => (
               <li class="xe-project-item">
@@ -119,6 +120,20 @@ const sections = ecosystemData.sections.map((section) => {
               </li>
             ))}
           </ul>
+          <div class="xe-propose">
+            <div>
+              <p class="xe-propose-title">{ecosystemData.propose.title[locale]}</p>
+              <p class="xe-propose-text">{ecosystemData.propose.text[locale]}</p>
+            </div>
+            <a
+              href={ecosystemData.propose.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="xe-propose-cta"
+              >{ecosystemData.propose.cta[locale]} ↗</a
+            >
+          </div>
+          </>
 
         ) : (
 
@@ -527,6 +542,48 @@ const sections = ecosystemData.sections.map((section) => {
   }
   .xe-project-link:hover .xe-project-arrow {
     color: var(--vlt2);
+    transform: translate(2px, -2px);
+  }
+
+  /* Propose a project — CTA pill matches the Learn page course buttons */
+  .xe-propose {
+    margin-top: 40px;
+    padding: 28px 32px;
+    border: 1px dashed #cdd7dc;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .xe-propose-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .xe-propose-text {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--mute);
+    max-width: 62ch;
+  }
+  .xeco .xe-propose-cta {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--grn2);
+    padding: 10px 20px;
+    border-radius: 999px;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: transform 0.15s;
+  }
+  .xeco .xe-propose-cta:hover {
+    color: #ffffff;
     transform: translate(2px, -2px);
   }
 
