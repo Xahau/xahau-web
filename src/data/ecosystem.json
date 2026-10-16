@@ -104,6 +104,12 @@
           "url": "https://www.ledger.com/",
           "logo": null,
           "desc": "Industry-leading hardware security wallet"
+        },
+        {
+          "name": "Xyra",
+          "url": "https://www.xyra.now/",
+          "logo": null,
+          "desc": "Web wallet for Xahau"
         }
       ]
     },
@@ -170,8 +176,8 @@
           "name": "XahauWin",
           "url": "https://xahauwin.com/",
           "logo": "xahauwin",
-          "logo_bg": "#000000",
-          "desc": "Multi-network explorer with Xahau support"
+          "logo_bg": "#FFFFFF",
+          "desc": "XahauWin is a blockexplorer and analytics platform for the Xahau blockchain."
         },
         {
           "name": "Xahau Services",
@@ -197,6 +203,18 @@
         "pt-BR": "Apps, ferramentas e experiências construídas no Xahau"
       },
       "items": [
+        {
+          "name": "Awesome Xahau",
+          "url": "https://github.com/Xahau/Awesome-Xahau",
+          "logo": null,
+          "desc": "Curated list of resources, tools, projects, wallets and docs for Xahau"
+        },
+        {
+          "name": "XahauIndex",
+          "url": "https://xahauindex.dev/",
+          "logo": null,
+          "desc": "Self-hostable REST + WebSocket data API for tokens, URITokens, DEX and Hooks"
+        },
         {
           "name": "Evernode",
           "url": "https://www.evernode.org/",
@@ -304,10 +322,61 @@
           "url": "https://github.com/Handy4ndy/HandyHooks",
           "logo": null,
           "desc": "Ready-to-use Hook templates and tools"
+        },
+        {
+          "name": "One Xahau",
+          "url": "https://onexah.io/",
+          "logo": null,
+          "desc": "Ecosystem hub for DeFi culture on Xahau"
+        },
+        {
+          "name": "Xahau Vault",
+          "url": "https://xahauvault.com/",
+          "logo": null,
+          "desc": "NFT marketplace powered by Hook contracts"
+        },
+        {
+          "name": "XahauCards",
+          "url": "https://xahaucards.com/",
+          "logo": null,
+          "desc": "Collectible card packs minted as URITokens"
+        },
+        {
+          "name": "Xahmoeba",
+          "url": "https://xahmoeba.com/",
+          "logo": null,
+          "desc": "Digital species grown from on-chain genomes"
+        },
+        {
+          "name": "XahauTipBot",
+          "url": "https://x.com/XahauTipbot",
+          "logo": null,
+          "desc": "Send tips directly on X"
         }
       ]
     }
   ],
+  "propose": {
+    "url": "https://github.com/Xahau/xahau-web/discussions/148",
+    "title": {
+      "en": "Building on Xahau?",
+      "es": "¿Estás construyendo en Xahau?",
+      "ja": "Xahauで開発していますか？",
+      "pt-BR": "Está construindo na Xahau?"
+    },
+    "text": {
+      "en": "Propose your project for this list by sharing it in our GitHub discussion.",
+      "es": "Propón tu proyecto para esta lista compartiéndolo en nuestra discusión de GitHub.",
+      "ja": "GitHubのディスカッションで共有して、このリストにあなたのプロジェクトを提案してください。",
+      "pt-BR": "Proponha seu projeto para esta lista compartilhando-o em nossa discussão no GitHub."
+    },
+    "cta": {
+      "en": "Propose a project",
+      "es": "Proponer un proyecto",
+      "ja": "プロジェクトを提案する",
+      "pt-BR": "Propor um projeto"
+    }
+  },
   "trademark": {
     "en": "All trademarks and logos are the property of their respective owners.",
     "es": "Todas las marcas y logotipos son propiedad de sus respectivos dueños.",

@@ -1,7 +1,7 @@
 {
   "$comment": "Xahau roadmap source of truth. Edit this file to add/update/remove items. Committed JSON is rendered at build time by src/components/XahauRoadmap.astro — no runtime JS required. Card tags come from `labels.<locale>.tags`: set `phase` (and optionally `note`) on an item instead of writing the tag text per locale.",
   "meta": {
-    "updated": "2026-04-19",
+    "updated": "2026-10-14",
     "window": {
       "mode": "auto",
       "$comment_mode": "'auto' = current quarter + next 5. 'manual' = use the `start` field below.",
@@ -97,6 +97,15 @@
           "enterprise-devs": "enterprise + devs"
         }
       },
+      "progress": {
+        "title": "Progress",
+        "subtitle": "Everything on the roadmap, grouped by where it stands today.",
+        "done": "Done",
+        "inProgress": "In progress",
+        "planned": "Planned",
+        "laneTech": "Protocol feature",
+        "laneRollout": "Rollout"
+      },
       "foot": "Directional - subject to change - xahau.network"
     },
     "es": {
@@ -163,6 +172,15 @@
           "quarterly": "trimestral",
           "enterprise-devs": "empresas y desarrolladores"
         }
+      },
+      "progress": {
+        "title": "Progreso",
+        "subtitle": "Todo lo que hay en el roadmap, agrupado según su estado actual.",
+        "done": "Hecho",
+        "inProgress": "En progreso",
+        "planned": "Planificado",
+        "laneTech": "Funcionalidad del protocolo",
+        "laneRollout": "Despliegue"
       },
       "foot": "Orientativo - sujeto a cambios - xahau.network"
     },
@@ -231,6 +249,15 @@
           "enterprise-devs": "empresas e desenvolvedores"
         }
       },
+      "progress": {
+        "title": "Progresso",
+        "subtitle": "Tudo o que está no roadmap, agrupado pelo estado atual.",
+        "done": "Concluído",
+        "inProgress": "Em andamento",
+        "planned": "Planejado",
+        "laneTech": "Funcionalidade do protocolo",
+        "laneRollout": "Implantação"
+      },
       "foot": "Direcional - sujeito a alterações - xahau.network"
     }
   },
@@ -243,6 +270,7 @@
       "span": 2,
       "phase": "feature",
       "note": "activated",
+      "progress": "done",
       "title": {
         "en": "PriceOracle",
         "es": "PriceOracle",
@@ -262,6 +290,7 @@
       "endQuarter": "2026-Q3",
       "phase": "feature",
       "note": "activated",
+      "progress": "done",
       "title": {
         "en": "IOURewardClaim",
         "es": "IOURewardClaim",
@@ -280,7 +309,8 @@
       "quarter": "2026-Q2",
       "endQuarter": "2026-Q3",
       "phase": "feature",
-      "note": "beta",
+      "note": "ready-for-amendment",
+      "progress": "done",
       "title": {
         "en": "Random Number Generator",
         "es": "Generador de números aleatorios",
@@ -300,6 +330,7 @@
       "endQuarter": "2026-Q3",
       "phase": "feature",
       "note": "in-development",
+      "progress": "in-progress",
       "title": {
         "en": "FeatureExport",
         "es": "FeatureExport",
@@ -312,25 +343,6 @@
       }
     },
     {
-      "id": "amm",
-      "lane": "tech",
-      "status": "feature",
-      "quarter": "2026-Q2",
-      "span": 2,
-      "phase": "feature",
-      "note": "ready-for-amendment",
-      "title": {
-        "en": "AMM",
-        "es": "AMM",
-        "pt-BR": "AMM"
-      },
-      "description": {
-        "en": "Automated Market Maker primitive for deep native liquidity on the Xahau DEX. Merged into the xahaud dev branch, awaiting amendment vote.",
-        "es": "Primitiva Automated Market Maker para liquidez nativa profunda en el DEX de Xahau. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
-        "pt-BR": "Primitiva de Automated Market Maker para liquidez nativa profunda no DEX da Xahau. Integrada ao branch dev do xahaud, aguardando votação de emenda."
-      }
-    },
-    {
       "id": "named-hook",
       "lane": "tech",
       "status": "feature",
@@ -338,6 +350,7 @@
       "endQuarter": "2026-Q4",
       "phase": "feature",
       "note": "ready-for-amendment",
+      "progress": "done",
       "title": {
         "en": "NamedHook",
         "es": "NamedHook",
@@ -350,6 +363,63 @@
       }
     },
     {
+      "id": "pwa-loader",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q4",
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "progress": "done",
+      "title": {
+        "en": "PWALoader",
+        "es": "PWALoader",
+        "pt-BR": "PWALoader"
+      },
+      "description": {
+        "en": "Lets an account publish a small HTML bootloader for a Progressive Web App on ledger, which opted-in nodes can serve over HTTP.",
+        "es": "Permite que una cuenta publique en el ledger un pequeño cargador HTML para una Progressive Web App, que los nodos que lo activen pueden servir por HTTP.",
+        "pt-BR": "Permite que uma conta publique no ledger um pequeno carregador HTML para um Progressive Web App, que os nós que optarem por isso podem servir via HTTP."
+      }
+    },
+    {
+      "id": "onchain-manifests",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q4",
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "progress": "done",
+      "title": {
+        "en": "OnChainManifests",
+        "es": "OnChainManifests",
+        "pt-BR": "OnChainManifests"
+      },
+      "description": {
+        "en": "Validator manifests published on ledger, so every node can learn validators’ current keys, rotations and revocations directly from ledger state.",
+        "es": "Manifiestos de validadores publicados en el ledger, para que cualquier nodo conozca las claves actuales, rotaciones y revocaciones de los validadores directamente desde el estado del ledger.",
+        "pt-BR": "Manifestos de validadores publicados no ledger, para que qualquer nó conheça as chaves atuais, rotações e revogações dos validadores diretamente a partir do estado do ledger."
+      }
+    },
+    {
+      "id": "hookon-v2",
+      "lane": "tech",
+      "status": "feature",
+      "quarter": "2026-Q4",
+      "phase": "feature",
+      "note": "ready-for-amendment",
+      "progress": "done",
+      "title": {
+        "en": "HookOn (HookOnV2_1)",
+        "es": "HookOn (HookOnV2_1)",
+        "pt-BR": "HookOn (HookOnV2_1)"
+      },
+      "description": {
+        "en": "Separate HookOnIncoming / HookOnOutgoing triggers on SetHook, so a Hook can fire on different transaction types for incoming and outgoing transactions.",
+        "es": "Disparadores HookOnIncoming / HookOnOutgoing separados en SetHook, para que un Hook se active con distintos tipos de transacción según sean entrantes o salientes.",
+        "pt-BR": "Gatilhos HookOnIncoming / HookOnOutgoing separados no SetHook, para que um Hook seja acionado por tipos de transação diferentes para transações recebidas e enviadas."
+      }
+    },
+    {
       "id": "js-hooks",
       "lane": "tech",
       "status": "feature",
@@ -357,6 +427,7 @@
       "span": 3,
       "phase": "feature",
       "note": "alpha",
+      "progress": "in-progress",
       "title": {
         "en": "JSHooks",
         "es": "JSHooks",
@@ -376,6 +447,7 @@
       "openEnded": true,
       "phase": "ongoing",
       "note": "audits-optimisations",
+      "progress": "in-progress",
       "title": {
         "en": "Audit & optimisations",
         "es": "Auditorías y optimizaciones",
@@ -396,6 +468,7 @@
       "openEnded": false,
       "phase": "live",
       "note": "remittance",
+      "progress": "done",
       "title": {
         "en": "COOP Bank EUR corridor scale-up to entire country.",
         "es": "Escalado del corredor EUR de COOP Bank a todo el país.",
@@ -412,8 +485,9 @@
       "lane": "rollout",
       "status": "partnership",
       "quarter": "2026-Q2",
-      "endQuarter": "2026-Q3",
+      "endQuarter": "2027-Q1",
       "phase": "launch",
+      "progress": "in-progress",
       "title": {
         "en": "USD stablecoin on Xahau",
         "es": "Stablecoin USD en Xahau",
@@ -432,6 +506,7 @@
       "quarter": "2026-Q4",
       "openEnded": true,
       "phase": "launch",
+      "progress": "in-progress",
       "title": {
         "en": "Currencies from multiple countries on Xahau",
         "es": "Divisas de múltiples países en Xahau",
@@ -448,8 +523,9 @@
       "lane": "rollout",
       "status": "partnership",
       "quarter": "2026-Q3",
-      "endQuarter": "2026-Q4",
+      "endQuarter": "2027-Q2",
       "phase": "launch",
+      "progress": "in-progress",
       "title": {
         "en": "GBP stablecoin on Xahau",
         "es": "Stablecoin GBP en Xahau",
@@ -466,8 +542,9 @@
       "lane": "rollout",
       "status": "pilot",
       "quarter": "2026-Q3",
-      "endQuarter": "2026-Q4",
+      "endQuarter": "2027-Q1",
       "phase": "pilot",
+      "progress": "in-progress",
       "title": {
         "en": "USD corridor pilot",
         "es": "Piloto del corredor USD",
@@ -486,6 +563,7 @@
       "quarter": "2026-Q4",
       "openEnded": true,
       "phase": "partnerships",
+      "progress": "in-progress",
       "title": {
         "en": "Additional bank & remittance partners",
         "es": "Bancos y socios de remesas adicionales",
@@ -505,6 +583,7 @@
       "span": 1,
       "phase": "ga",
       "note": "remittance",
+      "progress": "planned",
       "title": {
         "en": "Corridor expansion · GA",
         "es": "Expansión de corredores · GA",
@@ -524,6 +603,7 @@
       "endQuarter": "2027-Q3",
       "phase": "pilot",
       "note": "payments",
+      "progress": "planned",
       "title": {
         "en": "Merchant settlement pilot",
         "es": "Piloto de liquidación para comercios",
@@ -542,6 +622,7 @@
       "quarter": "2027-Q3",
       "openEnded": true,
       "phase": "enterprise",
+      "progress": "planned",
       "title": {
         "en": "Enterprise settlement GA",
         "es": "GA de liquidación empresarial",
@@ -561,6 +642,7 @@
       "openEnded": true,
       "phase": "launch",
       "note": "public-good",
+      "progress": "in-progress",
       "title": {
         "en": "NGO donation platform",
         "es": "Plataforma de donaciones para ONG",
@@ -583,6 +665,7 @@
         "es": "Rampas on/off y listados de XAH",
         "pt-BR": "Rampas on/off e listagens de XAH"
       },
+      "progress": "in-progress",
       "title": {
         "en": "On and off ramps and token listing",
         "es": "Rampas de entrada y salida y listado del token",
@@ -602,6 +685,7 @@
       "openEnded": true,
       "phase": "event",
       "note": "quarterly",
+      "progress": "in-progress",
       "title": {
         "en": "Xahau Connect",
         "es": "Xahau Connect",
@@ -620,6 +704,7 @@
       "quarter": "2026-Q4",
       "phase": "event",
       "note": "enterprise-devs",
+      "progress": "planned",
       "title": {
         "en": "InFTF event",
         "es": "Evento InFTF",

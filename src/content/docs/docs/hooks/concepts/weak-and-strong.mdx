@@ -143,6 +143,8 @@ If a Transaction Type does not appear in the table then it has no TSHes **other 
 | Destination | Destination | Strong       | None         | Strong       |
 | Destination | Account     | Weak         | None         | Weak         |
 
+_With the [EscrowDestinationCancel amendment](/docs/features/amendments/#escrowdestinationcancel), the destination of an escrow can cancel it at any time. In that case the escrow owner is only a **weak** TSH, so the owner's Hooks cannot roll back the cancellation. In all other cancellations the owner remains a strong TSH._
+
 **GenesisMint**
 
 | OTXN    | TSH         | GenesisMint |
