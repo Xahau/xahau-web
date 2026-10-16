@@ -75,14 +75,19 @@ Changed: [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types
 
 ## Hook API
 
-| Item | Value | Amendment |
-| ---- | ----- | --------- |
-| [`int64_t dice(uint32_t sides)`](/docs/hooks/functions/utilities/dice) | function | RNG |
-| [`int64_t util_random(uint32_t write_ptr, uint32_t write_len)`](/docs/hooks/functions/utilities/util_random) | function | RNG |
+New functions:
+
+| Function | Amendment |
+| -------- | --------- |
+| [`int64_t dice(uint32_t sides)`](/docs/hooks/functions/utilities/dice) | RNG |
+| [`int64_t util_random(uint32_t write_ptr, uint32_t write_len)`](/docs/hooks/functions/utilities/util_random) | RNG |
+
+### Hook Constants
+
+| Constant | Value | Amendment |
+| -------- | ----- | --------- |
 | [`TOO_LITTLE_ENTROPY`](/docs/hooks/functions/overview/return-codes) | return code -46 | RNG |
-| [`KEYLET_MANIFEST`](/docs/hooks/functions/utilities/util_keylet) | keylet type 37 | OnChainManifests |
-| `ttENTROPY` | 89 (`tts.h`) | RNG |
-| `ttMANIFEST_SET` | 91 (`tts.h`) | OnChainManifests |
+| [`KEYLET_MANIFEST`](/docs/hooks/functions/utilities/util_keylet) | `util_keylet` keylet type 37 | OnChainManifests |
 
 The Hook SDK headers (`hook/extern.h`) are now generated directly from `hook_api.macro`, which carries named parameters for every function.
 
