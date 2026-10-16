@@ -47,3 +47,22 @@ Updating the xahaud binary files is essentially the same as the original install
 2. Download the new version: [https://build.xahau.tech](https://build.xahau.tech)
 3. Mark the download as executable: `chmod 500 [/path/to/xahaud]`
 4. Start xahaud: `./[path/to/xahud] --net --conf [/path/to/xahaud.cfg]`
+
+## Amendment-Blocked Servers Stop
+
+Starting with 2026.10.13-release+4119, a server that does not support an amendment the network is about to activate (or has activated) **shuts down** instead of running in a degraded "amendment blocked" state:
+
+* **Before activation:** once an unsupported amendment has reached majority and is expected to activate, the server checks on every validated ledger. When activation is less than **5 minutes** away (or the expected time has passed and it is only waiting for the flag ledger), it stops, while it can still read the ledgers it is given.
+* **After activation:** a server that is already past the activation (for example, an old build being started) also stops.
+* **Receipt file:** on stopping, it writes `README_AMENDMENT_BLOCKED` into the **config directory**. The file contains the text `XAHAUD STOPPED: UPGRADE REQUIRED`, the stop time, the build version, the IDs of the unsupported amendments with their expected or actual activation time, and instructions to upgrade and restart.
+* **On restart:** the receipt is removed automatically. If the build is still unsupported, the server stops again and rewrites the file. Nothing needs to be deleted by hand.
+* **Standalone mode** does not write or remove the receipt.
+* **Logs:** fatal log lines are written, and the stop reason includes the receipt's path.
+
+To avoid unplanned downtime:
+
+* Upgrade before new amendments activate. Amendments that have reached majority are visible with the `feature` admin method.
+* Monitor for the shutdown, for example by alerting when `README_AMENDMENT_BLOCKED` appears in the config directory or when the xahaud process exits.
+* If the server stops, read the receipt to see which amendments it lacks, upgrade, and restart.
+
+See [Amendment Blocked Servers](/docs/features/amendments#amendment-blocked-servers) for background.

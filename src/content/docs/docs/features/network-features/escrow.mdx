@@ -23,6 +23,6 @@ The `EscrowFinish` transaction is used to complete an escrow agreement. This tra
 
 #### EscrowCancel
 
-The `EscrowCancel` transaction is used to cancel an escrow agreement. This transaction can be executed if the conditions of the escrow are not met within a specified time frame. Upon cancellation, the assets held in escrow are returned to the party that initiated the escrow.
+The `EscrowCancel` transaction is used to cancel an escrow agreement. This transaction can be executed if the conditions of the escrow are not met within a specified time frame. Upon cancellation, the assets held in escrow are returned to the party that initiated the escrow. With the [EscrowDestinationCancel amendment](/docs/features/amendments/#escrowdestinationcancel), the destination of an escrow can also cancel it at any time, regardless of `CancelAfter`, returning the funds to the owner. This does not apply to self-escrows (where the owner and destination are the same account), so a timelock on your own funds stays binding.
 
 <LinkCard title="EscrowCancel" href="/docs/protocol-reference/transactions/transaction-types/escrowcancel" />

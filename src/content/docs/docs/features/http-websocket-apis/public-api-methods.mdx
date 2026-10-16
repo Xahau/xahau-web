@@ -11,7 +11,7 @@ Interact directly with an xahaud server using public API methods. These methods 
 | ------------------- | ---------------------------------------------------------------------- |
 | account_channels   | List payment channels where the account is the channel source.         |
 | account_currencies | List currencies the account can send or receive.                       |
-| account_info       | Retrieve basic information about an account.                           |
+| [account_info](/docs/features/http-websocket-apis/account-info) | Retrieve basic information about an account. Use `hooks: true` to include the account's effective Hook configuration. |
 | account_lines      | Access trust line information for an account.                          |
 | account_objects    | Retrieve all ledger objects owned by an account.                       |
 | account_offers     | View an account’s currency exchange offers.                            |
@@ -29,7 +29,7 @@ Interact directly with an xahaud server using public API methods. These methods 
 | ledger_closed  | Retrieve the most recently closed ledger version.  |
 | ledger_current | Retrieve the current working ledger version.       |
 | ledger_data    | Access raw ledger content.                         |
-| ledger_entry   | Retrieve a specific element from a ledger version. |
+| ledger_entry   | Retrieve a specific element from a ledger version. Supports the `random` ([Random](/docs/protocol-reference/ledger-data/ledger-objects-types/random)) and `app_loader` ([AppLoader](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader)) selectors. |
 
 ### Transaction Methods
 
@@ -37,7 +37,7 @@ Interact directly with an xahaud server using public API methods. These methods 
 
 | Method              | Description                                                |
 | ------------------- | ---------------------------------------------------------- |
-| submit              | Submit a transaction to the network.                       |
+| submit              | Submit a transaction to the network. Also accepts a raw validator `manifest` instead of `tx_blob` (see [SetManifest](/docs/protocol-reference/transactions/transaction-types/setmanifest#submitting-a-manifest)). |
 | submit_multisigned | Submit a multi-signed transaction.                         |
 | transaction_entry  | Retrieve details about a transaction in a specific ledger. |
 | tx                  | Retrieve transaction information across all ledgers.       |
@@ -77,6 +77,7 @@ Interact directly with an xahaud server using public API methods. These methods 
 | server_info  | Get server status in human-readable format.   |
 | server_state | Get server status in machine-readable format. |
 | manifest      | Retrieve public key details for a validator.  |
+| [server_definitions](/docs/features/http-websocket-apis/server-definitions) | Retrieve the protocol definitions known to the server, including amendments and the Hook API. |
 
 ### Oracle Methods
 
@@ -86,6 +87,20 @@ _(Requires the [PriceOracle amendment](/docs/features/amendments/#priceoracle).)
 | ----------------------- | ------------------------------------------------------------------------------------ |
 | [get_aggregate_price](/docs/features/http-websocket-apis/get-aggregate-price) | Retrieve aggregated price statistics across multiple Oracle objects for an asset pair. |
 
+### Hook Methods
+
+| Method | Description |
+| ------ | ----------- |
+| [hook_validate](/docs/features/http-websocket-apis/hook-validate) | Run the Hook guard checker and WebAssembly validation against Hook code. Disabled by default on networked nodes. |
+
+### PWA Methods
+
+_(Requires the [PWALoader amendment](/docs/features/amendments/#pwaloader).)_
+
+| Method | Description |
+| ------ | ----------- |
+| [pwa_validate](/docs/features/http-websocket-apis/pwa-validate) | Check whether a served AppLoader document is the account's current one. |
+
 ### Utility Methods
 
 
@@ -94,4 +109,4 @@ _(Requires the [PriceOracle amendment](/docs/features/amendments/#priceoracle).)
 | ------ | ---------------------------------------------------------------------- |
 | json   | Proxy for running commands with JSON parameters. _(Commandline only.)_ |
 | ping   | Verify server connectivity.                                            |
-| random | Generate random numbers.                                               |
+| random | Generate a local random number on the server. (Unrelated to the consensus [RNG](/docs/features/amendments/#rng) used by Hooks.) |

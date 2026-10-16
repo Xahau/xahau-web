@@ -1,0 +1,75 @@
+---
+title: util_random
+description: Write random bytes from the consensus random number generator into a buffer.
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### Concepts
+
+<LinkButton href="/docs/protocol-reference/ledger-data/ledger-objects-types/random">Random ledger object</LinkButton>
+
+### Behaviour
+
+<Tabs>
+<TabItem label="C">
+
+_(Requires the [RNG amendment](/docs/features/amendments/#rng).)_
+
+* Writes `write_len` (1–512) random bytes to `write_ptr`.
+* The bytes are derived from the ledger's consensus random seed, mixed with the transaction ID, Hook account, Hook hash, chain position, strong/weak execution, callback flag and the WebAssembly parameter. Two executions never receive the same output.
+* Each Hook execution can draw at most 256 times. The limit is shared with [`dice`](/docs/hooks/functions/utilities/dice).
+* The function is only on the Hook import whitelist once the RNG amendment is enabled, so a Hook that imports it cannot be installed before then.
+</TabItem>
+</Tabs>
+
+### Definition
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t util_random (
+    uint32_t write_ptr,
+    uint32_t write_len
+);
+```
+</TabItem>
+</Tabs>
+
+### Example
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t seed[32];
+if (util_random(SBUF(seed)) != 32)
+    rollback(SBUF("RNG unavailable"), 1);
+```
+</TabItem>
+</Tabs>
+
+### Parameters
+
+<Tabs>
+<TabItem label="C">
+| Name      | Type     | Description                                                     |
+| --------- | -------- | --------------------------------------------------------------- |
+| write_ptr | uint32_t | Pointer to a buffer to write the random bytes into.             |
+| write_len | uint32_t | Number of random bytes to write. Must be between 1 and 512.     |
+</TabItem>
+</Tabs>
+
+### Return Code
+
+<Tabs>
+<TabItem label="C">
+| Type    | Description |
+| ------- | ----------- |
+| int64_t | <p>The number of bytes written.<br /><br />If negative, an error:<br /><code>TOO_LITTLE_ENTROPY</code><br />- No seed exists for this ledger, or fewer than 80% of the UNLReport contributed to it.<br /><br /><code>TOO_MANY_NONCES</code><br />- The Hook has already drawn 256 times in this execution (shared with <code>dice</code>).<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> is <code>0</code>.<br /><br /><code>TOO_BIG</code><br />- <code>write_len</code> is greater than 512.<br /><br /><code>OUT_OF_BOUNDS</code><br />- The write buffer is outside Hook memory.</p> |
+</TabItem>
+</Tabs>
+
+### Notes
+
+* **Draws are never undone.** If the transaction fails with a `tec` code (including `tecHOOK_REJECTED`) after a Hook drew random numbers, the RNG state still advances. A rollback cannot be used to "re-roll".
+* **Open ledger is only a preview.** While a transaction is applied to the open ledger, draws may use the previous ledger's seed. The authoritative result is decided when the ledger closes, so a Hook's outcome in the open ledger may differ from its validated outcome.
+* **Auditability.** The validated metadata of a transaction whose Hooks drew random numbers contains a `RandomData` field. It holds the RNG state seen by the transaction's first draw, and every value its Hooks received is derived from it.

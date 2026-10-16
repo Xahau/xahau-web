@@ -21,6 +21,7 @@ description: An AccountSet transaction modifies the properties of an account in 
 
 | Field           | JSON Type | \[Internal Type]\[] | Description                                                                                                                                                                                                                                                                               |
 | --------------- | --------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AppLoader`     | String    | Blob                | _(Optional)_ An HTML document (the bootstrap page of a Progressive Web App) to publish on ledger, as hex. At most 4096 bytes. To remove the document, use an empty value. See [AppLoader](#apploader). _(Added by the [PWALoader amendment](/docs/features/amendments/#pwaloader).)_ |
 | `ClearFlag`     | Number    | UInt32              | _(Optional)_ Unique identifier of a flag to disable for this account.                                                                                                                                                                                                                     |
 | `Domain`        | String    | Blob                | _(Optional)_ The domain that owns this account, as a string of hex representing the ASCII for the domain in lowercase. [Cannot be more than 256 bytes in length.](https://github.com/Xahau/xahaud/blob/55dc7a252e08a0b02cd5aa39e9b4777af3eafe77/src/ripple/app/tx/impl/SetAccount.h#L34) |
 | `EmailHash`     | String    | Hash128             | _(Optional)_ An arbitrary 128-bit value. Conventionally, clients treat this as the md5 hash of an email address to use for displaying a [Gravatar](http://en.gravatar.com/site/implement/hash/) image.                                                                                    |
@@ -34,6 +35,30 @@ description: An AccountSet transaction modifies the properties of an account in 
 | `HookStateScale` | Number    | UInt16             | _(Optional)_ Scale factor for determining when Hook state entries become stale. Valid values are `1` to `16` inclusive. _(Added by the [ExtendedHookState amendment][].)_                                                                                                               |
 
 If none of these options are provided, then the AccountSet transaction has no effect (beyond destroying the transaction cost). See Cancel or Skip a Transaction for more details.
+
+### AppLoader
+
+_(Added by the [PWALoader amendment](/docs/features/amendments/#pwaloader).)_
+
+The `AppLoader` field publishes a small HTML document on ledger, stored in the account's [AppLoader ledger object](/docs/protocol-reference/ledger-data/ledger-objects-types/app-loader). Nodes that opt in can serve it over HTTP as the entry point of a Progressive Web App.
+
+```json
+{
+    "TransactionType": "AccountSet",
+    "Account": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "AppLoader": "3C21444F43545950452068746D6C3E3C68746D6C3E3C626F64793E48656C6C6F3C2F626F64793E3C2F68746D6C3E",
+    "Fee": "56",
+    "Sequence": 6
+}
+```
+
+* **Publish or overwrite:** send a non-empty `AppLoader`. The decoded bytes are the HTML document.
+* **Remove:** send `AppLoader` as an empty value (`""`), the same way `Domain` and `MessageKey` are cleared.
+* **Fee:** the normal base fee **plus 1 drop per byte** of the document, charged on every AccountSet with a non-empty `AppLoader` (including overwrites). Removal costs nothing extra. Paying less returns `telINSUF_FEE_P`. Use the `fee` method with the transaction blob to get the exact minimum.
+* **Reserve:** none. The document does not count toward the owner reserve.
+* **Sequence:** every AccountSet that carries the field (including a removal) increments `AppLoaderSequence` on the account's [AccountRoot](/docs/protocol-reference/ledger-data/ledger-objects-types/accountroot).
+
+The document must be non-empty and at most 4096 bytes of well-formed UTF-8, contain no C0 control characters other than TAB, LF, FF and CR (and no DEL), begin (after an optional BOM and whitespace) with an HTML doctype or an `<html` start tag, contain an `<html` start tag followed later by `</html>`, and have nothing but whitespace after the last `</html>`. Otherwise the transaction fails with `temMALFORMED`. Sending `AppLoader` before the PWALoader amendment is enabled returns `temDISABLED`.
 
 ### Domain
 
