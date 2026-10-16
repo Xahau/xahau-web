@@ -343,26 +343,6 @@
       }
     },
     {
-      "id": "amm",
-      "lane": "tech",
-      "status": "feature",
-      "quarter": "2026-Q2",
-      "span": 2,
-      "phase": "feature",
-      "note": "ready-for-amendment",
-      "progress": "done",
-      "title": {
-        "en": "AMM",
-        "es": "AMM",
-        "pt-BR": "AMM"
-      },
-      "description": {
-        "en": "Automated Market Maker primitive for deep native liquidity on the Xahau DEX. Merged into the xahaud dev branch, awaiting amendment vote.",
-        "es": "Primitiva Automated Market Maker para liquidez nativa profunda en el DEX de Xahau. Integrada en la rama dev de xahaud, a la espera de la votación de enmienda.",
-        "pt-BR": "Primitiva de Automated Market Maker para liquidez nativa profunda no DEX da Xahau. Integrada ao branch dev do xahaud, aguardando votação de emenda."
-      }
-    },
-    {
       "id": "named-hook",
       "lane": "tech",
       "status": "feature",
