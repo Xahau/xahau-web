@@ -1,0 +1,67 @@
+---
+title: OfferCreate
+description: >-
+  OfferCreateトランザクションは、分散型取引所にOfferを配置します。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+### 例
+
+```json
+{
+    "TransactionType": "OfferCreate",
+    "Account": "ra5nK24KXen9AHvsdFTKHSANinZseWnPcX",
+    "Fee": "12",
+    "Flags": 0,
+    "LastLedgerSequence": 7108682,
+    "Sequence": 8,
+    "TakerGets": "6000000",
+    "TakerPays": {
+      "currency": "GKO",
+      "issuer": "ruazs5h1qEsqpke88pcqnaseXdm6od2xc",
+      "value": "2"
+    }
+}
+```
+
+### フィールド
+
+| フィールド           | JSON型                                                                                                                          | \[Internal Type]\[] | 説明                                                                                           |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `Expiration`    | Number                                                                                                                             | UInt32              | _(任意)_ Offerが有効でなくなる時刻。\[seconds since the Ripple Epoch]\[]で指定します。         |
+| `OfferSequence` | Number                                                                                                                             | UInt32              | _(任意)_ 先に削除するOffer。指定方法は \[OfferCancel]\[]と同じです。                            |
+| `OfferID`       | String                                                                                                                             | Hash256             | _(任意)_ キャンセルするOfferレジャーオブジェクトのID。64文字のhexadecimal文字列です。       |
+| `TakerGets`     | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | 売却する通貨の金額と種類。                                                                            |
+| `TakerPays`     | [Currency Amount](/ja/docs/protocol-reference/data-types/currency-formats/#specifying-currency-amounts) | Amount              | 購入する通貨の金額と種類。                                                                            |
+
+### OfferCreateフラグ
+
+OfferCreateタイプのトランザクションは、`Flags`フィールドで次の追加値をサポートします。
+
+| フラグ名             | Hex値    | 10進値 | 説明                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tfPassive`           | `0x00010000` | 65536         | 有効な場合、Offerは完全一致するOfferを約定せず、代わりにレジャー内のOfferオブジェクトになります。それでも交差するOfferは約定します。                                                                                                                                                                                                                                                              |
+| `tfImmediateOrCancel` | `0x00020000` | 131072        | Offerを [Immediate or Cancel order](http://en.wikipedia.org/wiki/Immediate_or_cancel)として扱います。Offerはレジャーに \[Offer object]\[]を作成せず、トランザクション処理時点で既存のOfferを約定して可能な範囲だけ取引します。約定するOfferがなければ、何も取引せずに「成功」します。この場合でもトランザクション結果コードは`tesSUCCESS`です。 |
+| `tfFillOrKill`        | `0x00040000` | 262144        | Offerを [Fill or Kill order](http://en.wikipedia.org/wiki/Fill_or_kill)として扱います。Offerはレジャーに \[Offer object]\[]を作成せず、約定時に完全に埋められない場合はキャンセルされます。既定では、ownerは`TakerPays`の全額を受け取る必要があります。`tfSell` フラグが有効な場合は、代わりにownerが`TakerGets`の全額を支払える必要があります。         |
+| `tfSell`              | `0x00080000` | 524288        | 交換で`TakerPays`以上を得ることになっても、`TakerGets`の全額を交換します。                                                                                                                                                                                                                                                                                                            |
+
+### エラーケース
+
+| エラーコード               | 説明                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temINVALID_FLAG`        | トランザクションが`tfImmediateOrCancel`と`tfFillOrKill`の両方を指定している場合に発生します。                                                                                                                                                                                                                                                            |
+| `tecEXPIRED`             | トランザクションがすでに期限切れの`Expiration`時刻を指定している場合に発生します。                                                                                                                                                                                                                                                                       |
+| `tecKILLED`              | トランザクションが`tfFillOrKill`を指定し、全額を約定できない場合に発生します。_[ImmediateOfferKilled amendment]\[]_が有効な場合、この結果コードはトランザクションが`tfImmediateOrCancel`を指定し、資金を動かさずに実行された場合にも発生します（以前は`tesSUCCESS`でした）。 |
+| `temBAD_EXPIRATION`      | トランザクションに、有効な形式でない`Expiration`フィールドが含まれている場合に発生します。                                                                                                                                                                                                                                                                     |
+| `temBAD_SEQUENCE`        | トランザクションに、有効な形式でない、またはトランザクション自身の`Sequence`番号より大きい`OfferSequence`が含まれている場合に発生します。                                                                                                                                                                                                             |
+| `temBAD_OFFER`           | OfferがXAH対XAHの取引を試みる場合、または無効もしくは負のamountのtokenを取引しようとする場合に発生します。                                                                                                                                                                                                                                                 |
+| `temREDUNDANT`           | トランザクションが同じtoken（同じissuerとcurrency code）を指定している場合に発生します。                                                                                                                                                                                                                                                             |
+| `temBAD_CURRENCY`        | トランザクションがcurrency code "XAH" のtokenを指定している場合に発生します。                                                                                                                                                                                                                                                                          |
+| `temBAD_ISSUER`          | トランザクションが無効な`issuer`値を持つtokenを指定している場合に発生します。                                                                                                                                                                                                                                                                         |
+| `tecNO_ISSUER`           | トランザクションが、`issuer`値がレジャー内の資金供給済みアカウントではないtokenを指定している場合に発生します。                                                                                                                                                                                                                                          |
+| `tecFROZEN`              | トランザクションが凍結されたtrust line上のtokenを含む場合に発生します（local freezeとglobal freezeを含む）。                                                                                                                                                                                                                                          |
+| `tecUNFUNDED_OFFER`      | ownerが`TakerGets`のcurrencyを正の量で保有していない場合に発生します。（例外:`TakerGets`がowner自身が発行したtokenを指定している場合、トランザクションは成功できます。）                                                                                                                                                                         |
+| `tecNO_LINE`             | トランザクションが、issuerがAuthorized Trust Linesを使っており、必要なtrust lineが存在しないtokenを含む場合に発生します。                                                                                                                                                                                                                            |
+| `tecNO_AUTH`             | トランザクションが、issuerがAuthorized Trust Linesを使っており、tokenを受け取るtrust lineは存在するが承認されていないtokenを含む場合に発生します。                                                                                                                                                                                |
+| `tecINSUF_RESERVE_OFFER` | ownerが、レジャーに新しいOfferオブジェクトを追加するためのreserve要件を満たすだけのXAHを持っておらず、かつトランザクションが通貨を交換しなかった場合に発生します。（トランザクションが何らかのamountの取引に成功した場合、トランザクションは`tesSUCCESS`で成功しますが、残りに対するOfferオブジェクトは作成されません。） |
+| `tecDIR_FULL`            | ownerがレジャー内で多すぎる項目を所有している場合、またはorder bookにすでに同じexchange rateのOfferが多すぎる場合に発生します。                                                                                                                                                                                                                        |

@@ -1,0 +1,109 @@
+---
+title: float_negate
+description: XFL浮動小数点数を符号反転します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* XFLに`-1`を乗算します
+* 新しいXFLをint64_tとして返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 浮動小数点数表現を符号反転します。
+* エラーコード、または符号反転した浮動小数点数をbigintとして返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_negate (
+    int64_t float1
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_negate(f1: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t negative_one =
+    float_negate(float_one());
+```
+
+<Aside type="tip" title="特殊ケース">
+正規ゼロの符号反転は正規ゼロです。一部の浮動小数点標準（IEEEなど）とは異なり、XFLに「負のゼロ」はありません。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const negative_one =
+    float_negate(float_one());
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前   | 型       | 説明                                   |
+| ------ | -------- | -------------------------------------- |
+| float1 | int64_t | XFL浮動小数点格納数                    |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前 | 型     | 説明                 |
+| ---- | ------ | -------------------- |
+| f1   | bigint | 符号反転する浮動小数点数。 |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                         |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17)格納数<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターの1つが有効なXFL格納数ではありません</p> |
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                  | 説明                                               |
+| ------------------- | -------------------------------------------------- |
+| ErrorCode or bigint | エラーコード、またはXFL (xls17)格納数。            |
+</TabItem>
+</Tabs>

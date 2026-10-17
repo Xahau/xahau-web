@@ -1,0 +1,28 @@
+---
+title: CheckCancel
+description: >-
+  未償還のCheckをキャンセルし、資金を送ることなくレジャーから削除します。Checkの送信元または送信先は、このトランザクションタイプを使っていつでもCheckをキャンセルできます。
+---
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/URIToken.cpp)]
+
+_(\[Checks amendment]\[]により追加。)_
+
+### 例
+
+```json
+{
+    "Account": "rUn84CUYbNjRoTQ6mSW7BVJPSVJNLb1QLo",
+    "TransactionType": "CheckCancel",
+    "CheckID": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+    "Fee": "12"
+}
+```
+
+| フィールド     | JSON型 | \[Internal Type]\[] | 説明                                                                           |
+| --------- | --------- | ------------------- | ------------------------------------------------------------------------------------- |
+| `CheckID` | String    | Hash256             | キャンセルするCheckレジャーオブジェクトのID。64文字のhexadecimal文字列です。 |
+
+### エラーケース
+
+* `CheckID`で識別されるオブジェクトが存在しないかCheckでない場合、トランザクションは`tecNO_ENTRY`で失敗します。
+* Checkが期限切れでなく、CheckCancelトランザクションの送信者がCheckの送信元でも送信先でもない場合、トランザクションは`tecNO_PERMISSION`で失敗します。

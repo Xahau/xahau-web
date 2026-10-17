@@ -1,0 +1,82 @@
+---
+title: otxn_slot
+description: 発信トランザクションをSlotに読み込む
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* 発信トランザクションを指定したSlotに配置する。Slotが指定されていない場合は、新しいSlotに配置する。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot (
+    uint32_t slot_no
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_slot(slotno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_slot_no = 
+		otxn_slot(0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const otxn_slot_no = otxn_slot(0)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前     | 型      | 説明                                                                   |
+| -------- | --------- | ----------------------------------------------------------------------------- |
+| slot_no | uint32_t | 配置先のSlot番号。次に利用可能なSlotを選ぶ場合は `0`。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前   | 型   | 説明                 |
+| ------ | ------ | --------------------------- |
+| slotno | number | 参照するSlot番号。 |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型     | 説明                                                                                                                                                                                                                                                                                        |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>otxnが配置されたSlot。<br /><br /><code>INVALID_ARGUMENT</code><br />-指定されたSlot番号が利用可能な最大Slot番号を超えている。<br /><br /><code>NO_FREE_SLOTS</code><br />-発信トランザクションを配置できる空きSlotがなく、要求を受け付けられなかった。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型                   | 説明                                                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| ErrorCode \| ByteArray | <p></p><p>指定したSlot番号に関連付けられた値を数値配列として返し、検索に失敗した場合はErrorCodeを返す。</p> |
+</TabItem>
+</Tabs>

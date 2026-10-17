@@ -1,0 +1,90 @@
+---
+title: hook_hash
+description: 現在実行中のHookの32バイトのNamespace biased SHA512Hを取得する
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* `hook_no`の位置にあるHookアカウント上のHookのハッシュを検索する
+* 32バイトのハッシュを`write_ptr`に書き込む
+</TabItem>
+<TabItem label="JavaScript">
+* 指定した位置にあるHookアカウント上のHookのハッシュを検索する。
+* 現在実行中のHookのNamespace biased SHA512H、または検索に失敗した場合はエラーコード。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_hash (
+    uint32_t write_ptr,
+    uint32_t write_len,
+    int32_t  hook_no
+);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+function hook_hash(hookno: number): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+uint8_t hash[32];
+int64_t bytes_written = 
+    hook_hash(hash, 32, -1);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const hash = hook_hash(hookno)
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前      | 型        | 説明                                                                                         |
+| --------- | --------- | -------------------------------------------------------------------------------------------- |
+| write_ptr | uint32_t | 出力を格納するのに適したサイズのバッファへのポインター。少なくとも32バイト必要。          |
+| write_len | uint32_t | 出力バッファの長さ。                                                                         |
+| hook_no   | int32_t  | Hookが位置するHookチェーン上の位置。現在実行中のHookの場合は `-1`。                  |
+</TabItem>
+<TabItem label="JavaScript">
+| 名前    | 型     | 説明                                                                                         |
+| ------- | ------ | -------------------------------------------------------------------------------------------- |
+| hook_no | number | Hookが位置するHookチェーン上の位置。現在実行中のHookの場合は `-1`。                   |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型      | 説明                                                                                                                                                                                                 |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>書き込まれたバイト数<br /><br />負の場合はエラー:<br /><code>OUT_OF_BOUNDS</code><br />-指定したポインター/長さがHookメモリの外側にある。<br /><br /><code>DOESNT_EXIST</code><br />-指定したHookのシーケンス番号がHookチェーン内に存在しない。</p> |
+</TabItem>
+<TabItem label="JavaScript">
+| 型                     | 説明                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| ByteArray or ErrorCode | 現在実行中のHookのNamespace biased SHA512Hを返す。検索に失敗した場合はエラーコードを返す。    |
+</TabItem>
+</Tabs>

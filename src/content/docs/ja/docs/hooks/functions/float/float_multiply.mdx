@@ -1,0 +1,116 @@
+---
+title: float_multiply
+description: 2つのXFL数値を乗算します
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 2つのXFL (xls17)浮動小数点数の乗算を計算します
+* 新しいXFLをint64_tとして返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 2つのXFL (xls17)浮動小数点数の乗算を計算します
+* エラーコード、または新しいXFLをbigintとして返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_multiply (
+    int64_t float1,
+    int64_t float2
+);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_multiply(f1: bigint, f2: bigint): ErrorCode | bigint
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t max_vault_pusd =
+    float_multiply(vault_xrp, exchange_rate);
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const max_vault_pusd =
+    float_multiply(vault_xrp, exchange_rate)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+
+
+| 名前   | 型       | 説明                                                                                         |
+| ------ | -------- | -------------------------------------------------------------------------------------------- |
+| float1 | int64_t | 乗算の第1オペランドを表すXFL浮動小数点格納数                                                 |
+| float2 | int64_t | 乗算の第2オペランドを表すXFL浮動小数点格納数                                                 |
+
+<Aside type="caution">
+一部の乗算はオーバーフローする可能性があり、その場合は`INVALID_FLOAT`エラーを返します。ただし、**アンダーフロー**はXFL正規ゼロ（つまり、格納数 = 0）として返ります。
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+| 名前 | 型     | 説明                                                                                         |
+| ---- | ------ | -------------------------------------------------------------------------------------------- |
+| f1   | bigint | 乗算の第1オペランドを表すXFL浮動小数点格納数                                                 |
+| f2   | bigint | 乗算の第2オペランドを表すXFL浮動小数点格納数                                                 |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+
+
+| 型       | 説明                                                                                                                                                                                                                                                                              |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>XFL (xls17)格納数<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターの1つが有効なXFL格納数ではありません<br /><br /><code>OVERFLOW</code><br />-乗算結果が大きすぎてXFLに保存できませんでした。</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                 | 説明                                              |
+| ------------------ | ------------------------------------------------- |
+| Errorcor or bigint | エラーコード、またはXFL (xls17)格納数             |
+</TabItem>
+</Tabs>

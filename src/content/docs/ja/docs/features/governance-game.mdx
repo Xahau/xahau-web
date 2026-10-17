@@ -1,0 +1,198 @@
+---
+title: ガバナンスゲーム
+description: >-
+  ガバナンスゲームは、意思決定に対するコミュニティ中心のアプローチを確保するための、
+  Xahauエコシステム内の革新的なガバナンスメカニズムです。
+---
+
+### 概要
+
+Xahauガバナンスゲームでは、Genesis AccountにインストールされたGovernance Hookを介して、最大400人のステークホルダーがXahauネットワークの管理に民主的に参加できます。
+
+### Layer 1
+
+このゲームは、20席を持つ"Layer 1"テーブルで構成されます。各席にはXahauアカウント (r-address)が入ることも、空席になることもあります。席が埋まっている場合、そのテーブルのメンバーがそこに座っていると言います。
+
+ゲームをプレイするには、テーブルのメンバーが投票します。投票対象は次の3種類のトピックのいずれかです。
+
+* Seatトピック
+* Hookトピック
+* Rewardトピック。
+
+SeatトピックはS00からS19までで、その席に現在誰が座るか (誰も座らない場合も含む)への投票を表します。変更を行うには80%の投票で十分です。投票プロセスは継続的であり、しきい値を超えた最後の投票が変更を実行します。
+
+HookトピックはH0からH9までで、Governance Hook自体を含め、どのHooksがテーブルのアカウントにインストールされるかを表します。これらのトピックで変更を行うには、そのテーブルに座っているメンバーの100%の同意が必要です。これにより、ガバナンスゲームを更新し、時間の経過とともにGenesis account機能を追加できます。
+
+RewardトピックはRRとRDで、それぞれReward-RateとReward-Delayを表します。これらのトピックで変更を行うにも、テーブルのメンバーの100%の同意が必要です。これらのパラメーターはBalanceAdjustmentsシステムに影響します。ネットワーク上の各アクティブユーザーがどれだけ請求できるか、またどれくらいの頻度で請求できるかを決定します。
+
+### Layer 2
+
+Layer 1テーブルの席を埋めるメンバーはXahauアカウント (r-addresses)です。ガバナンスゲームは構造的に再帰的になるよう設計されており、これらのアカウントの1つ自体が別の20席で構成されるテーブルになる場合があります。これはLayer 2テーブルと呼ばれ、その席はLayer 2席です。
+
+Layer 2テーブル内にも、Layer 1テーブルと同じ投票ルールを持つ同じseat投票トピックとhook投票トピックが存在します。これにより、テーブルは自分自身のメンバーシップとそこで実行されるHooksを管理できます。
+
+これらのトピックに加えて、Layer 2テーブルは51%の投票により、Layer 1テーブルへ投票を提出することもできます。これはLayer 2テーブルが存在するr-addressを代表する投票であり、Layer 1テーブルでは1票として数えられます。
+
+Layer 2テーブルの投票が51%を下回る場合がありますが、その場合でもLayer 1テーブルへ元々提出された投票は撤回**されません**。51%に達した新しい (異なる)投票だけが、Layer 1でのそのテーブルの投票を変更できます。
+
+Layer 2テーブルは、Layer 1へ提出された投票を通じてのみRewardトピックに投票できます。
+
+要約すると、Layer 2メンバーは次のものに投票できます。
+
+* 自分自身のテーブルのSeatsとHooks。
+* Layer 2テーブルが属するLayer 1席を介した、L1テーブルのSeats、Hooks、Rewardトピック。
+
+### ゲームの制約
+
+* どのテーブルも、少なくとも2人、最大20人のメンバーを持つことができます。
+* 1つのr-addressは、特定のテーブルでは1席しか占有できませんが、多数の異なるテーブルそれぞれで1席を占有できます。
+* ガバナンスゲームは2層を超えて再帰するようには設計されていません。Layer 3テーブルを実装する技術的不可能性はありませんが、現在のGovernance Hookはそれをサポートしていません。
+
+### バリデーター報酬
+
+バリデーター報酬は、ネットワーク上でバリデーターを運用するためのインセンティブです。報酬はネットワークによって生成され、Layer 1メンバーとアクティブなUNLバリデーターの共通部分に付与されます。指定された256レジャーのブロック内でバリデーター報酬の対象となるには、次の条件を満たす必要があります。
+
+* バリデーターがXahau UNL上にある。
+* バリデーターが他のUNLバリデーターから見て正常に検証している。
+* バリデーターのマスター公開鍵をr-addressへ変換したとき、そのアカウントがL1 Tableに座っている。
+
+報酬はアドホックであり、XahauユーザーのBalance Adjustmentsに基づきます。ユーザーがBalance Adjustmentを実行すると、その調整額を20で割った金額が、上記の基準を満たす各アクティブバリデーターのr-addressへ送信されます。
+
+## 技術仕様
+
+Governance Hookは、新しいネットワークでレジャー1から数レジャー後に、XahauGenesis Amendmentによってジェネシスアカウントへインストールされます。これがL1テーブルです。L2テーブルを作成するには、別のアカウントへHookをインストールし、そのアカウントをL1テーブルに座らせます。
+
+### Governance Hookパラメーター
+
+Governance Hookがインストールされるとき、一連のHookParametersとともにインストールされます。これらはテーブルの初期構成を指定します。
+
+各HookParameterは、3つのAscii文字、または2つのAscii文字と以下のような識別子で構成される3バイト名を持ちます。LE = Little Endian。
+
+```
+Parameter Name: {'I', 'R', 'R'}
+Parameter Value: Initial Reward Rate <8 byte XFL fraction between 0 and 1, LE>
+Parameter Name: {'I', 'R', 'D'}
+Parameter Value: Initial Reward Delay <8 byte LE XFL seconds between rewards>
+Parameter Name: {'I', 'M', 'C'}
+Parameter Value: Initial Member Count <1 byte>
+Parameter Name: {'I', 'S', 0x00}
+Parameter Value: Initial seat #0's member's 20 byte Account ID.
+Parameter Name: {'I', 'S', 0x01}
+Parameter Value: Initial seat #1's member's 20 byte Account ID.
+... etc ... up to at most Seat 19.
+
+```
+
+ゲームを開始するには、InvokeトランザクションをHookへ送信する必要があります。これは任意のアカウントから送信できます。BlobやHookParametersは不要です。このInvokeトランザクションは初めてHookをトリガーし、各初期席、報酬率、報酬遅延の状態エントリを作成させます。
+
+### Governance Hook状態
+
+Governance HookのHook Stateは、ゼロ名前空間`0000000000000000000000000000000000000000000000000000000000000000.`に保存されます。
+
+状態エントリにはいくつかのタイプがあります。最初は、forward member keyおよびreverse member keyと呼ばれるものです。これらは各席番号をそこに座るメンバーへ、また各メンバーをそのメンバーが座る席へマッピングします。
+
+```
+Key: 0x0000000000000000000000000000000000000000000000000000000000000005
+Val: <20 byte AccountID of the member at seat 5 or all 0's or absent.>
+
+Key: <20 byte AccountID of the member at seat 3>
+Val: 0x03
+```
+
+次に、いくつかのシングルトン状態エントリがあります。それぞれMember Count、Reward Rate、Reward Delayです。
+
+```
+Key in Ascii: MC
+Key: 0x0000000000000000000000000000000000000000000000000000000000004D43
+Val: <1 byte member count (how many seats are occupied)>
+
+Key in Ascii: RR
+Key: 0x0000000000000000000000000000000000000000000000000000000000005252
+Val: <8 byte LE XFL reward rate (between 0 and 1 (1 being 100%))>
+
+Key in Ascii: RD
+Key: 0x0000000000000000000000000000000000000000000000000000000000005244
+Val: <8 byte LE XFL reward delay in seconds>
+```
+
+最後に、投票と投票カウンターもHook状態に保存されます。席によって投票が行われると、次のようにHook状態に記録されます。
+
+```
+Vote key is 32 bytes comprising:
+    'V' (0x56) - vote
+    'H' (0x48) or 'R' (0x52) or 'S' (0x53) - topic type
+    'R' (0x52) or 'D' (0x44) or 0 (0x00) to 19 (0x13) - topic detail
+     1  (0x01) or  2  (0x02) - target layer for this vote
+    0x00 00 00 00 00 00 00 00 - 8 bytes of padding
+    20 byte Account ID - the voter
+Vote data:
+    20 byte Account ID or 8 byte XFL
+```
+
+投票が行われると、投票カウンター状態エントリが増加します。このカウンターは、このトピックデータペアに現在いくつの票があるかを追跡し、投票が必要なしきい値を超えたときにHookがその投票を実行できるようにします。カウンター状態は次のとおりです。
+
+```
+Counter key is 32 bytes comprising:
+    'C' (0x43) - count
+    'H' (0x48) or 'R' (0x52) or 'S' (0x53) - topic type
+    'R' (0x52) or 'D' (0x44) or 0 (0x00) to 19 (0x13) - topic detail
+     1  (0x01) or  2  (0x02) - target layer for this vote
+     0's for padding
+     vote data or left-truncated vote data
+```
+
+### Governance Hookトランザクション
+
+Governance Hookは、メンバーがttINVOKEトランザクションを使用して操作します。これに加えて、L1テーブルへ投票を提出するL2テーブルである場合、Hookは独自のttINVOKEトランザクションを発行することもあります。
+
+投票トランザクションには、トランザクションのトップレベルにHookParameters配列が含まれます。
+
+```js
+{
+    Account: "<member's account>",
+    TransactionType: "Invoke",
+    NetworkID: 21337,
+    Destination: "<table's account>",
+    HookParameters:
+    [
+        {
+            HookParameter:
+            {
+                HookParameterName: "4C",     // L - the target layer
+                HookParameterValue: "01",    // 01 for L1 table, 02 for L2 table
+                                             // note: this is the table the vote is
+                                             // intended for, not the table you're at
+                                             // i.e. for a L2 table you can vote on
+                                             // your own membership or on L1's
+            }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "54",    // T - topic type
+                 HookParameterValue: "4801", // H [0x00-0x09] or 
+                                             // S [0x00-0x13] or
+                                             // RR or RD
+             }
+        },
+        {
+             HookParameter:
+             {
+                 HookParameterName: "56",    // V - vote data
+                 HookParameterValue: "<32 or 20 or 8 bytes of vote data>"
+             }
+         }
+    ]
+}
+    
+```
+
+### 投票のクリア
+
+厳密には「投票を削除する」方法はありません。代わりに、現在の状態を反映するように投票を戻すことができます。&#x20;
+
+たとえば、seat 8に誰も座っておらず、あなたがaccount Aをそこに座らせる投票をした後で考えを変えた場合、seat 8を空席にする投票を行うことができます (すでに空席であっても)。これにより、自分の投票をその席の現在の状態に合わせられます。&#x20;
+
+これを行うには、投票トピックが通常要求する長さと同じ長さで、投票データをすべて0にして投票します。したがって、seat投票では20バイトの0になります。
+
+

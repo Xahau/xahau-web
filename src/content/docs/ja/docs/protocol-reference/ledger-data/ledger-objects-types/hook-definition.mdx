@@ -1,0 +1,58 @@
+---
+title: Hook定義
+---
+[\[出典\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L157-L170)
+
+_(\[Hooks amendment]\[]によって追加されました。)_
+
+`HookDefinition`オブジェクトはHookを表します。Hookは、特定のトランザクションに応答して実行されるコード片です。Hookはトランザクションを変更したり、新しいトランザクションを発行したり、その他の処理を実行したりできます。
+
+### JSON例
+
+```json
+{
+  "HookHash": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0",
+  "HookOn": "0000000000000000000000000000000000000000000000000000000000000000",
+  "HookNamespace": "0000000000000000000000000000000000000000000000000000000000000000",
+  "HookParameters": {
+    "HookParameter": {
+      "HookParameterName": "DEADBEEF",
+      "HookParameterValue": "DEADBEEF",
+    }
+  },
+  "HookApiVersion": 1,
+  "CreateCode": "5463C6E08862A1FAE5EDAC12D70ADB16546A1F674930521295BC082494B62924",
+  "HookSetTxnID": "0000000000000000",
+  "ReferenceCount": "6",
+  "Fee": "100000000",
+  "HookCallbackFee": "200000000",
+  "LedgerEntryType": "HookDefinition",
+  "index": "49647F0D748DC3FE26BDACBC57F251AADEFFF391403EC9BF87C97F67E9977FB0"
+}
+```
+
+### フィールド
+
+`HookDefinition`オブジェクトには、次のフィールドがあります。
+
+| 項目              | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                       |
+| ----------------- | --------- | ------------- | ----- | ---------------------------------------------------------------------------------------------------------- |
+| `HookHash`        | String    | Hash256       | はい | Hookの一意な識別子です。                                                                                |
+| `HookOn`          | String    | Hash256       | はい | Hookがトリガーされるトランザクションです。                                                                 |
+| `HookCanEmit`     | String    | Hash256       | いいえ | Hookが発行できるトランザクションです。                                                                        |
+| `HookNamespace`   | String    | Hash256       | はい | Hookの名前空間です。                                                                                        |
+| `HookParameters`  | String    | Vector        | はい | Hookが受け付けるパラメーターです。                                                                             |
+| `HookApiVersion`  | Number    | UInt16        | はい | Hookが使用するHook APIのバージョンです。                                                                   |
+| `CreateCode`      | String    | VL            | はい | Hookが作成されたときに実行されるコードです。                                                               |
+| `HookSetTxnID`    | String    | Hash256       | はい | Hookを設定したトランザクションのIDです。                                                                      |
+| `ReferenceCount`  | String    | UInt64        | はい | Hookへの参照数です。                                                                             |
+| `Fee`             | String    | Amount        | はい | Hook実行の手数料です。                                                                                   |
+| `HookCallbackFee` | String    | Amount        | いいえ | Hookのコールバック関数実行に対する手数料です。                                                               |
+| `LedgerEntryType` | String    | UInt16        | はい | `0x0043`の値が文字列`HookDefinition`に対応し、このオブジェクトがHookDefinitionオブジェクトであることを示します。 |
+
+#### Hook定義ID形式
+
+`HookDefinition`オブジェクトのIDは、以下の値を順に連結したものの \[SHA-512Half]\[]です。
+
+* HookDefinitionスペースキー (`0x0044`)
+* Hookの`HookHash`

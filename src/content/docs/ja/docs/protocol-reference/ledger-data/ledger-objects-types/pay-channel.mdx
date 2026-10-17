@@ -1,0 +1,99 @@
+---
+title: Payment Channel
+---
+[\[出典\]](https://github.com/ripple/rippled/blob/c0a0b79d2d483b318ce1d82e526bd53df83a4a2c/src/ripple/protocol/impl/LedgerFormats.cpp#L180-L198)
+
+_(\[PayChan Amendment]\[]によって追加されました。)_
+
+`PayChannel`オブジェクトタイプはPayment Channelを表します。Payment Channelは、XAHまたはIOUの小額で高速なオフレジャー支払いを可能にし、後でコンセンサスレジャーと照合できます。Payment Channelは、チャネルがクローズされるまで、特定の宛先アドレスにのみ支払えるXAHまたはIOUの残高を保持します。未使用のXAHまたはIOUは、チャネルがクローズされたときにチャネルの所有者（それを作成して資金を供給した送信元アドレス）に返されます。
+
+`PaymentChannelCreate`トランザクションタイプは`PayChannel`オブジェクトを作成します。`PaymentChannelFund`と`PaymentChannelClaim`トランザクション型は、既存の`PayChannel`オブジェクトを変更します。
+
+Payment Channelが期限切れになると、最初はレジャーに残ります。これは、新しいトランザクションだけがレジャーの内容を変更できるためです。トランザクション処理は、期限後に任意のトランザクションがそれにアクセスすると、自動的にPayment Channelをクローズします。期限切れのチャネルをクローズして未使用のXAHまたはIOUを所有者に返すには、いずれかのアドレスがそのチャネルにアクセスする新しい`PaymentChannelClaim`または`PaymentChannelFund`トランザクションを送信する必要があります。
+
+Payment Channelの使用例については、Payment Channels Tutorialを参照してください。
+
+### JSON例
+
+```json
+{
+    "Account": "rBqb89MRQJnMPq8wTwEbtz4kvxrEDfcYvt",
+    "Destination": "rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn",
+    "Amount": "4325800",
+    "Balance": "2323423",
+    "PublicKey": "32D2471DB72B27E3310F355BB33E339BF26F8392D5A93D3BC0FC3B566612DA0F0A",
+    "SettleDelay": 3600,
+    "Expiration": 536027313,
+    "CancelAfter": 536891313,
+    "SourceTag": 0,
+    "DestinationTag": 1002341,
+    "DestinationNode": "0000000000000000",
+    "Flags": 0,
+    "LedgerEntryType": "PayChannel",
+    "OwnerNode": "0000000000000000",
+    "PreviousTxnID": "F0AB71E777B2DA54B86231E19B82554EF1F8211F92ECA473121C655BFC5329BF",
+    "PreviousTxnLgrSeq": 14524914,
+    "index": "96F76F27D8A327FC48753167EC04A46AA0E382E6F57F32FD12274144D00F1797"
+}
+```
+
+### フィールド
+
+`PayChannel`オブジェクトには次のフィールドがあります。
+
+| 名前                | JSON型          | \[内部型]\[] | 必須? | 説明                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------- | ---------------- | ------------ | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Account`           | String           | AccountID    | はい  | このpayment channelを所有する送信元アドレスです。これは、チャネルを作成したトランザクションの送信元アドレスから取得されます。                                                                                                                                                                                                                                                             |
+| `Amount`            | String or Object | Amount       | はい  | このチャネルに割り当てられた総額です。これには宛先アドレスに支払われた金額も含まれます。これは、チャネルを作成したトランザクションによって初期設定され、送信元アドレスが`PaymentChannelFund`トランザクションを送ると増やせます。                                                                                                                |
+| `Balance`           | String or Object | Amount       | はい  | チャネルによってすでに支払われた総額です。この値と`Amount`フィールドとの差分が、`PaymentChannelClaim`トランザクションでまだ宛先アドレスに支払える金額です。チャネルがクローズすると、残りの差分は送信元アドレスに返されます。                                                                                                |
+| `CancelAfter`       | Number           | UInt32       | いいえ | このpayment channelの不変な期限時刻です。`\[seconds since the Ripple Epoch]\[]` で表されます。この値があり、かつ前のレジャーの`close_time`フィールドより小さい場合、このチャネルは期限切れです。これはチャネルを作成したトランザクションで任意に設定され、変更できません。                                                                                         |
+| `Destination`       | String           | AccountID    | はい  | このpayment channelの宛先アドレスです。Payment channelが開いている間、このアドレスだけがチャネルから金額を受け取れます。これは、チャネルを作成したトランザクションの`Destination`フィールドから取得されます。                                                                                                                                            |
+| `DestinationTag`    | Number           | UInt32       | いいえ | このpayment channelの宛先をさらに指定するための任意のタグです。たとえば、宛先アドレス上のホスト型受取人などです。                                                                                                                                                                                                                                                            |
+| `DestinationNode`   | String           | UInt64       | いいえ | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクする宛先のowner directoryのどのページかを示すヒントです。`fixPayChanRecipientOwnerDir Amendment` を有効にする前に作成されたpayment channelでは省略されます。                                                                                                                                                  |
+| `Expiration`        | Number           | UInt32       | いいえ | このpayment channelの可変な期限時刻です。`\[seconds since the Ripple Epoch]\[]` で表されます。この値があり、かつ前のレジャーの`close_time`フィールドより小さい場合、このチャネルは期限切れです。詳細はChannel Expirationの設定を参照してください。                                                                                                                                      |
+| `Flags`             | Number           | UInt32       | はい  | このオブジェクトで有効になっている真偽値フラグのビットマップです。現在、プロトコルは`PayChannel`オブジェクトに対するフラグを定義していません。値は常に`0`です。                                                                                                                                                                                                                                                 |
+| `LedgerEntryType`   | String           | UInt16       | はい  | 文字列`PayChannel`に対応付けられる値`0x0078`は、このオブジェクトがpayment channelオブジェクトであることを示します。                                                                                                                                                                                                                                                                                  |
+| `OwnerNode`         | String           | UInt64       | はい  | ディレクトリが複数ページで構成されている場合に、このオブジェクトへリンクする送信元アドレスのowner directoryのどのページかを示すヒントです。                                                                                                                                                                                                                                                    |
+| `PreviousTxnID`     | String           | Hash256      | はい  | このオブジェクトを最後に変更したトランザクションの識別ハッシュです。                                                                                                                                                                                                                                                                                                                |
+| `PreviousTxnLgrSeq` | Number           | UInt32       | はい  | このオブジェクトを最後に変更したトランザクションを含むレジャーの \[インデックス]\[Ledger Index]です。                                                                                                                                                                                                                                                                                |
+| `PublicKey`         | String           | Blob         | はい  | このチャネルに対する請求に署名するために使える鍵ペアの公開鍵を、16進数で表したものです。これは有効なsecp256k1またはEd25519公開鍵ならどれでもかまいません。これはチャネルを作成したトランザクションで設定され、チャネルに対する請求で使う公開鍵と一致していなければなりません。チャネルの送信元アドレスは、署名付き請求なしでこのチャネルから宛先へ金額を送ることもできます。 |
+| `SettleDelay`       | Number           | UInt32       | はい  | 送信元アドレスが、まだ残高があるチャネルをクローズする際に待たなければならない秒数です。値が小さいほど、送信元アドレスがチャネルをクローズしようと要求した後、宛先アドレスが未処理の請求を回収できる時間は短くなります。32ビット符号なし整数（0から2^32-1）に収まる任意の値を指定できます。これはチャネルを作成するトランザクションで設定されます。   |
+| `SourceTag`         | Number           | UInt32       | いいえ | このpayment channelの送信元をさらに指定するための任意のタグです。たとえば、所有者アドレス上のホスト型受取人などです。                                                                                                                                                                                                                                                                     |
+| `TransferRate`      | Number           | UInt32       | いいえ |                                                                                                                                                                                                                                                                                                                                                                                                 |
+
+### Channel Expirationの設定
+
+payment channelの`Expiration`フィールドは可変な期限時刻であり、`CancelAfter`フィールドで表される不変な期限時刻とは対照的です。チャネルの期限は、常に前のレジャーの`close_time`フィールドとの相対で扱われます。`PayChannel` オブジェクトの作成時には`Expiration`フィールドは省略されます。`PayChannel` オブジェクトの`Expiration`フィールドを更新する方法はいくつかありますが、要するに、チャネルの送信元アドレスは、最初のクローズ試行の少なくとも`SettleDelay`秒後までチャネルが常に開いている限り、チャネルの`Expiration`を自由に設定できます。
+
+#### 送信元アドレス
+
+送信元アドレスは、`PaymentChannelFund`トランザクション型を使って`Expiration`を直接設定できます。新しい値は、次のいずれか早い方より前であってはなりません。
+
+* 現在のExpiration`値（設定されている場合）
+* 前のレジャーのclose timeに、チャネルの`SettleDelay`を足した値
+
+言い換えると、`Expiration`がすでに設定されている場合、送信元アドレスは常にそれを遅くできます。送信元は、`Expiration`の値を早くしたり、現在未設定であれば`Expiration`を設定したりできますが、その新しい値は少なくとも今から`SettleDelay`秒先でなければなりません。送信元アドレスが無効な`Expiration`日時を設定しようとすると、トランザクションは`temBAD_EXPIRATION`エラーコードで失敗します。
+
+送信元アドレスは、`PaymentChannelClaim`トランザクション型の`tfClose`フラグでも`Expiration`を設定できます。このフラグが有効な場合、レジャーは自動的に`Expiration`を次のいずれか早い方に設定します。
+
+* 現在の`Expiration`値（設定されている場合）
+* 前のレジャーのclose timeに、チャネルの`SettleDelay`を足した値
+
+送信元アドレスは、`PaymentChannelClaim`トランザクション型の`tfRenew`フラグで`Expiration`を削除できます。
+
+#### 宛先アドレス
+
+宛先アドレスは`Expiration`フィールドを設定できません。ただし、宛先アドレスは`PaymentChannelClaim`の`tfClose`フラグを使って、チャネルを即座にクローズできます。
+
+#### その他のアドレス
+
+他のアドレスが`Expiration`フィールドを設定しようとすると、トランザクションは`tecNO_PERMISSION`エラーコードで失敗します。ただし、チャネルがすでに期限切れなら、そのトランザクションによってチャネルはクローズされ、代わりに`tesSUCCESS`になります。
+
+### PayChannelのID形式
+
+`PayChannel`オブジェクトのIDは、次の値を順番に連結したものの \[SHA-512Half]\[]です。
+
+* PayChannelスペースキー（`0x0078`）
+* 送信元アカウントのAccountID
+* 宛先アカウントのAccountID
+* チャネルを作成した \[PaymentChannelCreateトランザクション]\[]のSequence番号。PaymentChannelCreateトランザクションでTicketを使用した場合は、代わりに`TicketSequence`の値を使用します。

@@ -1,0 +1,64 @@
+---
+title: 手数料設定
+---
+[\[出典\]](https://github.com/ripple/rippled/blob/master/src/ripple/protocol/impl/LedgerFormats.cpp#L115-L120)
+
+`FeeSettings`オブジェクトタイプには、手数料投票によって決定される現在の基礎トランザクションコストとリザーブ額が含まれます。各レジャーバージョンには`FeeSettings`オブジェクトが **最大1つ** 含まれます。
+
+### JSON例
+
+`FeeSettings`オブジェクトの例:
+
+```json
+{
+   "BaseFee": "000000000000000A",
+   "Flags": 0,
+   "LedgerEntryType": "FeeSettings",
+   "ReferenceFeeUnits": 10,
+   "ReserveBase": 20000000,
+   "ReserveIncrement": 5000000,
+   "XahauActivationLgrSeq": 0,
+   "NetworkID": 21337,
+   "AccountCount": 0,
+   "index": "4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651"
+}
+```
+
+### フィールド
+
+`FeeSettings`オブジェクトには、次のフィールドがあります。
+
+| 項目                    | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                                                      |
+| ----------------------- | --------- | ------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `BaseFee`               | String    | UInt64        | はい | 「参照トランザクション」のトランザクションコストを、XAHのdropsを16進数で表したものです。                                                              |
+| `Flags`                 | Number    | UInt32        | はい | このオブジェクトで有効なブールフラグのビットマップです。現在、プロトコルでは`FeeSettings`オブジェクトに対するフラグは定義されていません。この値は常に`0`です。 |
+| `LedgerEntryType`       | String    | UInt16        | はい | `0x0073`の値が文字列`FeeSettings`に対応し、このオブジェクトがレジャーのfee settingsを含むことを示します。                           |
+| `ReferenceFeeUnits`     | Number    | UInt32        | はい | `BaseFee`を「手数料単位」に変換したものです。                                                                                                       |
+| `ReserveBase`           | Number    | UInt32        | はい | Xahauにおけるアカウントの基本リザーブで、XAHのdropsで表されます。                                                                                       |
+| `ReserveIncrement`      | Number    | UInt32        | はい | オブジェクトを所有するための増分所有者リザーブで、XAHのdropsで表されます。                                                                               |
+| `XahauActivationLgrSeq` | Number    | UInt32        | いいえ | Xahau genesisが有効化されたレジャーインデックスです。                                                                                              |
+| `AccountCount`          | Number    | UInt32        | いいえ | Xahauネットワーク上で作成されたアカウント数です。                                                                                             |
+| `NetworkID`             | Number    | UInt32        | いいえ | ネットワークのIDです。                                                                                                                            |
+
+**警告:** このレジャーオブジェクトタイプのJSON形式は特殊です。`BaseFee`、`ReserveBase`、`ReserveIncrement`はXAHのdropsを示しますが、\[Currency Amount]で \[XAHを指定する]\[]通常の形式では _**ありません**_。
+
+_`\[XAHFees amendment]\[]`_ が有効な場合、`FeeSettings`オブジェクトには代わりに次のフィールドがあります。
+
+| 項目                    | JSON型   | \[内部型]\[] | 必須? | 説明                                                                                                                                     |
+| ----------------------- | --------- | ------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `BaseFeeDrops`          | String    | Amount        | はい | 「参照トランザクション」のトランザクションコストをXAHのdropsで表したものです。                                                                            |
+| `Flags`                 | Number    | UInt32        | はい | このオブジェクトで有効なブールフラグのビットマップです。現在、プロトコルでは`FeeSettings`オブジェクトに対するフラグは定義されていません。この値は常に`0`です。 |
+| `LedgerEntryType`       | String    | UInt16        | はい | `0x0073`の値が文字列`FeeSettings`に対応し、このオブジェクトがレジャーのfee settingsを含むことを示します。                          |
+| `ReserveBaseDrops`      | String    | Amount        | はい | XAH Ledgerにおけるアカウントの基本リザーブで、XAHのdropsで表されます。                                                                             |
+| `ReserveIncrementDrops` | String    | Amount        | はい | オブジェクトを所有するための増分所有者リザーブで、XAHのdropsで表されます。                                                                              |
+| `XahauActivationLgrSeq` | Number    | UInt32        | いいえ | Xahau genesisが有効化されたレジャーインデックスです。                                                                                             |
+| `AccountCount`          | Number    | UInt32        | いいえ | Xahauネットワーク上で作成されたアカウント数です。                                                                                            |
+| `NetworkID`             | Number    | UInt32        | いいえ |                                                                                                                                                 |
+
+### FeeSettings ID形式
+
+`FeeSettings`オブジェクトのIDは、`FeeSettings`スペースキー (`0x0065`)だけのハッシュです。つまり、レジャー内の`FeeSettings`オブジェクトのIDは常に次のとおりです。
+
+```
+4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651
+```
