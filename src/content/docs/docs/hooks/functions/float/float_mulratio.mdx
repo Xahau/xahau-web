@@ -108,7 +108,7 @@ Certain multiplications may overflow, which return with an `INVALID_FLOAT` error
 <TabItem label="C">
 | Type     | Description                                                                                                                                                                                                                                                                                                                                                    |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The XFL (xls17) enclosing number<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number<br /><br /><code>OVERFLOW</code><br />- the result of the multiplication was too large to store in an XFL.<br /><br /><code>DIVISION_BY_ZERO</code><br />- the supplied denominator was zero.</p> |
+| int64_t | <p>The XFL (xls17) enclosing number<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- one of the supplied parameters was not a valid XFL enclosing number<br /><br /><code>XFL_OVERFLOW</code><br />- the result of the multiplication was too large to store in an XFL.<br /><br /><code>DIVISION_BY_ZERO</code><br />- the supplied denominator was zero.</p> |
 
 
 </TabItem>
