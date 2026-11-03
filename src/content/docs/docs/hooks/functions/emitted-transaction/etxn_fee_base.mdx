@@ -97,3 +97,6 @@ const fee_to_pay = etxn_fee_base(tx_blob)
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* With the [fix20260929 amendment](/docs/features/amendments/#fix20260929), the minimum fee is computed against the ledger view being applied, not the node-local open ledger. This removes a source of nondeterminism between nodes.

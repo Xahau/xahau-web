@@ -125,3 +125,6 @@ Xahau sets internally a maximum hook data size. At time of writing and for publi
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* With the [fix20261005 amendment](/docs/features/amendments/#fix20261005), every account whose Hook State is written, including a foreign account written through `state_foreign_set`, is touched (see the [Touch amendment](/docs/features/amendments/#touch)) and appears in the transaction metadata. Each account is touched at most once per transaction.
