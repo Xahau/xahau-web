@@ -127,3 +127,7 @@ Ensure you check the return value. A state lookup can fail of a range of reasons
 </TabItem>
 </Tabs>
 
+
+### Amendment Changes
+
+* With the [fix20261005 amendment](/docs/features/amendments/#fix20261005), reading the state of an account the Hook has not yet accessed in this execution no longer counts as a state modification or consumes reserve or namespace capacity. Previously the first read was charged as if it were a write, which could make a pure read fail for lack of reserve.

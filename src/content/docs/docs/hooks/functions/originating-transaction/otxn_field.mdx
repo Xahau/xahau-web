@@ -101,3 +101,7 @@ At time of writing for Hooks Public Testnet, `STI_ACCOUNT` fields like `sfAccoun
 </TabItem>
 </Tabs>
 
+
+### Amendment Changes
+
+* With the [fix20261005 amendment](/docs/features/amendments/#fix20261005), in a callback for a failed emitted transaction (`ttEMIT_FAILURE`), `otxn_field` reads the field from the original emitted transaction. Previously the emitted transaction had already been removed from the ledger when the callback ran.
