@@ -352,6 +352,18 @@
           "url": "https://x.com/XahauTipbot",
           "logo": null,
           "desc": "Send tips directly on X"
+        },
+        {
+          "name": "Xahau Box",
+          "url": "https://xahaubox.com",
+          "logo": null,
+          "desc": "Gift boxes of XAH and URITokens, shared by link, QR or key token"
+        },
+        {
+          "name": "LedgerDirect",
+          "url": "https://ledger-direct.com",
+          "logo": null,
+          "desc": "Non-custodial XAH payment plugins for Shopware, WooCommerce, Magento and PrestaShop"
         }
       ]
     }
