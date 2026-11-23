@@ -90,7 +90,7 @@ No parameters
 
 <Tabs>
 <TabItem label="C">
-<table><thead><tr><th width="187">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.</td></tr></tbody></table>
+<table><thead><tr><th width="187">Type</th><th>Description</th></tr></thead><tbody><tr><td>int64_t</td><td>The number of bytes written<br /><br />If negative, an error:<br /><code>OUT_OF_BOUNDS</code><br />- pointers/lengths specified outside of hook memory.<br /><br /><code>TOO_SMALL</code><br />- <code>write_len</code> was less than 32.</td></tr></tbody></table>
 </TabItem>
 
 <TabItem label="JavaScript">

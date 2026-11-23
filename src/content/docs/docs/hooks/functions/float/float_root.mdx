@@ -103,7 +103,7 @@ const three =
 
 | Type     | Description                                                                                                                                                                                                                                                                                 |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| int64_t | <p>The computed nth root<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- the supplied parameter was a negative number which would result in a complex root.</p> |
+| int64_t | <p>The computed nth root<br /><br />If negative, an error:<br /><code>INVALID_FLOAT</code><br />- the supplied parameter was not a valid XFL enclosing number<br /><br /><code>COMPLEX_NOT_SUPPORTED</code><br />- the supplied parameter was a negative number which would result in a complex root.<br /><br /><code>INVALID_ARGUMENT</code><br />- <code>n</code> was less than 2 (checked only for a non-zero parameter; the root of zero is zero).</p> |
 </TabItem>
 
 <TabItem label="JavaScript">
