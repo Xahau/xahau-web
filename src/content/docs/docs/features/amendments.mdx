@@ -177,6 +177,30 @@ Extends Hook state management capabilities, including the `HookStateScale` field
 
 #### Bug Fix Amendments
 
+##### fix20261005
+
+Hook-related behaviour fixes. This amendment is set to default: _yes_ voting. If validators wish to vote against this amendment they must manually change their vote to no. _(Introduced in 2026.10.13-release+4119)_
+
+* **Foreign Hook State touch:** every account whose Hook State is written (including by another account's Hook via [state_foreign_set](/docs/hooks/functions/state/state_foreign_set)) is now touched (see [Touch](#touch)) and appears in the transaction metadata. Each account is touched at most once per transaction.
+* **`slot_set`:** accepts keylets only. Passing a 32-byte transaction hash now returns `INVALID_ARGUMENT`, because the hash lookup read the node's local transaction store, which can differ between nodes.
+* **`sto_validate`:** returns `0` (invalid) for buffers under 2 bytes, as documented, instead of `TOO_SMALL`.
+* **XFL exponent range:** creating an XFL whose normalised exponent is above 80 (for example with `float_set`) now returns `EXPONENT_OVERSIZED` (-28), and below -96 returns `EXPONENT_UNDERSIZED` (-29), instead of `INVALID_FLOAT` for both. (Arithmetic such as `float_multiply` that overflows returns `OVERFLOW` (-30), and results that underflow become `0`.)
+* **Emitted transaction objects:** fixes a duplicate template slot that caused a Hook slotting the emitted transaction entry later in the same ledger to see the field as absent. The serialized bytes are unchanged.
+* **Emit failure callbacks:** in a callback for a failed emitted transaction (`ttEMIT_FAILURE`), `otxn_field` reads from the original emitted transaction, which is now captured before the pseudo-transaction removes it from the ledger. If the emitted transaction is no longer in the ledger, the callback is skipped.
+* **Hook State reads:** reading Hook State of an account that the Hook has not yet touched in this execution (for example with `state_foreign`) no longer counts as a state modification or consumes reserve or namespace capacity. Only writes are charged.
+* **Balance adjustment accounting:** the reward accumulator's last-ledger marker (`RewardLgrLast`) now advances for accounts whose balance is below 1 XAH and when the overflow guard skips accumulation, so a stale ledger span cannot later be counted towards rewards.
+
+##### fix20260929
+
+Omnibus Hook fix. It merges the previously separate `fixHookAPISType`, `fixHookExitOutOfBounds` and `fixHookNameValidation` work, plus fee fixes for `emit` and `etxn_fee_base`. This amendment is set to default: _yes_ voting. If validators wish to vote against this amendment they must manually change their vote to no. _(Introduced in 2026.10.13-release+4119)_
+
+* **`sto_subfield`, `sto_subarray`, `sto_emplace`:** inputs are validated as STObjects first. Arrays must be properly terminated and a field's encoded length must match its actual size. Malformed input returns `PARSE_ERROR` or `TOO_SMALL` instead of being partially parsed.
+* **STO Path parsing:** truncated or unterminated Path data is rejected instead of being read past.
+* **`accept` / `rollback`:** if the reason-string pointer is out of bounds, the Hook now ends as a **rollback** with exit code `OUT_OF_BOUNDS`, visible in the `HookExecution` metadata. Previously the call just returned `OUT_OF_BOUNDS`.
+* **`emit`, `etxn_fee_base`:** the minimum fee is computed against the ledger view being applied, not the node-local open ledger, removing a source of nondeterminism between nodes.
+* **`HookName` on transactions:** an empty `HookName` field is now `temMALFORMED`. The existing rules still apply (4–16 bytes, valid UTF-8).
+* **`ClaimReward`:** when checking whether an account has a Hook that handles `ClaimReward`, the Hook's `HookName` is now taken into account.
+
 ##### fixXahauV1
 
 Enforces a namespaces per account limit of 256. Various bug fixes with URIToken logic. Ensures that default (0) STAmounts are recorded in metadata. Ensures that OfferID can be used instead of OfferSequence when cancelling an offer. Fixes a bug where certain hooks cannot be deleted. Fixes a bug where the quorum required for a `ttIMPORT` is accidentally too high. Allows accounts to appear more than once in a GenesisMint transaction. Changes the Issuer of a URIToken from strong to weak TSH when a URIToken is being burned. Ensures TSHes on escrows created by emitted transactions are correctly triggered. Adds hook parameters size fee to all txns (1 drop per byte). _(Introduced in 2024.9.11-release+985)_ **Retired** in 2026.10.13-release+4119: the pre-amendment code paths have been removed.

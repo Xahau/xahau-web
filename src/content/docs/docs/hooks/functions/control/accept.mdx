@@ -99,3 +99,6 @@ accept('Success', 100)
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* With the [fix20260929 amendment](/docs/features/amendments/#fix20260929), if the reason-string pointer is out of bounds, the Hook ends as a **rollback** with exit code `OUT_OF_BOUNDS`, which is visible in the `HookExecution` metadata. Previously the call just returned `OUT_OF_BOUNDS` to the Hook.

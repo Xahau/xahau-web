@@ -78,3 +78,7 @@ rollback('Rejected!', 100)
 <table><thead><tr><th width="123">Type</th><th>Description</th></tr></thead><tbody><tr><td>number</td><td>Rollback ends the hook, therefore no value is returned to the caller. By convention all Hook APIs return <code>number</code>, but in this case nothing is returned.</td></tr></tbody></table>
 </TabItem>
 </Tabs>
+
+### Amendment Changes
+
+* With the [fix20260929 amendment](/docs/features/amendments/#fix20260929), if the reason-string pointer is out of bounds, the Hook ends as a rollback with exit code `OUT_OF_BOUNDS`, which is visible in the `HookExecution` metadata. Previously the call just returned `OUT_OF_BOUNDS` to the Hook.

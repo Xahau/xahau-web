@@ -21,6 +21,8 @@ New amendments. See [Amendments](/docs/features/amendments) for full description
 | [OnChainManifests](/docs/features/amendments/#onchainmanifests) | Feature | No | `68348F3451254D4AB206603B962241ADCFC1B22E945B59B5474F5DFBE3A5DE7C` |
 | [EscrowDestinationCancel](/docs/features/amendments/#escrowdestinationcancel) | Feature | No | `B8DE07B4A417D9AE2F6DD903B9F8ED785C8C63A7311E8B7504DD6158E7336377` |
 | [HookOnV2_1](/docs/features/amendments/#hookonv2_1) | Feature | No | `D8FF47221FD426458D7EAE70FA439F4D5E59ECAB7292FC14931FBD8C34904602` |
+| [fix20261005](/docs/features/amendments/#fix20261005) | Fix | **Yes** | `2339E37C9DCD516CABC37FE91C4BBBFBA3EA152FD45331C3C18F183129AEF65F` |
+| [fix20260929](/docs/features/amendments/#fix20260929) | Fix | **Yes** | `6902B1DEAFD9C05D0E897EBEF5A5F7C563D1F9681EA957C4C6B0874C8E009E1A` |
 
 Changes to existing amendments:
 
@@ -89,7 +91,7 @@ New functions:
 | [`TOO_LITTLE_ENTROPY`](/docs/hooks/functions/overview/return-codes) | return code -46 | RNG |
 | [`KEYLET_MANIFEST`](/docs/hooks/functions/utilities/util_keylet) | `util_keylet` keylet type 37 | OnChainManifests |
 
-The Hook SDK headers (`hook/extern.h`) are now generated directly from `hook_api.macro`, which carries named parameters for every function.
+Hook behaviour changes from the fix amendments are listed under [fix20261005](/docs/features/amendments/#fix20261005) and [fix20260929](/docs/features/amendments/#fix20260929), and noted on each affected function page. The Hook SDK headers (`hook/extern.h`) are now generated directly from `hook_api.macro`, which carries named parameters for every function.
 
 ## RPC Methods and Parameters
 
@@ -102,6 +104,12 @@ The Hook SDK headers (`hook/extern.h`) are now generated directly from `hook_api
 | [server_definitions](/docs/features/http-websocket-apis/server-definitions) | user | New `HOOK` section; `ledger_enabled` per feature |
 | `submit` | user | New `manifest` parameter (see [SetManifest](/docs/protocol-reference/transactions/transaction-types/setmanifest#submitting-a-manifest)) |
 | `ledger_entry` | user | New `random` and `app_loader` selectors |
+
+Fixes with possible client impact:
+
+* **Subscriptions:** webhook (`url`) subscription delivery no longer stalls after HTTP errors from the receiving endpoint.
+* **JSON-RPC:** idle HTTP keep-alive connections are no longer dropped prematurely.
+* **Base58:** decoding now handles high-bit characters correctly (they are read as unsigned).
 
 ## Configuration
 
@@ -120,5 +128,8 @@ The example configuration's comments now document the real defaults of `[transac
 
 * **Amendment-blocked servers stop** instead of running degraded, and write a `README_AMENDMENT_BLOCKED` receipt to the config directory. See [Updating xahaud](/docs/infrastructure/updating-xahaud#amendment-blocked-servers-stop).
 * **UNLReport reliability:** UNLReport generation is no longer blocked by the Negative UNL local reliability gate. See [Enabling Validation](/docs/infrastructure/enabling-validation#unlreport-reliability).
-* Boost is updated to 1.91.
+* Boost is updated to 1.91, and Beast/asio timeout bugs are fixed.
+* Fixed a `ReportFeeChange` data race, queuing when there were no subscribers, and a LoadManager loop.
 * Build fixes for clang-16 and for ARM (embedded tests hanging).
+* Fixed a crash on the next transaction of an account after a SetHook update removed a Hook's `HookName`.
+* Peer protocol messages are now parsed strictly within their declared frame size, so coalesced frames are no longer rejected or merged.

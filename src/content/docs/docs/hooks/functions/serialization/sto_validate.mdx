@@ -115,3 +115,6 @@ if (result <= 0)
 </TabItem>
 </Tabs>
 
+### Amendment Changes
+
+* With the [fix20261005 amendment](/docs/features/amendments/#fix20261005), `sto_validate` returns `0` (invalid) for buffers under 2 bytes, as documented. Previously it returned `TOO_SMALL`.
