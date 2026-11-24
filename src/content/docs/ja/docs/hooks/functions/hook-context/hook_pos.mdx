@@ -1,0 +1,59 @@
+---
+title: hook_pos
+description: 現在実行中のHookがHookチェーン内で占める位置を返す
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+* 現在実行中のHookがHookチェーン内で占める位置を返す。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t hook_pos(void);
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+hook_pos()
+```
+</TabItem>
+</Tabs>
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t pos = 
+  	hook_pos();
+```
+</TabItem>
+<TabItem label="JavaScript">
+```javascript
+const pos = hook_pos()
+```
+</TabItem>
+</Tabs>
+
+### パラメーター
+
+このAPIには引数はありません
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型      | 説明                                                                                |
+| ------- | ----------------------------------------------------------------------------------- |
+| int64_t | 現在実行中のHookがチェーン内で占める位置。最初の位置は `0`。                    |
+</TabItem>
+<TabItem label="JavaScript">
+| 型     | 説明                                                                              |
+| ------ | --------------------------------------------------------------------------------- |
+| number | 現在のHookチェーン内の位置、または取得に失敗した場合はエラーコードを返す。     |
+</TabItem>
+</Tabs>

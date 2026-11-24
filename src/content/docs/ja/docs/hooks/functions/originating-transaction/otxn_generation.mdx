@@ -1,0 +1,77 @@
+---
+title: otxn_generation
+description: 発信トランザクションの世代を取得する
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 発信トランザクションの世代を返す。世代フィールドが存在しない場合は`1`を返す。
+</TabItem>
+
+<TabItem label="JavaScript">
+* 発信トランザクションの世代番号を取得する。
+* 世代番号を数値として返す。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t otxn_generation (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function otxn_generation(): number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t generation = 
+  otxn_generation();
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const generation = otxn_generation()
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+なし
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型   | 説明                                |
+| ------ | ------------------------------------------ |
+| number | 世代番号を数値として返す。 |
+</TabItem>
+
+<TabItem label="JavaScript">
+| 型     | 説明                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------ |
+| int64_t | 発信トランザクションの世代。発信トランザクションに世代が存在しない場合は`1`を返す。 |
+</TabItem>
+</Tabs>

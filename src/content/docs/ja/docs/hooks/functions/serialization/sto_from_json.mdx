@@ -1,0 +1,72 @@
+---
+title: sto_from_json
+description: JSONをSTOオブジェクト（バイナリエンコードされたレジャーデータ）としてフォーマットします。
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/serialized-objects">シリアライズ済みオブジェクト</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="JavaScript">
+* JSONオブジェクトを受け取り、バイナリエンコードされたレジャーデータ形式に変換します。
+* バイナリエンコードされたレジャーデータ形式のSTOオブジェクトを返します。変換に失敗した場合はエラーコードを返します。
+</TabItem>
+</Tabs>
+
+
+
+### 定義
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+function sto_from_json(
+    jsonobj: Record<string, any> | Transaction
+  ): ErrorCode | ByteArray
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="JavaScript">
+```javascript
+const stoBlob = sto_from_json(stoJson)
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+| 名前    | 型                                  | 説明                                            |
+| ------- | ----------------------------------- | ----------------------------------------------- |
+| jsonobj | Record\<string, any> \| Transaction | STOオブジェクトに変換するJSONオブジェクト。     |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="JavaScript">
+
+
+| 型                     | 説明                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| ErrorCode \| ByteArray | バイナリエンコードされたレジャーデータ形式のSTOオブジェクト。変換に失敗した場合はエラーコード。 |
+</TabItem>
+</Tabs>

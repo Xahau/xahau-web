@@ -1,0 +1,58 @@
+---
+title: AccountDelete
+description: >-
+  AccountDeleteトランザクションは、可能であればアカウントとそのアカウントが所有するすべてのオブジェクトをXahauから削除し、アカウントに残っているXAHを指定した宛先アカウントに送信します。
+sidebar:
+  badge: 
+    text: Disabled
+    variant: danger
+---
+import { Aside } from '@astrojs/starlight/components';
+
+\[[ソース](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/DeleteAccount.cpp)]
+
+_DeletableAccounts amendmentにより追�_
+
+<Aside type="danger" title="未有効">
+_DeletableAccounts_ amendmentは現在有効ではありません。
+</Aside>
+
+### 例
+
+```json
+{
+    "TransactionType": "AccountDelete",
+    "Account": "rWYkbWkCeg8dP6rXALnjgZSjjLyih5NXm",
+    "Destination": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+    "DestinationTag": 13,
+    "Fee": "2000000",
+    "Sequence": 2470665,
+    "Flags": 2147483648
+}
+```
+
+| フィールド            | JSON型              | \[Internal Type]\[] | 説明                                                                                                                                                             |
+| ---------------- | ---------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Destination`    | String - \[Address]\[] | AccountID           | 送信元アカウントの削除後に残ったXAHを受け取るアカウントのアドレス。レジャー内で資金供給済みのアカウントである必要があり、送信元アカウントであってはなりません。 |
+| `DestinationTag` | Number                 | UInt32              | _(Optional)_削除されるアカウントの残余XAHの受取人を示すホスト型受取人などの任意のdestination tag、またはその他の情報。                                          |
+
+### 特別なトランザクションコスト
+
+レジャースパムに対する追加の抑止策として、AccountDeleteトランザクションには通常より大幅に高いトランザクションコストが必要です。標準の最小値0.00001 XAHの代わりに、AccountDeleteは少なくともowner reserve相当、現在は2 XRPを破棄しなければなりません。これにより、アカウントを削除してもreserve要件を完全には回収できないため、新しいアカウントの過剰作成が抑制されます。
+
+トランザクションがアカウント削除に失敗した場合でも、検証済みレジャーに含まれた時点でトランザクションコストは必ず適用されます。（エラーケースを参照。）アカウントを削除できない場合に高いトランザクションコストを支払う可能性を大きく下げるには、`fail_hard`を有効にしてトランザクションを送信します。
+
+### エラーケース
+
+すべてのトランザクションで発生しうるエラーに加えて、AccountDeleteトランザクションでは次のトランザクション結果コードが返されることがあります。
+
+| エラーコード           | 説明                                                                                                                                                                                                                                                                                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `temDISABLED`        | DeletableAccounts amendmentが有効でない場合に発生します。                                                                                                                                                                                                                                                         |
+| `temDST_IS_SRC`      | `Destination`がトランザクションの送信者（`Account`フィールド）と一致する場合に発生します。                                                                                                                                                                                                                      |
+| `tecDST_TAG_NEEDED`  | `Destination`アカウントでdestination tagが必須なのに、`DestinationTag`フィールドが指定されていない場合に発生します。                                                                                                                                                                                          |
+| `tecNO_DST`          | `Destination`アカウントがレジャー内で資金供給済みのアカウントでない場合に発生します。                                                                                                                                                                                                                              |
+| `tecNO_PERMISSION`   | `Destination`アカウントでdeposit authorizationが必要なのに、送信者が事前承認されていない場合に発生します。                                                                                                                                                                                                      |
+| `tecTOO_SOON`        | 送信者の`Sequence`番号が大きすぎる場合に発生します。トランザクションの`Sequence`番号に256を加えた値は、現在の \[Ledger Index]\[]より小さくなければなりません。これにより、このアカウントが削除後に復活した場合でも、古いトランザクションの再実行を防ぎます。                                           |
+| `tecHAS_OBLIGATIONS` | 削除対象のアカウントが、レジャー内で削除できないオブジェクトに接続されている場合に発生します。（これには、escrowや、たとえばNFTのミント済みオブジェクトなど、他のアカウントが作成したオブジェクトが含まれます。[別のアカウントが所有していても](https://github.com/Xahau/xahaud/blob/dev/src/ripple/app/tx/impl/DeleteAccount.cpp#L197)含まれます。） |
+| `tefTOO_BIG`         | 送信アカウントがレジャー内の1000個を超えるオブジェクトにリンクされている場合に発生します。これらのオブジェクトの一部を先に個別に削除すれば、再試行で成功する可能性があります。                                                                                                                                 |

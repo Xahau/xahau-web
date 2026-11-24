@@ -1,0 +1,69 @@
+---
+title: etxn_burden
+description: 仮想的に発行されるトランザクションのburdenを取得します
+---
+import { Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+### 概念
+
+<LinkButton href="/ja/docs/hooks/concepts/emitted-transactions">発行トランザクション</LinkButton>
+
+### 動作
+
+* 発行されるトランザクションが持つburdenを返します。
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t etxn_burden (
+    void
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function etxn_burden(): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t burden = etxn_burden();
+```
+
+
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const burden = etxn_burden()
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+パラメーターはありません
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+<table><thead><tr><th width="165">型</th><th>説明</th></tr></thead><tbody><tr><td>int64_t</td><td>発行トランザクションが <code>emit()</code> に正常に渡されるために必要なburden</td></tr></tbody></table>
+</TabItem>
+
+<TabItem label="JavaScript">
+<table><thead><tr><th width="165">型</th><th>説明</th></tr></thead><tbody><tr><td>number</td><td>エラーがある場合はErrorCodeを返し、成功すると現在のburden値を返します。</td></tr></tbody></table>
+</TabItem>
+</Tabs>

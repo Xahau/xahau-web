@@ -1,0 +1,116 @@
+---
+title: float_int
+description: XFL浮動小数点数を整数に変換します（floor）
+---
+import { Tabs, TabItem, LinkButton, Aside } from '@astrojs/starlight/components';
+
+### コンセプト
+
+<LinkButton href="/ja/docs/hooks/concepts/floating-point-numbers-xfl">浮動小数点数 (XFL)</LinkButton>
+
+### 動作
+
+<Tabs>
+<TabItem label="C">
+* 指定された小数桁数だけXFLを左シフト（10倍）します
+* 結果のXFLを整数に変換し、余りを破棄します
+* 整数を返します
+</TabItem>
+
+<TabItem label="JavaScript">
+* 指定された小数桁数で浮動小数点数表現を整数に変換します。
+* エラーコード、または結果の整数を数値として返します。
+</TabItem>
+</Tabs>
+
+### 定義
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t float_int (
+    int64_t float1,
+    uint32_t decimal_places,
+    uint32_t absolute
+);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+function float_int(
+    f1: bigint,
+    decimal_places: number,
+    abs: number
+  ): ErrorCode | number
+```
+</TabItem>
+</Tabs>
+
+
+
+### 例
+
+<Tabs>
+<TabItem label="C">
+```c
+int64_t drops =
+    float_int(xahbalance, 6, 0);
+```
+</TabItem>
+
+<TabItem label="JavaScript">
+```javascript
+const drops =
+    float_int(xahbalance, 6, 0);
+```
+</TabItem>
+</Tabs>
+
+
+
+### パラメーター
+
+<Tabs>
+<TabItem label="C">
+| 名前            | 型        | 説明                                                                                                     |
+| --------------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| float1          | int64_t  | 加算の第1オペランドを表すXFL浮動小数点格納数                                                            |
+| decimal_places | uint32_t | 浮動小数点数のfloorを計算する前に、小数点を右にシフトする桁数。                                         |
+| absolute        | uint32_t | `1`の場合、値の絶対値を取ってから返します。                                                             |
+
+<Aside type="tip">
+負の戻り値はエラーコード用に予約されています。そのため、負のXFLに対してこの関数を実行する必要がある場合は、`absolute = 1`を使用してください
+</Aside>
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 名前            | 型     | 説明                                          |
+| --------------- | ------ | --------------------------------------------- |
+| f1              | bigint | 変換する浮動小数点数                          |
+| decimal_places | number | 考慮する小数桁数。                            |
+| abs             | number | 絶対値を取るかどうかを示します。              |
+</TabItem>
+</Tabs>
+
+
+
+### 戻り値
+
+<Tabs>
+<TabItem label="C">
+| 型       | 説明                                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| int64_t | <p>計算された正の整数<br /><br />負の場合はエラー:<br /><code>INVALID_FLOAT</code><br />-指定されたパラメーターの1つが有効なXFL格納数ではありません<br /><br /><code>INVALID_ARGUMENT</code><br />- 15桁を超える小数桁数を指定しようとしました。<br /><br /><code>CANT_RETURN_NEGATIVE</code><br />-負の整数を返そうとしましたが、これは許可されていません。<code>absolute = 1</code>を使用してください</p> |
+</TabItem>
+
+<TabItem label="JavaScript">
+
+
+| 型                  | 説明                                                        |
+| ------------------- | ----------------------------------------------------------- |
+| number or ErrorCode | エラーコード、または結果の整数を数値として返します。        |
+</TabItem>
+</Tabs>

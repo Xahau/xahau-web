@@ -1,0 +1,365 @@
+---
+title: Linuxのビルド手順
+---
+import { Aside } from '@astrojs/starlight/components';
+
+
+この手順は、Debian系 (Ubuntu 22.04および24.04など)とRed Hat Enterprise Linux系 (9または10)のディストリビューションで動作するように設計されています。多くの手順は共通ですが、オペレーティングシステムごとの差異は随所に記載しています。各OSでのビルド検証にも努めていますが、xahaudのビルドと実行について最もテストされ、最もサポートされている環境はUbuntuです。
+
+追加の手順については、Xahau/xahaud GitHubリポジトリの [BUILD.md](https://github.com/Xahau/xahaud/blob/dev/BUILD.md)を参照してください。
+
+<Aside type="caution">
+xahaudをビルドする環境を作成すると、システムに恒久的な損傷を与える可能性があります。このページの [ビルド環境](#build-environments-for-beginners)セクションには、ビルド環境を基盤OSから分離するための手法があります。システム変更は自己責任で行ってください。
+</Aside>
+
+## 依存関係のインストール
+
+Debian/Ubuntuユーザーは、次のコマンドで必要な依存関係をインストールできます。
+```
+sudo apt install -y git curl wget python3-pip python3-venv python3-dev ca-certificates gcc g++ build-essential cmake ninja-build libc6-dev libssl-dev libsqlite3-dev
+```
+
+同様に、RHEL 9またはRHEL 10ユーザーは次のコマンドで依存関係をインストールできます。
+```
+sudo dnf install epel-release && sudo dnf update -y
+sudo dnf config-manager --set-enabled crb -y
+sudo dnf groupinstall "Development Tools" -y
+sudo dnf install curl wget git ca-certificates cmake glibc-headers glibc-devel ninja-build perl-interpreter perl perl-FindBin sqlite-devel libstdc++ libstdc++-devel libstdc++-static gcc-c++ -y
+```
+
+## Xahau/xahaud GitHubリポジトリをクローンする
+ビルド前に、xahaudリポジトリのローカルコピーを取得します。
+
+`git clone https://github.com/Xahau/xahaud.git`
+
+このリポジトリの他のforkからビルドすることも可能です。その場合は、上記URLを必要に応じて変更してください。
+
+### リポジトリのブランチを選ぶ
+xahaud開発で使われる主要ブランチは`dev`です。別のブランチからビルドしたい場合は、次のようにします。
+
+`git checkout [branch name]`
+
+### ビルドディレクトリを準備する
+ビルドプロセスで生成されるファイルを保存するために、xahaudリポジトリ内にディレクトリを作成します。
+
+`mkdir [/path/to/xahaud_github_repo]/.build`
+
+## Conan2のインストールと設定
+1. ビルドディレクトリにいることを確認します: `cd [/path/to/xahaud_github_repo]/.build`
+
+2. `env`ディレクトリにPython3の仮想環境(venv)を作成します: `python3 -m venv env`
+
+3. 仮想環境を有効にします: `source ./env/bin/activate`
+
+4. 最新のソフトウェアバージョンを利用できるようにpipを更新します: `pip install --upgrade pip`
+
+5. Conan2をインストールします: `pip install conan`
+
+6. 新しいConan2プロファイルを作成します (まだ作成していない場合): `conan profile detect`
+
+7. "xahaud" GitHubリポジトリに含まれるSnappy、SOCI、WasmEdgeの依存関係用Conanレシピをインストールします。
+```
+conan export external/snappy --version 1.1.10 --user xahaud --channel stable
+conan export external/soci --version 4.0.3 --user xahaud --channel stable
+conan export external/wasmedge --version 0.11.2 --user xahaud --channel stable
+```
+8. `/home/[username]/.conan2/profiles/default`にあるConan2プロファイルを確認します。必要であれば次を追加します。
+```
+[settings]
+compiler.cppstd=20
+compiler.libcxx=libstdc++11
+```
+9. Conan2プロファイルの末尾に次の行を追加する必要がある場合があります。
+```
+[conf]
+tools.build:cxxflags=['-Wno-restrict']
+```
+
+## xahaudをビルドする
+1. `.build`ディレクトリ内でPython3の仮想環境を有効にした状態で、`build_type`を"Release"または"Debug"に設定し、以下のコマンドを実行します。各`build_type`ごとにファイルを生成するため、コマンドを2回実行することもできます。
+```
+conan install .. --output-folder . --build missing --settings build_type=["Release" or "Debug"] -c tools.build:verbosity=verbose -c tools.compilation:verbosity=verbose
+```
+
+2. 必要に応じて、Conan2に追加オプションを渡すこともできます。
+```
+conan install .. --output-folder . --build missing --settings build_type=["Release" or "Debug"] -s compiler=gcc -s compiler.version=12 -s compiler.libcxx=libstdc++11 -s compiler.cppstd=20 -c tools.build:verbosity=verbose -c tools.compilation:verbosity=verbose -g VirtualBuildEnv -g VirtualRunEnv
+```
+
+3. Conan2が完了したらcmakeを実行します。複数の構成 (ReleaseとDebugの両方)でビルドする場合は、`DCMAKE_BUILD_TYPE`を指定しないでください。
+
+```
+cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+	-DCMAKE_BUILD_TYPE=["Release" or "Debug"] \
+	-DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake \
+	..
+```
+
+4. 最後にcmakeでビルドを完了します: `cmake --build . [複数のbuild_typeを生成した場合は '--config Release' または '--config Debug' を追�]`
+
+出力ファイルは`rippled`という名前で`.build`ディレクトリにあります。複数のbuild_type (ReleaseとDebugの両方)を指定した場合、最終成果物は`.build/["Release" or "Debug"]/rippled`にあります。これを`xahaud`に名前変更し、最終配置先へ移動してください (ただし`xahaud` GitHubリポジトリを上書きしないよう注意してください)。最終ファイルに実行権限を付け、必要に応じて設定ファイルとvalidatorsファイルをダウンロードします。
+
+## ビルドをテストする
+ユニットテストを実行するには: `./xahaud --unittest`
+
+
+## 初心者向けビルド環境 <a id="build-environments-for-beginners" />
+
+さまざまなビルド環境 (Python3 venv、Conan2プロファイルなど)を維持するのは複雑な作業であり、基盤OSが特定バージョンのソフトウェアに依存または期待している場合はなおさらです。そのため、ビルド作業に不慣れな人は、コンテナや、再起動時に状態をリセットする仮想マシン上で使うbashスクリプトを利用するとよいでしょう。
+
+以下の小節では、忘却型OSとコンテナベースのビルド環境の基本を説明します。
+
+### コンテナ
+[Docker](https://docker.com)や他のコンテナ環境 (Podman、Kubernetesなど)を使ってビルドプロセスを囲い込むことで、基盤システムをクリーンに保つことができます。コンテナには、複数の環境でビルドを簡単にテストできるという追加の利点もあります。たとえば、RHELやDebianなどのディストリビューションベースのコンテナでは、さまざまなコンパイラバージョンを使うように構成できます。さらに、Multistage Dockerfileのような機能を使うと、1つのDockerfileでxahaudをビルドしてからデプロイ (実行)できます。Dockerの`buildx`プラグインを使えば、複数プラットフォーム向けに同時にビルドすることもできます。
+
+#### Dockerをインストールする
+```
+# Debian/Ubuntu:
+sudo apt update && sudo apt install docker.io docker-compose-v2 docker-buildx
+
+# RHEL (requires adding the docker.com repository):
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+インストール後にローカルユーザーアカウントをDockerに追加すると、Dockerを操作するのにroot/sudo権限が不要になります: `sudo usermod -aG docker $USER`。変更を有効にするには、一度ログアウトして再度ログインしてください。
+
+#### Dockerfileの例
+簡単さと一貫性のために、Dockerfileスクリプト (buildx、multistage、docker-compose v2など)を使ってビルド環境を構成し、ビルドプロセスを完了できます。
+
+たとえば、Ubuntu 24.04のDockerコンテナ内でxahaudをコンパイルできます。Dockerfileでコンテナを記述し、依存関係をダウンロードしてインストールし、最終成果物をビルドします。以下のコードは、このページ前半で説明した一般的なLinuxビルド手順と同じ手順に従っていますが、それを隔離されたコンテナ内で実行しているだけです。追加の変数を加えたり、以下のコードを調整してビルドプロセスをカスタマイズすることもできます。
+
+```
+# ~~~~ Arguments used to customize the container and build ~~~~
+ARG BASE_IMAGE=ubuntu:24.04                     # Operating system for the build container
+ARG REPO_URL=https://github.com/Xahau/xahaud    # URL for the repository with the code to be compiled
+ARG REPO_BRANCH=dev                             # Repository branch that will be used for the build 
+ARG RELEASE_TYPE=Release                        # Set to "Release" or "Debug"
+ARG BASE_DIR=/build                             # Directory to build xahaud in
+
+# ~~~~ Initiate a container ~~~~
+FROM --platform=$BUILDPLATFORM ${BASE_IMAGE} AS builder
+
+ARG REPO_URL
+ARG REPO_BRANCH
+ARG RELEASE_TYPE
+ARG BASE_DIR
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    CONAN2_DIR=/root/.conan2
+
+# ~~~~ Install build dependencies ~~~~
+RUN set -ex; \
+    if [ -f /etc/os-release ]; then . /etc/os-release; fi; \
+    case " $ID $ID_LIKE " in \
+        *debian*|*ubuntu*) \
+            apt-get update && apt-get install -y -qq \
+                git curl wget python3-pip python3-venv python3-dev ca-certificates \
+                gcc g++ build-essential cmake ninja-build \
+                libc6-dev libssl-dev libsqlite3-dev \
+            && rm -rf /var/lib/apt/lists/* \
+            ;; \
+        *rhel*|*fedora*|*centos*|*rocky*|*alma*) \
+            dnf install -y config-manager epel-release && dnf update -y && \
+            dnf config-manager --set-enabled crb -y && \
+            dnf groupinstall -y "Development Tools" && \
+            dnf install -y curl wget git ca-certificates cmake glibc-headers glibc-devel \
+                ninja-build perl-interpreter perl perl-FindBin sqlite-devel \
+                libstdc++ libstdc++-devel libstdc++-static gcc-c++ python3-pip python3-devel \
+            && dnf clean all \
+            ;; \
+        *) echo "Unsupported OS"; exit 1 ;; \
+    esac
+
+# ~~~~ Clone the xahaud GitHub repository and create a '.build' directory ~~~~
+WORKDIR ${BASE_DIR}
+RUN git clone ${REPO_URL} xahaud && \
+    cd xahaud && \
+    git checkout ${REPO_BRANCH} && \
+    mkdir -p .build
+
+# ~~~~ Create a Python3 virtual environment and install Conan2 ~~~~
+RUN python3 -m venv ${BASE_DIR}/env && \
+    . ${BASE_DIR}/env/bin/activate && \
+    pip install --upgrade pip && \
+    pip install conan
+
+# ~~~~ Configure Conan2 profile (the following assumes the user wishes to use cppstd version 20) ~~~~
+RUN . ${BASE_DIR}/env/bin/activate && \
+    conan profile detect && \
+    CONAN2_PROFILE="${CONAN2_DIR}/profiles/default" && \
+    if grep -q '^compiler\.cppstd=' "$CONAN2_PROFILE"; then \
+        sed -i 's/^compiler\.cppstd=.*/compiler.cppstd=20/' "$CONAN2_PROFILE"; \
+    else \
+        echo 'compiler.cppstd=20' >> "$CONAN2_PROFILE"; \
+    fi && \
+    if ! grep -Fqx "[conf]" "$CONAN2_PROFILE"; then \
+        printf "[conf]\ntools.build:cxxflags=['-Wno-restrict']\n" >> "$CONAN2_PROFILE"; \
+    fi
+
+# ~~~~ Export Conan recipies for snappy, soci, and wasmedge ~~~~
+RUN . ${BASE_DIR}/env/bin/activate && \
+    cd ${BASE_DIR}/xahaud && \
+    conan export external/snappy --version 1.1.10 --user xahaud --channel stable && \
+    conan export external/soci --version 4.0.3 --user xahaud --channel stable && \
+    conan export external/wasmedge --version 0.11.2 --user xahaud --channel stable
+
+# ~~~~ Build xahaud ~~~~
+RUN . ${BASE_DIR}/env/bin/activate && \
+    cd ${BASE_DIR}/xahaud/.build && \
+    conan install .. --output-folder . \
+        --settings build_type=${RELEASE_TYPE} \
+        --options *:shared=False \
+        --build missing \
+        -c tools.build:verbosity=verbose \
+        -c tools.compilation:verbosity=verbose \
+        -g VirtualBuildEnv \
+        -g VirtualRunEnv && \
+    cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+        -DCMAKE_BUILD_TYPE=${RELEASE_TYPE} \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++" \
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=build/generators/conan_toolchain.cmake \
+        .. && \
+    cmake --build . --parallel $(nproc)
+
+# ~~~~ Copy the config files to the BASE_DIR ~~~~
+RUN cp ${BASE_DIR}/xahaud/cfg/xahaud-example.cfg ${BASE_DIR}/xahaud.cfg && \
+    cp ${BASE_DIR}/xahaud/cfg/validators-example.txt ${BASE_DIR}/validators-xahau.txt && \
+    cp ${BASE_DIR}/xahaud/.build/rippled ${BASE_DIR}/rippled
+
+
+
+# ~~~~ Copy the xahaud.cfg and validators-xahau.txt files into the host OS ~~~~
+FROM scratch AS export
+ARG BASE_DIR
+
+COPY --from=builder ${BASE_DIR}/rippled /xahaud
+COPY --from=builder ${BASE_DIR}/xahaud.cfg /xahaud.cfg
+COPY --from=builder ${BASE_DIR}/validators-xahau.txt /validators-xahau.txt
+
+
+
+# ~~~~ Create a Docker image with xahaud and configuration files ~~~~
+FROM ${BASE_IMAGE} AS runtime
+ARG BASE_DIR
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ~~~~ Install runtime dependencies ~~~~
+RUN set -ex; \
+    if [ -f /etc/os-release ]; then . /etc/os-release; fi; \
+    case " $ID $ID_LIKE " in \
+        *debian*|*ubuntu*) \
+            apt-get update && apt-get install -y -qq \
+                libssl3 libsqlite3-0 ca-certificates \
+            && update-ca-certificates \
+            && rm -rf /var/lib/apt/lists/* \
+            ;; \
+        *rhel*|*fedora*|*centos*|*rocky*|*alma*) \
+            dnf install -y openssl-libs sqlite-libs ca-certificates \
+            && dnf clean all && update-ca-trust \
+            ;; \
+    esac
+
+# ~~~~ Copy built binary and configs from builder ~~~~
+RUN mkdir -p /opt/xahaud/etc /opt/xahaud/bin /opt/xahaud/db /var/log/xahaud
+COPY --from=builder ${BASE_DIR}/rippled /opt/xahaud/bin/xahaud
+COPY --from=builder ${BASE_DIR}/xahaud.cfg /opt/xahaud/etc/xahaud.cfg
+COPY --from=builder ${BASE_DIR}/validators-xahau.txt /opt/xahaud/etc/validators-xahau.txt
+
+# ~~~~ Create dicrectories and copy required shared libraries from builder ~~~~
+RUN --mount=type=bind,from=builder,source=/root/.conan2,target=/tmp/conan \
+    find /tmp/conan -name "*.so*" -type f -exec cp {} /usr/local/lib/ \; && \
+    ldconfig
+
+# ~~~~ Set permissions ~~~~
+RUN chmod -R 755 /opt/xahaud /var/log/xahaud
+
+WORKDIR /opt/xahaud
+
+# ~~~~ Expose ports ~~~~
+EXPOSE 5009 6009 50051 21337 21338
+
+# ~~~~ Run xahaud ~~~~
+ENTRYPOINT ["/opt/xahaud/bin/xahaud"]
+CMD ["--conf", "/opt/xahaud/etc/xahaud.cfg"]
+```
+
+上記の "multistage" Dockerfileは、次のコマンドでxahaudをビルドするために使えます。
+
+`docker buildx build -t xahaud-builder --target builder --load .`
+
+これにより、Dockerfileから"xahaud-builder"という名前のDockerイメージが作成されます。`--target builder`フラグはスクリプトをビルド工程で止め、`--load`フラグは生成されたイメージをDockerに取り込みます。
+
+ビルド済みイメージは、設定ファイルとともにホストOSにエクスポートすることもできます。
+
+`docker buildx build --target export --output type=local,dest=$HOME .`
+
+multistageビルドファイルを実行して、xahaudと必要な設定ファイルを含む新しいDockerイメージを作成するには:
+
+`docker buildx build --target runtime --load -t xahaud:latest .`
+
+生成されたイメージは`docker images`で確認でき、次のように実行できます。
+
+`docker run --rm -d --name xahaud -p 5009:5009 -p 6009:6009 -p 21337:21337 -v /home/$USER/xahaud/opt:/opt/xahaud -v /home/$USER/xahaud/log:/var/log/xahaud xahaud:latest`
+
+上記コマンドでは、`-d`フラグでデタッチモードの有無を切り替え、`-p xxxx:xxxx`フラグでポートマッピングを定義し、`--name xahaud`フラグでコンテナ名を変更し、`-v /path/on/host:/path/in/container`フラグで永続データの保存先を基盤OS上で変更できます。デタッチモードで実行している場合、ログは`docker logs -f xahaud`で確認できます。
+
+### 忘却型オペレーティングシステム
+
+Linuxシステムを、実行中にインストールまたは変更されたソフトウェアを完全に忘れるよう構成すると、ビルドエラーからの復旧が容易になります。通常、忘却型OSは非常に大きなメモリを持つ仮想マシンとして実行されます。変更内容がディスクではなくメモリに書き込まれるためです。すべてのソフトウェア依存関係/要件をメモリベースのオーバーレイファイルシステムに入れる場合、xahaudのビルドには20 GBを超えるメモリが必要になることがあります。通常は、システムを忘却型にする前に (`apt`や`dnf`を使って)ほとんどのソフトウェア依存関係をインストールしておくことで、必要メモリを減らせます。
+
+#### Debianベースの仮想マシンで忘却型OSを構成する
+```
+# Install the 'overlayroot' software package
+apt update && apt install overlayroot
+
+# Update the configuration file (/etc/overlayroot.conf) to enable an in-memory overlay file system.
+sudo sed -i 's/^overlayroot=.*/overlayroot="tmpfs:swap=1,recurse=0"/' /etc/overlayroot.conf
+
+# Rebuild initramfs
+update-initramfs -u
+
+# Reboot into the overlay
+reboot
+
+# After rebooting, it is possible to remount the overlay filesystem with more memory, as only 50% of available memory is dedicated to the overlayfs by default.
+# When resizing memory, ensure some memory remains available for system use. The following will remount with the overlayfs set to use 30G of memory, adjust as needed.
+# It is also possible to use a systemd file to enable persistent changes to the overlayfs size.
+sudo mount -o remount,size=30G /media/root-rw
+```
+
+#### RHELベースの仮想マシンで忘却型OSを構成する
+```
+# Ensure dracut is installed
+dnf install dracut -y
+
+# Configure dracut to support the overlay
+printf 'add_drivers+=" overlay "\n' > /etc/dracut.conf.d/overlay.conf # Use this line for RHEL 9
+printf 'add_drivers+=" overlay "\nadd_dracutmodules+=" overlayfs "\n' > /etc/dracut.conf.d/overlay.conf # Use this line for RHEL 10
+
+# Rebuild
+dracut -f
+
+# Update the boot image to use a systemd volatile overlay
+grubby --update-kernel=ALL --args="systemd.volatile=overlay"
+```
+
+#### xahaudのビルド
+十分なメモリを持つ忘却型仮想マシンを作成できたら、このページの [上記手順](#_top)に従ってxahaudをビルドできます。
+
+#### 忘却を無効にする
+ソフトウェア更新のインストールや、永続化すべき他の作業を行うには、忘却を無効にする必要があります。これは一時的にも恒久的にもできます。一部のソフトウェア更新では再起動後に追加設定が必要になるため、ソフトウェア更新後に再起動する際は、忘却をもう一度無効にすることを推奨します。
+
+Debianベースのシステムで忘却を無効にするには:
+1. `e`を押してUbuntuの起動エントリを編集します。
+2. "linux..."で始まる行で`overlayroot=`オプションを編集または追加し、`overlayroot=disabled`とします。これにより、永続ストレージを使うシステムへ1回だけ起動できます。
+3. 忘却を恒久的に無効にするには、`sudo sed -i '/^overlayroot=/c\overlayroot="disabled"' /etc/overlayroot.conf`を実行して`/etc/overlayroot.conf`内の`overlayroot="disabled"`を変更します。その後、`sudo update-initramfs -u`でinitramfsを更新します。
+
+RHEL 9/10ベースのシステムで忘却を無効にするには:
+1. 起動メニューで`e`を押してオプションを編集します。
+2. `systemd.volatile=overlay`オプションを削除します。
+3. `F10`を押して起動します。
+4. 忘却を恒久的に無効にするには、`grubby --update-kernel=ALL --remove-args="systemd.volatile=overlay"`を実行します。

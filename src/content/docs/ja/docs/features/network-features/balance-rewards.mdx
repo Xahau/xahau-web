@@ -1,0 +1,20 @@
+---
+title: Balance Rewards
+---
+import { LinkCard } from '@astrojs/starlight/components';
+
+Balance Rewards(残高報酬)機能はXahauネットワークの独自の機能であり、ユーザーが自分のアカウント残高に基づいて報酬を蓄積し、請求できるようにします。この機能は、ネイティブコード (BalanceRewards Amendment)とHookコード (Genesis AccountのReward Hook)の組み合わせによって実装されています。
+
+### トランザクションタイプ
+
+#### ClaimReward
+
+`ClaimReward`トランザクションでは、アカウントが蓄積した報酬を請求できます。報酬はアカウント所有者または指定された発行者が請求できます。また、`Flags`フィールドを1に設定することで、アカウントは報酬をオプトアウトできます。
+
+<LinkCard title="ClaimReward" href="/ja/docs/protocol-reference/transactions/transaction-types/claimreward" />
+
+#### GenesisMint
+
+`GenesisMint`トランザクションタイプもBalance Rewards機能に関連しています。これは、ユーザーが残高報酬を請求するたびにReward Hookを通じて実行される発行トランザクションです。
+
+<LinkCard title="GenesisMint - (Emitted Txn)" href="/ja/docs/protocol-reference/transactions/transaction-types/genesismint-emitted-txn" />
